@@ -1,0 +1,964 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>化学平衡 — 反応進行度と平衡定数</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500;600&family=IBM+Plex+Sans+JP:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+:root{
+  --ink:#16232B; --muted:#5E6E76; --paper:#EDF1EF; --surface:#FFFFFF;
+  --rule:#D6DDDA; --rule-soft:#E8EDEB;
+  --s0:#B87A16; --s0t:#8A5A0C;
+  --s1:#158A6D; --s1t:#0D6A53;
+  --s2:#2457A6; --s2t:#1B4380;
+  --s3:#6E3AA7; --s3t:#572D85;
+  --s4:#A82A6A; --s4t:#831F52;
+  --s5:#3B6E1E; --s5t:#2A5215;
+  --sans:"IBM Plex Sans JP","Hiragino Sans","Yu Gothic UI",system-ui,sans-serif;
+  --mono:"IBM Plex Mono",ui-monospace,SFMono-Regular,Menlo,monospace;
+}
+*{box-sizing:border-box}
+html,body{margin:0;padding:0}
+body{background:var(--paper);color:var(--ink);font-family:var(--sans);
+  font-size:14px;line-height:1.75;-webkit-text-size-adjust:100%}
+.wrap{max-width:810px;margin:0 auto;padding:18px 14px 60px}
+.card{background:var(--surface);border:1px solid var(--rule);border-radius:3px;
+  padding:16px 16px 18px;margin-bottom:14px}
+h1{font-size:22px;font-weight:600;letter-spacing:.01em;margin:6px 0 8px;line-height:1.45}
+h2{font-size:15px;font-weight:600;letter-spacing:.01em;margin:0 0 10px}
+h3{font-size:12px;font-weight:600;letter-spacing:.06em;font-family:var(--mono);
+  color:var(--muted);margin:16px 0 8px}
+p{margin:0 0 10px}
+.lead{color:var(--muted);font-size:13px;margin:0}
+.eyebrow{display:flex;align-items:center;gap:10px;font-family:var(--mono);font-size:11.5px;
+  letter-spacing:.14em;color:var(--muted);margin:0 0 4px}
+.eyebrow::after{content:"";flex:1;height:1px;background:var(--rule)}
+.mono{font-family:var(--mono);font-variant-numeric:tabular-nums}
+.num{font-family:var(--mono);font-variant-numeric:tabular-nums;text-align:right;white-space:nowrap}
+.muted{color:var(--muted)}
+.small{font-size:12px}
+.xs{font-size:11.5px}
+.btnrow{display:flex;flex-wrap:wrap;gap:6px;margin:0 0 12px}
+.btnrow.tight{margin-bottom:8px}
+button{font-family:var(--sans);font-size:12.5px;line-height:1.5;color:var(--ink);
+  background:var(--surface);border:1px solid var(--rule);border-radius:2px;
+  padding:5px 10px;cursor:pointer}
+button:hover{border-color:var(--muted)}
+button.on{background:var(--ink);color:#fff;border-color:var(--ink)}
+button.mini{font-family:var(--mono);font-size:11px;padding:1px 6px}
+.plot{width:100%;height:auto;display:block;touch-action:none;user-select:none;-webkit-user-select:none}
+.plotbox{border:1px solid var(--rule-soft);border-radius:2px;padding:2px 0 0;margin:0 0 10px}
+.sliderrow{display:flex;align-items:center;gap:10px;margin:0 0 8px}
+.sliderrow label{font-family:var(--mono);font-size:11.5px;letter-spacing:.06em;color:var(--muted);
+  white-space:nowrap;width:74px}
+.sliderrow .val{font-family:var(--mono);font-size:11.5px;font-variant-numeric:tabular-nums;
+  white-space:nowrap;width:82px;text-align:right}
+input[type=range]{flex:1;accent-color:var(--ink);height:22px}
+table{width:100%;border-collapse:collapse;font-size:12.5px}
+th,td{border-bottom:1px solid var(--rule-soft);padding:6px 6px;text-align:left;vertical-align:top}
+th{font-family:var(--mono);font-size:11px;letter-spacing:.1em;color:var(--muted);font-weight:500;white-space:nowrap}
+tr.hit td{background:var(--rule-soft)}
+td.k{width:1%;white-space:nowrap}
+.swatch{display:inline-block;width:9px;height:9px;border-radius:1px;margin-right:6px;vertical-align:-1px}
+.total td{border-top:1px solid var(--rule);border-bottom:none;font-weight:600}
+.note{border-left:2px solid var(--rule);padding:2px 0 2px 10px;color:var(--muted);font-size:12px;margin:10px 0 0}
+.kv{display:flex;flex-wrap:wrap;gap:0 22px;margin:10px 0 0}
+.kv div{font-size:12.5px}
+.kv b{font-family:var(--mono);font-weight:600;font-variant-numeric:tabular-nums}
+footer{color:var(--muted);font-size:11.5px;font-family:var(--mono);letter-spacing:.06em;text-align:center;padding:6px 0 0}
+@media (max-width:430px){
+  .wrap{padding:12px 10px 44px}
+  .card{padding:13px 12px 15px}
+  h1{font-size:19px}
+  table{font-size:12px}
+  th,td{padding:5px 4px}
+  .sliderrow label{width:58px}
+  .sliderrow .val{width:70px}
+}
+</style>
+</head>
+<body>
+<main class="wrap">
+
+<section class="card">
+  <div class="eyebrow">化学平衡 / 第 3 部</div>
+  <h1>反応進行度と平衡定数</h1>
+  <p class="lead">
+    第1部で両端の高さを、第2部でその間の峠を決めた。ここでは反応がどこまで進んで止まるかを求める。
+    止まる位置を決めるのは両端の高さだけで、峠は関係ない。触媒を入れても届く先が変わらないことを、同じ図の上で確かめる。
+  </p>
+</section>
+
+<!-- ============ 1. 反応進行度と平衡組成 ============ -->
+<section class="card">
+  <div class="eyebrow">Extent of reaction — 方程式を解く</div>
+  <h2>Q(ξ) が K に追いつく場所で止まる</h2>
+  <div class="btnrow" id="sysBtns"></div>
+  <p class="mono small" id="sysEq" style="margin:0 0 10px"></p>
+
+  <div class="sliderrow"><label>T / K</label>
+    <input type="range" id="TSlider" min="250" max="1200" step="5"><span class="val" id="TVal"></span></div>
+  <div class="sliderrow"><label>P / bar</label>
+    <input type="range" id="PSlider" min="0" max="300" step="1"><span class="val" id="PVal"></span></div>
+  <div class="sliderrow"><label>Ar / mol</label>
+    <input type="range" id="ArSlider" min="0" max="100" step="1"><span class="val" id="ArVal"></span></div>
+
+  <div class="plotbox"><svg class="plot" id="svgXi"></svg></div>
+  <div class="sliderrow"><label>ξ をなぞる</label>
+    <input type="range" id="xiSlider" min="0" max="1000" step="1"><span class="val" id="xiVal"></span></div>
+  <div class="kv" id="xiKv"></div>
+
+  <h3>平衡組成（ξ を数値的に解いた結果）</h3>
+  <table id="compTable"></table>
+  <div class="note" id="sysNote"></div>
+</section>
+
+<!-- ============ 2. ルシャトリエ ============ -->
+<section class="card">
+  <div class="eyebrow">Le Chatelier — 何が K を変えるのか</div>
+  <h2>K の列だけを見る</h2>
+  <p class="small muted" style="margin:0 0 10px">
+    いまの状態を基準に、それぞれの操作をしたらどうなるかを解き直した表。
+    ξ と組成は動くのに K の列が動かない行と、K そのものが動く行を見分ける。
+  </p>
+  <table id="lcTable"></table>
+  <div class="note" id="lcNote"></div>
+</section>
+
+<!-- ============ 3. 触媒 ============ -->
+<section class="card">
+  <div class="eyebrow">Catalyst — 第2部の峠をそのまま持ってくる</div>
+  <h2>届く先は同じ、届くまでが違う</h2>
+  <div class="btnrow" id="catBtns"></div>
+  <div class="plotbox"><svg class="plot" id="svgCat"></svg></div>
+  <table id="catTable"></table>
+  <div class="note" id="catNote"></div>
+</section>
+
+<!-- ============ 4. 収率マップ ============ -->
+<section class="card">
+  <div class="eyebrow">Yield map — 温度 × 圧力</div>
+  <h2 id="mapTitle">収率マップ</h2>
+  <div class="plotbox"><svg class="plot" id="svgMap"></svg></div>
+  <div class="kv" id="mapKv"></div>
+  <div id="haberBox"></div>
+  <div class="note" id="mapNote"></div>
+</section>
+
+<!-- ============ 5. 注記 ============ -->
+<section class="card">
+  <div class="eyebrow">Constants — 採用値の出典</div>
+  <h2>モデルと実測が食い違うところ</h2>
+  <table id="noteTable"></table>
+  <div class="note">
+    気体はすべて理想気体として扱い、活量係数を 1 とした。ΔH と ΔS は 298 K の標準値を温度によらないものとして使っている。
+    標準圧は p° = 1 bar。R = 8.314 J mol⁻¹ K⁻¹、濃度換算には R = 0.08314 L bar mol⁻¹ K⁻¹ を使う。
+  </div>
+</section>
+
+<footer>CHEMICAL EQUILIBRIUM — PART 3 OF 3</footer>
+</main>
+
+<script>
+"use strict";
+/* ==================================================================
+   データ定義
+
+   SYSTEMS[i] = {
+     id, name, eq,
+     species:[{f:"N₂", nu:-1, n0:1}, ...]   nu は反応物が負、生成物が正
+     main:                                   収率マップで追う成分の添字
+     dH kJ/mol, dS J/(mol K),                298 K の標準値
+     ea kJ/mol, cats:[{n,ea}], A,            第2部と同じ意味
+     T0, P0                                  初期の温度と全圧
+   }
+   反応系を足すときはこの配列に1要素追加するだけでよい。
+   Ea 正 > max(0, ΔH) を満たすように置くこと（逆反応の峠が負になってしまうため）。
+================================================================== */
+const SYSTEMS = [
+  {
+    id:"nh3", name:"アンモニアの合成", eq:"N₂ + 3H₂ ⇌ 2NH₃",
+    species:[{f:"N₂",nu:-1,n0:1},{f:"H₂",nu:-3,n0:3},{f:"NH₃",nu:2,n0:0}],
+    main:2, dH:-91.8, dS:-198.1, ea:320, A:1.0e13, T0:673, P0:200,
+    cats:[{n:"四酸化三鉄系（ハーバー・ボッシュ）", ea:105}],
+    note:"発熱かつ分子数が減る反応。ルシャトリエだけを見れば低温高圧が有利だが、低温では第2部の峠が越えられず何年待っても平衡に届かない。工業的に 400〜500℃ を選ぶのは、収率と速度の折り合いをつけた結果で、収率が最大だからではない。"
+  },
+  {
+    id:"n2o4", name:"四酸化二窒素の解離", eq:"N₂O₄ ⇌ 2NO₂",
+    species:[{f:"N₂O₄",nu:-1,n0:1},{f:"NO₂",nu:2,n0:0}],
+    main:1, dH:57.2, dS:175.9, ea:61.0, A:1.0e14, T0:298, P0:1,
+    cats:[],
+    note:"無色の N₂O₄ と赤褐色の NO₂ が平衡にあるので、色の濃さで平衡の位置が目に見える。吸熱なので温めると濃くなり、加圧すると分子数の少ない N₂O₄ 側に寄って薄くなる。298 K・1 bar での解離度は 0.19 前後で、実測ともよく合う。"
+  },
+  {
+    id:"hi", name:"ヨウ化水素の生成", eq:"H₂ + I₂ ⇌ 2HI",
+    species:[{f:"H₂",nu:-1,n0:1},{f:"I₂",nu:-1,n0:1},{f:"HI",nu:2,n0:0}],
+    main:2, dH:-9.4, dS:21.8, ea:174.6, A:9.2e10, T0:700, P0:1,
+    cats:[],
+    note:"両辺の分子数が2個ずつで Δν = 0。圧力を 1000 倍にしても組成が動かない。圧力スライダーを端から端まで動かして、mol% の列が 1 桁目まで固まっているのを確かめるための系。"
+  },
+  {
+    id:"wgs", name:"水性ガスシフト反応", eq:"CO + H₂O ⇌ CO₂ + H₂",
+    species:[{f:"CO",nu:-1,n0:1},{f:"H₂O",nu:-1,n0:1},{f:"CO₂",nu:1,n0:0},{f:"H₂",nu:1,n0:0}],
+    main:3, dH:-41.2, dS:-42.0, ea:240, A:1.0e11, T0:700, P0:1,
+    cats:[{n:"鉄クロム系（高温シフト）", ea:110},{n:"銅亜鉛系（低温シフト）", ea:60}],
+    note:"これも Δν = 0 なので圧力が効かない。発熱なので低温ほど収率が上がるが、低温では速度が足りない。工業ではまず高温シフトで大半を進め、そのあと低温シフトで残りを追い込む二段構成をとる。触媒を切り替える意味が収率ではなく到達時間にあることが、この系だと一番はっきりする。"
+  },
+  {
+    id:"so3", name:"三酸化硫黄の生成（接触法）", eq:"2SO₂ + O₂ ⇌ 2SO₃",
+    species:[{f:"SO₂",nu:-2,n0:2},{f:"O₂",nu:-1,n0:1},{f:"SO₃",nu:2,n0:0}],
+    main:2, dH:-197.8, dS:-188.0, ea:250, A:1.0e12, T0:700, P0:1,
+    cats:[{n:"酸化バナジウム(V)", ea:90}],
+    note:"発熱で分子数も減るのでアンモニア合成とよく似た形をしているが、K がずっと大きいので常圧でも十分な収率が出る。加圧設備が要らないのはこのため。温度を上げすぎると収率が落ちるので、触媒が働く下限あたりの 400〜450℃ を使う。"
+  }
+];
+
+const NOTES = [
+  {q:"NH₃ 合成の収率", a:"理想気体モデル", b:"50〜300 bar で 6〜9 ポイント高め、1000 bar では逆に低め", why:"実在気体のずれ。中圧域では理想気体のほうが生成側に寄り、超高圧では逆転する。下の比較表を参照"},
+  {q:"ΔH と ΔS の温度依存", a:"298 K の値で固定", b:"実際は温度で動く", why:"熱容量差 ΔCp を無視した。700 K 付近で K が数割ずれる要因"},
+  {q:"NH₃ の ΔH", a:"−91.8 kJ", b:"−92", why:"第1部・第2部と同じ値。ΔHf(NH₃) = −45.9 を2倍した"},
+  {q:"N₂O₄ の ΔH", a:"+57.2 kJ", b:"+57.2 〜 +58.0", why:"ΔHf の差から計算。298 K・1 bar での解離度は実測 0.185〜0.20 に対しモデル 0.186"},
+  {q:"H₂ + I₂ の K (700 K)", a:"モデル 69", b:"実測 54 〜 60", why:"ΔS を温度によらないとした分のずれ。傾向（Δν = 0 なので圧力に鈍い）は変わらない"},
+  {q:"水性ガスシフトの K (700 K)", a:"モデル 7.6", b:"実測 8 〜 9", why:"同上"},
+  {q:"鉄触媒の見かけの Ea", a:"105 kJ/mol", b:"100 〜 160", why:"第2部と同じ値を使った"},
+  {q:"無触媒の Ea", a:"推定値", b:"記載なし", why:"無触媒での実測がない系が多い。峠の高さの比較用に置いた"},
+  {q:"前指数因子 A", a:"触媒の有無で共通", b:"実際は変わる", why:"到達時間の比を峠の高さだけで決めるための簡略化。K には影響しない"},
+  {q:"到達曲線の時間軸", a:"任意単位", b:"—", why:"A の値に依存するので絶対値に意味はない。触媒あり・なしの横のずれだけが実質的な量"},
+  {q:"反応次数", a:"素反応とみなした", b:"多くは多段階", why:"到達曲線を描くために、係数がそのまま次数だと仮定した。到達先（平衡組成）はこの仮定に影響されない"}
+];
+
+/* 実測（3:1 の原料混合気、平衡時の NH₃ の mol%） */
+const HABER_OBS = [
+  {T:673, P:10,   obs:3.85}, {T:673, P:50,  obs:15.11}, {T:673, P:100, obs:24.91},
+  {T:673, P:300,  obs:47.00}, {T:673, P:1000, obs:79.82},
+  {T:773, P:10,   obs:1.21}, {T:773, P:100, obs:10.61}, {T:773, P:300, obs:26.44},
+  {T:773, P:1000, obs:57.47}
+];
+
+/* ---------------- utilities ---------------- */
+const $ = id => document.getElementById(id);
+const RGAS = 8.314;              /* J mol⁻¹ K⁻¹ */
+const RLB  = 0.083145;           /* L bar mol⁻¹ K⁻¹ */
+const MINUS = "\u2212";
+const SUPM = {"-":"\u207B","0":"\u2070","1":"\u00B9","2":"\u00B2","3":"\u00B3","4":"\u2074","5":"\u2075","6":"\u2076","7":"\u2077","8":"\u2078","9":"\u2079"};
+const sup = n => String(n).split("").map(c=>SUPM[c]||c).join("");
+const esc = s => String(s).replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;");
+const neg = s => String(s).replace(/-/g, MINUS);
+const SER  = i => ["--s2","--s0","--s1","--s3","--s4","--s5"][i%6];
+const SERT = i => ["--s2t","--s0t","--s1t","--s3t","--s4t","--s5t"][i%6];
+const C = v => `var(${v})`;
+let narrow = window.innerWidth <= 430;
+
+function sci(x, d){
+  d = (d===undefined)?2:d;
+  if(!isFinite(x)) return "—";
+  if(x===0) return "0";
+  const e = Math.floor(Math.log10(Math.abs(x)));
+  if(e>=-2 && e<=4) return neg(String(+x.toPrecision(d+1)));
+  return neg((x/Math.pow(10,e)).toFixed(d)) + "\u00D710" + sup(e);
+}
+function fx(x,d){ return neg(x.toFixed(d===undefined?1:d)); }
+function niceStep(r){
+  const raw = r/5, mag = Math.pow(10, Math.floor(Math.log10(raw))), n = raw/mag;
+  return (n<1.5?1:n<3?2:n<7?5:10)*mag;
+}
+function txt(x,y,s,o){
+  o = o||{};
+  const at = [`x="${x}"`,`y="${y}"`,
+    `font-family="${o.mono?'var(--mono)':'var(--sans)'}"`,
+    `font-size="${o.size||11}"`,`fill="${o.fill||C('--muted')}"`,
+    `text-anchor="${o.anchor||'start'}"`];
+  if(o.weight) at.push(`font-weight="${o.weight}"`);
+  if(o.mono) at.push(`style="font-variant-numeric:tabular-nums"`);
+  return `<text ${at.join(" ")}>${esc(s)}</text>`;
+}
+function chip(x,y,s,anchor){
+  const w = s.length*6.6+12, h = 17;
+  const cx = anchor==="end" ? x-w : anchor==="middle" ? x-w/2 : x;
+  return `<rect x="${cx}" y="${y-h/2}" width="${w}" height="${h}" rx="2" fill="${C('--ink')}"></rect>`
+       + txt(cx+w/2, y+4, s, {mono:true,size:11,fill:"#fff",anchor:"middle",weight:600});
+}
+function arrowHead(x,y,dir,color){
+  const s = 4.5;
+  const p = dir>0 ? `${x},${y} ${x-s},${y-s*1.6} ${x+s},${y-s*1.6}`
+                  : `${x},${y} ${x-s},${y+s*1.6} ${x+s},${y+s*1.6}`;
+  return `<polygon points="${p}" fill="${color}"></polygon>`;
+}
+function setSvg(id,W,H,g){
+  const el = $(id);
+  el.setAttribute("viewBox", `0 0 ${W} ${H}`);
+  el.style.aspectRatio = W + " / " + H;
+  el.innerHTML = g;
+  return el;
+}
+function axes(x0,y0,w,h,xlo,xhi,ylo,yhi,xf,yf,sz){
+  sz = sz || (narrow?9.5:10);
+  let g = "";
+  const ys = niceStep(yhi-ylo), xs = niceStep(xhi-xlo);
+  for(let t=Math.ceil(ylo/ys)*ys; t<=yhi+1e-9; t+=ys){
+    const yy = y0+h-(t-ylo)/(yhi-ylo)*h;
+    g += `<line x1="${x0}" y1="${yy}" x2="${x0+w}" y2="${yy}" stroke="${C('--rule-soft')}"></line>`;
+    g += txt(x0-5, yy+3.5, yf(t), {mono:true,size:sz,anchor:"end"});
+  }
+  for(let t=Math.ceil(xlo/xs)*xs; t<=xhi+1e-9; t+=xs){
+    const xx = x0+(t-xlo)/(xhi-xlo)*w;
+    g += `<line x1="${xx}" y1="${y0}" x2="${xx}" y2="${y0+h}" stroke="${C('--rule-soft')}"></line>`;
+    g += txt(xx, y0+h+13, xf(t), {mono:true,size:sz,anchor:"middle"});
+  }
+  g += `<line x1="${x0}" y1="${y0}" x2="${x0}" y2="${y0+h}" stroke="${C('--rule')}"></line>`;
+  g += `<line x1="${x0}" y1="${y0+h}" x2="${x0+w}" y2="${y0+h}" stroke="${C('--rule')}"></line>`;
+  return g;
+}
+
+/* ==================================================================
+   平衡計算の中核
+================================================================== */
+function dNu(sys){ return sys.species.reduce((a,s)=>a+s.nu, 0); }
+function Keq(sys, T){ return Math.exp(-(sys.dH*1000 - T*sys.dS)/(RGAS*T)); }
+
+/* ξ の許される範囲 */
+function xiRange(sys, n0){
+  let lo = -Infinity, hi = Infinity;
+  sys.species.forEach((s,i)=>{
+    if(s.nu < 0) hi = Math.min(hi, n0[i]/(-s.nu));
+    else if(s.nu > 0) lo = Math.max(lo, -n0[i]/s.nu);
+  });
+  if(!isFinite(lo)) lo = 0;
+  if(!isFinite(hi)) hi = 0;
+  return {lo, hi};
+}
+/* ξ における組成 */
+function compose(sys, xi, n0, inert, P){
+  const ns = sys.species.map((s,i)=> n0[i] + s.nu*xi);
+  let ntot = inert;
+  ns.forEach(n=> ntot += n);
+  const xs = ns.map(n=> n/ntot);
+  const ps = xs.map(x=> x*P);
+  return {ns, ntot, xs, ps, inert};
+}
+/* 反応商 Q（分圧を p° = 1 bar で割った無次元量） */
+function lnQ(sys, xi, n0, inert, P){
+  const c = compose(sys, xi, n0, inert, P);
+  let v = 0;
+  sys.species.forEach((s,i)=>{ v += s.nu * Math.log(Math.max(c.ps[i], 1e-300)); });
+  return v;
+}
+/* Q(ξ) = K を二分法で解く。Q は ξ について単調増加なので必ず1点で交わる */
+function solveXi(sys, T, P, n0, inert){
+  const K = Keq(sys, T);
+  const {lo, hi} = xiRange(sys, n0);
+  if(!(hi - lo > 1e-14)) return {xi: lo, K, iter: 0};
+  const eps = (hi - lo) * 1e-13;
+  let a = lo + eps, b = hi - eps;
+  const lnK = Math.log(K);
+  const g = xi => lnQ(sys, xi, n0, inert, P) - lnK;
+  if(g(a) > 0) return {xi: a, K, iter: 0};
+  if(g(b) < 0) return {xi: b, K, iter: 0};
+  let it = 0;
+  for(; it < 200; it++){
+    const m = (a + b) / 2;
+    if(g(m) < 0) a = m; else b = m;
+    if(b - a < Math.abs(b) * 1e-15 + 1e-300) break;
+  }
+  return {xi: (a + b) / 2, K, iter: it};
+}
+
+/* ---------------- state ---------------- */
+const st = { sys:0, T:673, P:200, inert:0, n0:null, xiIdx:null, cat:-1 };
+function curSys(){ return SYSTEMS[st.sys]; }
+function resetSys(i){
+  st.sys = i;
+  const s = SYSTEMS[i];
+  st.T = s.T0; st.P = s.P0; st.inert = 0;
+  st.n0 = s.species.map(x=>x.n0);
+  st.xiIdx = null; st.cat = -1;
+}
+const pToSlider = P => Math.round(Math.log10(P)/3*300);
+const sliderToP = v => Math.pow(10, v/300*3);
+
+/* ==================================================================
+   1. ξ のグラフ
+================================================================== */
+function drawXi(){
+  const s = curSys();
+  const {lo, hi} = xiRange(s, st.n0);
+  const sol = solveXi(s, st.T, st.P, st.n0, st.inert);
+  const W = narrow ? 380 : 770;
+  const hTop = narrow ? 150 : 168, hBot = narrow ? 120 : 138;
+  const L = narrow ? 44 : 56, Rp = narrow ? 12 : 18, T0 = 16, GAP = 30, B = 30;
+  const H = T0 + hTop + GAP + hBot + B;
+  const w = W - L - Rp;
+  const X = xi => L + (xi - lo)/(hi - lo)*w;
+
+  /* --- 上段: mol% --- */
+  const N = 160;
+  const series = s.species.map(()=>[]);
+  const inertS = [];
+  for(let i=0;i<=N;i++){
+    const xi = lo + (hi-lo)*i/N;
+    const c = compose(s, xi, st.n0, st.inert, st.P);
+    c.xs.forEach((x,j)=> series[j].push(x*100));
+    inertS.push(st.inert/c.ntot*100);
+  }
+  let g = axes(L, T0, w, hTop, lo, hi, 0, 100,
+      v=>neg(String(+v.toPrecision(2))), v=>String(Math.round(v)));
+  const yT = v => T0 + hTop - v/100*hTop;
+  series.forEach((ser,j)=>{
+    let p = "";
+    ser.forEach((v,i)=>{ p += (i?" L ":"M ") + X(lo+(hi-lo)*i/N).toFixed(2) + "," + yT(v).toFixed(2); });
+    g += `<path d="${p}" fill="none" stroke="${C(SER(j))}" stroke-width="1.8"></path>`;
+  });
+  if(st.inert > 0){
+    let p = "";
+    inertS.forEach((v,i)=>{ p += (i?" L ":"M ") + X(lo+(hi-lo)*i/N).toFixed(2) + "," + yT(v).toFixed(2); });
+    g += `<path d="${p}" fill="none" stroke="${C('--rule')}" stroke-width="1.5" stroke-dasharray="4 3"></path>`;
+  }
+  g += txt(L, T0-4, "mol%", {mono:true,size:narrow?9.5:10.5});
+
+  /* --- 下段: log Q --- */
+  const oy = T0 + hTop + GAP;
+  const lnK = Math.log(sol.K);
+  const qs = [];
+  for(let i=0;i<=N;i++){
+    const xi = lo + (hi-lo)*i/N;
+    qs.push(lnQ(s, xi, st.n0, st.inert, st.P)/Math.LN10);
+  }
+  const lk = lnK/Math.LN10;
+  const inner = qs.slice(3, N-2);
+  let qlo = Math.min.apply(null, inner), qhi = Math.max.apply(null, inner);
+  qlo = Math.min(qlo, lk-1); qhi = Math.max(qhi, lk+1);
+  const pad = (qhi-qlo)*0.10; qlo -= pad; qhi += pad;
+  const yB = v => oy + hBot - (Math.max(Math.min(v,qhi),qlo)-qlo)/(qhi-qlo)*hBot;
+  g += axes(L, oy, w, hBot, lo, hi, qlo, qhi,
+      v=>neg(String(+v.toPrecision(2))), v=>neg(String(Math.round(v))));
+  let qp = "";
+  qs.forEach((v,i)=>{ qp += (i?" L ":"M ") + X(lo+(hi-lo)*i/N).toFixed(2) + "," + yB(v).toFixed(2); });
+  g += `<path d="${qp}" fill="none" stroke="${C('--ink')}" stroke-width="1.8"></path>`;
+  g += `<line x1="${L}" y1="${yB(lk)}" x2="${L+w}" y2="${yB(lk)}" stroke="${C('--s4')}" stroke-width="1.4" stroke-dasharray="4 3"></line>`;
+  g += txt(L+4, yB(lk)-5, "log₁₀K = " + fx(lk,2), {mono:true,size:narrow?9.5:10.5,fill:C('--s4t'),weight:600});
+  g += txt(L, oy-4, "log₁₀Q", {mono:true,size:narrow?9.5:10.5});
+  g += txt(W-Rp, H-4, "反応進行度 ξ / mol", {mono:true,size:narrow?9.5:10.5,anchor:"end"});
+
+  /* --- 平衡位置 --- */
+  g += `<line x1="${X(sol.xi)}" y1="${T0}" x2="${X(sol.xi)}" y2="${oy+hBot}" stroke="${C('--s4')}" stroke-width="1.4"></line>`;
+  g += `<circle cx="${X(sol.xi)}" cy="${yB(lk)}" r="4" fill="${C('--s4')}"></circle>`;
+
+  /* --- なぞっている位置 --- */
+  const xiC = (st.xiIdx===null) ? sol.xi : lo + (hi-lo)*st.xiIdx/1000;
+  if(st.xiIdx !== null){
+    g += `<line x1="${X(xiC)}" y1="${T0}" x2="${X(xiC)}" y2="${oy+hBot}" stroke="${C('--rule')}" stroke-dasharray="3 3"></line>`;
+    const q = lnQ(s, xiC, st.n0, st.inert, st.P)/Math.LN10;
+    g += `<circle cx="${X(xiC)}" cy="${yB(q)}" r="3.4" fill="${C('--ink')}"></circle>`;
+  }
+  const dir = xiC < sol.xi ? "→ 右へ進む" : xiC > sol.xi ? "← 左へ戻る" : "平衡";
+  g += chip(X(xiC) + (X(xiC) > L+w*0.55 ? -8 : 8), T0+12,
+            "ξ " + fx(xiC,3) + "  " + dir, X(xiC) > L+w*0.55 ? "end" : "start");
+
+  /* --- 凡例 --- */
+  let lx = L;
+  s.species.forEach((sp,j)=>{
+    g += `<rect x="${lx}" y="${oy-GAP+9}" width="9" height="9" rx="1" fill="${C(SER(j))}"></rect>`;
+    g += txt(lx+13, oy-GAP+17, sp.f, {size:narrow?9.5:10.5,fill:C(SERT(j))});
+    lx += 22 + sp.f.length*(narrow?8:9);
+  });
+  if(st.inert>0){
+    g += `<rect x="${lx}" y="${oy-GAP+9}" width="9" height="9" rx="1" fill="${C('--rule')}"></rect>`;
+    g += txt(lx+13, oy-GAP+17, "Ar", {size:narrow?9.5:10.5});
+  }
+  setSvg("svgXi", W, H, g);
+  return {sol, lo, hi, xiC};
+}
+
+function renderMain(){
+  const s = curSys();
+  $("sysBtns").innerHTML = SYSTEMS.map((x,i)=>
+    `<button class="${i===st.sys?'on':''}" data-i="${i}">${esc(x.name)}</button>`).join("");
+  $("sysBtns").querySelectorAll("button").forEach(b=>
+    b.addEventListener("click", ()=>{ resetSys(+b.dataset.i); syncControls(); renderAll(); }));
+
+  const dn = dNu(s);
+  $("sysEq").textContent = s.eq + "     ΔH = " + (s.dH>0?"+":MINUS) + Math.abs(s.dH).toFixed(1)
+    + " kJ     ΔS = " + neg(s.dS.toFixed(1)) + " J K⁻¹     Δν = " + (dn>0?"+":dn<0?MINUS:"") + Math.abs(dn);
+
+  $("TVal").textContent = st.T + " K";
+  $("PVal").textContent = (st.P<10 ? st.P.toFixed(2) : st.P.toFixed(0)) + " bar";
+  $("ArVal").textContent = (st.inert/10).toFixed(1) + " mol";
+
+  const r = drawXi();
+  const sol = r.sol;
+  const ce = compose(s, sol.xi, st.n0, st.inert, st.P);
+  const cc = compose(s, r.xiC, st.n0, st.inert, st.P);
+  const Qc = Math.exp(lnQ(s, r.xiC, st.n0, st.inert, st.P));
+
+  $("xiSlider").value = (st.xiIdx===null)
+    ? Math.round((sol.xi - r.lo)/(r.hi - r.lo)*1000) : st.xiIdx;
+  $("xiVal").textContent = fx(r.xiC,3) + " mol";
+
+  $("xiKv").innerHTML =
+      `<div>ξ（平衡） <b>${fx(sol.xi,4)}</b> mol</div>`
+    + `<div>K <b>${sci(sol.K,3)}</b></div>`
+    + `<div>いまなぞっている点の Q <b>${sci(Qc,3)}</b></div>`
+    + `<div>Q/K <b>${sci(Qc/sol.K,3)}</b> <span class="xs muted">${Qc<sol.K?"1 未満なので右へ":Qc>sol.K?"1 超なので左へ":"つり合い"}</span></div>`
+    + `<div class="xs muted">二分法 ${sol.iter} 回で収束</div>`;
+
+  /* 平衡組成の表 */
+  const rows = s.species.map((sp,i)=>{
+    const nu = sp.nu;
+    return `<tr><td class="k"><span class="swatch" style="background:${C(SER(i))}"></span>${esc(sp.f)}</td>`
+      + `<td class="num xs muted">${nu>0?"+":MINUS}${Math.abs(nu)}</td>`
+      + `<td class="num">${fx(st.n0[i],3)}</td>`
+      + `<td class="num"><button class="mini" data-add="${i}">+</button> <button class="mini" data-sub="${i}">−</button></td>`
+      + `<td class="num">${fx(ce.ns[i],4)}</td>`
+      + `<td class="num">${fx(ce.xs[i]*100,2)}</td>`
+      + `<td class="num">${sci(ce.ps[i],3)}</td></tr>`;
+  }).join("");
+  const Kc = sol.K / Math.pow(RLB*st.T, dn);
+  $("compTable").innerHTML =
+    `<thead><tr><th>成分</th><th class="num">ν</th><th class="num">初期 n</th><th></th>`
+    + `<th class="num">平衡 n</th><th class="num">mol%</th><th class="num">p / bar</th></tr></thead><tbody>`
+    + rows
+    + (st.inert>0 ? `<tr><td class="k"><span class="swatch" style="background:${C('--rule')}"></span>Ar</td>`
+        + `<td class="num xs muted">0</td><td class="num">${fx(st.inert,3)}</td><td></td>`
+        + `<td class="num">${fx(st.inert,4)}</td><td class="num">${fx(st.inert/ce.ntot*100,2)}</td>`
+        + `<td class="num">${sci(st.inert/ce.ntot*st.P,3)}</td></tr>` : "")
+    + `<tr class="total"><td colspan="4">Kp = ${sci(sol.K,4)}　Kc = ${sci(Kc,4)} (mol/L)${sup(dn)}</td>`
+    + `<td class="num">${fx(ce.ntot,4)}</td><td class="num">100.00</td><td class="num">${fx(st.P,2)}</td></tr></tbody>`;
+
+  $("compTable").querySelectorAll("button[data-add]").forEach(b=>
+    b.addEventListener("click", ()=>{ st.n0[+b.dataset.add] += 1; st.xiIdx=null; renderAll(); }));
+  $("compTable").querySelectorAll("button[data-sub]").forEach(b=>
+    b.addEventListener("click", ()=>{
+      const i = +b.dataset.sub;
+      st.n0[i] = Math.max(0, st.n0[i]-1);
+      st.xiIdx = null; renderAll();
+    }));
+
+  $("sysNote").textContent = s.note;
+}
+
+/* ==================================================================
+   2. ルシャトリエの表
+================================================================== */
+function renderLC(){
+  const s = curSys();
+  const dn = dNu(s);
+  const base = solveXi(s, st.T, st.P, st.n0, st.inert);
+  const mainI = s.main;
+  const pct = (T,P,n0,inert) => {
+    const r = solveXi(s, T, P, n0, inert);
+    const c = compose(s, r.xi, n0, inert, P);
+    return {xi:r.xi, K:r.K, pc:c.xs[mainI]*100};
+  };
+  const b = pct(st.T, st.P, st.n0, st.inert);
+  const firstR = s.species.findIndex(x=>x.nu<0);
+  const firstP = s.species.findIndex(x=>x.nu>0);
+  const addAt = (i,d) => st.n0.map((v,j)=> j===i ? v+d : v);
+
+  const ops = [
+    {lab:"基準（いまの状態）", d:"—", r:b, kind:"base"},
+    {lab:"温度を上げる", d:"+100 K", r:pct(Math.min(1200,st.T+100), st.P, st.n0, st.inert), kind:"T"},
+    {lab:"温度を下げる", d:MINUS+"100 K", r:pct(Math.max(250,st.T-100), st.P, st.n0, st.inert), kind:"T"},
+    {lab:"全圧を上げる", d:"×10", r:pct(st.T, Math.min(1000,st.P*10), st.n0, st.inert), kind:"P"},
+    {lab:"全圧を下げる", d:"÷10", r:pct(st.T, Math.max(1,st.P/10), st.n0, st.inert), kind:"P"},
+    {lab:esc(s.species[firstR].f)+" を加える", d:"+1 mol", r:pct(st.T, st.P, addAt(firstR,1), st.inert), kind:"n"},
+    {lab:esc(s.species[firstP].f)+" を加える", d:"+1 mol", r:pct(st.T, st.P, addAt(firstP,1), st.inert), kind:"n"},
+    {lab:"不活性ガスを加える（全圧一定）", d:"Ar +2 mol", r:pct(st.T, st.P, st.n0, st.inert+2), kind:"n"},
+    {lab:"触媒を入れる", d:"Ea を下げる", r:b, kind:"cat"}
+  ];
+  const verdict = o => {
+    if(o.kind==="base") return "";
+    const kMoved = Math.abs(o.r.K/b.K - 1) > 1e-9;
+    const xMoved = Math.abs(o.r.xi - b.xi) > 1e-9;
+    const cMoved = Math.abs(o.r.pc - b.pc) > 1e-6;
+    if(kMoved) return "K が動く";
+    if(!xMoved && !cMoved) return "どちらも動かない";
+    if(!cMoved) return "K も mol% も不変、ξ だけ動く";
+    return "K は不変、組成が動く";
+  };
+  const col = o => {
+    const v = verdict(o);
+    return v==="K が動く" ? C('--s4t') : v==="どちらも動かない" ? C('--s1t') : C('--s2t');
+  };
+  $("lcTable").innerHTML =
+    `<thead><tr><th>操作</th><th>内容</th><th class="num">ξ</th>`
+    + `<th class="num">${esc(s.species[mainI].f)} mol%</th><th class="num">K</th><th></th></tr></thead><tbody>`
+    + ops.map(o=>`<tr class="${o.kind==='base'?'hit':''}"><td>${o.lab}</td><td class="xs muted mono">${o.d}</td>`
+        + `<td class="num">${fx(o.r.xi,4)}</td>`
+        + `<td class="num">${fx(o.r.pc,2)}</td>`
+        + `<td class="num">${sci(o.r.K,4)}</td>`
+        + `<td class="xs" style="color:${col(o)}">${verdict(o)}</td></tr>`).join("")
+    + `<tr class="total"><td colspan="6">K = e<sup>−ΔH/RT + ΔS/R</sup>　T しか入っていない</td></tr></tbody>`;
+
+  const dnTxt = dn===0
+    ? "この反応は Δν = 0 なので、Q に P の項が現れない。全圧を 10 倍にしても ÷10 にしても組成が動かないのはそのため。"
+    : dn<0
+      ? "Δν が負なので、加圧すると Q が下がり、Q を K に戻すために反応が右へ進む。分子数の減る側へ寄る。"
+      : "Δν が正なので、加圧すると Q が上がり、Q を K に戻すために反応が左へ戻る。分子数の減る側へ寄る。";
+  const heatTxt = s.dH<0
+    ? "発熱反応なので、温度を上げると K が小さくなって収率が落ちる。"
+    : "吸熱反応なので、温度を上げると K が大きくなって収率が上がる。";
+  let extra = "";
+  const rowP = ops[6].r, rowR = ops[5].r;
+  if(Math.abs(rowP.xi - b.xi) > 1e-9 && Math.abs(rowP.pc - b.pc) < 1e-6){
+    extra += " 生成物を加えた行は ξ が動いているのに mol% が動いていない。加えたのが生成物そのもので元素の比が変わらなかったので、温度と全圧が同じなら平衡のモル分率は同じ場所に戻る。"
+      + "ルシャトリエの「左へ戻る」は物質量の話で、組成比まで変わるとは限らない。";
+  }
+  if(rowR.xi > b.xi + 1e-9 && rowR.pc < b.pc - 1e-6){
+    extra += " 反応物を加えた行では ξ が増えているのに mol% は下がっている。反応は確かに右へ進んだが、加えた分の薄まりのほうが勝っている。"
+      + "「右へ動く」と「収率が上がる」は別のこと。";
+  }
+  $("lcNote").textContent = dnTxt + " " + heatTxt
+    + " 不活性ガスは K にも Q の指数にも現れないが、全圧一定で加えると n_tot が増えて各成分のモル分率が下がる。"
+    + "下がり方が Δν 個分ずれるので、分子数の増える側へ動く。体積一定で加えた場合は分圧が変わらないので何も起きない。"
+    + extra;
+}
+
+/* ==================================================================
+   3. 触媒と到達時間
+================================================================== */
+function clampCat(){ const s = curSys(); if(st.cat >= s.cats.length) st.cat = -1; return st.cat; }
+function curEa(){ const s = curSys(); return clampCat()<0 ? s.ea : s.cats[st.cat].ea; }
+
+function timeCurve(sys, ea){
+  const sol = solveXi(sys, st.T, st.P, st.n0, st.inert);
+  const xiEq = sol.xi;
+  if(Math.abs(xiEq) < 1e-12) return null;
+  const kf = sys.A * Math.exp(-ea*1000/(RGAS*st.T));
+  const kr = kf / sol.K;
+  const N = 300, smax = 8;
+  const out = [];
+  let t = 0, prev = 0;
+  for(let i=0;i<=N;i++){
+    const sVal = smax*i/N;
+    const xi = xiEq*(1 - Math.exp(-sVal));
+    const c = compose(sys, xi, st.n0, st.inert, st.P);
+    let fwd = kf, rev = kr;
+    sys.species.forEach((sp,j)=>{
+      const p = Math.max(c.ps[j], 1e-300);
+      if(sp.nu < 0) fwd *= Math.pow(p, -sp.nu);
+      else rev *= Math.pow(p, sp.nu);
+    });
+    const rt = fwd - rev;
+    const integ = (Math.abs(rt) < 1e-300) ? 0 : xiEq*Math.exp(-sVal)/rt;
+    if(i>0) t += (integ + prev)/2*(smax/N);
+    prev = integ;
+    out.push({t, xi});
+  }
+  return out;
+}
+
+function drawCat(){
+  const s = curSys();
+  const eaN = s.ea;
+  const eaC = clampCat()>=0 ? s.cats[st.cat].ea : null;
+  const W = narrow ? 380 : 770;
+  const hE = narrow ? 190 : 220, hT = narrow ? 165 : 190;
+  const GAP = narrow ? 34 : 32;
+  const H = hE + GAP + hT;
+  const L = narrow ? 48 : 62, Rp = narrow ? 14 : 20;
+
+  /* --- エネルギー図 --- */
+  const T0 = 20, Be = 8;
+  const top = eaN, bot = Math.min(0, s.dH);
+  const hi = top + (top-bot)*0.18, lo = bot - (top-bot)*0.18;
+  const Y = v => T0 + (hi-v)/(hi-lo)*(hE-T0-Be);
+  let g = "";
+  const stp = niceStep(hi-lo);
+  for(let t=Math.ceil(lo/stp)*stp; t<=hi; t+=stp){
+    g += `<line x1="${L-6}" y1="${Y(t)}" x2="${W-Rp}" y2="${Y(t)}" stroke="${C('--rule-soft')}"></line>`;
+    g += txt(L-10, Y(t)+3.5, neg(String(Math.round(t))), {mono:true,size:narrow?9.5:10,anchor:"end"});
+  }
+  g += `<line x1="${L-6}" y1="${T0-6}" x2="${L-6}" y2="${Y(lo)}" stroke="${C('--rule')}"></line>`;
+  g += txt(2, T0-8, "H / kJ mol⁻¹", {mono:true,size:narrow?9.5:10.5});
+  const xa = L, xb = W-Rp;
+  const x0 = L+(xb-xa)*0.20, xp = L+(xb-xa)*0.50, x1 = L+(xb-xa)*0.80;
+  const curve = (ea,color,wd) =>
+    `<path d="M ${xa},${Y(0)} L ${x0},${Y(0)}`
+    + ` C ${x0+(xp-x0)*0.45},${Y(0)} ${xp-(xp-x0)*0.45},${Y(ea)} ${xp},${Y(ea)}`
+    + ` C ${xp+(x1-xp)*0.45},${Y(ea)} ${x1-(x1-xp)*0.45},${Y(s.dH)} ${x1},${Y(s.dH)}`
+    + ` L ${xb},${Y(s.dH)}" fill="none" stroke="${color}" stroke-width="${wd}"></path>`;
+  g += `<line x1="${xa}" y1="${Y(0)}" x2="${xb}" y2="${Y(0)}" stroke="${C('--rule')}" stroke-dasharray="3 3"></line>`;
+  g += `<line x1="${xa}" y1="${Y(s.dH)}" x2="${xb}" y2="${Y(s.dH)}" stroke="${C('--rule')}" stroke-dasharray="3 3"></line>`;
+  g += curve(eaN, eaC!==null?C('--rule'):C('--ink'), eaC!==null?1.4:2);
+  if(eaC!==null) g += curve(eaC, C('--s1'), 2);
+  const xdh = xb - (narrow?22:30);
+  g += `<line x1="${xdh}" y1="${Y(0)}" x2="${xdh}" y2="${Y(s.dH)}" stroke="${C('--s4')}" stroke-width="1.4"></line>`;
+  g += arrowHead(xdh, Y(s.dH), s.dH<0?1:-1, C('--s4'));
+  g += txt(xdh-6, (Y(0)+Y(s.dH))/2+3.5, "ΔH " + (s.dH>0?"+":MINUS) + Math.abs(s.dH).toFixed(1),
+           {mono:true,size:narrow?10:11,anchor:"end",fill:C('--s4t'),weight:600});
+  const ea1 = eaC!==null ? eaC : eaN;
+  const xe = xp - (narrow?12:18);
+  g += `<line x1="${xe}" y1="${Y(0)}" x2="${xe}" y2="${Y(ea1)}" stroke="${eaC!==null?C('--s1'):C('--s2')}" stroke-width="1.4"></line>`;
+  g += arrowHead(xe, Y(ea1), -1, eaC!==null?C('--s1'):C('--s2'));
+  g += txt(xe-6, (Y(0)+Y(ea1))/2+3.5, "Ea " + ea1,
+           {mono:true,size:narrow?10:11,anchor:"end",fill:eaC!==null?C('--s1t'):C('--s2t'),weight:600});
+  if(eaC!==null) g += txt(xp, Y(eaN)-7, "無触媒 "+eaN, {mono:true,size:narrow?9.5:10.5,anchor:"middle"});
+
+  /* --- 到達曲線 --- */
+  const oy = hE + GAP;
+  const cvN = timeCurve(s, eaN);
+  const cvC = (eaC!==null) ? timeCurve(s, eaC) : null;
+  if(cvN){
+    const all = cvC ? cvN.concat(cvC) : cvN;
+    let tlo = Infinity, thi = -Infinity;
+    all.forEach((p,i)=>{ if(p.t>0){ tlo = Math.min(tlo,p.t); thi = Math.max(thi,p.t); } });
+    const xlo = Math.log10(cvN[8].t ? Math.min(cvN[8].t, cvC?cvC[8].t:Infinity) : tlo) - 0.3;
+    const xhi = Math.log10(thi) + 0.3;
+    const yhi = Math.max.apply(null, cvN.map(p=>p.xi));
+    const ylo = 0;
+    const Lb = L, wb = W-L-Rp, hb = hT-34;
+    const XT = lt => Lb + (lt-xlo)/(xhi-xlo)*wb;
+    const YT = v => oy + hb - (v-ylo)/(yhi*1.08-ylo)*hb;
+    g += axes(Lb, oy, wb, hb, xlo, xhi, 0, yhi*1.08,
+        v=>"10"+sup(Math.round(v)), v=>neg(String(+v.toPrecision(2))));
+    const draw = (cv,color,wd) => {
+      let p = "";
+      cv.forEach((q,i)=>{ if(q.t<=0) return;
+        const lt = Math.log10(q.t);
+        if(lt < xlo) return;
+        p += (p?" L ":"M ") + XT(lt).toFixed(2) + "," + YT(q.xi).toFixed(2); });
+      return `<path d="${p}" fill="none" stroke="${color}" stroke-width="${wd}"></path>`;
+    };
+    g += `<line x1="${Lb}" y1="${YT(cvN[cvN.length-1].xi)}" x2="${Lb+wb}" y2="${YT(cvN[cvN.length-1].xi)}"`
+       + ` stroke="${C('--s4')}" stroke-width="1.3" stroke-dasharray="4 3"></line>`;
+    g += txt(Lb+wb, YT(yhi)-5, "平衡 ξ = "+fx(yhi,4), {mono:true,size:narrow?9.5:10.5,anchor:"end",fill:C('--s4t'),weight:600});
+    g += draw(cvN, cvC?C('--rule'):C('--ink'), cvC?1.4:1.9);
+    if(cvC) g += draw(cvC, C('--s1'), 1.9);
+    g += txt(Lb, oy-4, "ξ / mol", {mono:true,size:narrow?9.5:10.5});
+    g += txt(W-Rp, oy+hb+27, "時間（任意単位・対数）", {mono:true,size:narrow?9.5:10.5,anchor:"end"});
+  }
+  setSvg("svgCat", W, H, g);
+  return {cvN, cvC};
+}
+
+function renderCat(){
+  const s = curSys();
+  clampCat();
+  $("catBtns").innerHTML =
+      `<button class="${st.cat<0?'on':''}" data-c="-1">無触媒 ${s.ea}</button>`
+    + s.cats.map((c,i)=>`<button class="${st.cat===i?'on':''}" data-c="${i}">${esc(c.n)} ${c.ea}</button>`).join("");
+  $("catBtns").querySelectorAll("button").forEach(b=>
+    b.addEventListener("click", ()=>{ st.cat = +b.dataset.c; renderCat(); }));
+
+  const r = drawCat();
+  const sol = solveXi(s, st.T, st.P, st.n0, st.inert);
+  const ce = compose(s, sol.xi, st.n0, st.inert, st.P);
+
+  const rows = [{lab:"無触媒", ea:s.ea}].concat(s.cats.map(c=>({lab:c.n, ea:c.ea})));
+  const t90 = (ea) => {
+    const cv = timeCurve(s, ea);
+    if(!cv) return NaN;
+    const target = cv[cv.length-1].xi*0.90;
+    for(let i=1;i<cv.length;i++) if(Math.abs(cv[i].xi) >= Math.abs(target)) return cv[i].t;
+    return cv[cv.length-1].t;
+  };
+  const base = t90(s.ea);
+  $("catTable").innerHTML =
+    `<thead><tr><th>条件</th><th class="num">Ea正</th><th class="num">Ea逆</th><th class="num">K</th>`
+    + `<th class="num">平衡 ξ</th><th class="num">${esc(s.species[s.main].f)} mol%</th>`
+    + `<th class="num">9割到達までの時間</th></tr></thead><tbody>`
+    + rows.map((x,i)=>{
+        const tt = t90(x.ea);
+        return `<tr class="${(st.cat<0?i===0:st.cat===i-1)?'hit':''}"><td>${esc(x.lab)}</td>`
+          + `<td class="num">${x.ea}</td><td class="num">${(x.ea-s.dH).toFixed(1)}</td>`
+          + `<td class="num">${sci(sol.K,4)}</td>`
+          + `<td class="num">${fx(sol.xi,4)}</td>`
+          + `<td class="num">${fx(ce.xs[s.main]*100,2)}</td>`
+          + `<td class="num">${sci(tt/base,3)} 倍</td></tr>`;
+      }).join("")
+    + `<tr class="total"><td colspan="7">K も ξ も mol% も、行をまたいで 1 桁目まで同じ</td></tr></tbody>`;
+
+  const speed = s.cats.length
+    ? Math.exp((s.ea - s.cats[Math.max(0,st.cat)].ea)*1000/(RGAS*st.T))
+    : null;
+  $("catNote").textContent =
+    (speed ? "峠が " + (s.ea - s.cats[Math.max(0,st.cat)].ea).toFixed(0)
+      + " kJ/mol 下がると、正反応の速度定数は " + sci(speed,2) + " 倍になる。逆反応の速度定数も同じ倍率で上がるので、比である K は動かない。"
+      : "この系には触媒データを入れていない。峠の高さを変えても平衡組成が動かないことは、K の式に Ea が現れないことから直接わかる。")
+    + " 下の到達曲線は反応を素反応とみなして描いたもので、時間軸の絶対値に意味はない。触媒あり・なしの横のずれだけが実質的な量。"
+    + " 縦の到達先が完全に一致していることが、第2部と第3部をつなぐ結論そのものになる。";
+}
+
+/* ==================================================================
+   4. 収率マップ
+================================================================== */
+function drawMap(){
+  const s = curSys();
+  const nT = narrow ? 14 : 22, nP = narrow ? 12 : 16;
+  const Tlo = 300, Thi = 1000;
+  const Plo = 0, Phi = 3;                       /* log10(P/bar) */
+  const W = narrow ? 380 : 770, H = narrow ? 260 : 300;
+  const L = narrow ? 48 : 62, Rp = narrow ? 60 : 90, T0 = 16, B = 34;
+  const w = W-L-Rp, h = H-T0-B;
+  const cw = w/nT, ch = h/nP;
+
+  const vals = [];
+  let vmax = 0;
+  for(let j=0;j<nP;j++){
+    const row = [];
+    const P = Math.pow(10, Plo + (Phi-Plo)*(j+0.5)/nP);
+    for(let i=0;i<nT;i++){
+      const T = Tlo + (Thi-Tlo)*(i+0.5)/nT;
+      const r = solveXi(s, T, P, st.n0, 0);
+      const c = compose(s, r.xi, st.n0, 0, P);
+      const v = c.xs[s.main]*100;
+      row.push(v); if(v>vmax) vmax = v;
+    }
+    vals.push(row);
+  }
+  vmax = Math.max(vmax, 1);
+
+  const mix = f => {
+    /* --paper (237,241,239) から --s2 (36,87,166) への離散補間 */
+    const a = [237,241,239], b = [36,87,166];
+    const t = Math.pow(Math.min(Math.max(f,0),1), 0.65);
+    return `rgb(${a.map((v,i)=>Math.round(v+(b[i]-v)*t)).join(",")})`;
+  };
+  let g = "";
+  for(let j=0;j<nP;j++) for(let i=0;i<nT;i++){
+    g += `<rect x="${(L+i*cw).toFixed(2)}" y="${(T0+h-(j+1)*ch).toFixed(2)}"`
+       + ` width="${(cw+0.6).toFixed(2)}" height="${(ch+0.6).toFixed(2)}" fill="${mix(vals[j][i]/vmax)}"></rect>`;
+  }
+  g += `<rect x="${L}" y="${T0}" width="${w}" height="${h}" fill="none" stroke="${C('--rule')}"></rect>`;
+
+  /* 軸 */
+  for(let t=300; t<=1000; t+=100){
+    const xx = L + (t-Tlo)/(Thi-Tlo)*w;
+    g += `<line x1="${xx}" y1="${T0+h}" x2="${xx}" y2="${T0+h+4}" stroke="${C('--rule')}"></line>`;
+    if(!narrow || t%200===100 || t===300)
+      g += txt(xx, T0+h+15, String(t), {mono:true,size:narrow?9:10,anchor:"middle"});
+  }
+  for(let d=0; d<=3; d++){
+    const yy = T0 + h - d/3*h;
+    g += `<line x1="${L-4}" y1="${yy}" x2="${L}" y2="${yy}" stroke="${C('--rule')}"></line>`;
+    g += txt(L-7, yy+3.5, "10"+sup(d), {mono:true,size:narrow?9:10,anchor:"end"});
+  }
+  g += txt(L, T0-4, "P / bar", {mono:true,size:narrow?9.5:10.5});
+  g += txt(L+w, H-4, "T / K", {mono:true,size:narrow?9.5:10.5,anchor:"end"});
+
+  /* 現在位置 */
+  if(st.T>=Tlo && st.T<=Thi && st.P>=1 && st.P<=1000){
+    const cx = L + (st.T-Tlo)/(Thi-Tlo)*w;
+    const cy = T0 + h - Math.log10(st.P)/3*h;
+    g += `<circle cx="${cx}" cy="${cy}" r="5" fill="none" stroke="${C('--ink')}" stroke-width="2"></circle>`;
+    g += `<circle cx="${cx}" cy="${cy}" r="1.6" fill="${C('--ink')}"></circle>`;
+  }
+
+  /* 凡例 */
+  const lx = L+w+14, lw = narrow?14:18, lh = h;
+  const nSeg = 24;
+  for(let i=0;i<nSeg;i++){
+    g += `<rect x="${lx}" y="${(T0+lh-(i+1)*lh/nSeg).toFixed(2)}" width="${lw}" height="${(lh/nSeg+0.6).toFixed(2)}"`
+       + ` fill="${mix((i+0.5)/nSeg)}"></rect>`;
+  }
+  g += `<rect x="${lx}" y="${T0}" width="${lw}" height="${lh}" fill="none" stroke="${C('--rule')}"></rect>`;
+  for(let i=0;i<=2;i++){
+    const yy = T0 + lh - i/2*lh;
+    g += txt(lx+lw+4, yy+3.5, fx(vmax*i/2,0)+"%", {mono:true,size:narrow?9:10});
+  }
+  g += txt(lx, T0-4, esc(s.species[s.main].f), {mono:true,size:narrow?9.5:10.5,fill:C('--s2t'),weight:600});
+  setSvg("svgMap", W, H, g);
+}
+
+function renderMap(){
+  const s = curSys();
+  $("mapTitle").textContent = s.species[s.main].f + " の平衡組成（温度 × 全圧）";
+  drawMap();
+
+  const r = solveXi(s, st.T, st.P, st.n0, st.inert);
+  const c = compose(s, r.xi, st.n0, st.inert, st.P);
+  const dn = dNu(s);
+  $("mapKv").innerHTML =
+      `<div>いまの点 <b>${st.T}</b> K / <b>${fx(st.P,1)}</b> bar</div>`
+    + `<div>${esc(s.species[s.main].f)} <b>${fx(c.xs[s.main]*100,2)}</b> mol%</div>`
+    + `<div class="xs muted">${dn===0 ? "Δν = 0 なので縦方向（圧力）に色が変わらない" : "縦に色が変わるのが圧力の効き目"}</div>`;
+
+  if(s.id === "nh3"){
+    const rows = HABER_OBS.map(o=>{
+      const rr = solveXi(s, o.T, o.P, [1,3,0], 0);
+      const cc = compose(s, rr.xi, [1,3,0], 0, o.P);
+      const m = cc.xs[2]*100;
+      return `<tr><td class="num">${o.T}</td><td class="num">${o.P}</td>`
+        + `<td class="num">${fx(m,2)}</td><td class="num">${fx(o.obs,2)}</td>`
+        + `<td class="num" style="color:${Math.abs(m-o.obs)>5?C('--s4t'):C('--s1t')}">${(m-o.obs>0?"+":MINUS)+Math.abs(m-o.obs).toFixed(1)}</td></tr>`;
+    }).join("");
+    $("haberBox").innerHTML =
+      `<h3>実測との突き合わせ（原料は H₂ : N₂ = 3 : 1）</h3>`
+      + `<table><thead><tr><th class="num">T / K</th><th class="num">P / bar</th>`
+      + `<th class="num">モデル NH₃ mol%</th><th class="num">実測 mol%</th><th class="num">差</th></tr></thead>`
+      + `<tbody>${rows}</tbody></table>`;
+  } else {
+    $("haberBox").innerHTML = "";
+  }
+
+  $("mapNote").textContent = s.id==="nh3"
+    ? "低温高圧の隅がいちばん濃くなる。だがそこは第2部の峠が越えられない領域で、鉄触媒を使っても実用的な速度が出ない。工業条件の 673 K・200 bar あたりは、この地図の上では最良点から外れた場所にある。収率を捨てて速度を買った位置と読める。モデルと実測のずれは一方向ではない。50〜300 bar ではモデルが 6〜9 ポイント高く出るのに、1000 bar では逆に 10 ポイント近く低く出る。実在気体のふるまいが圧力域で向きを変えるため。"
+    : "色の濃いところが目的物の多い条件。" + (dNu(s)===0
+        ? "縦方向にまったく変化がないのは Δν = 0 だから。圧力をいくら変えても組成が動かない。"
+        : "縦に色が変わるのが圧力の効き目で、その強さは Δν の大きさで決まる。");
+}
+
+/* ==================================================================
+   5. 注記
+================================================================== */
+function renderNotes(){
+  $("noteTable").innerHTML =
+    `<thead><tr><th>項目</th><th class="num">採用</th><th class="num">実測・文献</th><th>理由</th></tr></thead><tbody>`
+    + NOTES.map(n=>`<tr><td>${esc(n.q)}</td><td class="num">${esc(n.a)}</td>`
+      + `<td class="num muted">${esc(n.b)}</td><td class="xs muted">${esc(n.why)}</td></tr>`).join("")
+    + `</tbody>`;
+}
+
+/* ==================================================================
+   events
+================================================================== */
+function renderAll(){ renderMain(); renderLC(); renderCat(); renderMap(); }
+function syncControls(){
+  $("TSlider").value = st.T;
+  $("PSlider").value = pToSlider(st.P);
+  $("ArSlider").value = Math.round(st.inert*10);
+}
+$("TSlider").addEventListener("input", e=>{ st.T = +e.target.value; st.xiIdx=null; renderAll(); });
+$("PSlider").addEventListener("input", e=>{
+  st.P = +sliderToP(+e.target.value).toPrecision(3); st.xiIdx=null; renderAll(); });
+$("ArSlider").addEventListener("input", e=>{ st.inert = +e.target.value/10; st.xiIdx=null; renderAll(); });
+$("xiSlider").addEventListener("input", e=>{ st.xiIdx = +e.target.value; renderMain(); });
+
+(function(){
+  const svg = $("svgXi");
+  let down = false;
+  function pick(ev){
+    const rect = svg.getBoundingClientRect();
+    const W = narrow ? 380 : 770;
+    const L = narrow ? 44 : 56, Rp = narrow ? 12 : 18;
+    const x = (ev.clientX - rect.left)/rect.width*W;
+    let f = (x - L)/(W-L-Rp);
+    f = Math.max(0, Math.min(1, f));
+    const v = Math.round(f*1000);
+    if(v !== st.xiIdx){ st.xiIdx = v; $("xiSlider").value = v; renderMain(); }
+  }
+  svg.addEventListener("pointerdown", e=>{ down=true; svg.setPointerCapture(e.pointerId); pick(e); });
+  svg.addEventListener("pointermove", e=>{ if(down) pick(e); });
+  svg.addEventListener("pointerup", ()=>{ down=false; });
+  svg.addEventListener("pointercancel", ()=>{ down=false; });
+})();
+
+let rt;
+window.addEventListener("resize", ()=>{
+  clearTimeout(rt);
+  rt = setTimeout(()=>{
+    const n = window.innerWidth <= 430;
+    if(n !== narrow){ narrow = n; renderAll(); }
+  }, 140);
+});
+
+resetSys(0);
+syncControls();
+renderNotes();
+renderAll();
+</script>
+</body>
+</html>

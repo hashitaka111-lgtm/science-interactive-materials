@@ -1,0 +1,2085 @@
+<!doctype html>
+<html lang="ja">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>電位と電場インタラクティブ</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500&family=IBM+Plex+Sans+JP:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+*{box-sizing:border-box}
+:root{
+  --ink:#16232B; --muted:#5E6E76; --paper:#EDF1EF; --surface:#FFFFFF;
+  --rule:#D6DDDA; --rule-soft:#E8EDEB;
+  --c0:#B87A16; --c0t:#8A5A0C;
+  --c1:#158A6D; --c1t:#0D6A53;
+  --c2:#2457A6; --c2t:#1B4380;
+  --c3:#6E3AA7; --c3t:#572D85;
+  --c4:#A82A6A; --c4t:#831F52;
+  --c5:#3B6E1E; --c5t:#2A5215;
+  --mono:"IBM Plex Mono",ui-monospace,SFMono-Regular,Menlo,monospace;
+}
+html,body{margin:0;padding:0}
+body{
+  background:var(--paper); color:var(--ink);
+  font-family:"IBM Plex Sans JP","Hiragino Sans","Yu Gothic UI",system-ui,sans-serif;
+  font-size:13.5px; line-height:1.75; -webkit-text-size-adjust:100%;
+}
+.mono{font-family:var(--mono);font-variant-numeric:tabular-nums}
+.wrap{max-width:820px;margin:0 auto;padding:20px 14px 72px}
+.card{background:var(--surface);border:1px solid var(--rule);border-radius:3px;padding:14px;margin-bottom:14px}
+.eyebrow{display:flex;align-items:center;gap:10px;font-family:var(--mono);font-size:11.5px;letter-spacing:.14em;color:var(--muted)}
+.eyebrow::after{content:"";flex:1;height:1px;background:var(--rule)}
+h1{font-size:22px;font-weight:600;letter-spacing:.01em;margin:8px 0 2px}
+h2{font-size:13.5px;font-weight:600;margin:14px 0 6px;letter-spacing:.01em}
+h2:first-child{margin-top:0}
+p{margin:0 0 8px}
+p:last-child{margin-bottom:0}
+.note{color:var(--muted);font-size:12px;line-height:1.7}
+.sub{color:var(--muted);font-size:11.5px;font-family:var(--mono);letter-spacing:.06em}
+hr{border:none;border-top:1px solid var(--rule-soft);margin:12px 0}
+
+.btn{font:inherit;font-size:12.5px;line-height:1.4;border:1px solid var(--rule);background:#fff;color:var(--ink);border-radius:2px;padding:6px 10px;cursor:pointer}
+.btn:hover{border-color:#B4C0BC}
+.btn.on{background:var(--ink);color:#fff;border-color:var(--ink)}
+.btn:focus-visible{outline:2px solid var(--c2);outline-offset:1px}
+.btn.sm{padding:4px 8px;font-size:11.5px}
+.btn.pos.on{background:var(--c4);border-color:var(--c4)}
+.btn.neg.on{background:var(--c2);border-color:var(--c2)}
+.btnrow{display:flex;flex-wrap:wrap;gap:6px}
+.ctl{display:flex;flex-wrap:wrap;align-items:center;gap:8px;margin-top:10px}
+.ctl .lab{font-family:var(--mono);font-size:11px;letter-spacing:.1em;color:var(--muted);white-space:nowrap}
+.ctl .val{font-family:var(--mono);font-variant-numeric:tabular-nums;font-size:12.5px;min-width:80px}
+
+.viewer{position:relative;border:1px solid var(--rule-soft);border-radius:3px;background:#FBFCFB;overflow:hidden;margin-top:10px}
+svg.stage{display:block;width:100%;height:auto;touch-action:none}
+svg.stage.grab{cursor:grab}
+svg.stage.grab.drag{cursor:grabbing}
+
+.legend{display:flex;flex-wrap:wrap;gap:4px 14px;margin-top:9px;font-size:11.5px;color:var(--muted)}
+.sw{display:inline-block;width:10px;height:10px;border-radius:50%;margin-right:5px;vertical-align:-1px}
+.swl{display:inline-block;width:14px;height:0;border-top:2px solid;margin-right:5px;vertical-align:3px}
+
+table{width:100%;border-collapse:collapse;font-size:12.5px}
+th{font-weight:500;color:var(--muted);text-align:left;border-bottom:1px solid var(--rule);padding:5px 6px;font-size:11px;letter-spacing:.06em;font-family:var(--mono)}
+td{border-bottom:1px solid var(--rule-soft);padding:5px 6px;vertical-align:top}
+.num{text-align:right;font-family:var(--mono);font-variant-numeric:tabular-nums}
+tr.hi td{background:#FAFBFA;font-weight:600}
+tr.cur td{background:#F2F6FA}
+caption{caption-side:top;text-align:left;font-size:11.5px;color:var(--muted);padding:0 6px 6px}
+
+.stats{display:grid;grid-template-columns:1fr 1fr;gap:0 18px}
+.stat{display:flex;justify-content:space-between;align-items:baseline;gap:10px;border-bottom:1px solid var(--rule-soft);padding:6px 0}
+.stat .k{font-size:12px;color:var(--muted);white-space:nowrap}
+.stat .v{font-family:var(--mono);font-variant-numeric:tabular-nums;font-size:13px;text-align:right}
+
+.grid2{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.grid3{display:grid;grid-template-columns:repeat(3,1fr);gap:10px}
+input[type=range]{width:100%;max-width:220px;accent-color:#16232B;height:22px}
+
+.step{border-left:2px solid var(--rule);padding:1px 0 1px 11px;margin-bottom:10px}
+.step:last-child{margin-bottom:0;border-left-color:var(--ink)}
+.step .lbl{font-family:var(--mono);font-size:10.5px;letter-spacing:.12em;color:var(--muted)}
+.step .eq{font-family:var(--mono);font-size:12.5px;line-height:1.95;word-break:break-word}
+.step .eq sup{font-size:.78em}
+
+.warn{color:var(--c4t);font-size:11.5px;line-height:1.7}
+ul.tight{margin:0;padding-left:1.1em}
+ul.tight li{margin-bottom:5px}
+
+.fx{font-family:var(--mono);font-size:16px;line-height:2.2;padding:4px 0 2px;letter-spacing:.01em}
+.fx.small{font-size:13px;line-height:2}
+.fx .sym{cursor:pointer;padding:2px 3px;border-radius:2px;border-bottom:1px dashed var(--rule);-webkit-tap-highlight-color:transparent;touch-action:manipulation}
+.fx .sym:hover{background:#F6EEDC}
+.fx .sym.on{background:#F6E3BC;border-bottom:1px solid var(--c0);font-weight:500}
+.symdesc{font-size:12px;color:var(--muted);border-left:2px solid var(--c0);padding:2px 0 2px 10px;margin-top:4px;min-height:3.4em;line-height:1.7}
+.symdesc b{color:var(--ink);font-weight:600}
+
+.frac{display:inline-flex;flex-direction:column;vertical-align:middle;text-align:center;margin:0 5px;line-height:1.42}
+.frac .n{padding:0 7px 2px}
+.frac .d{padding:2px 7px 0;border-top:1.4px solid var(--ink)}
+.cV{color:var(--c2t)} .cW{color:var(--c1t)} .cO{color:var(--c3t)} .cS{color:var(--c4t)} .cF{color:var(--c0t)}
+
+.tag{display:inline-block;font-family:var(--mono);font-size:10.5px;letter-spacing:.08em;border:1px solid var(--rule);border-radius:2px;padding:0 5px;color:var(--muted)}
+.tag.lit{border-color:var(--c0);background:#F6E3BC;color:var(--c0t)}
+.tag.bad{border-color:var(--c4);background:#F5DCE8;color:var(--c4t)}
+
+.qgrid{display:grid;grid-template-columns:repeat(4,1fr);gap:7px;margin-top:11px}
+.qc{border:1px solid var(--rule);border-radius:3px;padding:7px 8px 8px;background:#fff}
+.qc .qk{font-family:var(--mono);font-size:10px;letter-spacing:.09em;color:var(--muted);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.qc .qv{font-family:var(--mono);font-variant-numeric:tabular-nums;font-size:13.5px;line-height:1.4;margin-top:2px;word-break:break-all}
+.qc .qw{font-size:10.5px;line-height:1.55;color:var(--muted);margin-top:4px}
+.qc.up{background:#FAEDF3;border-color:#DFAFC8}
+.qc.up .qv{color:var(--c4t)}
+.qc.dn{background:#ECF1F8;border-color:#B2C5E0}
+.qc.dn .qv{color:var(--c2t)}
+.qc.flat{background:#F4F6F5}
+.qc.flat .qv{color:var(--muted)}
+.qc.ok{background:#EAF4F0;border-color:#A9CFC2}
+.qc.ok .qv{color:var(--c1t)}
+
+.chip{display:inline-flex;align-items:center;gap:5px}
+.chip .dot{width:9px;height:9px;border-radius:50%;display:inline-block}
+
+@media (max-width:430px){
+  body{font-size:13px}
+  .wrap{padding:14px 10px 56px}
+  .card{padding:11px}
+  h1{font-size:19px}
+  .grid2,.grid3,.stats{grid-template-columns:1fr}
+  table{font-size:12px}
+  th,td{padding:4px 4px}
+  .btn{padding:6px 8px;font-size:12px}
+  input[type=range]{max-width:none;flex:1 1 100%}
+  .step .eq{font-size:11.5px}
+  .ctl .val{min-width:0}
+  .fx{font-size:14px;line-height:2.3}
+  .fx.small{font-size:11.5px}
+  .symdesc{min-height:5em}
+  .qgrid{grid-template-columns:repeat(2,1fr);gap:6px}
+  .qc .qv{font-size:13px}
+}
+</style>
+</head>
+<body>
+<div class="wrap">
+
+<header>
+  <div class="eyebrow">POTENTIAL &amp; FIELD</div>
+  <h1>電位と電場インタラクティブ</h1>
+  <p class="note">電位を高さに読み替えると、電場は坂の急さになる。正電荷が作る山、負電荷が作る穴、平行平板が作るスロープ。この地形を回して眺めてから、真上から見た等電位線と電気力線に切り替えると、2 つの図が同じものを別の角度から見ているだけだと分かる。等電位線が地図の等高線、電気力線が最大傾斜の向き。あとは坂を下る向きにマイナスが 1 個つくだけ。</p>
+</header>
+
+<div class="card">
+  <div class="eyebrow">FIELD MAP</div>
+  <div class="btnrow" id="presel" style="margin-top:10px"></div>
+  <div class="ctl"><span class="lab">見せ方</span><span class="btnrow" id="viewsel"></span></div>
+  <div class="viewer"><svg class="stage grab" id="sv-main" role="img" aria-label="電位の3D曲面と等電位線・電気力線"><g id="main-g"></g></svg></div>
+  <p class="note" id="mainhint" style="margin-top:7px"></p>
+  <div class="ctl"><span class="lab">重ねる</span><span class="btnrow" id="ovsel"></span></div>
+  <div class="ctl"><span class="lab">電荷</span><span class="btnrow" id="chsel"></span></div>
+  <div class="btnrow" style="margin-top:8px">
+    <button class="btn sm" id="chadd-p">＋ 正電荷を足す</button>
+    <button class="btn sm" id="chadd-n">＋ 負電荷を足す</button>
+    <button class="btn sm" id="chdel">選んだ電荷を消す</button>
+  </div>
+  <div id="chctl"></div>
+  <div class="grid2" style="margin-top:4px" id="viewsliders"></div>
+  <div class="qgrid" id="qgrid"></div>
+  <p class="note" id="mainnote" style="margin-top:9px"></p>
+  <p class="warn" id="mainwarn" style="margin-top:6px"></p>
+  <div class="legend" id="legend"></div>
+</div>
+
+<div class="card">
+  <div class="eyebrow">WHY HEIGHT WORKS</div>
+  <h2>電位を高さと呼んでよい理由</h2>
+  <p class="note">静電気力は保存力なので、電荷を A から B へ運ぶ仕事が経路によらない。だからその仕事を「位置だけで決まる量の差」として書ける。重力で言えば <span class="mono">mgh</span> の <span class="mono">h</span> にあたるものが電位で、質量の代わりに電荷がかかる。この対応が成り立つから、電位を鉛直軸に取った地形にして眺めることに意味がある。</p>
+  <div class="fx" id="fx1"></div>
+  <div class="symdesc" id="fx1d">記号をタップすると説明が出る。</div>
+  <p class="note" style="margin-top:8px">電位はスカラーなので、複数の電荷があっても符号つきで足すだけで済む。電場のほうは成分に分けてベクトル和を取らないといけない。同じ配置を扱うのに手間がまるで違うのは、この一点による。</p>
+  <h2>3D を描くのに使っている式</h2>
+  <p class="note">外部ライブラリは使わず、回転と投影を内積 3 本で計算している。カメラの向きを方位角 &theta;、仰角 &phi; とすると、視線の単位ベクトルと画面の右・上の向きが決まる。</p>
+  <div class="fx small" id="fx2"></div>
+  <p class="note" id="projnote" style="margin-top:6px"></p>
+  <div class="viewer"><svg class="stage" id="sv-proj" role="img" aria-label="投影に使う3つの基底ベクトル"><g id="proj-g"></g></svg></div>
+  <p class="note" style="margin-top:8px">面の前後は depth の値で並べ替え、遠いものから順に塗る。これだけで陰面消去になる。面の明るさは四角形の対角線どうしの外積から法線を出して、光源方向との内積で決めている。</p>
+</div>
+
+<div class="card">
+  <div class="eyebrow">CROSS SECTION</div>
+  <h2>V-x グラフの傾きを反転すると電場になる</h2>
+  <div class="ctl"><span class="lab">切る向き</span><span class="btnrow" id="cutsel"></span></div>
+  <div class="viewer"><svg class="stage" id="sv-cut" role="img" aria-label="断面の電位と電場のグラフ"><g id="cut-g"></g></svg></div>
+  <div class="grid2" style="margin-top:4px" id="cutsliders"></div>
+  <div class="stats" id="cutstats" style="margin-top:10px"></div>
+  <p class="note" id="cutnote" style="margin-top:9px"></p>
+  <h2>数値微分と解析式のずれ</h2>
+  <p class="note">上のグラフの点線は <span class="mono">V</span> の値だけを中心差分したもので、実線は電場の式から直接出したもの。刻み幅 <span class="mono">h</span> を小さくすると差が <span class="mono">h<sup>2</sup></span> で縮む。</p>
+  <div id="difftab" style="margin-top:8px"></div>
+  <p class="note" id="diffnote" style="margin-top:9px"></p>
+</div>
+
+<div class="card">
+  <div class="eyebrow">TEST CHARGE</div>
+  <h2>試験電荷を置くと力の向きが見える</h2>
+  <div class="viewer"><svg class="stage grab" id="sv-test" role="img" aria-label="試験電荷にはたらく力と等電位線"><g id="test-g"></g></svg></div>
+  <p class="note" style="margin-top:7px">図の中をドラッグすると試験電荷が動く。上の全体図でもドラッグできる。</p>
+  <div class="grid2" style="margin-top:4px" id="testsliders"></div>
+  <div class="stats" id="teststats" style="margin-top:10px"></div>
+  <p class="note" id="testnote" style="margin-top:9px"></p>
+  <h2>直交していることを独立に確かめる</h2>
+  <p class="note">「そう定義したから直交する」では確かめたことにならない。ここでは等電位線を格子上の <span class="mono">V</span> の値だけから拾い（勾配は使わない）、その線分の向きと電場ベクトルの角度を測っている。90&deg; からのずれは格子の粗さで決まる。</p>
+  <div id="orthtab" style="margin-top:8px"></div>
+  <p class="note" id="orthnote" style="margin-top:9px"></p>
+</div>
+
+<div class="card">
+  <div class="eyebrow">PATH INDEPENDENCE</div>
+  <h2>どの道を通っても仕事は同じ</h2>
+  <div class="viewer"><svg class="stage grab" id="sv-path" role="img" aria-label="3つの経路と仕事の比較"><g id="path-g"></g></svg></div>
+  <p class="note" style="margin-top:7px">端点 A と B をドラッグして動かせる。3 本の経路は形がまるで違うのに、運ぶのに要る仕事は一致する。</p>
+  <div class="grid2" style="margin-top:4px" id="pathsliders"></div>
+  <div id="pathtab" style="margin-top:10px"></div>
+  <p class="note" id="pathnote" style="margin-top:9px"></p>
+  <h2>分割数を増やすと何が起きるか</h2>
+  <div id="convtab" style="margin-top:4px"></div>
+  <p class="note" id="convnote" style="margin-top:9px"></p>
+</div>
+
+<div class="card">
+  <div class="eyebrow">CHARGED SPHERE</div>
+  <h2>内と外で式が入れ替わる</h2>
+  <div class="ctl"><span class="lab">球の種類</span><span class="btnrow" id="sphsel"></span></div>
+  <div class="viewer"><svg class="stage" id="sv-sph" role="img" aria-label="帯電球の電位と電場の半径依存性"><g id="sph-g"></g></svg></div>
+  <div class="grid2" style="margin-top:4px" id="sphsliders"></div>
+  <div class="stats" id="sphstats" style="margin-top:10px"></div>
+  <p class="note" id="sphnote" style="margin-top:9px"></p>
+  <h2>表面での折れ方を数値で見る</h2>
+  <div id="kinktab" style="margin-top:4px"></div>
+  <p class="note" id="kinknote" style="margin-top:9px"></p>
+</div>
+
+<div class="card">
+  <div class="eyebrow">PARALLEL PLATES</div>
+  <h2>無限に広い板と、有限の板</h2>
+  <div class="viewer"><svg class="stage" id="sv-plate" role="img" aria-label="無限平板と有限平板の電場の比較"><g id="plate-g"></g></svg></div>
+  <div class="grid2" style="margin-top:4px" id="platesliders"></div>
+  <div class="stats" id="platestats" style="margin-top:10px"></div>
+  <p class="note" id="platenote" style="margin-top:9px"></p>
+  <h2>板の大きさを変えると中心のずれがどう動くか</h2>
+  <div id="platetab" style="margin-top:4px"></div>
+  <p class="note" id="platenote2" style="margin-top:9px"></p>
+  <h2>閉じた式と数値積分を突き合わせる</h2>
+  <div id="quadtab" style="margin-top:4px"></div>
+  <p class="note" id="quadnote" style="margin-top:9px"></p>
+</div>
+
+<div class="card">
+  <div class="eyebrow">NOTES</div>
+  <h2>どの近似がどこで効くか</h2>
+  <div id="apptable"></div>
+  <h2>使った定数</h2>
+  <div id="consttable" style="margin-top:4px"></div>
+  <p class="note" id="constnote" style="margin-top:8px"></p>
+  <h2>取り違えやすいところ</h2>
+  <ul class="tight note" id="misslist"></ul>
+</div>
+
+</div>
+<script>
+"use strict";
+const TAU=Math.PI*2, D2R=Math.PI/180, R2D=180/Math.PI;
+const INK='#16232B',MUT='#5E6E76',RULE='#D6DDDA',SOFT='#E8EDEB',PAPER='#EDF1EF';
+const CGOLD='#B87A16',CGRN='#158A6D',CBLU='#2457A6',CPUR='#6E3AA7',CCRM='#A82A6A',COLV='#3B6E1E';
+const CGOLDT='#8A5A0C',CGRNT='#0D6A53',CBLUT='#1B4380',CPURT='#572D85',CCRMT='#831F52',COLVT='#2A5215';
+
+/* ---------- 定数（データ駆動） ---------- */
+const E0=8.8541878128e-12;             /* CODATA 2018 */
+const KC=1/(4*Math.PI*E0);             /* 8.9875517923e9 */
+const QELEM=1.602176634e-19;           /* 定義値 */
+const EBRK=3.0e6;                      /* 乾燥空気の絶縁破壊 教科書値 */
+const LDOM=0.75;                       /* 表示領域の半幅 [m] */
+const NSEGS=[8,16,32,64,128,256];
+
+const CONSTS=[
+  ['&epsilon;<sub>0</sub>','8.8541878128&times;10<sup>&minus;12</sup> F/m','CODATA 2018','教科書の 8.85&times;10<sup>&minus;12</sup> との差は 0.0002%。採用は CODATA 値'],
+  ['k = 1/4&pi;&epsilon;<sub>0</sub>','8.9875517923&times;10<sup>9</sup> N&middot;m<sup>2</sup>/C<sup>2</sup>','&epsilon;<sub>0</sub> から算出','教科書の 9.0&times;10<sup>9</sup> とは 0.14% ずれる。画面の数字は全部この値で出している'],
+  ['素電荷 e','1.602176634&times;10<sup>&minus;19</sup> C','SI 定義値（2019 改定）','測定値ではなく定義。1 nC は電子 6.24&times;10<sup>9</sup> 個ぶん'],
+  ['空気の絶縁破壊','3.0&times;10<sup>6</sup> V/m','教科書値','間隔が 1 mm を切ると 3.0 より大きくなる（パッシェンの法則）。警告表示には教科書値を使う'],
+  ['空気の &epsilon;<sub>r</sub>','1.00059','20&deg;C 1 気圧の実測','この画面は真空（1.0）で計算している。差は 0.059%'],
+  ['tanh の頭打ち V<sub>c</sub>','スライダーで可変','可視化の都合','物理定数ではない。曲面の高さを圧縮する閾値']
+];
+
+const APPROX=[
+  ['点電荷 &rarr; 半径 a の帯電球','全編','r &ge; a では球対称性から厳密に一致する。違うのは r &lt; a の内部だけ。V が発散しなくなるので曲面も経路積分も破綻しない'],
+  ['無限に広い平板','平行平板プリセット','端の漏れを無視している。1 辺 L の正方形板だと L/d = 10 でも中心の電場が 8.9% 小さい。下の平行平板の節で数値比較する'],
+  ['&sigma; が板の上で一様','有限平板の計算','本物の導体板では電荷が縁に寄るので &sigma; は一様にならない。ここは一様と置いたままの値'],
+  ['等電位線は格子の線形補間','等電位線の描画','マーチングスクエア法。格子を細かくすると真の曲線に寄る。直交の節でずれを数値化している'],
+  ['電気力線は RK4 の固定刻み','電気力線の描画','刻みを半分にすると誤差が 1/16 になる。曲率の大きいところだけ誤差が残る'],
+  ['仕事の経路積分はシンプソン則','経路の節','分割数を倍にすると誤差が 1/16。折れ線の角では区間を切って別々に積分している'],
+  ['高さは tanh で頭打ち','3D 曲面','|V| が V<sub>c</sub> を十分下回る範囲でだけ高さの比が正確。超えた部分は圧縮されている'],
+  ['z = 0 の断面だけを見る','全編','電荷を全部この面の上に置いているので、この面内では E<sub>z</sub> = 0。面内のベクトルだけで話が閉じる'],
+  ['静電状態','全編','電荷は動かない。動くと磁場と誘導が出てきて、電位だけでは足りなくなる'],
+  ['真空中（&epsilon;<sub>r</sub> = 1）','全編','誘電体は入れていない。空気で置き換えても 0.06% しか変わらない']
+];
+
+const MISS=[
+  '電位はスカラー、電場はベクトル。足すときの手間がまるで違う。電位は符号つきの数を足すだけ、電場は成分に分けてから足す。',
+  'V = kq/r の r は距離であって座標ではない。負電荷でも r は正の数で、符号は q が持っている。',
+  'E = &minus;dV/dx のマイナスを落とすミスが一番多い。V のグラフが右下がりなら E は右向き（正）。',
+  '等電位線が密なところは電場が強い。地図の等高線と同じ読み方でいい。',
+  '等電位面に沿って動かす仕事はゼロ。力と変位が直角だから。斜面をトラバースするのと同じ。',
+  '導体球は内部が V 一定で E = 0。一様に帯電した球（絶縁体）は内部で E が r に比例して増える。問題文の「導体」「一様に帯電」を必ず読み分ける。',
+  '無限遠を V = 0 に取れるのは電荷が有限の広がりに収まっているときだけ。無限平板や無限に長い線電荷では別の点を基準にする。',
+  '外力の仕事は q(V<sub>B</sub> &minus; V<sub>A</sub>)、電場がする仕事は q(V<sub>A</sub> &minus; V<sub>B</sub>)。どちらを聞かれているか先に確認する。',
+  '電気力線は交わらない。交点があるとそこで電場の向きが 2 つになってしまう。',
+  '電気力線は等電位面と直角に交わる。斜めに交わっている図はどこかが間違っている。',
+  '2 つの正電荷の中点は E = 0 だが V = 0 ではない。逆に双極子の中央の垂直線上は V = 0 だが E は 0 ではない。E = 0 と V = 0 は別の話。'
+];
+
+/* ---------- 小道具 ---------- */
+const clamp=(v,a,b)=>v<a?a:(v>b?b:v);
+const f1=v=>(Math.round(v*100)/100).toString();
+function fmtCore(v,sig,inf,exa,exb){
+  sig=sig||4;
+  if(!isFinite(v)) return inf;
+  if(v===0) return '0';
+  const av=Math.abs(v);
+  if(av>=1e-3&&av<1e6){
+    const dec=clamp(sig-1-Math.floor(Math.log10(av)),0,17);
+    let s=v.toFixed(dec);
+    if(s.indexOf('.')>=0) s=s.replace(/0+$/,'').replace(/\.$/,'');
+    return s.replace('-','\u2212');
+  }
+  let e=Math.floor(Math.log10(av));
+  let m=v/Math.pow(10,e);
+  if(Math.abs(+m.toFixed(sig-1))>=10){ m/=10; e++; }
+  return m.toFixed(sig-1).replace('-','\u2212')+exa+String(e).replace('-','\u2212')+exb;
+}
+function fmt(v,sig){ return fmtCore(v,sig,'&infin;','&times;10<sup>','</sup>'); }
+function fmtP(v,sig){ return fmtCore(v,sig,'\u221E','\u00D710^',''); }
+function expo(v,d){
+  if(v===0) return '0';
+  if(!isFinite(v)) return '&infin;';
+  const parts=v.toExponential(d===undefined?2:d).split('e');
+  return parts[0].replace('-','\u2212')+'&times;10<sup>'+String(parseInt(parts[1],10)).replace('-','\u2212')+'</sup>';
+}
+function mn(v){ return String(v).replace(/-/g,'\u2212'); }
+const PFX=[[1e-15,'f'],[1e-12,'p'],[1e-9,'n'],[1e-6,'\u00B5'],[1e-3,'m'],[1,''],[1e3,'k'],[1e6,'M'],[1e9,'G']];
+function fmtU(v,u,sig){
+  if(!isFinite(v)) return '&infin;';
+  if(v===0) return '0 '+u;
+  const a=Math.abs(v);
+  let best=PFX[0];
+  for(const p of PFX) if(a>=p[0]*0.9999) best=p;
+  return fmt(v/best[0],sig||4)+' '+best[1]+u;
+}
+function niceCeil(v){
+  if(v<=0) return 1;
+  const e=Math.floor(Math.log10(v)), m=v/Math.pow(10,e);
+  const lad=[1,1.2,1.5,2,2.5,3,4,5,6,8,10];
+  for(const q of lad) if(m<=q+1e-12) return q*Math.pow(10,e);
+  return 10*Math.pow(10,e);
+}
+function hex2rgb(h){ return [parseInt(h.slice(1,3),16),parseInt(h.slice(3,5),16),parseInt(h.slice(5,7),16)]; }
+function rgb2hex(c){
+  let s='#';
+  for(let i=0;i<3;i++){ const v=clamp(Math.round(c[i]),0,255).toString(16); s+=(v.length<2?'0':'')+v; }
+  return s;
+}
+const RGB_CRM=hex2rgb(CCRM), RGB_BLU=hex2rgb(CBLU), RGB_PAP=hex2rgb('#F3F5F3');
+function mixc(a,b,t){ return [a[0]+(b[0]-a[0])*t, a[1]+(b[1]-a[1])*t, a[2]+(b[2]-a[2])*t]; }
+
+/* ---------- SVG 組み立て ---------- */
+function LN(x1,y1,x2,y2,c,w,dash,op){
+  return '<line x1="'+f1(x1)+'" y1="'+f1(y1)+'" x2="'+f1(x2)+'" y2="'+f1(y2)+'" stroke="'+c+'" stroke-width="'+(w||1)+'"'+
+    (dash?' stroke-dasharray="'+dash+'"':'')+(op!==undefined?' opacity="'+op+'"':'')+' stroke-linecap="round"/>';
+}
+function TX(x,y,s,c,size,anchor,weight,op){
+  return '<text x="'+f1(x)+'" y="'+f1(y)+'" fill="'+c+'" font-family="IBM Plex Mono, monospace" font-size="'+(size||10)+'"'+
+    (anchor?' text-anchor="'+anchor+'"':'')+(weight?' font-weight="'+weight+'"':'')+(op!==undefined?' opacity="'+op+'"':'')+'>'+s+'</text>';
+}
+function TXJ(x,y,s,c,size,anchor,weight,op){
+  return '<text x="'+f1(x)+'" y="'+f1(y)+'" fill="'+c+'" font-family="IBM Plex Sans JP, sans-serif" font-size="'+(size||10)+'"'+
+    (anchor?' text-anchor="'+anchor+'"':'')+(weight?' font-weight="'+weight+'"':'')+(op!==undefined?' opacity="'+op+'"':'')+'>'+s+'</text>';
+}
+function PL(pts,c,w,dash,op){
+  if(pts.length<2) return '';
+  let d='M'+f1(pts[0][0])+' '+f1(pts[0][1]);
+  for(let i=1;i<pts.length;i++) d+='L'+f1(pts[i][0])+' '+f1(pts[i][1]);
+  return '<path d="'+d+'" fill="none" stroke="'+c+'" stroke-width="'+(w||1.6)+'"'+
+    (dash?' stroke-dasharray="'+dash+'"':'')+(op!==undefined?' opacity="'+op+'"':'')+' stroke-linejoin="round" stroke-linecap="round"/>';
+}
+function POLY(pts,fill,stroke,sw,op){
+  if(pts.length<3) return '';
+  let s='';
+  for(const p of pts) s+=f1(p[0])+','+f1(p[1])+' ';
+  return '<polygon points="'+s.trim()+'" fill="'+(fill||'none')+'"'+
+    (stroke?' stroke="'+stroke+'" stroke-width="'+(sw||1)+'"':'')+(op!==undefined?' opacity="'+op+'"':'')+'/>';
+}
+function AR(x1,y1,x2,y2,c,w,hs,op){
+  const dx=x2-x1, dy=y2-y1, len=Math.hypot(dx,dy);
+  if(len<0.6) return '';
+  hs=hs||6;
+  const ux=dx/len, uy=dy/len, px=-uy, py=ux;
+  const bx=x2-ux*hs, by=y2-uy*hs;
+  return LN(x1,y1,bx,by,c,w||1.6,null,op)+
+    '<polygon points="'+f1(x2)+','+f1(y2)+' '+f1(bx+px*hs*0.42)+','+f1(by+py*hs*0.42)+' '+f1(bx-px*hs*0.42)+','+f1(by-py*hs*0.42)+'" fill="'+c+'"'+(op!==undefined?' opacity="'+op+'"':'')+'/>';
+}
+function ARH(x,y,ux,uy,c,hs,op){
+  const px=-uy, py=ux, bx=x-ux*hs, by=y-uy*hs;
+  return '<polygon points="'+f1(x)+','+f1(y)+' '+f1(bx+px*hs*0.45)+','+f1(by+py*hs*0.45)+' '+f1(bx-px*hs*0.45)+','+f1(by-py*hs*0.45)+'" fill="'+c+'"'+(op!==undefined?' opacity="'+op+'"':'')+'/>';
+}
+function CIRC(x,y,r,fill,stroke,sw,dash,op){
+  return '<circle cx="'+f1(x)+'" cy="'+f1(y)+'" r="'+f1(r)+'" fill="'+(fill||'none')+'"'+
+    (stroke?' stroke="'+stroke+'" stroke-width="'+(sw||1)+'"':'')+(dash?' stroke-dasharray="'+dash+'"':'')+(op!==undefined?' opacity="'+op+'"':'')+'/>';
+}
+function RECT(x,y,w,h,fill,stroke,sw,dash,op,rx){
+  return '<rect x="'+f1(x)+'" y="'+f1(y)+'" width="'+f1(Math.max(0,w))+'" height="'+f1(Math.max(0,h))+'" fill="'+(fill||'none')+'"'+
+    (rx?' rx="'+rx+'"':'')+(stroke?' stroke="'+stroke+'" stroke-width="'+(sw||1)+'"':'')+(dash?' stroke-dasharray="'+dash+'"':'')+(op!==undefined?' opacity="'+op+'"':'')+'/>';
+}
+function setVB(id,w,h){ const s=document.getElementById(id); if(s) s.setAttribute('viewBox','0 0 '+w+' '+h); }
+function put(id,s){ const e=document.getElementById(id); if(e) e.innerHTML=s; }
+function stt(k,v){ return '<div class="stat"><span class="k">'+k+'</span><span class="v">'+v+'</span></div>'; }
+
+function mkPlot(x,y,w,h,xmin,xmax,ymin,ymax,xt,yt,xlab,ylab,fx,fy){
+  const X=v=>x+(v-xmin)/(xmax-xmin)*w;
+  const Y=v=>y+h-(v-ymin)/(ymax-ymin)*h;
+  let s=RECT(x,y,w,h,'#fff',SOFT,1);
+  for(const t of xt){ s+=LN(X(t),y,X(t),y+h,SOFT,1); s+=TX(X(t),y+h+12,(fx?fx(t):f1(t)),MUT,9,'middle'); }
+  for(const t of yt){ s+=LN(x,Y(t),x+w,Y(t),SOFT,1); s+=TX(x-5,Y(t)+3,(fy?fy(t):f1(t)),MUT,9,'end'); }
+  s+=LN(x,y,x,y+h,RULE,1.2)+LN(x,y+h,x+w,y+h,RULE,1.2);
+  if(xlab) s+=TX(x+w,y+h+24,xlab,MUT,9.5,'end');
+  if(ylab) s+=TX(x,y-7,ylab,MUT,9.5,'start');
+  return {s:s,X:X,Y:Y};
+}
+function ticks(a,b,n){
+  const stp=niceCeil((b-a)/n), out=[];
+  const st=Math.ceil(a/stp-1e-9)*stp;
+  for(let v=st;v<=b+1e-9;v+=stp) out.push(Math.abs(v)<stp*1e-9?0:v);
+  return out;
+}
+
+let narrow=window.innerWidth<=430;
+
+/* ---------- スライダー登録 ---------- */
+const SLREG=[];
+function addSlider(host,id,lab,min,max,step,getv,setv,fmtf,unit,cb){
+  const h=document.getElementById(host); if(!h) return;
+  const row=document.createElement('div'); row.className='ctl';
+  row.innerHTML='<span class="lab">'+lab+'</span><input type="range" id="sl-'+id+'" min="'+min+'" max="'+max+'" step="'+step+'"><span class="val mono" id="vv-'+id+'"></span>';
+  h.appendChild(row);
+  const el=row.querySelector('input');
+  el.addEventListener('input',function(){ setv(+el.value); (cb||onParam)(); });
+  SLREG.push({id:id,getv:getv,fmtf:fmtf,unit:unit,el:el,row:row});
+}
+function syncSliders(){
+  for(const r of SLREG){
+    const raw=Math.round(r.getv());
+    if(+r.el.value!==raw) r.el.value=raw;
+    const box=document.getElementById('vv-'+r.id);
+    if(box) box.innerHTML=r.fmtf(raw)+(r.unit?' '+r.unit:'');
+  }
+}
+function showSlider(id,on){ for(const r of SLREG) if(r.id===id) r.row.style.display=on?'':'none'; }
+function mkBtnRow(host,items,isOn,onPick){
+  const box=document.getElementById(host); if(!box) return;
+  box.innerHTML='';
+  for(const it of items){
+    const b=document.createElement('button');
+    b.className='btn sm'+(isOn(it)?' on':'')+(it.cls?' '+it.cls:''); b.innerHTML=it.nm;
+    b.addEventListener('click',function(){ onPick(it); });
+    box.appendChild(b);
+  }
+}
+
+/* ---------- 電荷モデル ---------- */
+/* ball : 半径 a に一様に帯電した球（絶縁体）
+   shell: 半径 a の導体球（電荷は表面だけ）
+   plane: y = y0 にある無限平板、面電荷密度 sig [nC/m^2] */
+function mkBall(x,y,q,a){ return {t:'ball',x:x,y:y,q:q,a:a}; }
+function mkShell(x,y,q,a){ return {t:'shell',x:x,y:y,q:q,a:a}; }
+function mkPlane(y0,sig){ return {t:'plane',y0:y0,sig:sig}; }
+
+function vOne(c,x,y){
+  if(c.t==='plane') return -c.sig*1e-9*Math.abs(y-c.y0)/(2*E0);
+  const dx=x-c.x, dy=y-c.y, r=Math.sqrt(dx*dx+dy*dy), q=c.q*1e-9;
+  if(r>=c.a) return KC*q/r;
+  if(c.t==='shell') return KC*q/c.a;
+  return KC*q*(3*c.a*c.a-r*r)/(2*c.a*c.a*c.a);
+}
+function vAt(x,y){
+  let v=0;
+  for(let i=0;i<ST.ch.length;i++) v+=vOne(ST.ch[i],x,y);
+  return v;
+}
+const EBUF=[0,0];
+function eAt(x,y,o){
+  o=o||EBUF; let ex=0, ey=0;
+  for(let i=0;i<ST.ch.length;i++){
+    const c=ST.ch[i];
+    if(c.t==='plane'){ ey+=c.sig*1e-9/(2*E0)*(y>=c.y0?1:-1); continue; }
+    const dx=x-c.x, dy=y-c.y, r=Math.sqrt(dx*dx+dy*dy), q=c.q*1e-9;
+    if(r<1e-13) continue;
+    let em;
+    if(r>=c.a) em=KC*q/(r*r);
+    else if(c.t==='shell') em=0;
+    else em=KC*q*r/(c.a*c.a*c.a);
+    ex+=em*dx/r; ey+=em*dy/r;
+  }
+  o[0]=ex; o[1]=ey; return o;
+}
+function totalQ(){
+  let s=0;
+  for(const c of ST.ch) if(c.t!=='plane') s+=c.q;
+  return s;
+}
+function chLabel(c,i){
+  if(c.t==='plane') return '平板 '+(c.sig>=0?'+':'\u2212')+Math.abs(c.sig).toFixed(1);
+  return 'q'+(i+1)+' '+(c.q>=0?'+':'\u2212')+Math.abs(c.q).toFixed(1);
+}
+function chColor(c){
+  const s=(c.t==='plane')?c.sig:c.q;
+  return s>=0?CCRM:CBLU;
+}
+
+/* ---------- プリセット ---------- */
+const PRESETS=[
+  {id:'one', nm:'単独の点電荷', mk:()=>[mkBall(0,0,6,0.06)],
+   note:'山が 1 つ。等電位線は同心円で、電気力線は放射状。中心から離れるほど等電位線の間隔が開くのは、V が 1/r で落ちるから。'},
+  {id:'same', nm:'同符号の 2 電荷', mk:()=>[mkBall(-0.30,0,6,0.06),mkBall(0.30,0,6,0.06)],
+   note:'2 つの山のあいだに鞍部ができる。鞍点では電場がゼロだが、電位はゼロではない。ここに正電荷を置くとどちらにも押されず、ただし少しでも横にずれると転がり落ちる。'},
+  {id:'dip', nm:'双極子', mk:()=>[mkBall(-0.30,0,6,0.06),mkBall(0.30,0,-6,0.06)],
+   note:'山と穴。中央の垂直線上は V = 0 だが電場はゼロではない。V = 0 と E = 0 が別物であることが、この配置で一番はっきり見える。'},
+  {id:'plate', nm:'平行平板', mk:()=>[mkPlane(0.25,7),mkPlane(-0.25,-7)],
+   note:'板のあいだだけが一定勾配のスロープ、外側は平ら。傾きが一定だから電場が一定になる。無限に広い板として計算しているので端の漏れはない。有限の板との差は下の節で見る。'},
+  {id:'sph', nm:'一様に帯電した球', mk:()=>[mkBall(0,0,8,0.30)],
+   note:'半径 0.30 m の球に電荷が一様に詰まっている。外から見ると点電荷と区別がつかないが、内部に入ると山の頂上が丸くなる。導体球に切り替えると頂上が平らになる。'},
+  {id:'quad', nm:'四重極', mk:()=>[mkBall(-0.28,0.28,5,0.06),mkBall(0.28,0.28,-5,0.06),mkBall(-0.28,-0.28,-5,0.06),mkBall(0.28,-0.28,5,0.06)],
+   note:'山と穴が交互に並ぶ。原点は V = 0 かつ E = 0。遠方では電位が 1/r\u00B3 で落ちるので、少し離れるとほぼ平らになる。'}
+];
+
+/* ---------- 状態 ---------- */
+const ST={
+  pre:'dip',
+  ch:PRESETS[2].mk(),
+  sel:0,
+  view:'both',
+  az:-38, el:30,
+  hgt:0.86, vc:300,
+  showEq:true, showFl:true, showHeat:true,
+  cutDir:'x', cutPos:0, cutMark:0.18, diffH:20,
+  test:{x:0.40,y:0.28}, qt:2,
+  pA:{x:-0.52,y:-0.34}, pB:{x:0.52,y:0.38}, nseg:64,
+  sphQ:8, sphA:0.30, sphKind:'ball',
+  plL:5.0, plD:0.50, plSig:7, plNq:12,
+  orthN:81
+};
+
+/* ---------- 数値解法 ---------- */
+/* マーチングスクエア。格子の V の値だけから等電位線の線分を拾う */
+function contourSegs(G,nx,ny,x0,x1,y0,y1,level){
+  const segs=[];
+  const dx=(x1-x0)/(nx-1), dy=(y1-y0)/(ny-1);
+  const ip=(va,vb,a,b)=>{ const t=(level-va)/(vb-va); return a+(b-a)*clamp(t,0,1); };
+  for(let j=0;j<ny-1;j++){
+    for(let i=0;i<nx-1;i++){
+      const v0=G[j*nx+i], v1=G[j*nx+i+1], v2=G[(j+1)*nx+i+1], v3=G[(j+1)*nx+i];
+      if(!isFinite(v0)||!isFinite(v1)||!isFinite(v2)||!isFinite(v3)) continue;
+      let idx=0;
+      if(v0>level) idx|=1;
+      if(v1>level) idx|=2;
+      if(v2>level) idx|=4;
+      if(v3>level) idx|=8;
+      if(idx===0||idx===15) continue;
+      const xa=x0+i*dx, xb=xa+dx, ya=y0+j*dy, yb=ya+dy;
+      const eB=[ip(v0,v1,xa,xb),ya];            /* 下辺 */
+      const eR=[xb,ip(v1,v2,ya,yb)];            /* 右辺 */
+      const eT=[ip(v3,v2,xa,xb),yb];            /* 上辺 */
+      const eL=[xa,ip(v0,v3,ya,yb)];            /* 左辺 */
+      const push=(p,q)=>segs.push([p[0],p[1],q[0],q[1]]);
+      switch(idx){
+        case 1: case 14: push(eL,eB); break;
+        case 2: case 13: push(eB,eR); break;
+        case 3: case 12: push(eL,eR); break;
+        case 4: case 11: push(eR,eT); break;
+        case 6: case 9:  push(eB,eT); break;
+        case 7: case 8:  push(eL,eT); break;
+        case 5: { const mid=(v0+v1+v2+v3)/4;
+          if(mid>level){ push(eL,eT); push(eB,eR); } else { push(eL,eB); push(eR,eT); } break; }
+        case 10:{ const mid=(v0+v1+v2+v3)/4;
+          if(mid>level){ push(eL,eB); push(eR,eT); } else { push(eL,eT); push(eB,eR); } break; }
+      }
+    }
+  }
+  return segs;
+}
+
+/* RK4 で電気力線を追う。s は向き（+1 で E の向き） */
+function traceLine(x0,y0,sgn,h,maxN,stopR){
+  const pts=[[x0,y0]];
+  let x=x0, y=y0;
+  const e=[0,0];
+  const dir=(px,py,o)=>{
+    eAt(px,py,o);
+    const m=Math.hypot(o[0],o[1]);
+    if(m<1e-9){ o[0]=0; o[1]=0; return 0; }
+    o[0]=sgn*o[0]/m; o[1]=sgn*o[1]/m; return m;
+  };
+  const k1=[0,0],k2=[0,0],k3=[0,0],k4=[0,0];
+  for(let n=0;n<maxN;n++){
+    if(dir(x,y,k1)===0) break;
+    if(dir(x+h*0.5*k1[0],y+h*0.5*k1[1],k2)===0) break;
+    if(dir(x+h*0.5*k2[0],y+h*0.5*k2[1],k3)===0) break;
+    if(dir(x+h*k3[0],y+h*k3[1],k4)===0) break;
+    x+=h*(k1[0]+2*k2[0]+2*k3[0]+k4[0])/6;
+    y+=h*(k1[1]+2*k2[1]+2*k3[1]+k4[1])/6;
+    pts.push([x,y]);
+    if(Math.abs(x)>LDOM*1.02||Math.abs(y)>LDOM*1.02) break;
+    let hit=false;
+    for(const c of ST.ch){
+      if(c.t==='plane'){ if(Math.abs(y-c.y0)<h*0.9) hit=true; continue; }
+      if(Math.hypot(x-c.x,y-c.y)<=c.a*1.02) hit=true;
+    }
+    if(hit) break;
+  }
+  return pts;
+}
+
+/* シンプソン則。f は 0..1 の媒介変数の関数 */
+function simpson(f,n){
+  if(n%2) n++;
+  const h=1/n;
+  let s=f(0)+f(1);
+  for(let i=1;i<n;i++) s+=f(i*h)*((i%2)?4:2);
+  return s*h/3;
+}
+
+/* 正方形板の軸上の電場。立体角の閉じた式 */
+function ePlateAxis(sig,L,z){
+  const az=Math.abs(z);
+  const s=L*L/(L*L+4*az*az);
+  return sig*1e-9/(Math.PI*E0)*Math.asin(clamp(s,-1,1));
+}
+/* 同じものを 2 次元の中点則で数値積分したもの */
+function ePlateQuad(sig,L,z,n){
+  const az=Math.abs(z); if(az<1e-12) return sig*1e-9/(2*E0);
+  const h=L/n, s0=-L/2+h/2;
+  let acc=0;
+  for(let i=0;i<n;i++){
+    const xx=s0+i*h;
+    for(let j=0;j<n;j++){
+      const yy=s0+j*h;
+      const d2=xx*xx+yy*yy+az*az;
+      acc+=1/(d2*Math.sqrt(d2));
+    }
+  }
+  return sig*1e-9*az/(4*Math.PI*E0)*acc*h*h;
+}
+
+/* ---------- 3D の投影（自前計算） ---------- */
+const CAM={};
+function setCam(W,H,zlo,zhi){
+  const th=ST.az*D2R, ph=ST.el*D2R;
+  const ca=Math.cos(th), sa=Math.sin(th), ce=Math.cos(ph), se=Math.sin(ph);
+  CAM.ca=ca; CAM.sa=sa; CAM.ce=ce; CAM.se=se;
+  /* 箱の 8 隅を投影して収まる倍率を決める */
+  let mnx=1e9,mxx=-1e9,mny=1e9,mxy=-1e9;
+  for(const sx of [-1,1]) for(const sy of [-1,1]) for(const sz of [zlo,zhi]){
+    const px=-sx*sa+sy*ca;
+    const py=se*(sx*ca+sy*sa)-sz*ce;
+    if(px<mnx) mnx=px; if(px>mxx) mxx=px;
+    if(py<mny) mny=py; if(py>mxy) mxy=py;
+  }
+  const padL=narrow?30:44, padR=narrow?16:24, padT=narrow?18:22, padB=narrow?26:30;
+  const sc=Math.min((W-padL-padR)/(mxx-mnx), (H-padT-padB)/(mxy-mny));
+  CAM.s=sc;
+  CAM.cx=padL+(-mnx)*sc;
+  CAM.cy=padT+(-mny)*sc;
+}
+function P3(x,y,z){
+  const sx=-x*CAM.sa+y*CAM.ca;
+  const sy=CAM.se*(x*CAM.ca+y*CAM.sa)-z*CAM.ce;
+  return [CAM.cx+sx*CAM.s, CAM.cy+sy*CAM.s];
+}
+function DEP(x,y,z){ return CAM.ce*(x*CAM.ca+y*CAM.sa)+z*CAM.se; }
+
+/* 世界座標への正規化 */
+const nx_=x=>x/LDOM, ny_=y=>y/LDOM;
+function zOf(v){ return Math.tanh(v/ST.vc)*ST.hgt; }
+function colOf(v){
+  const t=Math.tanh(v/ST.vc);
+  const base=(t>=0)?mixc(RGB_PAP,RGB_CRM,Math.pow(Math.abs(t),0.78)):mixc(RGB_PAP,RGB_BLU,Math.pow(Math.abs(t),0.78));
+  return base;
+}
+
+/* ---------- 場のキャッシュ ---------- */
+const FLD={ fine:null, nf:0, lines:[], levels:[] };
+function buildField(){
+  const nf=narrow?81:113;
+  const g=new Float64Array(nf*nf);
+  const st=2*LDOM/(nf-1);
+  for(let j=0;j<nf;j++){
+    const yy=-LDOM+j*st;
+    for(let i=0;i<nf;i++) g[j*nf+i]=vAt(-LDOM+i*st,yy);
+  }
+  FLD.fine=g; FLD.nf=nf;
+  /* 等電位の値。V の刻みを一定にすると、線の混み具合がそのまま電場の強さになる */
+  const dv=ST.vc/5, lv=[];
+  for(let k=-5;k<=5;k++) lv.push(k*dv);
+  FLD.levels=lv;
+  FLD.lines=buildLines();
+}
+function buildLines(){
+  const out=[];
+  const h=0.006, maxN=560;
+  let qref=0;
+  for(const c of ST.ch) qref=Math.max(qref,(c.t==='plane')?Math.abs(c.sig):Math.abs(c.q));
+  if(qref<=0) return out;
+  for(const c of ST.ch){
+    if(c.t==='plane'){
+      if(c.sig<=0) continue;
+      const m=narrow?7:11;
+      for(let k=0;k<m;k++){
+        const xx=-LDOM*0.92+2*LDOM*0.92*k/(m-1);
+        for(const sd of [1,-1]){
+          const pts=traceLine(xx,c.y0+sd*0.012,1,h,maxN);
+          if(pts.length>6) out.push(pts);
+        }
+      }
+      continue;
+    }
+    if(c.q<=0) continue;
+    const n=clamp(Math.round(10*Math.abs(c.q)/qref),4,18);
+    for(let k=0;k<n;k++){
+      const a=TAU*k/n+0.13;
+      const pts=traceLine(c.x+c.a*1.05*Math.cos(a), c.y+c.a*1.05*Math.sin(a),1,h,maxN);
+      if(pts.length>4) out.push(pts);
+    }
+  }
+  /* 全体が負に偏っているときは、遠方から入ってくる線を足す */
+  let qs=0;
+  for(const c of ST.ch){ if(c.t!=='plane') qs+=c.q; }
+  if(qs<-1e-9){
+    const n=clamp(Math.round(10*Math.abs(qs)/qref),4,16), R=LDOM*0.99;
+    for(let k=0;k<n;k++){
+      const a=TAU*k/n+0.07;
+      const pts=traceLine(R*Math.cos(a),R*Math.sin(a),1,h,maxN);
+      if(pts.length>4) out.push(pts);
+    }
+  }
+  return out;
+}
+
+/* ---------- 主ステージ ---------- */
+function mainSize(){ return {W:narrow?360:740, H:narrow?336:472}; }
+
+function draw3D(W,H,floor){
+  const zf=-(ST.hgt+0.34);
+  setCam(W,H,zf,ST.hgt);
+  let o='';
+  /* 床 */
+  const fc=[[-1,-1],[1,-1],[1,1],[-1,1]].map(p=>P3(p[0],p[1],zf));
+  o+=POLY(fc,'#F5F7F6',SOFT,1);
+  for(let k=-4;k<=4;k++){
+    const t=k/4;
+    o+=PL([P3(t,-1,zf),P3(t,1,zf)],SOFT,0.8,null,0.9);
+    o+=PL([P3(-1,t,zf),P3(1,t,zf)],SOFT,0.8,null,0.9);
+  }
+  /* 床に落とした 2D 地図 */
+  if(floor){
+    if(ST.showEq){
+      for(const lv of FLD.levels){
+        const segs=contourSegs(FLD.fine,FLD.nf,FLD.nf,-LDOM,LDOM,-LDOM,LDOM,lv);
+        if(!segs.length) continue;
+        let d='';
+        for(const s of segs){
+          const a=P3(nx_(s[0]),ny_(s[1]),zf), b=P3(nx_(s[2]),ny_(s[3]),zf);
+          d+='M'+f1(a[0])+' '+f1(a[1])+'L'+f1(b[0])+' '+f1(b[1]);
+        }
+        o+='<path d="'+d+'" fill="none" stroke="'+CGRN+'" stroke-width="'+(lv===0?1.5:1)+'" opacity="'+(lv===0?0.85:0.5)+'"/>';
+      }
+    }
+    if(ST.showFl){
+      for(const ln of FLD.lines){
+        const pts=[];
+        for(let i=0;i<ln.length;i+=3) pts.push(P3(nx_(ln[i][0]),ny_(ln[i][1]),zf));
+        o+=PL(pts,CGOLD,1,null,0.5);
+      }
+    }
+  }
+  /* 曲面 */
+  const N=DRAG?(narrow?17:21):(narrow?25:33);
+  const st=2/(N-1);
+  const zs=new Float64Array(N*N), vs=new Float64Array(N*N);
+  for(let j=0;j<N;j++){
+    const yy=(-1+j*st)*LDOM;
+    for(let i=0;i<N;i++){
+      const v=vAt((-1+i*st)*LDOM,yy);
+      vs[j*N+i]=v; zs[j*N+i]=zOf(v);
+    }
+  }
+  const items=[];
+  const LX=-0.42,LY=-0.50,LZ=0.76;
+  for(let j=0;j<N-1;j++){
+    for(let i=0;i<N-1;i++){
+      const xa=-1+i*st, xb=xa+st, ya=-1+j*st, yb=ya+st;
+      const z00=zs[j*N+i], z10=zs[j*N+i+1], z11=zs[(j+1)*N+i+1], z01=zs[(j+1)*N+i];
+      const vm=(vs[j*N+i]+vs[j*N+i+1]+vs[(j+1)*N+i+1]+vs[(j+1)*N+i])/4;
+      /* 法線は対角線どうしの外積から */
+      const ax=(xb-xa)*LDOM, ay=(yb-ya)*LDOM;
+      const ux=ax, uy=ay, uz=(z11-z00)*LDOM;
+      const wx=-ax, wy=ay, wz=(z01-z10)*LDOM;
+      let nxv=uy*wz-uz*wy, nyv=uz*wx-ux*wz, nzv=ux*wy-uy*wx;
+      const nl=Math.hypot(nxv,nyv,nzv)||1;
+      nxv/=nl; nyv/=nl; nzv/=nl;
+      if(nzv<0){ nxv=-nxv; nyv=-nyv; nzv=-nzv; }
+      const lam=Math.max(0,nxv*LX+nyv*LY+nzv*LZ);
+      const sh=0.62+0.42*lam;
+      const c=colOf(vm);
+      const col=rgb2hex([c[0]*sh+255*(1-sh)*0.1, c[1]*sh+255*(1-sh)*0.1, c[2]*sh+255*(1-sh)*0.1]);
+      const q=[P3(xa,ya,z00),P3(xb,ya,z10),P3(xb,yb,z11),P3(xa,yb,z01)];
+      const dep=(DEP(xa,ya,z00)+DEP(xb,ya,z10)+DEP(xb,yb,z11)+DEP(xa,yb,z01))/4;
+      items.push([dep,'<polygon points="'+f1(q[0][0])+','+f1(q[0][1])+' '+f1(q[1][0])+','+f1(q[1][1])+' '+f1(q[2][0])+','+f1(q[2][1])+' '+f1(q[3][0])+','+f1(q[3][1])+'" fill="'+col+'" stroke="'+col+'" stroke-width="0.7"/>']);
+    }
+  }
+  /* 曲面の上の等電位線。高さが V で決まるので、等電位 = 水平の切り口 */
+  if(ST.showEq&&!DRAG){
+    const NC=narrow?41:53, sc=2/(NC-1);
+    const gc=new Float64Array(NC*NC);
+    for(let j=0;j<NC;j++){
+      const yy=(-1+j*sc)*LDOM;
+      for(let i=0;i<NC;i++) gc[j*NC+i]=vAt((-1+i*sc)*LDOM,yy);
+    }
+    for(const lv of FLD.levels){
+      const segs=contourSegs(gc,NC,NC,-1,1,-1,1,lv);
+      const zz=zOf(lv)+0.012;
+      const col=(lv===0)?INK:CGRNT;
+      for(const s of segs){
+        const a=P3(s[0],s[1],zz), b=P3(s[2],s[3],zz);
+        const dep=DEP((s[0]+s[2])/2,(s[1]+s[3])/2,zz);
+        items.push([dep,'<line x1="'+f1(a[0])+'" y1="'+f1(a[1])+'" x2="'+f1(b[0])+'" y2="'+f1(b[1])+'" stroke="'+col+'" stroke-width="'+(lv===0?1.5:1.1)+'" opacity="'+(lv===0?0.9:0.62)+'" stroke-linecap="round"/>']);
+      }
+    }
+  }
+  /* 断面の線を曲面の上に乗せる */
+  {
+    const M=narrow?60:96, pts=[];
+    for(let i=0;i<=M;i++){
+      const t=-1+2*i/M;
+      const wx=(ST.cutDir==='x')?t*LDOM:ST.cutPos, wy=(ST.cutDir==='x')?ST.cutPos:t*LDOM;
+      const z=zOf(vAt(wx,wy))+0.02;
+      pts.push([nx_(wx),ny_(wy),z]);
+    }
+    for(let i=0;i<M;i++){
+      const a=P3(pts[i][0],pts[i][1],pts[i][2]), b=P3(pts[i+1][0],pts[i+1][1],pts[i+1][2]);
+      const dep=DEP((pts[i][0]+pts[i+1][0])/2,(pts[i][1]+pts[i+1][1])/2,(pts[i][2]+pts[i+1][2])/2);
+      items.push([dep,'<line x1="'+f1(a[0])+'" y1="'+f1(a[1])+'" x2="'+f1(b[0])+'" y2="'+f1(b[1])+'" stroke="'+CPUR+'" stroke-width="2.2" stroke-linecap="round"/>']);
+    }
+  }
+  /* 電荷の位置に串を刺す */
+  for(let i=0;i<ST.ch.length;i++){
+    const c=ST.ch[i];
+    if(c.t==='plane') continue;
+    const zx=zOf(vAt(c.x,c.y));
+    const a=P3(nx_(c.x),ny_(c.y),zf), b=P3(nx_(c.x),ny_(c.y),zx);
+    const dep=DEP(nx_(c.x),ny_(c.y),(zf+zx)/2);
+    const col=chColor(c);
+    items.push([dep+0.002,LN(a[0],a[1],b[0],b[1],col,1.2,'2 2',0.75)+
+      CIRC(b[0],b[1],i===ST.sel?5.4:4.2,'#fff',col,i===ST.sel?2.4:1.8)+
+      TX(b[0],b[1]+2.6,(c.q>=0?'+':'\u2212'),col,8.5,'middle','600')]);
+  }
+  /* 試験電荷 */
+  {
+    const zx=zOf(vAt(ST.test.x,ST.test.y));
+    const a=P3(nx_(ST.test.x),ny_(ST.test.y),zf), b=P3(nx_(ST.test.x),ny_(ST.test.y),zx);
+    const dep=DEP(nx_(ST.test.x),ny_(ST.test.y),(zf+zx)/2);
+    items.push([dep+0.003,LN(a[0],a[1],b[0],b[1],CPUR,1,'2 2',0.6)+CIRC(b[0],b[1],4,CPUR,'#fff',1.4)]);
+  }
+  items.sort((p,q)=>p[0]-q[0]);
+  let body='';
+  for(const it of items) body+=it[1];
+  o+=body;
+  /* 目盛りの柱 */
+  {
+    let best=null;
+    for(const sx of [-1,1]) for(const sy of [-1,1]){
+      const d=DEP(sx,sy,zf);
+      if(!best||d<best[2]) best=[sx,sy,d];
+    }
+    const bx=best[0], by=best[1];
+    const top=zOf(ST.vc*0.999);
+    o+=PL([P3(bx,by,zf),P3(bx,by,top)],RULE,1.1);
+    const tv=[-ST.vc,-ST.vc/2,0,ST.vc/2,ST.vc];
+    for(const v of tv){
+      const p=P3(bx,by,zOf(v));
+      o+=LN(p[0]-3.5,p[1],p[0]+3.5,p[1],MUT,1);
+      o+=TX(p[0]-6,p[1]+3,mn(Math.round(v)),MUT,9,'end');
+    }
+    o+=TX(P3(bx,by,top)[0]-6,P3(bx,by,top)[1]-9,'V [V]',MUT,9.5,'end');
+  }
+  o+=TXJ(narrow?6:12,15,'高さ = 電位。'+(floor?'床に等電位線と電気力線を落としている。':'')+'ドラッグで回る',MUT,narrow?10:11,'start');
+  o+=TX(W-6,H-8,'az '+Math.round(ST.az)+'\u00B0  el '+Math.round(ST.el)+'\u00B0',MUT,9.5,'end');
+  return o;
+}
+
+function draw2D(W,H){
+  const pad=narrow?14:20;
+  const side=Math.min(W-2*pad,H-2*pad);
+  const ox=(W-side)/2, oy=(H-side)/2;
+  const X=x=>ox+(x+LDOM)/(2*LDOM)*side;
+  const Y=y=>oy+side-(y+LDOM)/(2*LDOM)*side;
+  MAP2={ox:ox,oy:oy,side:side,X:X,Y:Y,
+        ix:sx=>(sx-ox)/side*2*LDOM-LDOM,
+        iy:sy=>LDOM-(sy-oy)/side*2*LDOM};
+  let o='';
+  /* 電位の濃淡 */
+  if(ST.showHeat){
+    const n=narrow?30:44, cw=side/n+0.6;
+    for(let j=0;j<n;j++){
+      for(let i=0;i<n;i++){
+        const wx=-LDOM+(i+0.5)/n*2*LDOM, wy=-LDOM+(j+0.5)/n*2*LDOM;
+        const c=colOf(vAt(wx,wy));
+        o+='<rect x="'+f1(ox+i*side/n)+'" y="'+f1(oy+side-(j+1)*side/n)+'" width="'+f1(cw)+'" height="'+f1(cw)+'" fill="'+rgb2hex(c)+'"/>';
+      }
+    }
+  }else{
+    o+=RECT(ox,oy,side,side,'#fff',null,0);
+  }
+  o+=RECT(ox,oy,side,side,'none',RULE,1);
+  /* 等電位線 */
+  if(ST.showEq){
+    for(const lv of FLD.levels){
+      const segs=contourSegs(FLD.fine,FLD.nf,FLD.nf,-LDOM,LDOM,-LDOM,LDOM,lv);
+      if(!segs.length) continue;
+      let d='';
+      for(const s of segs) d+='M'+f1(X(s[0]))+' '+f1(Y(s[1]))+'L'+f1(X(s[2]))+' '+f1(Y(s[3]));
+      o+='<path d="'+d+'" fill="none" stroke="'+(lv===0?INK:CGRNT)+'" stroke-width="'+(lv===0?1.7:1.15)+'" opacity="'+(lv===0?0.9:0.72)+'" stroke-linecap="round"/>';
+    }
+  }
+  /* 電気力線 */
+  if(ST.showFl){
+    for(const ln of FLD.lines){
+      const pts=[];
+      for(let i=0;i<ln.length;i+=2) pts.push([X(ln[i][0]),Y(ln[i][1])]);
+      if(pts.length>1) o+=PL(pts,CGOLD,1.3,null,0.9);
+      /* 矢じり */
+      let acc=0;
+      for(let i=1;i<ln.length;i++){
+        acc+=Math.hypot(ln[i][0]-ln[i-1][0],ln[i][1]-ln[i-1][1]);
+        if(acc>0.17){
+          acc=0;
+          const dx=X(ln[i][0])-X(ln[i-1][0]), dy=Y(ln[i][1])-Y(ln[i-1][1]);
+          const m=Math.hypot(dx,dy)||1;
+          o+=ARH(X(ln[i][0]),Y(ln[i][1]),dx/m,dy/m,CGOLD,6.2,0.95);
+        }
+      }
+    }
+  }
+  /* 断面の線 */
+  if(ST.cutDir==='x') o+=LN(X(-LDOM),Y(ST.cutPos),X(LDOM),Y(ST.cutPos),CPUR,1.6,'6 3',0.9);
+  else o+=LN(X(ST.cutPos),Y(-LDOM),X(ST.cutPos),Y(LDOM),CPUR,1.6,'6 3',0.9);
+  /* 電荷 */
+  o+=drawCharges2D(X,Y,side);
+  /* 試験電荷と力 */
+  o+=drawTest2D(X,Y,side*0.30);
+  o+=TXJ(ox+5,oy+14,'真上から見た図。電荷と試験電荷はドラッグで動く',MUT,narrow?10:11,'start');
+  o+=TX(ox+side,oy+side+ (narrow?11:13),'1 目盛 = '+(2*LDOM).toFixed(1)+' m 四方',MUT,9,'end');
+  return o;
+}
+let MAP2=null;
+
+function drawCharges2D(X,Y,side){
+  let o='';
+  for(let i=0;i<ST.ch.length;i++){
+    const c=ST.ch[i], col=chColor(c);
+    if(c.t==='plane'){
+      o+=LN(X(-LDOM),Y(c.y0),X(LDOM),Y(c.y0),col,4,null,0.9);
+      o+=TX(X(-LDOM)+6,Y(c.y0)-6,(c.sig>=0?'+':'\u2212')+Math.abs(c.sig).toFixed(1)+' nC/m\u00B2',col,9.5,'start','500');
+      continue;
+    }
+    const r=Math.max(5,c.a/(2*LDOM)*side);
+    if(c.t==='shell') o+=CIRC(X(c.x),Y(c.y),r,'#fff',col,i===ST.sel?2.6:1.8,'3 2');
+    else o+=CIRC(X(c.x),Y(c.y),r,col,'#fff',i===ST.sel?2.4:1.4,null,0.9);
+    o+=TX(X(c.x),Y(c.y)+3.6,(c.q>=0?'+':'\u2212'),c.t==='shell'?col:'#fff',Math.min(15,r*1.5),'middle','600');
+    if(i===ST.sel) o+=CIRC(X(c.x),Y(c.y),r+4.5,'none',INK,1,'2 2',0.8);
+  }
+  return o;
+}
+function drawTest2D(X,Y,arrmax){
+  const e=eAt(ST.test.x,ST.test.y,[0,0]);
+  const em=Math.hypot(e[0],e[1]);
+  let o='';
+  const px=X(ST.test.x), py=Y(ST.test.y);
+  if(em>1e-9){
+    const ref=Math.max(60,ST.vc/LDOM*0.9);
+    const len=arrmax*Math.min(1,Math.pow(em/ref,0.45));
+    o+=AR(px,py,px+e[0]/em*len,py-e[1]/em*len,CPUR,2.4,8);
+    o+=TX(px+e[0]/em*len,py-e[1]/em*len-8,'F = qE',CPURT,10,'middle','600');
+  }
+  o+=CIRC(px,py,5.5,'#fff',CPUR,2.2);
+  o+=CIRC(px,py,2,CPUR,null,0);
+  return o;
+}
+
+function drawStage(){
+  const S=mainSize();
+  /* 2D は正方形の領域なので、縦を伸ばして横幅いっぱいまで使う */
+  const H=(ST.view==='flat')?(narrow?372:556):S.H;
+  setVB('sv-main',S.W,H);
+  let o;
+  if(ST.view==='flat') o=draw2D(S.W,H);
+  else o=draw3D(S.W,H,ST.view==='both');
+  put('main-g',o);
+  const sv=document.getElementById('sv-main');
+  if(sv) sv.className.baseVal='stage grab'+(DRAG?' drag':'');
+}
+
+/* ---------- 断面 V-s と E-s ---------- */
+function cutPoint(s){
+  return (ST.cutDir==='x')?[s,ST.cutPos]:[ST.cutPos,s];
+}
+function cutTangent(){ return (ST.cutDir==='x')?[1,0]:[0,1]; }
+function vCut(s){ const p=cutPoint(s); return vAt(p[0],p[1]); }
+function eCut(s){
+  const p=cutPoint(s), t=cutTangent(), e=eAt(p[0],p[1],[0,0]);
+  return e[0]*t[0]+e[1]*t[1];
+}
+function eCutNum(s,h){ return -(vCut(s+h)-vCut(s-h))/(2*h); }
+
+function drawCut(){
+  const W=narrow?360:740, H=narrow?356:372;
+  setVB('sv-cut',W,H);
+  const pad={l:narrow?46:60,r:narrow?12:18,t:24,b:30};
+  const pw=W-pad.l-pad.r;
+  const gap=narrow?36:34;
+  const ph=(H-pad.t-pad.b-gap-16)/2;
+  const M=narrow?200:340;
+  const S0=-LDOM, S1=LDOM;
+  const vs=[], es=[], en=[];
+  const h=ST.diffH*1e-4;
+  for(let i=0;i<=M;i++){
+    const s=S0+(S1-S0)*i/M;
+    vs.push([s,vCut(s)]); es.push([s,eCut(s)]); en.push([s,eCutNum(s,h)]);
+  }
+  let vmax=0, emax=0;
+  for(const p of vs) if(isFinite(p[1])) vmax=Math.max(vmax,Math.abs(p[1]));
+  for(const p of es) if(isFinite(p[1])) emax=Math.max(emax,Math.abs(p[1]));
+  vmax=niceCeil(Math.min(vmax,ST.vc*3.2)*1.08);
+  emax=niceCeil(Math.min(emax,ST.vc/LDOM*8)*1.08);
+  const xt=ticks(-LDOM,LDOM,5);
+  const sname=(ST.cutDir==='x')?'x':'y';
+  const P1=mkPlot(pad.l,pad.t,pw,ph,S0,S1,-vmax,vmax,xt,ticks(-vmax,vmax,4),'','V ['+'V]  '+((ST.cutDir==='x')?('y = '+ST.cutPos.toFixed(2)+' m'):('x = '+ST.cutPos.toFixed(2)+' m')),t=>f1(t),t=>mn(Math.round(t)));
+  let o='<defs><clipPath id="cc1"><rect x="'+f1(pad.l)+'" y="'+f1(pad.t)+'" width="'+f1(pw)+'" height="'+f1(ph)+'"/></clipPath>'
+    +'<clipPath id="cc2"><rect x="'+f1(pad.l)+'" y="'+f1(pad.t+ph+gap)+'" width="'+f1(pw)+'" height="'+f1(ph)+'"/></clipPath></defs>';
+  o+=P1.s;
+  o+=LN(P1.X(S0),P1.Y(0),P1.X(S1),P1.Y(0),RULE,1,'3 3');
+  /* 枠の外は切り落とす。値を枠の高さで頭打ちにすると、発散が平らな天井に見えてしまう */
+  const cl=(p,Pp,lo,hi)=>[Pp.X(p[0]),Pp.Y(clamp(p[1],lo*6,hi*6))];
+  o+='<g clip-path="url(#cc1)">'+PL(vs.map(p=>cl(p,P1,-vmax,vmax)),CBLU,2);
+  /* 接線 */
+  const sm=ST.cutMark;
+  const vm=clamp(vCut(sm),-vmax,vmax);
+  const slope=(vCut(sm+h)-vCut(sm-h))/(2*h);
+  {
+    const dx=(S1-S0)*0.14;
+    const p1=[sm-dx, vCut(sm)-slope*dx], p2=[sm+dx, vCut(sm)+slope*dx];
+    o+=PL([[P1.X(p1[0]),P1.Y(clamp(p1[1],-vmax*6,vmax*6))],[P1.X(p2[0]),P1.Y(clamp(p2[1],-vmax*6,vmax*6))]],CCRM,1.7,'5 3',0.95);
+    o+='</g>';
+    o+=CIRC(P1.X(sm),P1.Y(vm),4.2,'#fff',CCRM,2.2);
+    o+=TX(P1.X(sm)+7,P1.Y(vm)-7,'傾き '+fmtP(slope,3)+' V/m',CCRMT,10,sm>0.3?'end':'start','500');
+  }
+  const y2=pad.t+ph+gap;
+  const P2=mkPlot(pad.l,y2,pw,ph,S0,S1,-emax,emax,xt,ticks(-emax,emax,4),sname+' [m]','E'+sname+' [V/m]',t=>f1(t),t=>mn(Math.round(t)));
+  o+=P2.s;
+  o+=LN(P2.X(S0),P2.Y(0),P2.X(S1),P2.Y(0),RULE,1,'3 3');
+  o+='<g clip-path="url(#cc2)">';
+  o+=PL(en.map(p=>cl(p,P2,-emax,emax)),CCRM,3,'1 4',0.95);
+  o+=PL(es.map(p=>cl(p,P2,-emax,emax)),CGRN,2);
+  o+='</g>';
+  {
+    const ev=clamp(-slope,-emax,emax);
+    o+=LN(P2.X(sm),P2.Y(0),P2.X(sm),P2.Y(ev),CCRM,1.2,'3 3',0.8);
+    o+=CIRC(P2.X(sm),P2.Y(ev),4.2,'#fff',CCRM,2.2);
+    o+=TX(P2.X(sm)+7,P2.Y(ev)-7,'\u2212傾き = '+fmtP(-slope,3),CCRMT,10,sm>0.3?'end':'start','500');
+  }
+  o+=LN(P1.X(sm),pad.t,P1.X(sm),pad.t+ph,CCRM,0.9,'2 3',0.4);
+  let lx=pad.l, ly=H-6;
+  const lg=[[CGRN,'電場の式から直接'],[CCRM,'V を中心差分した値']];
+  for(const g of lg){
+    o+=LN(lx,ly-4,lx+13,ly-4,g[0],2.4,g[0]===CCRM?'1 3':null);
+    o+=TXJ(lx+17,ly,g[1],MUT,10.5,'start');
+    lx+=narrow?128:150;
+  }
+  put('cut-g',o);
+  updCutStats(slope);
+}
+function updCutStats(slope){
+  const sm=ST.cutMark, p=cutPoint(sm);
+  const ea=eCut(sm), h=ST.diffH*1e-4;
+  const en=eCutNum(sm,h);
+  const v=vCut(sm);
+  let hh='';
+  hh+=stt('印の位置',(ST.cutDir==='x'?'x = ':'y = ')+sm.toFixed(3)+' m');
+  hh+=stt('そこでの V',fmt(v,5)+' V');
+  hh+=stt('接線の傾き dV/d'+ST.cutDir,fmt(slope,5)+' V/m');
+  hh+=stt('&minus;傾き（数値微分）',fmt(en,5)+' V/m');
+  hh+=stt('電場の式から E'+ST.cutDir,fmt(ea,5)+' V/m');
+  const rel=Math.abs(ea)>1e-9?Math.abs((en-ea)/ea)*100:0;
+  hh+=stt('2 つの差',fmt(rel,3)+' %');
+  put('cutstats',hh);
+  let mx=0, mi=0;
+  for(let i=0;i<=200;i++){
+    const s=-LDOM+2*LDOM*i/200;
+    const a=eCut(s), b=eCutNum(s,h);
+    if(Math.abs(a-b)>mx){ mx=Math.abs(a-b); mi=s; }
+  }
+  put('cutnote','いま印を置いている場所で、V のグラフの接線の傾きは '+fmt(slope,4)+' V/m。'+
+    'その符号を反転した '+fmt(-slope,4)+' V/m が、電場の式から出した E'+ST.cutDir+' = '+fmt(ea,4)+' V/m と一致している。'+
+    (Math.abs(slope)<1e-6?'ここは傾きがほぼゼロなので、この向きの電場成分もゼロ。等電位線がこの断面と直角に交わっている場所。':
+     (slope<0?'グラフが右下がりだから電場は正の向き。坂を下る向きに正電荷が押される。':'グラフが右上がりだから電場は負の向き。'))+
+    ' 断面全体で見ると、数値微分と解析式の差は最大 '+fmt(mx,3)+' V/m（'+ST.cutDir+' = '+mi.toFixed(3)+' m 付近）。'+
+    '差が大きく出るのは曲率の大きいところ、つまり電荷のすぐそばに限られる。');
+}
+function drawDiffTab(){
+  const rows=[];
+  let prev=null;
+  for(const hm of [80,40,20,10,5,2.5]){
+    const h=hm*1e-4;
+    let mx=0;
+    for(let i=0;i<=240;i++){
+      const s=-LDOM+2*LDOM*i/240;
+      mx=Math.max(mx,Math.abs(eCut(s)-eCutNum(s,h)));
+    }
+    rows.push([hm,h,mx,prev===null?null:prev/mx]);
+    prev=mx;
+  }
+  let t='<table><caption>刻み幅 h を半分にしたときの、中心差分と解析式の最大の差</caption><thead><tr><th>h [mm]</th><th class="num">最大の差 [V/m]</th><th class="num">前の行との比</th></tr></thead><tbody>';
+  for(const r of rows){
+    const cur=(Math.abs(r[0]-ST.diffH)<1e-9)?' class="cur"':'';
+    t+='<tr'+cur+'><td class="mono">'+r[0]+'</td><td class="num">'+expo(r[2],2)+'</td><td class="num">'+(r[3]===null?'\u2014':fmt(r[3],3)+' 倍')+'</td></tr>';
+  }
+  t+='</tbody></table>';
+  put('difftab',t);
+  put('diffnote','刻みを半分にするたびに差がおよそ 4 分の 1 になる。中心差分の誤差が h の 2 乗で効くことがそのまま出ている。'+
+    'ただし h をどこまでも小さくすればいいわけではなくて、ある所から先は倍精度の丸め誤差（相対 10\u207B\u00B9\u2076 程度）が V の引き算で拡大して、かえって悪くなる。'+
+    'いまの V の大きさだと h = 0.01 mm あたりが底になる。');
+}
+
+/* ---------- 試験電荷 ---------- */
+function drawTestCard(){
+  const W=narrow?360:740, H=narrow?336:424;
+  setVB('sv-test',W,H);
+  const pad=narrow?12:18;
+  const bw=W-2*pad, bh=H-2*pad;
+  const R=ST.zoomR;                    /* 縦の半幅（m） */
+  const sc=bh/(2*R);                   /* 1 m あたりの px。縦横で同じ値を使う */
+  const Rx=bw/(2*sc);                  /* 横の半幅（m）。窓が横長なだけで縮尺は等方 */
+  const ox=pad, oy=pad;
+  /* ドラッグ中は窓を固定する。追従させると再センタリングが効いて指より速く走ってしまう */
+  const cx=ST.panLock?ST.panLock[0]:ST.test.x, cy=ST.panLock?ST.panLock[1]:ST.test.y;
+  const X=x=>ox+(x-cx+Rx)*sc;
+  const Y=y=>oy+bh-(y-cy+R)*sc;
+  MAPT={ox:ox,oy:oy,bw:bw,bh:bh,R:R,Rx:Rx,cx:cx,cy:cy};
+  let o='<defs><clipPath id="tclip"><rect x="'+f1(ox)+'" y="'+f1(oy)+'" width="'+f1(bw)+'" height="'+f1(bh)+'"/></clipPath></defs>';
+  o+='<g clip-path="url(#tclip)">';
+  const ny=narrow?26:32, nx=Math.round(ny*bw/bh), cwx=bw/nx+0.6, cwy=bh/ny+0.6;
+  for(let j=0;j<ny;j++) for(let i=0;i<nx;i++){
+    const wx=cx-Rx+(i+0.5)/nx*2*Rx, wy=cy-R+(j+0.5)/ny*2*R;
+    o+='<rect x="'+f1(ox+i*bw/nx)+'" y="'+f1(oy+bh-(j+1)*bh/ny)+'" width="'+f1(cwx)+'" height="'+f1(cwy)+'" fill="'+rgb2hex(colOf(vAt(wx,wy)))+'"/>';
+  }
+  /* 局所の等電位線。試験電荷のところを通る線を濃く */
+  const NGY=narrow?57:65, NGX=Math.round(NGY*bw/bh);
+  const gl=new Float64Array(NGX*NGY);
+  for(let j=0;j<NGY;j++){ const yy=cy-R+2*R*j/(NGY-1);
+    for(let i=0;i<NGX;i++) gl[j*NGX+i]=vAt(cx-Rx+2*Rx*i/(NGX-1),yy); }
+  const CS=lv=>contourSegs(gl,NGX,NGY,cx-Rx,cx+Rx,cy-R,cy+R,lv);
+  const v0=vAt(cx,cy);
+  const dv=ST.vc/12;
+  for(let k=-16;k<=16;k++){
+    const segs=CS(v0+k*dv);
+    if(!segs.length) continue;
+    let d='';
+    for(const g of segs) d+='M'+f1(X(g[0]))+' '+f1(Y(g[1]))+'L'+f1(X(g[2]))+' '+f1(Y(g[3]));
+    o+='<path d="'+d+'" fill="none" stroke="'+(k===0?INK:CGRNT)+'" stroke-width="'+(k===0?1.8:1)+'" opacity="'+(k===0?0.9:0.38)+'" stroke-linecap="round"/>';
+  }
+  /* 力線 */
+  for(const ln of FLD.lines){
+    const pts=[];
+    for(let i=0;i<ln.length;i+=1){
+      if(Math.abs(ln[i][0]-cx)>Rx*1.3||Math.abs(ln[i][1]-cy)>R*1.3){ if(pts.length>1) o+=PL(pts,CGOLD,1.2,null,0.75); pts.length=0; continue; }
+      pts.push([X(ln[i][0]),Y(ln[i][1])]);
+    }
+    if(pts.length>1) o+=PL(pts,CGOLD,1.2,null,0.75);
+  }
+  /* 電荷 */
+  for(const c of ST.ch){
+    if(c.t==='plane'){ o+=LN(X(cx-Rx),Y(c.y0),X(cx+Rx),Y(c.y0),chColor(c),4,null,0.85); continue; }
+    const rr=c.a*sc;
+    if(rr<2||Math.abs(c.x-cx)>Rx+c.a||Math.abs(c.y-cy)>R+c.a) continue;
+    o+=CIRC(X(c.x),Y(c.y),rr,c.t==='shell'?'#fff':chColor(c),chColor(c),1.8,c.t==='shell'?'3 2':null,0.9);
+  }
+  /* 電場・力・等電位線の接線 */
+  const e=eAt(cx,cy,[0,0]), em=Math.hypot(e[0],e[1]);
+  const px=X(cx), py=Y(cy);
+  const L0=bh*0.34;
+  const seg=nearestSeg(CS(v0),cx,cy);
+  let ux=0,uy=0;
+  if(seg){
+    const tx=seg[2]-seg[0], ty=seg[3]-seg[1], tm=Math.hypot(tx,ty)||1;
+    ux=tx/tm; uy=ty/tm;
+    o+=LN(px-ux*L0,py+uy*L0,px+ux*L0,py-uy*L0,CGRNT,2.6,'7 4',0.95);
+    o+=TXJ(px+ux*L0,py-uy*L0-7,narrow?'接線':'等電位線の接線',CGRNT,10,ux>0?'end':'start','500');
+  }
+  if(em>1e-9){
+    const ex=e[0]/em, ey=e[1]/em;
+    /* 直角マーカー。E の向きと接線の向きで小さな正方形を作る */
+    if(seg){
+      const d0=Math.min(22,L0*0.22), sg=(ux*ex+uy*ey)>=0?-1:1;
+      const a1=[px+ex*d0,py-ey*d0], a2=[px+sg*ux*d0,py-sg*uy*d0];
+      o+=PL([a1,[a1[0]+sg*ux*d0,a1[1]-sg*uy*d0],a2],INK,1.4,null,0.75);
+    }
+    o+=AR(px,py,px+ex*L0,py-ey*L0,CBLU,2.4,9);
+    o+=TXJ(px+ex*L0*1.02,py-ey*L0*1.02-7,'E',CBLUT,12,'middle','600');
+    const sgn=ST.qt>=0?1:-1;
+    o+=AR(px,py,px+sgn*ex*L0*0.66,py-sgn*ey*L0*0.66,CPUR,3.4,10,0.85);
+    o+=TXJ(px+sgn*ex*L0*0.66,py-sgn*ey*L0*0.66+(sgn*e[1]>0?18:-12),'F = qE',CPURT,11,'middle','600');
+  }
+  o+=CIRC(px,py,6,'#fff',CPUR,2.4);
+  o+=TX(px,py+3.6,ST.qt>=0?'+':'\u2212',CPURT,10,'middle','600');
+  o+='</g>';
+  o+=RECT(ox,oy,bw,bh,'none',RULE,1);
+  o+=TXJ(ox+6,oy+14,narrow?('拡大図。縦 \u00B1'+R.toFixed(2)+' m、横 \u00B1'+Rx.toFixed(2)+' m'):('試験電荷のまわりを拡大。縦 \u00B1'+R.toFixed(2)+' m、横 \u00B1'+Rx.toFixed(2)+' m。等電位線と力線がどこでも直角に交わる'),MUT,narrow?10:11,'start');
+  put('test-g',o);
+  updTestStats(seg,v0,e,em);
+}
+let MAPT=null;
+function nearestSeg(segs,x,y){
+  /* 長さゼロの線分は捨てる。等電位の値が格子点の値とぴったり一致すると、
+     その点に両端が潰れた線分が出てきて向きが決まらない */
+  let best=null, bd=1e18;
+  for(const s of segs){
+    if(Math.hypot(s[2]-s[0],s[3]-s[1])<1e-12) continue;
+    const mx=(s[0]+s[2])/2, my=(s[1]+s[3])/2;
+    const d=(mx-x)*(mx-x)+(my-y)*(my-y);
+    if(d<bd){ bd=d; best=s; }
+  }
+  return best;
+}
+function orthDev(nn){
+  const R=ST.zoomR, cx=ST.test.x, cy=ST.test.y;
+  const g=new Float64Array(nn*nn);
+  for(let j=0;j<nn;j++){ const yy=cy-R+2*R*j/(nn-1);
+    for(let i=0;i<nn;i++) g[j*nn+i]=vAt(cx-R+2*R*i/(nn-1),yy); }
+  const seg=nearestSeg(contourSegs(g,nn,nn,cx-R,cx+R,cy-R,cy+R,vAt(cx,cy)),cx,cy);
+  if(!seg) return null;
+  const tx=seg[2]-seg[0], ty=seg[3]-seg[1], tm=Math.hypot(tx,ty)||1;
+  const e=eAt(cx,cy,[0,0]), em=Math.hypot(e[0],e[1])||1;
+  const cosang=(tx/tm)*(e[0]/em)+(ty/tm)*(e[1]/em);
+  return Math.abs(90-Math.acos(clamp(Math.abs(cosang),-1,1))*R2D);
+}
+function updTestStats(seg,v0,e,em){
+  const cx=ST.test.x, cy=ST.test.y;
+  const h=1e-5;
+  const gx=-(vAt(cx+h,cy)-vAt(cx-h,cy))/(2*h);
+  const gy=-(vAt(cx,cy+h)-vAt(cx,cy-h))/(2*h);
+  const angA=Math.atan2(e[1],e[0])*R2D;
+  const angN=Math.atan2(gy,gx)*R2D;
+  const F=Math.abs(ST.qt)*1e-9*em;
+  let hh='';
+  hh+=stt('位置',cx.toFixed(3)+', '+cy.toFixed(3)+' m');
+  hh+=stt('そこの電位 V',fmt(v0,5)+' V');
+  hh+=stt('|E|',fmtU(em,'V/m',5));
+  hh+=stt('E の向き',fmt(angA,4)+'\u00B0');
+  hh+=stt('&minus;&nabla;V を数値微分',fmt(angN,4)+'\u00B0');
+  hh+=stt('向きの差',fmt(Math.abs(angA-angN),3)+'\u00B0');
+  hh+=stt('|F| = |q|E',fmtU(F,'N',4));
+  const dev=orthDev(ST.orthN);
+  hh+=stt('等電位線との角度',(dev===null?'\u2014':(fmt(90-dev,5)+'\u00B0')));
+  put('teststats',hh);
+  put('testnote','電場の向きは解析式から '+fmt(angA,4)+'\u00B0、V を中心差分して出した \u2212\u2207V の向きは '+fmt(angN,4)+'\u00B0。'+
+    '差は '+fmt(Math.abs(angA-angN),3)+'\u00B0 で、これは差分の刻み幅で決まる誤差にすぎない。'+
+    '力の矢印は q = '+ST.qt.toFixed(1)+' nC なので'+(ST.qt>=0?'電場と同じ向き':'電場と逆向き')+'。'+
+    (ST.qt>=0?'正電荷は電位の高いほうから低いほうへ、つまり坂を下る向きに押される。':'負電荷は坂を登る向きに押される。位置エネルギー qV で考えれば、q が負だから V が高いほうが低エネルギーになる。'));
+}
+function drawOrthTab(){
+  let t='<table><caption>等電位線を拾う格子を細かくすると、電場との角度が 90&deg; に寄っていく</caption><thead><tr><th>格子</th><th class="num">格子の間隔 [m]</th><th class="num">90&deg; からのずれ</th></tr></thead><tbody>';
+  const R=ST.zoomR;
+  for(const nn of [21,41,81,161,321]){
+    const d=orthDev(nn);
+    const cur=(nn===ST.orthN)?' class="cur"':'';
+    t+='<tr'+cur+'><td class="mono">'+nn+'\u00D7'+nn+'</td><td class="num">'+fmt(2*R/(nn-1),3)+'</td><td class="num">'+(d===null?'\u2014':fmt(d,3)+'\u00B0')+'</td></tr>';
+  }
+  t+='</tbody></table>';
+  put('orthtab',t);
+  put('orthnote','格子の間隔を半分にすると、ずれもきれいに半分になる。等電位線を折れ線で近似していることだけが原因で、'+
+    '線分の向きと、その線分の真ん中を通る本当の接線の向きが、間隔に比例してずれる。'+
+    '物理として直交していないのではなく、線を引く手つきが荒いだけ。等電位面に沿って動くかぎり dV = 0、'+
+    'いっぽう dV = \u2212E\u00B7dl だから、面に沿った任意の向きと E の内積がゼロになる。証明はこれで終わっている。');
+}
+
+/* ---------- 経路と仕事 ---------- */
+const PATHS=[
+  {id:'st', nm:'まっすぐ', c:CPUR},
+  {id:'L',  nm:'L 字', c:CGRN},
+  {id:'arc',nm:'大回り', c:CGOLD}
+];
+function pathAt(kind,t){
+  const A=ST.pA, B=ST.pB;
+  if(kind==='st') return [A.x+(B.x-A.x)*t, A.y+(B.y-A.y)*t, B.x-A.x, B.y-A.y];
+  if(kind==='arc'){
+    const mx=(A.x+B.x)/2, my=(A.y+B.y)/2;
+    const dx=B.x-A.x, dy=B.y-A.y, m=Math.hypot(dx,dy)||1;
+    const Px=mx-dy/m*m*0.95, Py=my+dx/m*m*0.95;
+    const u=1-t;
+    return [u*u*A.x+2*u*t*Px+t*t*B.x, u*u*A.y+2*u*t*Py+t*t*B.y,
+            2*u*(Px-A.x)+2*t*(B.x-Px), 2*u*(Py-A.y)+2*t*(B.y-Py)];
+  }
+  /* L 字：前半は x 方向、後半は y 方向 */
+  if(t<0.5){ const s=t*2; return [A.x+(B.x-A.x)*s, A.y, 2*(B.x-A.x), 0]; }
+  const s=(t-0.5)*2;
+  return [B.x, A.y+(B.y-A.y)*s, 0, 2*(B.y-A.y)];
+}
+function workOf(kind,n,q){
+  let I;
+  if(kind==='L'){
+    /* 角で折れているので 2 本に分ける。角をまたいでシンプソンを当てると、
+       被積分関数が滑らかでないぶん収束の次数が落ちる */
+    const A=ST.pA, B=ST.pB;
+    const g1=t=>{ const e=eAt(A.x+(B.x-A.x)*t, A.y, [0,0]); return e[0]*(B.x-A.x); };
+    const g2=t=>{ const e=eAt(B.x, A.y+(B.y-A.y)*t, [0,0]); return e[1]*(B.y-A.y); };
+    I=simpson(g1,Math.max(2,n))+simpson(g2,Math.max(2,n));
+  }else{
+    const f=t=>{ const p=pathAt(kind,t), e=eAt(p[0],p[1],[0,0]); return e[0]*p[2]+e[1]*p[3]; };
+    I=simpson(f,Math.max(2,n));
+  }
+  return -q*1e-9*I;   /* 外力の仕事 */
+}
+function drawPath(){
+  const W=narrow?360:740, H=narrow?366:548;
+  setVB('sv-path',W,H);
+  const pad=narrow?14:20;
+  const side=Math.min(W-2*pad,H-2*pad);
+  const ox=(W-side)/2, oy=(H-side)/2;
+  const X=x=>ox+(x+LDOM)/(2*LDOM)*side;
+  const Y=y=>oy+side-(y+LDOM)/(2*LDOM)*side;
+  MAPP={ox:ox,oy:oy,side:side};
+  let o='';
+  const n=narrow?28:40, cw=side/n+0.6;
+  for(let j=0;j<n;j++) for(let i=0;i<n;i++){
+    const wx=-LDOM+(i+0.5)/n*2*LDOM, wy=-LDOM+(j+0.5)/n*2*LDOM;
+    o+='<rect x="'+f1(ox+i*side/n)+'" y="'+f1(oy+side-(j+1)*side/n)+'" width="'+f1(cw)+'" height="'+f1(cw)+'" fill="'+rgb2hex(colOf(vAt(wx,wy)))+'"/>';
+  }
+  o+=RECT(ox,oy,side,side,'none',RULE,1);
+  for(const lv of FLD.levels){
+    const segs=contourSegs(FLD.fine,FLD.nf,FLD.nf,-LDOM,LDOM,-LDOM,LDOM,lv);
+    let d='';
+    for(const s of segs) d+='M'+f1(X(s[0]))+' '+f1(Y(s[1]))+'L'+f1(X(s[2]))+' '+f1(Y(s[3]));
+    if(d) o+='<path d="'+d+'" fill="none" stroke="'+CGRNT+'" stroke-width="1" opacity="0.4"/>';
+  }
+  o+=drawCharges2D(X,Y,side);
+  for(const pk of PATHS){
+    const pts=[];
+    for(let i=0;i<=140;i++){ const p=pathAt(pk.id,i/140); pts.push([X(p[0]),Y(p[1])]); }
+    o+=PL(pts,pk.c,2.4,null,0.95);
+    const mid=pathAt(pk.id,pk.id==='L'?0.5:0.5);
+    o+=CIRC(X(mid[0]),Y(mid[1]),2.4,pk.c,null,0);
+  }
+  for(const p of [[ST.pA,'A'],[ST.pB,'B']]){
+    o+=CIRC(X(p[0].x),Y(p[0].y),7,'#fff',INK,2.2);
+    o+=TX(X(p[0].x),Y(p[0].y)+3.6,p[1],INK,10.5,'middle','600');
+  }
+  let lx=ox+6, ly=oy+side-8;
+  for(const pk of PATHS){
+    o+=LN(lx,ly-4,lx+14,ly-4,pk.c,2.6);
+    o+=TXJ(lx+18,ly,pk.nm,MUT,10.5,'start');
+    lx+=narrow?92:110;
+  }
+  put('path-g',o);
+  updPathTab();
+}
+let MAPP=null;
+function updPathTab(){
+  const q=ST.qt;
+  const VA=vAt(ST.pA.x,ST.pA.y), VB=vAt(ST.pB.x,ST.pB.y);
+  const exact=q*1e-9*(VB-VA);
+  let t='<table><caption>電荷 '+q.toFixed(1)+' nC を A から B までゆっくり運ぶのに、外力が必要とする仕事</caption><thead><tr><th>経路</th><th class="num">道のり [m]</th><th class="num">W 外力 [J]</th><th class="num">q(V<sub>B</sub>&minus;V<sub>A</sub>) との差</th></tr></thead><tbody>';
+  for(const pk of PATHS){
+    const w=workOf(pk.id,ST.nseg,q);
+    let len=0, prev=pathAt(pk.id,0);
+    for(let i=1;i<=400;i++){ const p=pathAt(pk.id,i/400); len+=Math.hypot(p[0]-prev[0],p[1]-prev[1]); prev=p; }
+    const d=w-exact;
+    t+='<tr><td><span class="chip"><span class="dot" style="background:'+pk.c+'"></span>'+pk.nm+'</span></td><td class="num">'+fmt(len,4)+'</td><td class="num">'+expo(w,7)+'</td><td class="num">'+
+      (Math.abs(d)<1e-30?'0':expo(d,2))+'</td></tr>';
+  }
+  t+='<tr class="hi"><td>厳密値 q(V<sub>B</sub>&minus;V<sub>A</sub>)</td><td class="num">\u2014</td><td class="num">'+expo(exact,7)+'</td><td class="num">0</td></tr>';
+  t+='</tbody></table>';
+  put('pathtab',t);
+  put('pathnote','A の電位は '+fmt(VA,5)+' V、B は '+fmt(VB,5)+' V。差は '+fmt(VB-VA,5)+' V で、これに電荷をかけたものが仕事になる。'+
+    '道のりは 3 本で '+fmt((()=>{let a=0,prev=pathAt('st',0);for(let i=1;i<=400;i++){const p=pathAt('st',i/400);a+=Math.hypot(p[0]-prev[0],p[1]-prev[1]);prev=p;}return a;})(),3)+' m から大回りの分まで開いているのに、仕事は小数点以下 6 桁まで揃う。'+
+    '経路のどこを通ったかは結果に残らない。だから「電位」という位置だけの関数が定義できる。'+
+    ' なお経路が電荷の中を突っ切っても計算が破綻しないのは、点電荷を半径 a の帯電球に置き換えてあって、内部でも E = \u2212dV/dr がきちんと成り立つように作ってあるから。');
+}
+function drawConvTab(){
+  const q=ST.qt;
+  const exact=q*1e-9*(vAt(ST.pB.x,ST.pB.y)-vAt(ST.pA.x,ST.pA.y));
+  let t='<table><caption>L 字の経路で 1 辺あたりの分割数を倍にしたときの誤差</caption><thead><tr><th>分割数</th><th class="num">W 外力 [J]</th><th class="num">誤差</th><th class="num">前の行との比</th></tr></thead><tbody>';
+  let prev=null;
+  for(const n of NSEGS){
+    const w=workOf('L',n,q);
+    const e=Math.abs(w-exact);
+    const cur=(n===ST.nseg)?' class="cur"':'';
+    t+='<tr'+cur+'><td class="mono">'+n+'</td><td class="num">'+expo(w,9)+'</td><td class="num">'+(e===0?'0':expo(e,2))+'</td><td class="num">'+
+      (prev===null||e===0?'\u2014':fmt(prev/e,3)+' 倍')+'</td></tr>';
+    prev=e;
+  }
+  t+='</tbody></table>';
+  put('convtab',t);
+  put('convnote','分割を倍にするたびに誤差がおよそ 16 分の 1 になる。シンプソン則の誤差が刻み幅の 4 乗で効いていることが、そのまま数字に出ている。'+
+    'L 字は角で折れているので、前半と後半を別々に積分している。角をまたいで 1 本の式で積分すると、'+
+    '被積分関数がそこで滑らかでなくなり、収束が 4 次から 1 次まで落ちる。折れ線を積分するときは必ずここで区間を切る。'+
+    ' さらに分割を増やしていくと、どこかで比が崩れる。誤差が倍精度の丸めの底（相対 10\u207B\u00B9\u2076 程度）に当たって、'+
+    'それ以上細かくしても改善しなくなるため。'+
+    ' なお A と B を電荷のすぐそばに置くと、被積分関数の山が鋭くなって粗い分割では比が暴れる。'+
+    '誤差が理論どおりに落ちているかは、2 段階以上比べないと分からない。');
+}
+
+/* ---------- 帯電球 ---------- */
+function sphV(r){
+  const Q=ST.sphQ*1e-9, a=ST.sphA;
+  if(r>=a) return KC*Q/r;
+  if(ST.sphKind==='shell') return KC*Q/a;
+  return KC*Q*(3*a*a-r*r)/(2*a*a*a);
+}
+function sphE(r){
+  const Q=ST.sphQ*1e-9, a=ST.sphA;
+  if(r>=a) return KC*Q/(r*r);
+  if(ST.sphKind==='shell') return 0;
+  return KC*Q*r/(a*a*a);
+}
+function sphVk(r,kind){
+  const Q=ST.sphQ*1e-9, a=ST.sphA;
+  if(r>=a) return KC*Q/r;
+  if(kind==='shell') return KC*Q/a;
+  return KC*Q*(3*a*a-r*r)/(2*a*a*a);
+}
+function sphEk(r,kind){
+  const Q=ST.sphQ*1e-9, a=ST.sphA;
+  if(r>=a) return KC*Q/(r*r);
+  if(kind==='shell') return 0;
+  return KC*Q*r/(a*a*a);
+}
+function drawSph(){
+  const W=narrow?360:740, H=narrow?356:356;
+  setVB('sv-sph',W,H);
+  const pad={l:narrow?48:60,r:narrow?12:18,t:24,b:30};
+  const pw=W-pad.l-pad.r, gap=narrow?36:34;
+  const ph=(H-pad.t-pad.b-gap-16)/2;
+  const a=ST.sphA, rmax=Math.max(a*3.2,0.5);
+  const vmax=niceCeil(1.5*KC*ST.sphQ*1e-9/a*1.06);
+  const emax=niceCeil(KC*ST.sphQ*1e-9/(a*a)*1.12);
+  const xt=ticks(0,rmax,5);
+  const P1=mkPlot(pad.l,pad.t,pw,ph,0,rmax,0,vmax,xt,ticks(0,vmax,4),'','V [V]',t=>f1(t),t=>String(Math.round(t)));
+  let o='<defs><clipPath id="sc1"><rect x="'+f1(pad.l)+'" y="'+f1(pad.t)+'" width="'+f1(pw)+'" height="'+f1(ph)+'"/></clipPath>'
+    +'<clipPath id="sc2"><rect x="'+f1(pad.l)+'" y="'+f1(pad.t+ph+gap)+'" width="'+f1(pw)+'" height="'+f1(ph)+'"/></clipPath></defs>';
+  o+=P1.s;
+  const M=400;
+  const ORD=(ST.sphKind==='ball')?['shell','ball']:['ball','shell'];
+  o+='<g clip-path="url(#sc1)">';
+  for(const k of ORD){
+    const on=ST.sphKind===k, pts=[];
+    for(let i=0;i<=M;i++){ const r=rmax*i/M; pts.push([P1.X(r),P1.Y(Math.min(sphVk(r,k),vmax*6))]); }
+    o+=PL(pts,k==='ball'?CCRM:CBLU,on?2.6:1.6,on?null:'5 4',on?1:0.55);
+  }
+  o+='</g>';
+  o+=LN(P1.X(a),pad.t,P1.X(a),pad.t+ph,CPUR,1.3,'4 3',0.85);
+  o+=TX(P1.X(a)+5,pad.t+12,'r = a',CPURT,10,'start','500');
+  const y2=pad.t+ph+gap;
+  const P2=mkPlot(pad.l,y2,pw,ph,0,rmax,0,emax,xt,ticks(0,emax,4),'r [m]','E [V/m]',t=>f1(t),t=>String(Math.round(t)));
+  o+=P2.s;
+  o+='<g clip-path="url(#sc2)">';
+  for(const k of ORD){
+    const on=ST.sphKind===k, pts=[];
+    let last=null;
+    /* 内部の E = 0 が軸線に埋もれないよう、導体球は少しだけ持ち上げて描く */
+    const lift=(k==='shell')?1.6:0;
+    for(let i=0;i<=M;i++){
+      const r=rmax*i/M;
+      const v=Math.min(sphEk(r,k),emax*6);
+      if(k==='shell'&&last!==null&&r>=a&&last<a){ pts.push([P2.X(a),P2.Y(0)-lift]); pts.push([P2.X(a),P2.Y(Math.min(KC*ST.sphQ*1e-9/(a*a),emax))]); }
+      pts.push([P2.X(r),P2.Y(v)-(r<a?lift:0)]);
+      last=r;
+    }
+    o+=PL(pts,k==='ball'?CCRM:CBLU,on?2.6:1.6,on?null:'5 4',on?1:0.55);
+  }
+  o+='</g>';
+  o+=TXJ(Math.max(P2.X(a*0.5),pad.l+(narrow?42:62)),P2.Y(0)-9,narrow?'導体球は E = 0':'導体球は内部で E = 0',CBLUT,9.5,'middle','500');
+  o+=LN(P2.X(a),y2,P2.X(a),y2+ph,CPUR,1.3,'4 3',0.85);
+  /* 球の断面図 */
+  {
+    const rr=Math.min(ph*0.36,pw*0.10);
+    const cx=pad.l+pw-rr-10, cy=pad.t+rr+12;
+    if(ST.sphKind==='shell'){
+      o+=CIRC(cx,cy,rr,'#F7FAFC',CBLU,2.2);
+      for(let k=0;k<14;k++){ const t=TAU*k/14; o+=CIRC(cx+rr*Math.cos(t),cy+rr*Math.sin(t),1.7,CBLU,null,0); }
+      o+=TXJ(cx,cy+3,'E = 0',CBLUT,9.5,'middle','500');
+    }else{
+      o+=CIRC(cx,cy,rr,'#FAEDF3',CCRM,2.2);
+      for(let k=0;k<26;k++){ const t=TAU*k*0.618, rq=rr*Math.sqrt((k+0.5)/26); o+=CIRC(cx+rq*Math.cos(t),cy+rq*Math.sin(t),1.5,CCRM,null,0,null,0.8); }
+    }
+    o+=TXJ(cx,cy-rr-5,ST.sphKind==='shell'?'導体球（表面だけ）':'一様帯電（中まで）',MUT,9.5,'middle');
+  }
+  let lx=pad.l, ly=H-6;
+  for(const g of [[CCRM,'一様に帯電した球','ball'],[CBLU,'導体球','shell']]){
+    const on=ST.sphKind===g[2];
+    o+=LN(lx,ly-4,lx+13,ly-4,g[0],on?2.6:1.6,on?null:'5 4',on?1:0.55);
+    o+=TXJ(lx+17,ly,g[1]+(on?'':'（破線）'),on?INK:MUT,10.5,'start',on?'600':'400');
+    lx+=narrow?128:168;
+  }
+  put('sph-g',o);
+  const a2=ST.sphA, Q=ST.sphQ*1e-9;
+  let hh='';
+  hh+=stt('表面の電位 kQ/a',fmt(KC*Q/a2,5)+' V');
+  hh+=stt('中心の電位',fmt(sphV(0),5)+' V');
+  hh+=stt('中心 / 表面の比',fmt(sphV(0)/(KC*Q/a2),5));
+  hh+=stt('表面の電場 kQ/a\u00B2',fmt(KC*Q/(a2*a2),5)+' V/m');
+  hh+=stt('内部 r = a/2 の E',fmt(sphE(a2/2),5)+' V/m');
+  hh+=stt('全電荷 / 素電荷',fmt(Math.abs(Q)/QELEM,4)+' 個');
+  put('sphstats',hh);
+  put('sphnote',ST.sphKind==='shell'
+    ? '導体球では電荷が全部表面に出る。内部は E = 0 で、電位は表面と同じ '+fmt(KC*Q/a2,5)+' V のまま平ら。r = a で V のグラフに角ができ、E は 0 から '+fmt(KC*Q/(a2*a2),4)+' V/m へ飛ぶ。3D の曲面で言えば、山の頂上が水平に切り取られた形になる。'
+    : '一様に帯電した球では、内部の電場が r に比例して増える。中心で 0、表面で最大。電位は上に凸の放物線で、中心の値は表面の 1.5 倍ちょうど。r = a のところで V の傾きが両側とも \u2212kQ/a\u00B2 で一致するので、グラフは折れずに滑らかにつながる。折れているのは 2 階微分のほうで、それが E のグラフの角として出ている。');
+}
+function drawKink(){
+  const a=ST.sphA;
+  const h=a*1e-5;
+  let t='<table><caption>r = a の左右で微分がどうつながるか。dV/dr は中心差分で数値的に出した値、E は左右の極限</caption><thead><tr><th>球の種類</th><th class="num">dV/dr（内側）</th><th class="num">dV/dr（外側）</th><th class="num">E(a&minus;)</th><th class="num">E(a+)</th></tr></thead><tbody>';
+  for(const k of ['ball','shell']){
+    const dIn=(sphVk(a-h,k)-sphVk(a-3*h,k))/(2*h);
+    const dOut=(sphVk(a+3*h,k)-sphVk(a+h,k))/(2*h);
+    const eIn=(k==='shell')?0:KC*ST.sphQ*1e-9/(a*a);
+    const eOut=KC*ST.sphQ*1e-9/(a*a);
+    const cur=(k===ST.sphKind)?' class="cur"':'';
+    t+='<tr'+cur+'><td>'+(k==='ball'?'一様に帯電した球':'導体球')+'</td><td class="num">'+fmt(dIn,5)+'</td><td class="num">'+fmt(dOut,5)+'</td><td class="num">'+fmt(eIn,5)+'</td><td class="num">'+fmt(eOut,5)+'</td></tr>';
+  }
+  t+='</tbody></table>';
+  put('kinktab',t);
+  const Q=ST.sphQ*1e-9;
+  put('kinknote','一様に帯電した球では左右の傾きが揃う（どちらも \u2212kQ/a\u00B2 = '+fmt(-KC*Q/(a*a),5)+' V/m）ので、V のグラフは r = a で折れない。'+
+    '導体球は内側が 0、外側が \u2212kQ/a\u00B2 なので、はっきり角がつく。E の跳びはガウスの法則から出る。'+
+    '球面のすぐ内と外で囲む電荷が 0 から Q へ一気に変わるので、E が \u03C3/\u03B5\u2080 = '+fmt(Q/(4*Math.PI*a*a)/E0,4)+' V/m だけ飛ぶ。'+
+    '面電荷があるところでは電場が不連続になる、というのはここに限らず一般に成り立つ。'+
+    'dV/dr の 2 列は有限の刻み h = '+fmt(h,3)+' m で数値微分した値なので、末尾の桁は一致しない。刻みを縮めれば揃う。');
+}
+
+/* ---------- 平行平板 ---------- */
+function drawPlate(){
+  const W=narrow?360:740, H=narrow?280:300;
+  setVB('sv-plate',W,H);
+  const pad={l:narrow?52:66,r:narrow?12:18,t:26,b:36};
+  const pw=W-pad.l-pad.r, ph=H-pad.t-pad.b;
+  const d=ST.plD, L=ST.plL, sig=ST.plSig;
+  const Einf=sig*1e-9/E0;
+  const ymax=d*1.4;
+  const M=260;
+  const fin=[], inf=[];
+  let emaxv=Einf*1.1;
+  for(let i=0;i<=M;i++){
+    const y=-ymax+2*ymax*i/M;
+    /* 上板 +sig（y = +d/2）、下板 -sig（y = -d/2）。E は下向きを負に取る */
+    const eTop=ePlateAxis(sig,L,y-d/2);   /* 上板から離れる向き */
+    const eBot=ePlateAxis(sig,L,y+d/2);
+    const sTop=(y>d/2)?1:-1;              /* +板からは離れる向き */
+    const sBot=(y>-d/2)?-1:1;             /* -板へ向かう向き */
+    const eTot=eTop*sTop+eBot*sBot;
+    fin.push([y,eTot]);
+    const iTot=(Math.abs(y)<d/2)?-Einf:0;
+    inf.push([y,iTot]);
+    emaxv=Math.max(emaxv,Math.abs(eTot));
+  }
+  const eM=niceCeil(emaxv*1.05);
+  const P=mkPlot(pad.l,pad.t,pw,ph,-ymax,ymax,-eM,eM*0.35,ticks(-ymax,ymax,5),ticks(-eM,eM*0.35,5),'y [m]','E'+'y [V/m]',t=>f1(t),t=>mn(Math.round(t)));
+  let o=P.s;
+  o+=LN(P.X(-ymax),P.Y(0),P.X(ymax),P.Y(0),RULE,1,'3 3');
+  for(const yy of [-d/2,d/2]){
+    o+=LN(P.X(yy),pad.t,P.X(yy),pad.t+ph,yy>0?CCRM:CBLU,1.6,'4 3',0.8);
+    o+=TX(P.X(yy),pad.t-5,yy>0?'+\u03C3':'\u2212\u03C3',yy>0?CCRMT:CBLUT,10,'middle','600');
+  }
+  o+=PL(inf.map(p=>[P.X(p[0]),P.Y(clamp(p[1],-eM,eM*0.35))]),CBLU,2.4,'6 3');
+  o+=PL(fin.map(p=>[P.X(p[0]),P.Y(clamp(p[1],-eM,eM*0.35))]),CCRM,2.6);
+  const ec=fin[Math.round(M/2)][1];
+  o+=CIRC(P.X(0),P.Y(ec),4,'#fff',CCRM,2.2);
+  o+=TX(P.X(0)+8,P.Y(ec)-7,'中心 '+fmtP(ec,5)+' V/m',CCRMT,10,'start','500');
+  let lx=pad.l+7, ly=pad.t+13;
+  for(const g of [[CBLU,'無限に広い板','6 3'],[CCRM,'1 辺 '+L.toFixed(1)+' m の正方形板',null]]){
+    o+=LN(lx,ly-4,lx+14,ly-4,g[0],2.4,g[2]);
+    o+=TXJ(lx+18,ly,g[1],MUT,10.5,'start');
+    lx+=narrow?150:200;
+  }
+  put('plate-g',o);
+  const dev=(Math.abs(ec)-Einf)/Einf*100;
+  let hh='';
+  hh+=stt('&sigma;',sig.toFixed(1)+' nC/m\u00B2');
+  hh+=stt('無限平板の E = &sigma;/&epsilon;<sub>0</sub>',fmt(Einf,5)+' V/m');
+  hh+=stt('有限板の中心の E',fmt(Math.abs(ec),5)+' V/m');
+  hh+=stt('ずれ',fmt(dev,3)+' %');
+  hh+=stt('L / d',fmt(L/d,4));
+  hh+=stt('板 1 枚の全電荷',fmtU(sig*1e-9*L*L,'C',4));
+  put('platestats',hh);
+  put('platenote','無限に広い板なら、すきまの中はどこでも E = \u03C3/\u03B5\u2080 = '+fmt(Einf,5)+' V/m で完全に一定。外側はぴったり 0。'+
+    '有限の板だと、板の縁の向こう側が抜けているぶん電場が弱くなる。いま L/d = '+fmt(L/d,3)+' で、中心のずれは '+fmt(dev,3)+' %。'+
+    'すきまの外に電場が漏れているのも読み取れる。1 辺 L の正方形板が距離 z から張る立体角 \u03A9 = 4arcsin(L\u00B2/(L\u00B2+4z\u00B2)) を使って E = \u03C3\u03A9/4\u03C0\u03B5\u2080 と書けるので、この曲線は閉じた式で出せる。'+
+    ' ただし \u03C3 が板の上で一様だと置いている。本物の導体板では電荷が縁に寄るので、この計算はそこまでは追えていない。');
+}
+function drawPlateTab(){
+  const d=ST.plD, sig=ST.plSig, Einf=sig*1e-9/E0;
+  let t='<table><caption>板の 1 辺 L を変えたときの、すきま中央の電場</caption><thead><tr><th class="num">L / d</th><th class="num">中央の E [V/m]</th><th class="num">&sigma;/&epsilon;<sub>0</sub> との比</th><th class="num">ずれ</th></tr></thead><tbody>';
+  for(const rt of [1,2,5,10,20,50,100,1000]){
+    const L=rt*d;
+    const e=2*ePlateAxis(sig,L,d/2);
+    const cur=(Math.abs(rt-ST.plL/d)<0.02)?' class="cur"':'';
+    t+='<tr'+cur+'><td class="num">'+rt+'</td><td class="num">'+fmt(e,6)+'</td><td class="num">'+fmt(e/Einf,6)+'</td><td class="num">'+fmt((e/Einf-1)*100,3)+' %</td></tr>';
+  }
+  t+='</tbody></table>';
+  put('platetab',t);
+  put('platenote2','L/d = 10 でも中央の電場は 9% ほど小さい。教科書が「十分に広い板」と書くとき、'+
+    '実は 10 倍程度では足りていない。1% を切るには L/d が 100 くらい要る。'+
+    'ただし電気容量 C = Q/V の話にすると事情が変わる。縁で漏れた電場のぶん電荷が余分に乗るので、C はむしろ理想値より大きくなる。'+
+    '「電場が弱い」と「容量が小さい」は同じ向きではない。');
+}
+function drawQuadTab(){
+  const d=ST.plD, sig=ST.plSig, L=ST.plL, z=d/2;
+  const exact=ePlateAxis(sig,L,z);
+  let t='<table><caption>板の上を 2 次元の中点則で刻んだときの、片方の板が作る電場（z = d/2）</caption><thead><tr><th>分割 n&times;n</th><th class="num">数値積分 [V/m]</th><th class="num">立体角の式との差</th><th class="num">前の行との比</th></tr></thead><tbody>';
+  let prev=null;
+  for(const n of [16,32,64,128,256,512]){
+    const v=ePlateQuad(sig,L,z,n);
+    const e=Math.abs(v-exact);
+    t+='<tr><td class="mono">'+n+'\u00D7'+n+'</td><td class="num">'+fmt(v,7)+'</td><td class="num">'+(e===0?'0':expo(e,2))+'</td><td class="num">'+
+      (prev===null||e===0?'\u2014':fmt(prev/e,3)+' 倍')+'</td></tr>';
+    prev=e;
+  }
+  t+='<tr class="hi"><td>立体角の閉じた式</td><td class="num">'+fmt(exact,7)+'</td><td class="num">\u2014</td><td class="num">\u2014</td></tr>';
+  t+='</tbody></table>';
+  put('quadtab',t);
+  put('quadnote','中点則は 2 次なので、分割を倍にすると誤差は 4 分の 1 になるはず。ところが粗いうちは比が暴れる。'+
+    '被積分関数が板の中心の真下に幅 z 程度の鋭い山を持っていて、格子がそれを捉えきれていないからで、'+
+    '1 マスの幅が z を十分下回ったところから（いまの設定なら n = 128 あたり）きれいに 4 倍で落ちるようになる。'+
+    '数値積分の誤差が理論どおりに落ちているかは、2 段階以上比べないと判断できない。'+
+    '2 つのやり方が同じ数に収束するので、立体角の式のほうを安心して使える。手で解けない配置に進んだとき、数値解を信じる根拠がここにできる。');
+}
+
+/* ---------- 投影の説明図 ---------- */
+function drawProj(){
+  const W=narrow?360:740, H=narrow?210:230;
+  setVB('sv-proj',W,H);
+  const cx=W*0.5, cy=H*0.58, s=Math.min(W*0.20,H*0.34);
+  const th=ST.az*D2R, ph=ST.el*D2R;
+  const ca=Math.cos(th), sa=Math.sin(th), ce=Math.cos(ph), se=Math.sin(ph);
+  const pr=(x,y,z)=>[cx+(-x*sa+y*ca)*s, cy+(se*(x*ca+y*sa)-z*ce)*s];
+  let o='';
+  const fc=[[-1,-1],[1,-1],[1,1],[-1,1]].map(p=>pr(p[0],p[1],0));
+  o+=POLY(fc,'#F5F7F6',SOFT,1);
+  for(let k=-2;k<=2;k++){
+    o+=PL([pr(k/2,-1,0),pr(k/2,1,0)],SOFT,0.9);
+    o+=PL([pr(-1,k/2,0),pr(1,k/2,0)],SOFT,0.9);
+  }
+  const O=pr(0,0,0);
+  const ax=[[[1.15,0,0],'x',CGOLD],[[0,1.15,0],'y',CGRN],[[0,0,1.15],'z (= V)',CPUR]];
+  for(const a of ax){
+    const p=pr(a[0][0],a[0][1],a[0][2]);
+    o+=AR(O[0],O[1],p[0],p[1],a[2],1.8,7);
+    o+=TX(p[0]+(a[1]==='x'?-4:6),p[1]-5,a[1],a[2],11,'start','600');
+  }
+  /* カメラ方向と画面の右・上 */
+  const dv=[ce*ca,ce*sa,se], rv=[-sa,ca,0], uv=[-se*ca,-se*sa,ce];
+  const pd=pr(dv[0]*1.5,dv[1]*1.5,dv[2]*1.5);
+  o+=AR(O[0],O[1],pd[0],pd[1],INK,2.2,8);
+  o+=TX(pd[0]+6,pd[1]-4,'d（カメラの向き）',INK,10.5,'start','600');
+  const pv=pr(dv[0]*1.5,dv[1]*1.5,0);
+  o+=PL([O,pv],MUT,1,'3 3',0.7);
+  o+=PL([pv,pd],MUT,1,'3 3',0.7);
+  const pr2=pr(dv[0]*1.5+rv[0]*0.5,dv[1]*1.5+rv[1]*0.5,dv[2]*1.5+rv[2]*0.5);
+  o+=AR(pd[0],pd[1],pr2[0],pr2[1],CBLU,2,7);
+  o+=TX(pr2[0]+4,pr2[1]+10,'r（画面の右）',CBLUT,10,'start','500');
+  const pu2=pr(dv[0]*1.5+uv[0]*0.5,dv[1]*1.5+uv[1]*0.5,dv[2]*1.5+uv[2]*0.5);
+  o+=AR(pd[0],pd[1],pu2[0],pu2[1],CCRM,2,7);
+  o+=TX(pu2[0]+4,pu2[1]-4,'u（画面の上）',CCRMT,10,'start','500');
+  o+=TX(6,15,'\u03B8 = '+Math.round(ST.az)+'\u00B0  \u03C6 = '+Math.round(ST.el)+'\u00B0',MUT,10.5,'start');
+  o+=TXJ(6,H-8,'上の図の回転スライダーと連動している',MUT,10.5,'start');
+  put('proj-g',o);
+  const R=(v,i)=>fmt(v[i],4);
+  put('projnote','いまの向きだと d = ('+R(dv,0)+', '+R(dv,1)+', '+R(dv,2)+')、r = ('+R(rv,0)+', '+R(rv,1)+', '+R(rv,2)+')、u = ('+R(uv,0)+', '+R(uv,1)+', '+R(uv,2)+')。'+
+    'この 3 本は互いに直交する単位ベクトルで、世界の点 P から画面の座標を取り出すのは内積を 2 回、前後の判定にもう 1 回。行列を組む必要すらない。'+
+    's\u1D67 に負号がつくのは SVG の y 軸が下向きだから。');
+}
+
+/* ---------- 記号つきの式 ---------- */
+const FX1=[
+  {k:'V',t:'<b>電位</b>　1 C あたりの位置エネルギー。単位は V = J/C。無限遠を 0 に取っている'},
+  {k:'k',t:'<b>クーロン定数</b>　1/4&pi;&epsilon;<sub>0</sub> = 8.9875517923&times;10<sup>9</sup> N&middot;m<sup>2</sup>/C<sup>2</sup>。教科書の 9.0&times;10<sup>9</sup> との差は 0.14%'},
+  {k:'qi',t:'<b>i 番目の電荷</b>　符号つきで入れる。負なら V を下げる'},
+  {k:'ri',t:'<b>その電荷までの距離</b>　座標ではなく距離。必ず正の数'},
+  {k:'E',t:'<b>電場</b>　1 C あたりの力。単位は N/C = V/m。この 2 つが同じ単位なのは偶然ではない'},
+  {k:'grad',t:'<b>勾配</b>　各方向の傾きを並べたベクトル。斜面で一番急な向きを指す'},
+  {k:'W',t:'<b>外力の仕事</b>　電荷をゆっくり運ぶのに必要な仕事。経路によらず両端の電位だけで決まる'}
+];
+function buildFx(){
+  const f1s='<span class="sym" data-k="V">V</span>(<span class="mono">r</span>) = &Sigma;<sub>i</sub> '+
+    '<span class="frac"><span class="n"><span class="sym" data-k="k">k</span> <span class="sym" data-k="qi">q<sub>i</sub></span></span><span class="d"><span class="sym" data-k="ri">r<sub>i</sub></span></span></span>'+
+    '　　<span class="sym" data-k="E">E</span> = &minus;<span class="sym" data-k="grad">&nabla;</span>V'+
+    '　　<span class="sym" data-k="W">W</span> = q(V<sub>B</sub> &minus; V<sub>A</sub>)';
+  put('fx1',f1s);
+  const box=document.getElementById('fx1');
+  if(box) box.addEventListener('click',function(e){
+    const t=e.target.closest('.sym'); if(!t) return;
+    for(const s of box.querySelectorAll('.sym')) s.classList.remove('on');
+    t.classList.add('on');
+    const d=FX1.filter(x=>x.k===t.getAttribute('data-k'))[0];
+    put('fx1d',d?d.t:'');
+  });
+  put('fx2','d = (cos&phi;cos&theta;, cos&phi;sin&theta;, sin&phi;)<br>'+
+    'r = (&minus;sin&theta;, cos&theta;, 0)　　u = d &times; r<br>'+
+    's<sub>x</sub> = P&middot;r　　s<sub>y</sub> = &minus;P&middot;u　　depth = P&middot;d');
+}
+
+/* ---------- ダッシュボード ---------- */
+function drawQ(){
+  const t=ST.test, e=eAt(t.x,t.y,[0,0]), em=Math.hypot(e[0],e[1]);
+  const v=vAt(t.x,t.y);
+  let vmin=1e18, vmax=-1e18;
+  const g=FLD.fine, nf=FLD.nf;
+  for(let i=0;i<g.length;i++){ if(g[i]<vmin) vmin=g[i]; if(g[i]>vmax) vmax=g[i]; }
+  const items=[
+    {k:'電荷の数',v:String(ST.ch.length)+' 個',cls:'flat',w:'合計 '+(totalQ()>=0?'+':'\u2212')+Math.abs(totalQ()).toFixed(1)+' nC'},
+    {k:'試験電荷の V',v:fmt(v,4)+' V',cls:v>0?'up':(v<0?'dn':'flat'),w:v>0?'正電荷寄りの山の上':(v<0?'負電荷寄りの穴の中':'ちょうど V = 0 の線の上')},
+    {k:'そこの |E|',v:fmtU(em,'V/m',4),cls:'ok',w:'力は '+fmtU(Math.abs(ST.qt)*1e-9*em,'N',3)},
+    {k:'画面内の V の幅',v:mn(Math.round(vmin))+' \u2192 '+mn(Math.round(vmax))+' V',cls:'flat',w:'頭打ち V'+'c = '+ST.vc+' V'}
+  ];
+  let h='';
+  for(const q of items) h+='<div class="qc '+q.cls+'"><div class="qk">'+q.k+'</div><div class="qv">'+q.v+'</div><div class="qw">'+q.w+'</div></div>';
+  put('qgrid',h);
+}
+
+/* ---------- 表 ---------- */
+function buildTables(){
+  let h='<table><thead><tr><th>近似</th><th>効く場所</th><th>ずれの中身</th></tr></thead><tbody>';
+  for(const r of APPROX) h+='<tr><td>'+r[0]+'</td><td>'+r[1]+'</td><td>'+r[2]+'</td></tr>';
+  h+='</tbody></table>';
+  put('apptable',h);
+  let c='<table><thead><tr><th>定数</th><th>採用値</th><th>出どころ</th><th>注記</th></tr></thead><tbody>';
+  for(const r of CONSTS) c+='<tr><td>'+r[0]+'</td><td class="mono">'+r[1]+'</td><td>'+r[2]+'</td><td>'+r[3]+'</td></tr>';
+  c+='</tbody></table>';
+  put('consttable',c);
+  let m='';
+  for(const s of MISS) m+='<li>'+s+'</li>';
+  put('misslist',m);
+}
+function updConstNote(){
+  const e=eAt(ST.test.x,ST.test.y,[0,0]), em=Math.hypot(e[0],e[1]);
+  put('constnote','k は CODATA の \u03B5\u2080 から出した 8.9875517923\u00D710\u2079 を使っている。教科書の 9.0\u00D710\u2079 に置き換えると、'+
+    'この画面の数字は 3 桁目から変わる。桁を追うだけなら 9.0 で足りるが、数値解と解析解を突き合わせる節では 0.14% の差が誤差評価に紛れ込むので、'+
+    'そろえておく必要があった。いま試験電荷の位置の電場は '+fmtU(em,'V/m',4)+' で、乾燥空気の絶縁破壊 3.0 MV/m の '+
+    fmt(em/EBRK*100,3)+' %。この画面は真空で計算しているが、空気（\u03B5r = 1.00059）に置き換えても 0.06% しか動かない。');
+}
+
+/* ---------- 凡例と注記 ---------- */
+function updLegend(){
+  const L=[
+    ['<span class="sw" style="background:'+CCRM+'"></span>正電荷（山）'],
+    ['<span class="sw" style="background:'+CBLU+'"></span>負電荷（穴）'],
+    ['<span class="swl" style="border-color:'+CGRNT+'"></span>等電位線（'+Math.round(ST.vc/5)+' V ごと）'],
+    ['<span class="swl" style="border-color:'+CGOLD+'"></span>電気力線'],
+    ['<span class="swl" style="border-color:'+CPUR+'"></span>断面と試験電荷']
+  ];
+  let h='';
+  for(const x of L) h+='<span>'+x[0]+'</span>';
+  put('legend',h);
+}
+function updMainNote(){
+  const p=PRESETS.filter(x=>x.id===ST.pre)[0];
+  let vmin=1e18, vmax=-1e18;
+  const g=FLD.fine;
+  for(let i=0;i<g.length;i++){ if(g[i]<vmin) vmin=g[i]; if(g[i]>vmax) vmax=g[i]; }
+  put('mainnote',(p?p.note+' ':'')+
+    '画面の中の電位は '+mn(Math.round(vmin))+' V から '+mn(Math.round(vmax))+' V まで。'+
+    '曲面の高さは tanh(V/V'+'c) で頭打ちにしていて、いまの V'+'c は '+ST.vc+' V。'+
+    '|V| が V'+'c を十分下回る範囲では高さがほぼ V に比例するが、超えたところは圧縮されている。'+
+    '電荷の真上が針にならないのは、点電荷を半径 a の帯電球に置き換えているから。r \u2265 a では点電荷と厳密に同じ値になる。');
+  /* 電荷のすぐそばは必ず飽和するので、最大値ではなく飽和した面積の割合で警告を出す */
+  let nsat=0;
+  for(let i=0;i<g.length;i++) if(Math.abs(g[i])>ST.vc*1.5) nsat++;
+  const frac=nsat/g.length;
+  const over=Math.max(Math.abs(vmin),Math.abs(vmax))/ST.vc;
+  put('mainwarn', frac>0.10
+    ? '画面の '+Math.round(frac*100)+' % が tanh の飽和域に入っている（最大 |V| は V'+'c の '+fmt(over,3)+' 倍）。この範囲では高さの比を読み取らないほうがいい。V'+'c を上げるか電荷を減らすと直る。'
+    : '');
+  put('mainhint', ST.view==='flat'
+    ? '電荷をドラッグすると動く。試験電荷（紫の丸）もドラッグできる。'
+    : 'ドラッグで回る。'+(ST.view==='both'?'床には真上から見た等電位線と電気力線を落としてある。':'')+' 2D に切り替えると電荷をドラッグで動かせる。');
+}
+
+/* ---------- UI ---------- */
+function buildPreUI(){
+  mkBtnRow('presel',PRESETS,it=>ST.pre===it.id,it=>{
+    ST.pre=it.id; ST.ch=it.mk(); ST.sel=0;
+    if(it.id==='sph'){ ST.sphA=0.30; ST.sphQ=8; }
+    if(it.id==='plate'){ ST.plSig=7; ST.plD=0.50; }
+    ST.vc=autoVc();
+    onParam();
+  });
+}
+function autoVc(){
+  /* 最大値で決めると電荷のすぐそばの発散を拾ってしまい、曲面が板と針になる。
+     90 パーセンタイル、つまり画面の大部分が入る高さを基準にする */
+  const arr=[];
+  for(let j=0;j<=40;j++){ const yy=-LDOM+2*LDOM*j/40;
+    for(let i=0;i<=40;i++) arr.push(Math.abs(vAt(-LDOM+2*LDOM*i/40,yy))); }
+  arr.sort((a,b)=>a-b);
+  const p90=arr[Math.floor((arr.length-1)*0.90)];
+  return clamp(Math.round(niceCeil(p90*1.3)),20,1500);
+}
+function buildViewUI(){
+  mkBtnRow('viewsel',[{id:'surf',nm:'3D 曲面'},{id:'flat',nm:'2D 等電位線と力線'},{id:'both',nm:'重ねる'}],
+    it=>ST.view===it.id, it=>{ ST.view=it.id; onParam(); });
+  mkBtnRow('ovsel',[
+    {id:'eq',nm:'等電位線'},{id:'fl',nm:'電気力線'},{id:'ht',nm:'電位の濃淡'}
+  ], it=>(it.id==='eq'?ST.showEq:(it.id==='fl'?ST.showFl:ST.showHeat)),
+  it=>{ if(it.id==='eq') ST.showEq=!ST.showEq; else if(it.id==='fl') ST.showFl=!ST.showFl; else ST.showHeat=!ST.showHeat; onParam(); });
+}
+function buildChUI(){
+  const items=ST.ch.map((c,i)=>({id:i,nm:chLabel(c,i),cls:(c.t==='plane'?(c.sig>=0?'pos':'neg'):(c.q>=0?'pos':'neg'))}));
+  mkBtnRow('chsel',items,it=>ST.sel===it.id,it=>{ ST.sel=it.id; onParam(); });
+  const c=ST.ch[ST.sel];
+  const host=document.getElementById('chctl');
+  if(!host) return;
+  if(!c){ host.innerHTML=''; return; }
+  if(c.t==='plane'){
+    host.innerHTML='<div class="ctl"><span class="lab">面電荷密度 \u03C3</span>'+
+      '<input type="range" id="sl-cs" min="-200" max="200" step="1" value="'+Math.round(c.sig*10)+'">'+
+      '<span class="val mono">'+(c.sig>=0?'+':'\u2212')+Math.abs(c.sig).toFixed(1)+' nC/m\u00B2</span></div>'+
+      '<div class="ctl"><span class="lab">板の位置 y</span>'+
+      '<input type="range" id="sl-cy" min="-70" max="70" step="1" value="'+Math.round(c.y0*100)+'">'+
+      '<span class="val mono">'+c.y0.toFixed(2)+' m</span></div>';
+    host.querySelector('#sl-cs').addEventListener('input',function(){ c.sig=+this.value/10; onParam(); });
+    host.querySelector('#sl-cy').addEventListener('input',function(){ c.y0=+this.value/100; onParam(); });
+    return;
+  }
+  host.innerHTML='<div class="ctl"><span class="lab">電荷量 q</span>'+
+    '<input type="range" id="sl-cq" min="-150" max="150" step="1" value="'+Math.round(c.q*10)+'">'+
+    '<span class="val mono">'+(c.q>=0?'+':'\u2212')+Math.abs(c.q).toFixed(1)+' nC</span></div>'+
+    '<div class="ctl"><span class="lab">球の半径 a</span>'+
+    '<input type="range" id="sl-ca" min="2" max="40" step="1" value="'+Math.round(c.a*100)+'">'+
+    '<span class="val mono">'+c.a.toFixed(2)+' m</span></div>'+
+    '<div class="ctl"><span class="lab">中身</span><span class="btnrow" id="kindsel"></span>'+
+    '<span class="note" style="font-size:11.5px">一様帯電は中まで詰まった絶縁体、導体は表面だけ</span></div>';
+  host.querySelector('#sl-cq').addEventListener('input',function(){ c.q=+this.value/10; onParam(); });
+  host.querySelector('#sl-ca').addEventListener('input',function(){ c.a=+this.value/100; onParam(); });
+  mkBtnRow('kindsel',[{id:'ball',nm:'一様帯電'},{id:'shell',nm:'導体'}],
+    it=>c.t===it.id, it=>{ c.t=it.id; onParam(); });
+}
+function buildSliders(){
+  addSlider('viewsliders','az','方位角 \u03B8',-180,180,1,()=>ST.az,v=>{ST.az=v;},v=>mn(v)+'\u00B0','');
+  addSlider('viewsliders','el','仰角 \u03C6',6,84,1,()=>ST.el,v=>{ST.el=v;},v=>v+'\u00B0','');
+  addSlider('viewsliders','hgt','高さ倍率',20,150,1,()=>ST.hgt*100,v=>{ST.hgt=v/100;},v=>(v/100).toFixed(2)+'\u00D7','');
+  addSlider('viewsliders','vc','頭打ち V<sub>c</sub>',20,1500,10,()=>ST.vc,v=>{ST.vc=v;},v=>String(v),'V');
+
+  addSlider('cutsliders','cutpos','切る位置',-70,70,1,()=>ST.cutPos*100,v=>{ST.cutPos=v/100;},v=>(v/100).toFixed(2),'m');
+  addSlider('cutsliders','cutmark','印の位置',-72,72,1,()=>ST.cutMark*100,v=>{ST.cutMark=v/100;},v=>(v/100).toFixed(2),'m');
+  addSlider('cutsliders','diffh','差分の刻み h',1,100,1,()=>ST.diffH,v=>{ST.diffH=v;},v=>(v/10).toFixed(1),'mm');
+
+  addSlider('testsliders','qt','試験電荷 q',-100,100,1,()=>ST.qt*10,v=>{ST.qt=v/10;},v=>((v/10>=0?'+':'\u2212')+Math.abs(v/10).toFixed(1)),'nC');
+  addSlider('testsliders','zoom','拡大の範囲（縦）',5,60,1,()=>ST.zoomR*100,v=>{ST.zoomR=v/100;},v=>'\u00B1'+(v/100).toFixed(2),'m');
+  addSlider('testsliders','orthn','等電位線を拾う格子',0,4,1,()=>[21,41,81,161,321].indexOf(ST.orthN),v=>{ST.orthN=[21,41,81,161,321][v];},v=>[21,41,81,161,321][v]+'\u00B2','');
+
+  addSlider('pathsliders','nseg','分割数',0,5,1,()=>NSEGS.indexOf(ST.nseg),v=>{ST.nseg=NSEGS[v];},v=>String(NSEGS[v]),'');
+  addSlider('pathsliders','qt2','運ぶ電荷',-100,100,1,()=>ST.qt*10,v=>{ST.qt=v/10;},v=>((v/10>=0?'+':'\u2212')+Math.abs(v/10).toFixed(1)),'nC');
+
+  addSlider('sphsliders','sphq','全電荷 Q',5,300,1,()=>ST.sphQ*10,v=>{ST.sphQ=v/10;},v=>(v/10).toFixed(1),'nC');
+  addSlider('sphsliders','spha','半径 a',5,50,1,()=>ST.sphA*100,v=>{ST.sphA=v/100;},v=>(v/100).toFixed(2),'m');
+
+  addSlider('platesliders','pld','板の間隔 d',10,120,1,()=>ST.plD*100,v=>{ST.plD=v/100;},v=>(v/100).toFixed(2),'m');
+  addSlider('platesliders','pll','板の 1 辺 L',5,300,1,()=>ST.plL*10,v=>{ST.plL=v/10;},v=>(v/10).toFixed(1),'m');
+  addSlider('platesliders','plsig','\u03C3',1,200,1,()=>ST.plSig*10,v=>{ST.plSig=v/10;},v=>(v/10).toFixed(1),'nC/m\u00B2');
+}
+function buildCutUI(){
+  mkBtnRow('cutsel',[{id:'x',nm:'横に切る（y 一定）'},{id:'y',nm:'縦に切る（x 一定）'}],
+    it=>ST.cutDir===it.id, it=>{ ST.cutDir=it.id; onParam(); });
+  mkBtnRow('sphsel',[{id:'ball',nm:'一様に帯電した球'},{id:'shell',nm:'導体球'}],
+    it=>ST.sphKind===it.id, it=>{ ST.sphKind=it.id; onParam(); });
+}
+
+/* ---------- 更新 ---------- */
+let DRAG=false;
+let heavyTid=null;
+function scheduleHeavy(){
+  clearTimeout(heavyTid);
+  heavyTid=setTimeout(function(){
+    drawDiffTab(); drawOrthTab(); drawConvTab(); drawKink(); drawPlateTab(); drawQuadTab();
+  },200);
+}
+function refresh(){
+  buildField();
+  buildPreUI(); buildViewUI(); buildChUI(); buildCutUI();
+  drawStage();
+  drawQ();
+  drawProj();
+  drawCut();
+  drawTestCard();
+  drawPath();
+  drawSph();
+  drawPlate();
+  updLegend(); updMainNote(); updConstNote();
+  syncSliders();
+  scheduleHeavy();
+}
+function refreshLight(){
+  drawStage();
+  drawProj();
+  syncSliders();
+}
+function onParam(){ refresh(); }
+
+/* ---------- ポインタ操作 ---------- */
+function svPt(sv,e,W){
+  const r=sv.getBoundingClientRect();
+  return [(e.clientX-r.left)*W/r.width, (e.clientY-r.top)*W/r.width];
+}
+function bindMain(){
+  const sv=document.getElementById('sv-main');
+  if(!sv) return;
+  let g=null;
+  sv.addEventListener('pointerdown',function(e){
+    const S=mainSize();
+    const p=svPt(sv,e,S.W);
+    if(ST.view==='flat'&&MAP2){
+      const wx=MAP2.ix(p[0]), wy=MAP2.iy(p[1]);
+      let best=null, bd=0.10*0.10;
+      for(let i=0;i<ST.ch.length;i++){
+        const c=ST.ch[i];
+        if(c.t==='plane'){ const d=(wy-c.y0)*(wy-c.y0); if(d<bd){ bd=d; best={k:'ch',i:i}; } continue; }
+        const d=(wx-c.x)*(wx-c.x)+(wy-c.y)*(wy-c.y);
+        if(d<Math.max(bd,c.a*c.a*1.6)){ bd=d; best={k:'ch',i:i}; }
+      }
+      const dt=(wx-ST.test.x)*(wx-ST.test.x)+(wy-ST.test.y)*(wy-ST.test.y);
+      if(dt<bd||dt<0.006){ best={k:'test'}; }
+      if(best){ g={mode:'move',tgt:best}; if(best.k==='ch') ST.sel=best.i; }
+      else g={mode:'none'};
+    }else{
+      g={mode:'rot',x:e.clientX,y:e.clientY,az:ST.az,el:ST.el};
+      DRAG=true;
+    }
+    try{ sv.setPointerCapture(e.pointerId); }catch(err){}
+    sv.classList.add('drag');
+    if(g.mode==='move'){ movePtr(sv,e); }
+  });
+  sv.addEventListener('pointermove',function(e){
+    if(!g) return;
+    e.preventDefault();
+    if(g.mode==='rot'){
+      ST.az=((g.az+(e.clientX-g.x)*0.42)%360+540)%360-180;
+      ST.el=clamp(g.el-(e.clientY-g.y)*0.30,6,84);
+      refreshLight();
+    }else if(g.mode==='move'){
+      movePtr(sv,e,g);
+    }
+  });
+  const up=function(){
+    if(g&&g.mode==='rot'){ DRAG=false; drawStage(); }
+    if(g&&g.mode==='move'){ refresh(); }
+    g=null; sv.classList.remove('drag');
+  };
+  sv.addEventListener('pointerup',up);
+  sv.addEventListener('pointercancel',up);
+  sv.addEventListener('pointerleave',up);
+  function movePtr(svv,e,gg){
+    if(!MAP2) return;
+    const S=mainSize(), p=svPt(svv,e,S.W);
+    const wx=clamp(MAP2.ix(p[0]),-LDOM*0.98,LDOM*0.98), wy=clamp(MAP2.iy(p[1]),-LDOM*0.98,LDOM*0.98);
+    const t=(gg||g).tgt;
+    if(t.k==='test'){ ST.test.x=wx; ST.test.y=wy; }
+    else{
+      const c=ST.ch[t.i];
+      if(c.t==='plane') c.y0=wy; else { c.x=wx; c.y=wy; }
+    }
+    buildField(); drawStage(); drawQ();
+  }
+}
+function bindTest(){
+  const sv=document.getElementById('sv-test');
+  if(!sv) return;
+  let on=false;
+  const W=()=>narrow?360:740;
+  const mv=function(e){
+    if(!MAPT) return;
+    const p=svPt(sv,e,W());
+    const fx=(p[0]-MAPT.ox)/MAPT.bw, fy=(p[1]-MAPT.oy)/MAPT.bh;
+    ST.test.x=clamp(MAPT.cx-MAPT.Rx+fx*2*MAPT.Rx,-LDOM*0.98,LDOM*0.98);
+    ST.test.y=clamp(MAPT.cy+MAPT.R-fy*2*MAPT.R,-LDOM*0.98,LDOM*0.98);
+    drawTestCard(); drawQ(); drawStage();
+  };
+  sv.addEventListener('pointerdown',function(e){ on=true; ST.panLock=[ST.test.x,ST.test.y]; try{sv.setPointerCapture(e.pointerId);}catch(err){} sv.classList.add('drag'); mv(e); });
+  sv.addEventListener('pointermove',function(e){ if(!on) return; e.preventDefault(); mv(e); });
+  const up=function(){ if(on){ on=false; ST.panLock=null; sv.classList.remove('drag'); drawTestCard(); scheduleHeavy(); } };
+  sv.addEventListener('pointerup',up); sv.addEventListener('pointercancel',up); sv.addEventListener('pointerleave',up);
+}
+function bindPath(){
+  const sv=document.getElementById('sv-path');
+  if(!sv) return;
+  let tgt=null;
+  const W=()=>narrow?360:740;
+  const toW=function(e){
+    const p=svPt(sv,e,W());
+    return [clamp((p[0]-MAPP.ox)/MAPP.side*2*LDOM-LDOM,-LDOM*0.98,LDOM*0.98),
+            clamp(LDOM-(p[1]-MAPP.oy)/MAPP.side*2*LDOM,-LDOM*0.98,LDOM*0.98)];
+  };
+  sv.addEventListener('pointerdown',function(e){
+    if(!MAPP) return;
+    const w=toW(e);
+    const dA=Math.hypot(w[0]-ST.pA.x,w[1]-ST.pA.y), dB=Math.hypot(w[0]-ST.pB.x,w[1]-ST.pB.y);
+    tgt=(dA<dB)?ST.pA:ST.pB;
+    try{sv.setPointerCapture(e.pointerId);}catch(err){}
+    sv.classList.add('drag');
+    tgt.x=w[0]; tgt.y=w[1]; drawPath();
+  });
+  sv.addEventListener('pointermove',function(e){
+    if(!tgt) return; e.preventDefault();
+    const w=toW(e); tgt.x=w[0]; tgt.y=w[1]; drawPath();
+  });
+  const up=function(){ if(tgt){ tgt=null; sv.classList.remove('drag'); drawConvTab(); } };
+  sv.addEventListener('pointerup',up); sv.addEventListener('pointercancel',up); sv.addEventListener('pointerleave',up);
+}
+function bindButtons(){
+  const add=function(sign){
+    let x=0, y=0, tries=0;
+    while(tries<40){
+      const a=TAU*Math.random(), r=LDOM*(0.30+0.45*Math.random());
+      x=r*Math.cos(a); y=r*Math.sin(a);
+      let ok=true;
+      for(const c of ST.ch){ if(c.t!=='plane'&&Math.hypot(x-c.x,y-c.y)<0.16) ok=false; }
+      if(ok) break;
+      tries++;
+    }
+    ST.ch.push(mkBall(x,y,sign*5,0.06));
+    ST.sel=ST.ch.length-1;
+    ST.pre='';
+    onParam();
+  };
+  document.getElementById('chadd-p').addEventListener('click',()=>add(1));
+  document.getElementById('chadd-n').addEventListener('click',()=>add(-1));
+  document.getElementById('chdel').addEventListener('click',function(){
+    if(ST.ch.length<=1) return;
+    ST.ch.splice(ST.sel,1);
+    ST.sel=clamp(ST.sel,0,ST.ch.length-1);
+    ST.pre='';
+    onParam();
+  });
+}
+
+let rt=null;
+window.addEventListener('resize',function(){
+  clearTimeout(rt);
+  rt=setTimeout(function(){
+    const n=window.innerWidth<=430;
+    if(n!==narrow){ narrow=n; refresh(); }
+  },160);
+});
+
+/* ---------- 起動 ---------- */
+ST.zoomR=0.22;
+ST.panLock=null;
+buildSliders();
+buildFx();
+buildTables();
+bindMain();
+bindTest();
+bindPath();
+bindButtons();
+ST.vc=autoVc();
+refresh();
+
+</script>
+</body>
+</html>

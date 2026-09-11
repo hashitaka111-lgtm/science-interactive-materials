@@ -1,0 +1,1113 @@
+<!doctype html>
+<html lang="ja">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>タンパク質の構造と変性</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500&family=IBM+Plex+Sans+JP:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+*{box-sizing:border-box}
+[hidden]{display:none!important}
+:root{
+  --ink:#16232B; --muted:#5E6E76; --paper:#EDF1EF; --surface:#FFFFFF;
+  --rule:#D6DDDA; --rule-soft:#E8EDEB;
+  --c0:#B87A16; --c0t:#8A5A0C;
+  --c1:#158A6D; --c1t:#0D6A53;
+  --c2:#2457A6; --c2t:#1B4380;
+  --c3:#6E3AA7; --c3t:#572D85;
+  --c4:#A82A6A; --c4t:#831F52;
+  --c5:#3B6E1E; --c5t:#2A5215;
+  --mono:"IBM Plex Mono",ui-monospace,SFMono-Regular,Menlo,monospace;
+}
+html,body{margin:0;padding:0}
+body{
+  background:var(--paper); color:var(--ink);
+  font-family:"IBM Plex Sans JP","Hiragino Sans","Yu Gothic UI",system-ui,sans-serif;
+  font-size:13.5px; line-height:1.75; -webkit-text-size-adjust:100%;
+}
+.mono{font-family:var(--mono);font-variant-numeric:tabular-nums}
+.wrap{max-width:820px;margin:0 auto;padding:20px 14px 72px}
+.card{background:var(--surface);border:1px solid var(--rule);border-radius:3px;padding:14px;margin-bottom:14px}
+.eyebrow{display:flex;align-items:center;gap:10px;font-family:var(--mono);font-size:11.5px;letter-spacing:.14em;color:var(--muted)}
+.eyebrow::after{content:"";flex:1;height:1px;background:var(--rule)}
+h1{font-size:22px;font-weight:600;letter-spacing:.01em;margin:8px 0 2px}
+h2{font-size:13.5px;font-weight:600;margin:14px 0 6px;letter-spacing:.01em}
+h2:first-child{margin-top:0}
+h3{font-size:12.5px;font-weight:600;margin:0 0 4px;letter-spacing:.01em}
+p{margin:0 0 8px}
+p:last-child{margin-bottom:0}
+.note{color:var(--muted);font-size:12px;line-height:1.7}
+hr{border:none;border-top:1px solid var(--rule-soft);margin:12px 0}
+.btn:focus-visible{outline:2px solid var(--c2);outline-offset:1px}
+
+.placeholder{
+  border:1px dashed var(--rule);border-radius:3px;background:#FBFCFB;
+  color:var(--muted);font-size:12px;line-height:1.7;
+  padding:22px 14px;margin-top:10px;text-align:center;
+}
+.placeholder .tag{
+  display:inline-block;font-family:var(--mono);font-size:10.5px;letter-spacing:.1em;
+  border:1px solid var(--rule);border-radius:2px;padding:1px 6px;margin-bottom:6px;color:var(--muted);
+}
+.viewer.placeholder{min-height:220px;display:flex;flex-direction:column;align-items:center;justify-content:center}
+
+/* ---------- 表(結合×構造次数／操作×壊れる結合で共通) ---------- */
+.tablewrap{overflow-x:auto;border:1px solid var(--rule-soft);border-radius:3px;position:relative;margin-top:10px}
+table{border-collapse:separate;border-spacing:0;width:max-content;min-width:100%}
+td,th{border-bottom:1px solid var(--rule-soft);font-size:12px;text-align:left;vertical-align:middle}
+th{padding:6px 9px;font-size:11px;letter-spacing:.04em;color:var(--muted);font-weight:500;border-bottom:1px solid var(--rule);white-space:nowrap}
+td{padding:0}
+.rowlab{position:sticky;left:0;background:var(--surface);z-index:1;padding:6px 9px}
+.rowlab.btncell{padding:0}
+thead th{position:sticky;top:0;background:var(--surface);z-index:2}
+thead th.rowlab{z-index:3}
+.tablewrap.scrolled .rowlab{box-shadow:6px 0 8px -6px rgba(22,35,43,.35)}
+tbody tr:last-child td,tbody tr:last-child th{border-bottom:none}
+
+.dot{display:inline-block;width:8px;height:8px;border-radius:50%;margin-right:5px;vertical-align:1px}
+.roletag{display:inline-block;font-family:var(--mono);font-size:9.5px;letter-spacing:.06em;border-radius:2px;padding:0 5px;margin-left:6px;vertical-align:1px}
+.roletag.chain{background:var(--ink);color:#fff}
+.roletag.fold{border:1px solid var(--rule);color:var(--muted)}
+.covtag{display:inline-block;font-family:var(--mono);font-size:9.5px;letter-spacing:.04em;color:var(--c0t);margin-left:6px;white-space:nowrap}
+.covflag{color:var(--c4t);font-weight:700;font-family:var(--mono);margin-left:2px}
+tr.row-chain th,tr.row-chain td{border-bottom:2px solid var(--ink)}
+
+.cell,.rowsel{all:unset;box-sizing:border-box;display:block;width:100%;cursor:pointer;font:inherit;padding:6px 9px;color:var(--ink)}
+.cell{min-width:150px;white-space:normal;line-height:1.5}
+.cell.absent{color:var(--muted);text-align:center;min-width:64px}
+.cell:hover,.rowsel:hover{background:#F6F8F7}
+.cell.sel{background:var(--ink);color:#fff}
+.rowsel{white-space:nowrap;font-weight:500}
+.rowsel[aria-pressed="true"]{background:var(--ink);color:#fff}
+.cell:focus-visible,.rowsel:focus-visible{outline:2px solid var(--c2);outline-offset:-2px}
+
+td.state{padding:6px 9px;text-align:center;white-space:nowrap;min-width:76px}
+td.state.breaks{color:var(--c4t);font-weight:600}
+td.state.keeps{color:var(--c1t)}
+td.state.unspecified{color:var(--muted)}
+
+.cattag{display:inline-block;font-family:var(--mono);font-size:9.5px;letter-spacing:.06em;border-radius:2px;padding:0 5px;margin-left:6px;vertical-align:1px;white-space:nowrap}
+.cattag.denat{border:1px solid var(--rule);color:var(--muted)}
+.cattag.notdenat{background:var(--c1);color:#fff}
+tr.row-notdenat th.rowlab{border-left:3px solid var(--c1)}
+
+tbody tr.sel td,tbody tr.sel th{background:#F2F6FA}
+tbody tr.echo td,tbody tr.echo th{background:#FAFBFA}
+
+/* ---------- ボタン・3Dビューア(タスク8) ---------- */
+.btn{font:inherit;font-size:12.5px;line-height:1.4;border:1px solid var(--rule);background:#fff;color:var(--ink);border-radius:2px;padding:6px 10px;cursor:pointer}
+.btn:hover{border-color:#B4C0BC}
+.btn.on{background:var(--ink);color:#fff;border-color:var(--ink)}
+.btn.sm{padding:4px 8px;font-size:11.5px}
+.btnrow{display:flex;flex-wrap:wrap;gap:6px}
+
+.viewer{position:relative;border:1px solid var(--rule-soft);border-radius:3px;background:#FBFCFB;overflow:hidden;margin-top:6px}
+svg.stage{display:block;width:100%;height:auto;touch-action:none;outline:none}
+svg.stage.grab{cursor:grab}
+svg.stage.grab.drag{cursor:grabbing}
+svg.stage:focus-visible{outline:2px solid var(--c2);outline-offset:2px}
+
+.ctl{display:flex;flex-wrap:wrap;align-items:center;gap:8px;margin-top:8px}
+.ctl .lab{font-family:var(--mono);font-size:11px;letter-spacing:.1em;color:var(--muted);white-space:nowrap}
+.ctl .val{font-family:var(--mono);font-variant-numeric:tabular-nums;font-size:12.5px;min-width:44px}
+input[type=range]{width:100%;max-width:220px;accent-color:#16232B;height:22px}
+
+/* ---------- 計算カード：段階開示(peptide-sequencing.html の条件開示カードと同じパターン) ---------- */
+.condcard{border:1px solid var(--rule);border-radius:3px;padding:11px 12px;margin-bottom:9px}
+.condcard:last-child{margin-bottom:0}
+.condcard.opened{border-color:var(--rule);background:#FBFCFB}
+.condtop{display:flex;align-items:center;gap:8px;margin-bottom:4px}
+.condnum{font-size:11px;color:var(--muted);letter-spacing:.08em}
+.condstate{font-size:10px;letter-spacing:.06em;color:var(--c1t)}
+.condtext{font-size:12.5px;margin-bottom:8px}
+.condresult{font-size:13px;margin-bottom:4px}
+.condcount{color:var(--muted);font-size:11px;margin:0}
+
+/* ---------- 分類カード ---------- */
+.clsgroup{margin-top:10px}
+.clsgroup:first-child{margin-top:0}
+.axislabel{font-family:var(--mono);font-size:11px;letter-spacing:.08em;color:var(--muted);margin-bottom:6px}
+.clspair{display:flex;gap:10px;flex-wrap:wrap}
+.clsitem{flex:1 1 220px;border:1px solid var(--rule-soft);border-radius:3px;padding:9px 10px;background:#FBFCFB}
+.clsname{font-weight:600;font-size:13px;margin-bottom:3px}
+.clsdef{font-size:12px;margin-bottom:5px;line-height:1.6}
+.clsex{font-size:11px;color:var(--muted)}
+.conjlist{border:1px solid var(--rule-soft);border-radius:3px;overflow:hidden}
+.conjrow{display:flex;justify-content:space-between;gap:8px;padding:6px 10px;font-size:12px;border-bottom:1px solid var(--rule-soft)}
+.conjrow:last-child{border-bottom:none}
+.conjname{font-weight:500}
+.conjex{color:var(--muted);font-size:11px;white-space:nowrap}
+
+/* ---------- 応用カード ---------- */
+.appblock{margin-bottom:14px}
+.appblock:last-child{margin-bottom:0}
+
+@media (prefers-reduced-motion:no-preference){
+  .cell,.rowsel{transition:background 150ms ease,color 150ms ease}
+  tbody tr.sel td,tbody tr.sel th,tbody tr.echo td,tbody tr.echo th{transition:background 150ms ease}
+  #v3d-g{transition:opacity 130ms ease}
+}
+
+@media (max-width:430px){
+  body{font-size:13px}
+  .wrap{padding:14px 10px 56px}
+  .card{padding:11px}
+  h1{font-size:19px}
+  .viewer.placeholder{min-height:180px}
+  .cell{min-width:128px}
+  td.state{min-width:64px;font-size:11.5px}
+  th{padding:5px 7px}
+  .rowlab{padding:5px 7px}
+  .cell,.rowsel{padding:5px 7px}
+  .btn{padding:6px 8px;font-size:12px}
+  input[type=range]{max-width:none;flex:1 1 100%}
+  .ctl .val{min-width:0}
+  .conjrow{flex-wrap:wrap}
+  .conjex{white-space:normal}
+}
+</style>
+</head>
+<body>
+<div class="wrap">
+
+<header>
+  <div class="eyebrow">PROTEIN STRUCTURE</div>
+  <h1>タンパク質の構造と変性</h1>
+  <p class="note">一次〜四次構造がそれぞれどの結合で保たれ、加熱や強酸・強塩基などの操作でどの結合が壊れるかを、2つの表と3D模式図で確認する。3D模式図はタンパク質の立体構造を理解するための模式図であり、実在するタンパク質の原子座標(PDBデータ等)を再現したものではない。</p>
+</header>
+
+<div class="card">
+  <div class="eyebrow">STRUCTURE LEVELS</div>
+  <h2>結合×構造次数マトリクス</h2>
+  <p class="note">ペプチド結合・水素結合・ジスルフィド結合・イオン結合・疎水性相互作用の5つの結合が、一次〜四次構造のどこで働くかを表にする。セルを選ぶと下の3Dビューが対応する構造に切り替わる。太字境界の行(ペプチド結合)だけが鎖そのものをつくる結合で、それ以外は立体構造を保つ結合。</p>
+  <div class="tablewrap" id="t1-wrap">
+    <table id="t1">
+      <thead><tr id="t1-thead"></tr></thead>
+      <tbody id="t1-tbody"></tbody>
+    </table>
+  </div>
+  <p class="note" id="t1-foot" style="margin-top:8px"></p>
+</div>
+
+<div class="card">
+  <div class="eyebrow">3D VIEW</div>
+  <h2>3Dビュー（模式図）</h2>
+  <p class="note">上の表・下の表のどちらの選択にも従属する補助ビュー。ドラッグまたは矢印キーで回せる。自動では回転しない。タンパク質の立体構造を理解するための模式図であり、実在するタンパク質の原子座標を再現したものではない。</p>
+  <p class="note" id="v3d-selectionnote" style="margin-top:4px"></p>
+  <div class="btnrow" id="v3d-secondary" style="margin-top:4px" hidden></div>
+  <div class="btnrow" id="v3d-denat" style="margin-top:4px" hidden></div>
+  <div class="viewer" id="v3d-viewer">
+    <svg class="stage grab" id="v3d-svg" tabindex="0" role="img" aria-label="タンパク質の構造の3D模式図。ドラッグまたは矢印キーで回転できる"><g id="v3d-g"></g></svg>
+  </div>
+  <div class="placeholder" id="v3d-inactive" hidden><span class="tag">INACTIVE</span><br>一次構造は鎖のつながりだけなので3Dで見る意味がない</div>
+  <div class="ctl" id="v3d-azrow">
+    <span class="lab">方位角</span><input type="range" id="v3d-az-input" min="-180" max="180" step="1"><span class="val mono" id="v3d-az-val"></span>
+  </div>
+  <div class="ctl" id="v3d-elrow">
+    <span class="lab">仰角</span><input type="range" id="v3d-el-input" min="6" max="84" step="1"><span class="val mono" id="v3d-el-val"></span>
+  </div>
+  <p class="note" id="v3d-hbondnote" style="margin-top:8px"></p>
+</div>
+
+<div class="card">
+  <div class="eyebrow">DENATURATION</div>
+  <h2>操作×壊れる結合</h2>
+  <p class="note">加熱・強酸強塩基・重金属イオン・有機溶媒・紫外線・塩析の6つの操作について、どの結合が壊れ、どの結合が残るかを表にする。行を選ぶと3Dビューが三次構造に切り替わり、変性前/変性後のトグルで壊れる結合を確認できる。塩析だけは「変性ではない」ので左端に緑の印を付けている。</p>
+  <div class="tablewrap" id="t2-wrap">
+    <table id="t2">
+      <thead><tr id="t2-thead"></tr></thead>
+      <tbody id="t2-tbody"></tbody>
+    </table>
+  </div>
+  <p class="note" id="t2-foot" style="margin-top:8px"></p>
+</div>
+
+<div class="card">
+  <div class="eyebrow">CALCULATION</div>
+  <h2>計算：ヘモグロビンのサブユニット数</h2>
+  <p class="note" id="calc-prompt"></p>
+  <div id="calc-steps" style="margin-top:10px"></div>
+  <div class="condcard opened" id="calc-answer" style="margin-top:9px" hidden></div>
+</div>
+
+<div class="card">
+  <div class="eyebrow">CLASSIFICATION</div>
+  <h2>分類：組成・形状</h2>
+  <p class="note">単純タンパク質/複合タンパク質(組成による分類)と、球状タンパク質/繊維状タンパク質(形状による分類)を整理する。</p>
+  <div id="cls-axes"></div>
+  <h2 style="margin-top:14px">複合タンパク質の内訳</h2>
+  <div class="conjlist" id="cls-conjugated"></div>
+  <p class="note" id="cls-foot" style="margin-top:8px"></p>
+</div>
+
+<div class="card">
+  <div class="eyebrow">APPLICATIONS</div>
+  <h2>応用：酵素の失活・ビウレット反応</h2>
+  <div id="app-body"></div>
+</div>
+
+<script type="module">
+"use strict";
+/* ---------- データ(JSONをそのまま埋め込み。fetch は使わない) ---------- */
+const DATA = {"levels":[{"order":1,"name":"一次構造","definition":"ポリペプチド鎖におけるアミノ酸の配列順序。","aliases":[],"aliasNote":"","example":"インスリンのアミノ酸配列","coverage":"core","confidence":"high"},{"order":2,"name":"二次構造","definition":"主鎖どうしの水素結合によってできる、らせん状やシート状の規則的な繰り返し構造。","aliases":["α-ヘリックス","β-シート"],"aliasNote":"β-シートは教科書によって β構造、ひだ状構造 とも書かれる。α-ヘリックスは らせん構造 と併記されることが多い。","example":"α-ヘリックス、β-シート","coverage":"core","confidence":"high"},{"order":3,"name":"三次構造","definition":"1本のポリペプチド鎖全体が、側鎖どうしの結合や相互作用によって折りたたまれてできる立体構造。","aliases":[],"aliasNote":"","example":"ミオグロビン","coverage":"core","confidence":"high"},{"order":4,"name":"四次構造","definition":"三次構造をとった複数のポリペプチド鎖（サブユニット）が集まってできる構造。","aliases":["サブユニット構造"],"aliasNote":"発展扱いにしている教科書がある。","example":"ヘモグロビン（4つのサブユニット）","coverage":"conditional","confidence":"high"}],"bonds":[{"id":"peptide","name":"ペプチド結合","covalent":true,"role":"chain","roleLabel":"鎖そのものをつくる","aliases":[],"note":"二次以降の構造の中にも当然存在するが、立体構造を保つ役割は担わない。共有結合なので、加水分解しないかぎり切れない。","coverage":"core","confidence":"high"},{"id":"hydrogen","name":"水素結合","covalent":false,"role":"fold","roleLabel":"立体構造を保つ","aliases":[],"note":"同じ水素結合でも、二次構造では主鎖どうし、三次以降では側鎖どうしと相手が変わる。ここを取り違える生徒が多い。","coverage":"core","confidence":"high"},{"id":"disulfide","name":"ジスルフィド結合","covalent":true,"role":"fold","roleLabel":"立体構造を保つ","aliases":["S−S結合"],"note":"共有結合でありながら立体構造を保つ側にある。ペプチド結合と同じ列に入るが役割が違う。","coverage":"core","confidence":"high"},{"id":"ionic","name":"イオン結合","covalent":false,"role":"fold","roleLabel":"立体構造を保つ","aliases":["静電気的な引力"],"note":"側鎖の電荷どうしの引力なので、pH が変わると失われる。","coverage":"core","confidence":"high"},{"id":"hydrophobic","name":"疎水性相互作用","covalent":false,"role":"fold","roleLabel":"立体構造を保つ","aliases":["疎水結合"],"note":"厳密には結合ではないため、教科書によって 疎水結合 と 疎水性相互作用 で表記が割れる。","coverage":"core","confidence":"high"}],"matrix":[{"bondId":"peptide","level":1,"status":"present","where":"隣り合うアミノ酸のカルボキシ基とアミノ基が脱水縮合してできる。この結合の並びが一次構造そのもの。","coverage":"core","confidence":"high"},{"bondId":"peptide","level":2,"status":"absent","where":"","coverage":"core","confidence":"high"},{"bondId":"peptide","level":3,"status":"absent","where":"","coverage":"core","confidence":"high"},{"bondId":"peptide","level":4,"status":"absent","where":"","coverage":"core","confidence":"high"},{"bondId":"hydrogen","level":1,"status":"absent","where":"","coverage":"core","confidence":"high"},{"bondId":"hydrogen","level":2,"status":"present","where":"主鎖の C=O と N−H の間ではたらき、らせんやシートの繰り返しを保つ。","coverage":"core","confidence":"high"},{"bondId":"hydrogen","level":3,"status":"present","where":"側鎖どうし（ヒドロキシ基、アミノ基、カルボキシ基など）の間ではたらく。","coverage":"core","confidence":"high"},{"bondId":"hydrogen","level":4,"status":"present","where":"別のサブユニットの側鎖との間ではたらく。","coverage":"conditional","confidence":"high"},{"bondId":"disulfide","level":1,"status":"absent","where":"","coverage":"core","confidence":"high"},{"bondId":"disulfide","level":2,"status":"absent","where":"","coverage":"core","confidence":"high"},{"bondId":"disulfide","level":3,"status":"present","where":"システインの側鎖の −SH どうしが酸化されて −S−S− になる。","coverage":"core","confidence":"high"},{"bondId":"disulfide","level":4,"status":"absent","where":"高校教科書では、サブユニットどうしを結ぶ結合としては扱わない。","coverage":"conditional","confidence":"high"},{"bondId":"ionic","level":1,"status":"absent","where":"","coverage":"core","confidence":"high"},{"bondId":"ionic","level":2,"status":"absent","where":"","coverage":"core","confidence":"high"},{"bondId":"ionic","level":3,"status":"present","where":"側鎖の −COO⁻ と −NH₃⁺ の間にはたらく静電気的な引力。","coverage":"core","confidence":"high"},{"bondId":"ionic","level":4,"status":"present","where":"サブユニットをまたいで同じ引力がはたらく。","coverage":"conditional","confidence":"high"},{"bondId":"hydrophobic","level":1,"status":"absent","where":"","coverage":"core","confidence":"high"},{"bondId":"hydrophobic","level":2,"status":"absent","where":"","coverage":"core","confidence":"high"},{"bondId":"hydrophobic","level":3,"status":"present","where":"水になじみにくい側鎖どうしが分子の内側に集まる。","coverage":"core","confidence":"high"},{"bondId":"hydrophobic","level":4,"status":"present","where":"サブユニットどうしの接触面で同じことが起きる。","coverage":"conditional","confidence":"high"}],"operations":[{"id":"heat","name":"加熱","category":"denaturation","categoryLabel":"変性","breaks":["hydrogen","ionic","hydrophobic"],"keeps":["peptide"],"unspecified":["disulfide"],"primaryRetained":true,"higherRetained":false,"reversible":false,"mechanism":"熱運動が激しくなり、立体構造を保っていた弱い結合が保てなくなる。","example":"卵白を加熱すると白く固まり、冷やしてももとに戻らない。","contrastWith":"","coverage":"core","confidence":"high"},{"id":"strongAcidBase","name":"強酸・強塩基","category":"denaturation","categoryLabel":"変性","breaks":["ionic","hydrogen"],"keeps":["peptide"],"unspecified":["disulfide","hydrophobic"],"primaryRetained":true,"higherRetained":false,"reversible":false,"mechanism":"側鎖の電荷が変わり、イオン結合が失われる。","example":"牛乳に食酢を加えるとカゼインが分離する。","contrastWith":"","coverage":"core","confidence":"high"},{"id":"heavyMetal","name":"重金属イオン","category":"denaturation","categoryLabel":"変性","breaks":["ionic"],"keeps":["peptide"],"unspecified":["hydrogen","hydrophobic","disulfide"],"primaryRetained":true,"higherRetained":false,"reversible":false,"mechanism":"Cu²⁺、Pb²⁺、Hg²⁺、Ag⁺ などが側鎖の −SH や −COO⁻ と強く結びつき、立体構造が保てなくなる。","example":"卵白の水溶液に酢酸鉛(II)水溶液を加えると沈殿する。","contrastWith":"saltingOut","coverage":"core","confidence":"low"},{"id":"organicSolvent","name":"有機溶媒","category":"denaturation","categoryLabel":"変性","breaks":["hydrogen","hydrophobic"],"keeps":["peptide"],"unspecified":["ionic","disulfide"],"primaryRetained":true,"higherRetained":false,"reversible":false,"mechanism":"エタノールなどが水との関わり方を変え、水素結合と疎水性相互作用が保てなくなる。","example":"消毒用アルコールが細菌のタンパク質を変性させる。","contrastWith":"","coverage":"core","confidence":"high"},{"id":"uv","name":"紫外線","category":"denaturation","categoryLabel":"変性","breaks":[],"keeps":["peptide"],"unspecified":["hydrogen","ionic","hydrophobic","disulfide"],"primaryRetained":true,"higherRetained":false,"reversible":false,"mechanism":"強いエネルギーを受けて立体構造が保てなくなる。","example":"日焼けで皮膚のタンパク質が傷む。","contrastWith":"","coverage":"conditional","confidence":"low"},{"id":"saltingOut","name":"塩析","category":"not-denaturation","categoryLabel":"変性ではない","breaks":[],"keeps":["peptide","hydrogen","disulfide","ionic","hydrophobic"],"primaryRetained":true,"higherRetained":true,"reversible":true,"mechanism":"多量の電解質がタンパク質に水和していた水を奪い、溶解度が下がって沈殿する。結合は1つも壊れない。","example":"卵白の水溶液に硫酸アンモニウムを多量に加えると沈殿し、水を加えると再び溶ける。","contrastWith":"heavyMetal","coverage":"core","confidence":"high"}],"classifications":[{"id":"simple","axis":"composition","axisLabel":"組成による分類","name":"単純タンパク質","definition":"加水分解するとアミノ酸だけが得られる。","examples":["アルブミン","グロブリン","ケラチン","コラーゲン","フィブロイン"],"coverage":"core","confidence":"high"},{"id":"conjugated","axis":"composition","axisLabel":"組成による分類","name":"複合タンパク質","definition":"加水分解するとアミノ酸以外の成分も得られる。","examples":["ムチン","カゼイン","ヘモグロビン"],"coverage":"core","confidence":"high"},{"id":"globular","axis":"shape","axisLabel":"形状による分類","name":"球状タンパク質","definition":"親水性の側鎖が外側を向いて丸くまとまり、水に溶けやすい。生命活動を維持するはたらきをもつ。","examples":["アルブミン","グロブリン","ヘモグロビン","酵素"],"coverage":"core","confidence":"high"},{"id":"fibrous","axis":"shape","axisLabel":"形状による分類","name":"繊維状タンパク質","definition":"細長い分子が束になったもので、水に溶けにくい。からだをつくる材料になる。","examples":["ケラチン（毛髪・爪）","コラーゲン（骨・皮膚）","フィブロイン（絹）"],"coverage":"core","confidence":"high"}],"conjugatedTypes":[{"id":"glyco","name":"糖タンパク質","component":"糖","example":"ムチン","coverage":"core","confidence":"high"},{"id":"phospho","name":"リンタンパク質","component":"リン酸","example":"カゼイン","coverage":"core","confidence":"high"},{"id":"chromo","name":"色素タンパク質","component":"色素（ヘム）","example":"ヘモグロビン","coverage":"core","confidence":"high"},{"id":"nucleo","name":"核タンパク質","component":"核酸","example":"ヌクレオヒストン","coverage":"core","confidence":"high"},{"id":"lipo","name":"リポタンパク質","component":"脂質","example":"血しょう中のリポタンパク質","coverage":"conditional","confidence":"low"}],"calculation":{"id":"hemoglobin-subunits","title":"ヘモグロビンの鉄含有率からサブユニット数を求める","prompt":"ヘモグロビンは質量パーセントで 0.34% の鉄を含み、分子量は 6.8×10⁴ である。サブユニット1つにつきヘムを1個もつとして、サブユニットの数を求めよ。","ironMassPercent":0.34,"atomicMassFe":55.8,"molecularMass":68000,"hemPerSubunit":1,"answerIronAtoms":4,"answerSubunits":4,"linkedClassifications":["conjugated","globular"],"linkedLevel":4,"coverage":"core","confidence":"high"},"calculationSteps":[{"n":1,"question":"鉄原子1個を含む部分の分子量はいくらか。","expression":"55.8 ÷ 0.0034","value":16400,"valueLabel":"約 1.6×10⁴","comment":"鉄が全体の 0.34% を占めるので、鉄1個分の質量をその割合で割ると、鉄1個あたりが受け持つ分子量が出る。"},{"n":2,"question":"分子量 6.8×10⁴ の中に鉄原子は何個含まれるか。","expression":"68000 ÷ 16400","value":4.1,"valueLabel":"約 4.1 → 4個","comment":"原子の個数は整数なので 4個。"},{"n":3,"question":"サブユニットはいくつか。","expression":"4 ÷ 1","value":4,"valueLabel":"4つ","comment":"サブユニット1つにヘムが1個、つまり鉄原子が1個。よってサブユニットは4つ。ヘモグロビンが四次構造をもつことの根拠になる。"}],"applications":[{"id":"enzyme-denaturation","title":"酵素の最適温度と最適pH","body":"酵素はタンパク質なので、温度が高すぎたり pH が大きくずれたりすると変性して立体構造が崩れ、はたらきを失う。これを失活という。ヒトの体内ではたらく酵素の多くは 35〜40℃ 付近で最もはたらきが強く、それより高温にすると反応速度が急に落ちる。温度を下げても戻らないのは、変性が不可逆だから。","linkedOperations":["heat","strongAcidBase"],"coverage":"core","confidence":"high"},{"id":"biuret","title":"ビウレット反応","body":"ペプチド結合が2個以上あるとき、水酸化ナトリウム水溶液と硫酸銅(II)水溶液を加えると赤紫色になる。ペプチド結合そのものを見ている反応なので、変性しても一次構造が残っているかぎり反応は起きる。","linkedOperations":[],"coverage":"core","confidence":"high"}]};
+
+
+/* ---------- ここから scripts/projection-engine.mjs をそのまま埋め込み(内容は書き換えない) ---------- */
+// 汎用の3D→2D投影エンジン。回転(方位角・仰角からのカメラ基底)・投影(点→画面座標)・
+// 深度(点→奥行きの並べ替えキー)だけを扱う。特定の教材・特定の図形の知識は一切持ち込まない。
+//
+// html/charged-particle-3d.html の setCam/P3/DEP を汎用化したもの。あちらは
+//   sx = -x*sin(th) + y*cos(th)
+//   sy = sin(ph)*(x*cos(th) + y*sin(th)) - z*cos(ph)
+//   depth = cos(ph)*(x*cos(th) + y*sin(th)) + z*sin(ph)
+// を直接計算していたが、これは点と3本の正規直交基底ベクトル(right/up/forward)との内積に
+// 分解できる。ここではその基底ベクトルを作る関数と、内積を取るだけの投影関数に分けてある。
+//
+// ブラウザでもそのまま動くこと。Node固有のAPIは使わない。ESM export のみ。外部ライブラリ禁止。
+//
+// 型（コメントのみ、実行時チェックはしない）
+//   Vec3      = [number, number, number]
+//   Camera    = { right: Vec3, up: Vec3, forward: Vec3 }   互いに直交する単位ベクトル
+//   Projected = { x: number, y: number, depth: number }    カメラ空間での座標(まだ画面px化していない)
+//   Bounds    = { minX: number, maxX: number, minY: number, maxY: number }
+//   Viewport  = { x: number, y: number, w: number, h: number }  画面上の描画先の矩形(px)
+//   Transform = { scale: number, originX: number, originY: number }
+
+const D2R = Math.PI / 180;
+
+function dot3(a, b) {
+  return a[0] * b[0] + a[1] * b[1] + a[2] * b[2];
+}
+
+// ---------- makeCamera ----------
+// 「対象を中心に周回するカメラ」のモデル。方位角(azimuthDeg)で z 軸まわりに回し、
+// 仰角(elevationDeg)で水平面から傾ける。azimuthDeg=0, elevationDeg=0 のとき
+// right=(0,1,0), up=(0,0,-1), forward=(1,0,0) になり、+x 方向から見た状態になる。
+function makeCamera(azimuthDeg, elevationDeg) {
+  const th = azimuthDeg * D2R;
+  const ph = elevationDeg * D2R;
+  const ca = Math.cos(th), sa = Math.sin(th);
+  const ce = Math.cos(ph), se = Math.sin(ph);
+  return {
+    right: [-sa, ca, 0],
+    up: [se * ca, se * sa, -ce],
+    forward: [ce * ca, ce * sa, se],
+  };
+}
+
+// ---------- project ----------
+// 点をカメラ基底に投影する。x/y はまだ画面pxではなく無次元のカメラ空間座標、
+// depth は forward 方向への内積で、値が大きいほどカメラに近い(手前)。
+function project(point, camera) {
+  return {
+    x: dot3(point, camera.right),
+    y: dot3(point, camera.up),
+    depth: dot3(point, camera.forward),
+  };
+}
+
+// ---------- boundsOf ----------
+// project() 済みの点列から、x/y それぞれの最小・最大を求める。
+function boundsOf(projectedPoints) {
+  if (!projectedPoints.length) {
+    throw new Error("boundsOf: 空の配列です");
+  }
+  let minX = Infinity, maxX = -Infinity, minY = Infinity, maxY = -Infinity;
+  for (const p of projectedPoints) {
+    if (p.x < minX) minX = p.x;
+    if (p.x > maxX) maxX = p.x;
+    if (p.y < minY) minY = p.y;
+    if (p.y > maxY) maxY = p.y;
+  }
+  return { minX, maxX, minY, maxY };
+}
+
+// ---------- fitToViewport ----------
+// bounds をアスペクト比を保ったまま viewport(px)に収めるための変換を作る。
+// 縦横で余りが出た軸は詰めず、bounds の最小値を viewport の左上(x,y)に合わせる
+// (中央寄せはしない)。bounds の幅または高さが 0 のとき(点が1つだけ、等)は
+// その軸を 1 とみなし、0 除算や Infinity を出さない。
+function fitToViewport(bounds, viewport) {
+  const rangeX = bounds.maxX - bounds.minX || 1;
+  const rangeY = bounds.maxY - bounds.minY || 1;
+  const scale = Math.min(viewport.w / rangeX, viewport.h / rangeY);
+  return {
+    scale,
+    originX: viewport.x - bounds.minX * scale,
+    originY: viewport.y - bounds.minY * scale,
+  };
+}
+
+// ---------- toScreen ----------
+// project() の結果(カメラ空間座標)を、fitToViewport() の変換で画面px座標にする。
+function toScreen(projected, transform) {
+  return {
+    x: transform.originX + projected.x * transform.scale,
+    y: transform.originY + projected.y * transform.scale,
+  };
+}
+
+// ---------- paintersOrder ----------
+// depth(値が大きいほど手前)をもとに、奥から手前の順に並べ替えた新しい配列を返す。
+// ペインターズアルゴリズム用: この順に描けば、手前のものが奥のものを正しく隠す。
+// 元の配列は変更しない。
+function paintersOrder(items, depthOf) {
+  return [...items].sort((a, b) => depthOf(a) - depthOf(b));
+}
+
+export { makeCamera, project, boundsOf, fitToViewport, toScreen, paintersOrder };
+/* ---------- ここまで scripts/projection-engine.mjs の埋め込み ---------- */
+
+/* ---------- 共通 ---------- */
+const esc = s => String(s).replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+
+// bonds[].id → CSS変数のトークン名(c0〜c4)。6色中5色を使う(bondsは5件)。
+const BOND_COLOR = {};
+DATA.bonds.forEach((b, i) => { BOND_COLOR[b.id] = 'c' + i; });
+
+const LEVEL_LABEL = { 1: '一次', 2: '二次', 3: '三次', 4: '四次' };
+
+/* ---------- 表1: 結合×構造次数マトリクス ---------- */
+function matrixCellOf(bondId, level) {
+  return DATA.matrix.find(m => m.bondId === bondId && m.level === level);
+}
+
+// 表1の選択状態。{ bondId, level } または未選択なら null。selectT1Cell() だけが書き換える。
+let t1sel = null;
+
+function renderTable1() {
+  let h = '<th scope="col" class="rowlab">結合</th>';
+  DATA.levels.forEach(lv => {
+    const flag = lv.coverage === 'conditional' ? '<span class="covflag" aria-hidden="true">†</span>' : '';
+    h += `<th scope="col">${esc(LEVEL_LABEL[lv.order])}構造${flag}</th>`;
+  });
+  document.getElementById('t1-thead').innerHTML = h;
+
+  let b = '';
+  DATA.bonds.forEach(bond => {
+    const dotVar = `var(--${BOND_COLOR[bond.id]})`;
+    const textVar = `var(--${BOND_COLOR[bond.id]}t)`;
+    const roleTag = bond.role === 'chain'
+      ? '<span class="roletag chain">鎖</span>'
+      : '<span class="roletag fold">立体</span>';
+    const covTag = bond.covalent ? '<span class="covtag">共有結合</span>' : '';
+    b += `<tr class="${bond.role === 'chain' ? 'row-chain' : ''}">`;
+    b += `<th scope="row" class="rowlab"><span class="dot" style="background:${dotVar}"></span>` +
+      `<span style="color:${textVar}">${esc(bond.name)}</span>${covTag}${roleTag}</th>`;
+    DATA.levels.forEach(lv => {
+      const m = matrixCellOf(bond.id, lv.order);
+      const present = m.status === 'present';
+      const flag = m.coverage === 'conditional' ? '<span class="covflag" aria-hidden="true">†</span>' : '';
+      const text = present ? esc(m.where) : '―';
+      const label = `${bond.name} × ${LEVEL_LABEL[lv.order]}構造：${present ? 'あり' : 'なし'}`;
+      b += `<td><button type="button" class="cell ${present ? 'present' : 'absent'}" ` +
+        `data-bond="${bond.id}" data-level="${lv.order}" aria-pressed="false" aria-label="${esc(label)}">` +
+        `${text}${flag}</button></td>`;
+    });
+    b += '</tr>';
+  });
+  document.getElementById('t1-tbody').innerHTML = b;
+
+  document.querySelectorAll('#t1-tbody button.cell').forEach(btn => {
+    btn.addEventListener('click', () => selectT1Cell(btn.dataset.bond, +btn.dataset.level));
+  });
+
+  document.getElementById('t1-foot').textContent =
+    '†は教科書によって扱いが割れる項目(coverage: conditional)。';
+}
+
+// 表1のセル選択を切り替える唯一の入口。
+function selectT1Cell(bondId, level) {
+  t1sel = { bondId, level };
+  document.querySelectorAll('#t1-tbody button.cell').forEach(btn => {
+    const on = btn.dataset.bond === bondId && +btn.dataset.level === level;
+    btn.classList.toggle('sel', on);
+    btn.setAttribute('aria-pressed', String(on));
+  });
+  V3D.source = 'table1';
+  V3D.level = level;
+  V3D.bondId = bondId;
+  renderV3DState();
+}
+
+/* ---------- 表2: 操作×壊れる結合 ---------- */
+const T2_STATE_LABEL = { breaks: '壊れる', keeps: '残る', unspecified: '不明記' };
+
+function bondStateOf(op, bondId) {
+  if (op.breaks.includes(bondId)) return 'breaks';
+  if (op.keeps.includes(bondId)) return 'keeps';
+  if ((op.unspecified || []).includes(bondId)) return 'unspecified';
+  return 'unspecified';
+}
+
+// 表2の選択状態。選択中の operations[].id、または未選択なら null。selectT2Row() だけが書き換える。
+let t2sel = null;
+
+function renderTable2() {
+  let h = '<th scope="col" class="rowlab">操作</th>';
+  DATA.bonds.forEach(bond => {
+    h += `<th scope="col"><span class="dot" style="background:var(--${BOND_COLOR[bond.id]})"></span>${esc(bond.name)}</th>`;
+  });
+  document.getElementById('t2-thead').innerHTML = h;
+
+  let b = '';
+  DATA.operations.forEach(op => {
+    const notDenat = op.category === 'not-denaturation';
+    const catTag = notDenat
+      ? '<span class="cattag notdenat">変性ではない</span>'
+      : '<span class="cattag denat">変性</span>';
+    const flag = op.coverage === 'conditional' ? '<span class="covflag" aria-hidden="true">†</span>' : '';
+    b += `<tr class="${notDenat ? 'row-notdenat' : ''}" data-op="${op.id}">`;
+    b += `<th scope="row" class="rowlab btncell">` +
+      `<button type="button" class="rowsel" data-op="${op.id}" aria-pressed="false">${esc(op.name)}${flag}</button>` +
+      `${catTag}</th>`;
+    DATA.bonds.forEach(bond => {
+      const state = bondStateOf(op, bond.id);
+      b += `<td class="state ${state}">${T2_STATE_LABEL[state]}</td>`;
+    });
+    b += '</tr>';
+  });
+  document.getElementById('t2-tbody').innerHTML = b;
+
+  document.querySelectorAll('#t2-tbody button.rowsel').forEach(btn => {
+    btn.addEventListener('click', () => selectT2Row(btn.dataset.op));
+  });
+
+  document.getElementById('t2-foot').textContent =
+    '†は教科書によって扱いが割れる項目(coverage: conditional)。壊れる/残る以外に「不明記」があるのは、原典がその結合について明言していないため。';
+}
+
+// 表2の行選択を切り替える唯一の入口。
+// contrastWith で結ばれた行(heavyMetal⇄saltingOut)は、選択した側の相手に軽いハイライト(echo)を付ける。
+function selectT2Row(opId) {
+  t2sel = opId;
+  const op = DATA.operations.find(o => o.id === opId);
+  const echoId = op && op.contrastWith ? op.contrastWith : null;
+  document.querySelectorAll('#t2-tbody tr[data-op]').forEach(tr => {
+    const id = tr.dataset.op;
+    tr.classList.toggle('sel', id === opId);
+    tr.classList.toggle('echo', id === echoId);
+    tr.querySelector('button.rowsel').setAttribute('aria-pressed', String(id === opId));
+  });
+  V3D.source = 'table2';
+  V3D.opId = opId;
+  V3D.denatState = 'before';
+  renderV3DState();
+}
+
+/* ---------- 横スクロール時の影(表1・表2共通) ---------- */
+function bindScrollShadow(wrapId) {
+  const el = document.getElementById(wrapId);
+  el.addEventListener('scroll', () => { el.classList.toggle('scrolled', el.scrollLeft > 0); }, { passive: true });
+}
+
+/* ---------- 3Dビュー(タスク8: 二次構造、タスク9: 三次・四次構造の模式図。表とはまだ未連動) ---------- */
+// :root の --c0〜--c5 と同じ値。SVG属性にCSS変数をそのまま書くより、
+// html/charged-particle-3d.html に合わせてJS側にも色の実値を持つ方式にしている。
+const CSS_HEX = { c0: '#B87A16', c1: '#158A6D', c2: '#2457A6', c3: '#6E3AA7', c4: '#A82A6A', c5: '#3B6E1E' };
+
+const reduceMotion = () => window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+
+// bondId → bonds[] の元データ。covalent かどうかでスティックを実線/点線に振り分ける
+// (共有結合は実線、非共有結合は点線。主鎖の水素結合の点線と同じ考え方)。
+const BOND_BY_ID = {};
+DATA.bonds.forEach(b => { BOND_BY_ID[b.id] = b; });
+function bondColorOf(bondId) { return CSS_HEX[BOND_COLOR[bondId]]; }
+function bondDashOf(bondId) { return BOND_BY_ID[bondId].covalent ? null : '3 3'; }
+
+function vlen3(v) { return Math.hypot(v[0], v[1], v[2]) || 1; }
+function normalize3(v) { const l = vlen3(v); return [v[0] / l, v[1] / l, v[2] / l]; }
+function cross3(a, b) { return [a[1] * b[2] - a[2] * b[1], a[2] * b[0] - a[0] * b[2], a[0] * b[1] - a[1] * b[0]]; }
+
+// 主鎖(ペプチド結合)は bonds[0]=peptide の色、水素結合の点線は bonds[1]=hydrogen の色をそのまま使う。
+// 表1の結合色と同じ意味づけにしておくと、タスク10で連動させたときに違和感がない。
+const V3D_BACKBONE_COLOR = bondColorOf('peptide');
+const V3D_HBOND_COLOR = bondColorOf('hydrogen');
+
+// α-ヘリックスは1巻き=3.6残基。反映するのはこの比率だけで、半径・ピッチ・残基数は模式的な値。
+function helixGeometry() {
+  const N = 14;
+  const RESIDUES_PER_TURN = 3.6;
+  const stepDeg = 360 / RESIDUES_PER_TURN;
+  const R = 0.42;
+  const totalRise = 1.7;
+  const rise = totalRise / (N - 1);
+  const nodes = [];
+  for (let i = 0; i < N; i++) {
+    const a = i * stepDeg * D2R;
+    nodes.push({ pos: [R * Math.cos(a), R * Math.sin(a), rise * i - totalRise / 2], color: V3D_BACKBONE_COLOR });
+  }
+  const edges = [];
+  for (let i = 0; i < N - 1; i++) edges.push({ i, j: i + 1, color: V3D_BACKBONE_COLOR, dash: null });
+  // 水素結合は同一鎖内、1巻き離れた残基同士(i番目とi+4番目)を結ぶ
+  for (let i = 0; i < N - 4; i++) edges.push({ i, j: i + 4, color: V3D_HBOND_COLOR, dash: '3 3' });
+  return { nodes, edges };
+}
+
+// β-シート。2本の鎖をジグザグ(ひだ状)に並べ、水素結合は鎖と鎖の間を結ぶ(同一鎖内には引かない)。
+function sheetGeometry() {
+  const N = 8;
+  const SPACING = 0.26;
+  const AMP = 0.2;
+  const GAP = 0.5;
+  const nodes = [];
+  for (let s = 0; s < 2; s++) {
+    for (let i = 0; i < N; i++) {
+      const x = SPACING * i - (SPACING * (N - 1)) / 2;
+      const y = s === 0 ? -GAP / 2 : GAP / 2;
+      const z = (i % 2 === 0 ? 1 : -1) * AMP;
+      nodes.push({ pos: [x, y, z], color: V3D_BACKBONE_COLOR });
+    }
+  }
+  const edges = [];
+  for (let s = 0; s < 2; s++) {
+    const base = s * N;
+    for (let i = 0; i < N - 1; i++) edges.push({ i: base + i, j: base + i + 1, color: V3D_BACKBONE_COLOR, dash: null });
+  }
+  for (let i = 0; i < N; i++) edges.push({ i, j: i + N, color: V3D_HBOND_COLOR, dash: '3 3' });
+  return { nodes, edges };
+}
+
+// 三次構造。1本鎖が折りたたまれた模式的な塊(blob)。フィボナッチ球の点を生成順につなぐと、
+// 空間的に隣り合わない点同士が結ばれるので「1本の鎖が絡み合って詰まった塊」に見える。
+// 表面から突き出すスティックは、matrixでlevel=3かつstatus=presentの結合をデータから
+// 求めて1本ずつ表す(ハードコードしないので、表1に表示されている「三次で働く結合」と
+// 常に一致する。高校教科書のmatrixデータでは水素結合・ジスルフィド結合・イオン結合・
+// 疎水性相互作用の4つがこれにあたる)。
+// バックボーンは決定的なLissajous曲線(3次元版のトレフォイル結び目のパラメータ式)で作る。
+// フィボナッチ球+生成順連結は隣接インデックスの点が空間的に離れる(黄金角回転)ため、
+// 連結すると球の中心を貫通する長い弦の集合になり「星形」に見えてしまっていた。
+// この式は t を連続的に動かすので、隣り合う点(Δtが小さい)は必ず空間的にも近く、
+// 1本の紐が絡み合って詰まった塊に見える。原点からの最大距離で正規化して半径Rに収める。
+function tertiaryGeometry() {
+  const N = 20;
+  const R = 0.42;
+  const raw = [];
+  for (let i = 0; i < N; i++) {
+    const t = (i / N) * Math.PI * 2;
+    raw.push([
+      Math.sin(t) + 2 * Math.sin(2 * t),
+      Math.cos(t) - 2 * Math.cos(2 * t),
+      -Math.sin(3 * t) * 1.6,
+    ]);
+  }
+  let maxLen = 0;
+  raw.forEach(p => { maxLen = Math.max(maxLen, vlen3(p)); });
+  const scale0 = R / maxLen;
+  const nodes = raw.map(p => ({ pos: [p[0] * scale0, p[1] * scale0, p[2] * scale0], color: V3D_BACKBONE_COLOR }));
+  const edges = [];
+  for (let i = 0; i < N - 1; i++) edges.push({ i, j: i + 1, color: V3D_BACKBONE_COLOR, dash: null });
+
+  const level3 = DATA.matrix.filter(m => m.level === 3 && m.status === 'present');
+  level3.forEach((m, k) => {
+    const anchorIdx = Math.floor((k + 0.5) * N / level3.length);
+    const p = nodes[anchorIdx].pos;
+    const dir = normalize3(p);
+    const tip = [p[0] + dir[0] * 0.22, p[1] + dir[1] * 0.22, p[2] + dir[2] * 0.22];
+    const color = bondColorOf(m.bondId);
+    const tipIdx = nodes.length;
+    nodes.push({ pos: tip, color });
+    edges.push({ i: anchorIdx, j: tipIdx, color, dash: bondDashOf(m.bondId) });
+  });
+
+  return { nodes, edges };
+}
+
+// 四次構造。三次構造のblobをそのまま4個(ヘモグロビンのサブユニット数に合わせて固定。
+// 表からの動的な連動はタスク10以降)、空間内に配置する。サブユニット間の結合(matrixで
+// level=4かつstatus=presentの結合)は、代表として0番目と1番目のサブユニットの間にだけ
+// スティックを描く(全ペア×全結合を描くと模式図として煩雑になるため)。level=4はcoverage
+// がconditionalの結合を含むため、脚注に†マーカーを付ける(表1・表2と同じ表現)。
+function quaternaryGeometry() {
+  const unit = tertiaryGeometry();
+  const scale = 0.42;
+  // 正四面体の頂点(±V,±V,±V の符号を4通り、積が+になる組み合わせ)。4点とも原点から
+  // 等距離・互いに等距離になるので、どの向きから見ても特定の2個だけが近づいて重なる、
+  // ということが起きにくい。V を大きくするほど塊どうしの間隔が広がる。
+  const V = 0.68;
+  const centers = [
+    [V, V, V],
+    [V, -V, -V],
+    [-V, V, -V],
+    [-V, -V, V],
+  ];
+
+  const nodes = [];
+  const edges = [];
+  const bases = [];
+  centers.forEach(c => {
+    bases.push(nodes.length);
+    unit.nodes.forEach(n => nodes.push({
+      pos: [n.pos[0] * scale + c[0], n.pos[1] * scale + c[1], n.pos[2] * scale + c[2]],
+      color: n.color,
+    }));
+  });
+  unit.edges.forEach(e => {
+    bases.forEach(base => edges.push({ i: base + e.i, j: base + e.j, color: e.color, dash: e.dash }));
+  });
+
+  // サブユニット間の結合(matrixでlevel=4かつstatus=presentの結合)は、代表として0番目と
+  // 1番目のサブユニットの間にだけスティックを描く(実際は隣接する全サブユニット間で同様の
+  // 力がはたらくが、全ペア×全結合を描くと模式図として煩雑になるため)。スティックの両端は
+  // 中点付近の孤立した短い線分ではなく、centers[0]・centers[1](正四面体の配置そのもの)を
+  // 起点・終点にする。両端がどちらかのblobの中心に届くので、浮いたダンベルに見えない。
+  // 3本を並べるための横方向のずらし(perp)だけを別に加える。見落とされないよう通常の
+  // スティックより太い線幅(width)を明示する。
+  const level4 = DATA.matrix.filter(m => m.level === 4 && m.status === 'present');
+  const c0 = centers[0], c1 = centers[1];
+  const axis = normalize3([c1[0] - c0[0], c1[1] - c0[1], c1[2] - c0[2]]);
+  let perp = cross3(axis, [0, 1, 0]);
+  if (vlen3(perp) < 1e-6) perp = cross3(axis, [1, 0, 0]);
+  perp = normalize3(perp);
+  const spacing = 0.14;
+  level4.forEach((m, k) => {
+    const offset = (k - (level4.length - 1) / 2) * spacing;
+    const from = [c0[0] + perp[0] * offset, c0[1] + perp[1] * offset, c0[2] + perp[2] * offset];
+    const to = [c1[0] + perp[0] * offset, c1[1] + perp[1] * offset, c1[2] + perp[2] * offset];
+    const color = bondColorOf(m.bondId);
+    const iIdx = nodes.length; nodes.push({ pos: from, color });
+    const jIdx = nodes.length; nodes.push({ pos: to, color });
+    edges.push({ i: iIdx, j: jIdx, color, dash: bondDashOf(m.bondId), width: 3.4 });
+  });
+
+  return { nodes, edges };
+}
+
+// depthCue: trueの形状だけ、描画時に奥行きに応じて線の太さ・不透明度を変える(手前を太く
+// 濃く、奥を細く薄く)。ヘリックス・シートは既存の見た目を変えないため false のままにする。
+const V3D_SHAPES = {
+  helix: { label: 'ヘリックス', geo: helixGeometry, depthCue: false },
+  sheet: { label: 'シート', geo: sheetGeometry, depthCue: false },
+  tertiary: { label: '三次', geo: tertiaryGeometry, depthCue: true },
+  quaternary: { label: '四次', geo: quaternaryGeometry, depthCue: true },
+};
+
+// color(CSS_HEXの実値) → bondId の逆引き。表1で選んだ結合と、3D側のスティックの色を
+// 突き合わせるためだけに使う(ジオメトリ生成コード自体は変更しない)。
+const COLOR_TO_BOND = {};
+DATA.bonds.forEach(b => { COLOR_TO_BOND[bondColorOf(b.id)] = b.id; });
+function bondIdOfColor(color) { return COLOR_TO_BOND[color]; }
+
+// V3D.source: 'table1' | 'table2' | null(未選択、既定でヘリックスを表示)。
+// table1側: level(1-4)・bondId(選択中の結合)・secondary(level=2のときのヘリックス/シート、
+//   直前の選択を保持)を持つ。table2側: opId(選択中の操作)・denatState('before'|'after')を持つ。
+const V3D = { az: -28, el: 22, source: null, level: null, bondId: null, secondary: 'helix', opId: null, denatState: 'before' };
+const V3D_DEFAULT = { az: -28, el: 22 };
+// charged-particle-3d.html の narrow は読み込み時に1度だけ判定するが、
+// ここでは呼び出しのたびに評価する(ビューポート幅が変わった後の再描画でも正しく追従させるため)。
+function v3dSize() {
+  return window.innerWidth <= 430 ? { w: 320, h: 260 } : { w: 600, h: 340 };
+}
+
+function svgLine(p1, p2, color, width, dash, opacity) {
+  return `<line x1="${p1.x.toFixed(1)}" y1="${p1.y.toFixed(1)}" x2="${p2.x.toFixed(1)}" y2="${p2.y.toFixed(1)}" ` +
+    `stroke="${color}" stroke-width="${width}"${dash ? ` stroke-dasharray="${dash}"` : ''}` +
+    `${opacity !== undefined ? ` stroke-opacity="${opacity.toFixed(2)}"` : ''} stroke-linecap="round"/>`;
+}
+function svgCircle(p, r, color, opacity) {
+  return `<circle cx="${p.x.toFixed(1)}" cy="${p.y.toFixed(1)}" r="${r}" fill="${color}"` +
+    `${opacity !== undefined ? ` fill-opacity="${opacity.toFixed(2)}"` : ''}/>`;
+}
+
+function v3dNoteFor(shape) {
+  if (shape === 'helix') {
+    return '点線は主鎖の水素結合。同じ鎖の中で、1巻き離れた残基(i番目とi+4番目)を結んでいる(らせん1巻き=3.6残基)。';
+  }
+  if (shape === 'sheet') {
+    return '点線は主鎖の水素結合。同じ鎖の中ではなく、隣り合う2本の鎖の間を結んでいる。';
+  }
+  if (shape === 'tertiary') {
+    return '塊の表面から突き出たスティックは、三次構造で立体構造を保つ結合の模式的な例(実線=共有結合のジスルフィド結合、点線=非共有結合の水素結合・イオン結合・疎水性相互作用)。色は上の表1と同じ。実際の側鎖の位置ではない。';
+  }
+  return '手前の2つの塊(サブユニット)を結ぶスティックは、サブユニット間ではたらく結合の模式的な例(水素結合・イオン結合・疎水性相互作用。3つとも†)。ジスルフィド結合は高校教科書ではサブユニット間の結合として扱わない。†は教科書によって扱いが割れる項目(coverage: conditional)。';
+}
+
+// 表1・表2どちらの選択が今の3D表示を決めているかに応じて、表示すべき形状のキーを返す。
+// null は「level=1が選ばれていて3Dで見る意味がない」= 非活性状態を表す。
+function currentV3DShapeId() {
+  if (V3D.source === 'table2') return 'tertiary';
+  if (V3D.source === 'table1') {
+    if (V3D.level === 1) return null;
+    if (V3D.level === 2) return V3D.secondary;
+    if (V3D.level === 3) return 'tertiary';
+    if (V3D.level === 4) return 'quaternary';
+  }
+  return V3D.secondary; // 未選択の既定表示(ヘリックス)
+}
+
+// 表1で level=3/4 のセルを選んだときの「該当スティックを強調」だけを扱う。
+// edgeがbackbone(主鎖)なら対象外。色からbondIdを逆引きし、選択中のbondIdと一致するかを見る。
+// level=4のときは、四次のblob間スティック(width明示あり)だけを対象にし、各blob内に
+// そのまま残っている三次由来の表面スティック(width明示なし)と混同しない。
+function edgeOverrideFor(e) {
+  if (e.color === V3D_BACKBONE_COLOR) return null;
+  const bondId = bondIdOfColor(e.color);
+  if (!bondId) return null;
+
+  if (V3D.source === 'table1' && (V3D.level === 3 || V3D.level === 4) && V3D.bondId === bondId) {
+    const isLevel4Stick = e.width !== undefined;
+    if (isLevel4Stick === (V3D.level === 4)) return { emphasize: true };
+    return null;
+  }
+  if (V3D.source === 'table2' && V3D.denatState === 'after' && V3D.opId) {
+    const op = DATA.operations.find(o => o.id === V3D.opId);
+    if (op.breaks.includes(bondId)) return { hide: true };
+    if ((op.unspecified || []).includes(bondId)) return { gray: true };
+  }
+  return null;
+}
+// ノード(点)側は色だけで判定する。表2駆動時は常に三次構造(blob1個)なので曖昧さがない。
+// 表1のlevel=4強調時は、四次のblob間スティック側の点も三次由来の点も同じ色ならどちらも
+// わずかに強調されうるが、線(edgeOverrideFor)の方が主な視覚的手がかりなので実害はない。
+function nodeOverrideFor(n) {
+  if (n.color === V3D_BACKBONE_COLOR) return null;
+  const bondId = bondIdOfColor(n.color);
+  if (!bondId) return null;
+  if (V3D.source === 'table1' && (V3D.level === 3 || V3D.level === 4) && V3D.bondId === bondId) {
+    return { emphasize: true };
+  }
+  if (V3D.source === 'table2' && V3D.denatState === 'after' && V3D.opId) {
+    const op = DATA.operations.find(o => o.id === V3D.opId);
+    if (op.breaks.includes(bondId)) return { hide: true };
+    if ((op.unspecified || []).includes(bondId)) return { gray: true };
+  }
+  return null;
+}
+
+const V3D_GRAY = '#5E6E76'; // --muted と同じ値。「教科書によって扱いが割れる/不明記」を表す
+
+function drawV3D() {
+  const shapeId = currentV3DShapeId();
+  if (shapeId === null) return; // 非活性状態(level=1)。renderV3DState()側で表示も切り替えている
+
+  const size = v3dSize();
+  const svg = document.getElementById('v3d-svg');
+  svg.setAttribute('viewBox', `0 0 ${size.w} ${size.h}`);
+
+  const shapeConf = V3D_SHAPES[shapeId];
+  const geo = shapeConf.geo();
+  const camera = makeCamera(V3D.az, V3D.el);
+  const projected = geo.nodes.map(n => project(n.pos, camera));
+  const bounds = boundsOf(projected);
+  const pad = 24;
+  const viewport = { x: pad, y: pad, w: size.w - pad * 2, h: size.h - pad * 2 };
+  const transform = fitToViewport(bounds, viewport);
+  const screen = projected.map(p => Object.assign(toScreen(p, transform), { depth: p.depth }));
+
+  // 投影エンジンがすでに返している depth(値が大きいほど手前)を、そのまま太さ・不透明度の
+  // 目安にする。新しい距離計算は足さず、depth の最小・最大で 0(奥)〜1(手前) に正規化するだけ。
+  const depths = projected.map(p => p.depth);
+  const minDepth = Math.min(...depths), maxDepth = Math.max(...depths);
+  const depthRange = maxDepth - minDepth || 1;
+  const depthT = d => (d - minDepth) / depthRange;
+
+  const items = [];
+  geo.edges.forEach(e => {
+    const override = edgeOverrideFor(e);
+    if (override && override.hide) return;
+    const d = (screen[e.i].depth + screen[e.j].depth) / 2;
+    const baseWidth = e.width !== undefined ? e.width : (e.dash ? 1.4 : 2.2);
+    let width = baseWidth, opacity, color = e.color, dash = e.dash;
+    if (shapeConf.depthCue) {
+      const t = depthT(d);
+      width = baseWidth * (0.55 + t * 0.85);
+      opacity = 0.4 + t * 0.6;
+    }
+    if (override && override.gray) { color = V3D_GRAY; dash = '2 3'; opacity = Math.min(opacity ?? 1, 0.6); }
+    if (override && override.emphasize) { width *= 1.9; opacity = 1; }
+    items.push({ depth: d, svg: svgLine(screen[e.i], screen[e.j], color, width, dash, opacity) });
+  });
+  geo.nodes.forEach((n, idx) => {
+    const override = nodeOverrideFor(n);
+    if (override && override.hide) return;
+    let r = 3.2, opacity, color = n.color;
+    if (shapeConf.depthCue) {
+      const t = depthT(screen[idx].depth);
+      r = 3.2 * (0.55 + t * 0.85);
+      opacity = 0.4 + t * 0.6;
+    }
+    if (override && override.gray) { color = V3D_GRAY; opacity = Math.min(opacity ?? 1, 0.6); }
+    if (override && override.emphasize) { r *= 1.4; opacity = 1; }
+    items.push({ depth: screen[idx].depth, svg: svgCircle(screen[idx], r, color, opacity) });
+  });
+
+  document.getElementById('v3d-g').innerHTML = paintersOrder(items, it => it.depth).map(it => it.svg).join('');
+
+  document.getElementById('v3d-hbondnote').textContent = v3dNoteFor(shapeId);
+}
+
+// 現在の選択(どちらの表・どのセル)を短い文で説明する。「必須ではない」が実装しやすいため添える。
+function v3dSelectionNote() {
+  if (V3D.source === 'table1') {
+    if (V3D.level === 1) return '表1: 一次構造は鎖のつながりだけなので3Dで見る意味がない。';
+    const bond = V3D.bondId ? BOND_BY_ID[V3D.bondId] : null;
+    if (V3D.level === 2) {
+      return bond
+        ? `表1: ${bond.name} × 二次構造 — 二次構造を表示中(ヘリックス/シートは下のトグルで切り替え)。`
+        : '表1(結合×構造次数)の選択を反映中 — 二次構造。';
+    }
+    if (bond) {
+      const m = matrixCellOf(V3D.bondId, V3D.level);
+      return m.status === 'present'
+        ? `表1: ${bond.name} × ${LEVEL_LABEL[V3D.level]}構造 — 該当するスティックを強調表示中。`
+        : `表1: ${bond.name} × ${LEVEL_LABEL[V3D.level]}構造 — この構造次数には${bond.name}はない。`;
+    }
+    return '表1(結合×構造次数)の選択を反映中。';
+  }
+  if (V3D.source === 'table2' && V3D.opId) {
+    const op = DATA.operations.find(o => o.id === V3D.opId);
+    return `表2: ${op.name} — ${V3D.denatState === 'after' ? '変性後' : '変性前'}を表示中。`;
+  }
+  return '既定表示(ヘリックス)。表1・表2のセルを選ぶと切り替わる。';
+}
+
+// 表示中の向き(az/el)を変える唯一の入口。ドラッグ・スライダー・矢印キー・Homeキーは全てここを呼ぶ。
+function setV3DView(az, el) {
+  V3D.az = ((az % 360) + 540) % 360 - 180;
+  V3D.el = Math.max(6, Math.min(84, el));
+  drawV3D();
+  syncV3DControls();
+}
+
+function syncV3DControls() {
+  const azInput = document.getElementById('v3d-az-input');
+  const elInput = document.getElementById('v3d-el-input');
+  azInput.value = Math.round(V3D.az);
+  elInput.value = Math.round(V3D.el);
+  document.getElementById('v3d-az-val').textContent = Math.round(V3D.az) + '°';
+  document.getElementById('v3d-el-val').textContent = Math.round(V3D.el) + '°';
+}
+
+// ヘリックス/シートの補助トグル(level=2表示中だけ見える)。選択は直前の状態を保持する。
+function buildV3DSecondaryButtons() {
+  const host = document.getElementById('v3d-secondary');
+  host.innerHTML = '';
+  [['helix', 'ヘリックス'], ['sheet', 'シート']].forEach(([id, label]) => {
+    const b = document.createElement('button');
+    b.type = 'button';
+    b.className = 'btn sm' + (V3D.secondary === id ? ' on' : '');
+    b.textContent = label;
+    b.setAttribute('aria-pressed', String(V3D.secondary === id));
+    b.addEventListener('click', () => {
+      if (V3D.secondary === id) return;
+      V3D.secondary = id;
+      renderV3DState();
+    });
+    host.appendChild(b);
+  });
+}
+
+// 変性前/変性後の常設トグル(表2駆動時だけ見える)。表2で新しい行を選ぶたびに「変性前」に戻る。
+function buildV3DDenatButtons() {
+  const host = document.getElementById('v3d-denat');
+  host.innerHTML = '';
+  [['before', '変性前'], ['after', '変性後']].forEach(([id, label]) => {
+    const b = document.createElement('button');
+    b.type = 'button';
+    b.className = 'btn sm' + (V3D.denatState === id ? ' on' : '');
+    b.textContent = label;
+    b.setAttribute('aria-pressed', String(V3D.denatState === id));
+    b.addEventListener('click', () => {
+      if (V3D.denatState === id) return;
+      V3D.denatState = id;
+      renderV3DState();
+    });
+    host.appendChild(b);
+  });
+}
+
+// 表1・表2どちらかの選択が変わるたび、または補助トグル(ヘリックス/シート・変性前/後)を
+// 操作するたびに呼ばれる唯一の入口。前回描画時の状態と比べて何か変わっていれば
+// (az/elの回転だけの操作はここを経由しないので対象外)、reduce時は瞬時・no-preference時は
+// 130ms×2のクロスフェードで切り替える(タスク8・9と同じ設計)。
+let v3dLastSnapshot = null;
+function v3dStateSnapshot() {
+  return [V3D.source, V3D.level, V3D.bondId, V3D.secondary, V3D.opId, V3D.denatState].join('|');
+}
+function renderV3DState() {
+  const snapshot = v3dStateSnapshot();
+  const changed = v3dLastSnapshot !== null && snapshot !== v3dLastSnapshot;
+  v3dLastSnapshot = snapshot;
+
+  document.getElementById('v3d-selectionnote').textContent = v3dSelectionNote();
+  buildV3DSecondaryButtons();
+  buildV3DDenatButtons();
+
+  const shapeId = currentV3DShapeId();
+  document.getElementById('v3d-secondary').hidden = !(shapeId === 'helix' || shapeId === 'sheet');
+  document.getElementById('v3d-denat').hidden = V3D.source !== 'table2';
+
+  const inactive = shapeId === null;
+  document.getElementById('v3d-viewer').hidden = inactive;
+  document.getElementById('v3d-inactive').hidden = !inactive;
+  document.getElementById('v3d-azrow').hidden = inactive;
+  document.getElementById('v3d-elrow').hidden = inactive;
+  if (inactive) {
+    document.getElementById('v3d-hbondnote').textContent = '';
+    return;
+  }
+
+  if (changed && !reduceMotion()) {
+    const g = document.getElementById('v3d-g');
+    g.style.opacity = '0';
+    window.setTimeout(() => { drawV3D(); g.style.opacity = '1'; }, 130);
+  } else {
+    drawV3D();
+  }
+}
+
+function bindV3DControls() {
+  const svg = document.getElementById('v3d-svg');
+  let drag = null;
+  svg.addEventListener('pointerdown', e => {
+    drag = { x: e.clientX, y: e.clientY, az: V3D.az, el: V3D.el };
+    svg.setPointerCapture(e.pointerId);
+    svg.classList.add('drag');
+  });
+  svg.addEventListener('pointermove', e => {
+    if (!drag) return;
+    e.preventDefault();
+    setV3DView(drag.az + (e.clientX - drag.x) * 0.42, drag.el - (e.clientY - drag.y) * 0.3);
+  });
+  const endDrag = () => { drag = null; svg.classList.remove('drag'); };
+  svg.addEventListener('pointerup', endDrag);
+  svg.addEventListener('pointercancel', endDrag);
+
+  svg.addEventListener('keydown', e => {
+    const step = 5;
+    if (e.key === 'ArrowLeft') { e.preventDefault(); setV3DView(V3D.az - step, V3D.el); }
+    else if (e.key === 'ArrowRight') { e.preventDefault(); setV3DView(V3D.az + step, V3D.el); }
+    else if (e.key === 'ArrowUp') { e.preventDefault(); setV3DView(V3D.az, V3D.el + step); }
+    else if (e.key === 'ArrowDown') { e.preventDefault(); setV3DView(V3D.az, V3D.el - step); }
+    else if (e.key === 'Home') { e.preventDefault(); setV3DView(V3D_DEFAULT.az, V3D_DEFAULT.el); }
+  });
+
+  document.getElementById('v3d-az-input').addEventListener('input', e => setV3DView(+e.target.value, V3D.el));
+  document.getElementById('v3d-el-input').addEventListener('input', e => setV3DView(V3D.az, +e.target.value));
+}
+
+// 連続的なウィンドウのドラッグリサイズでは resize が1フレームに何度も発火しうるため、
+// rAFで間引いて1フレームにつき最大1回の再描画にする。この教材だけの挙動(他の教材は
+// narrowを読み込み時に1度だけ判定しており、resizeへの追従自体を行わない)。
+let v3dResizePending = false;
+function scheduleV3DResize() {
+  if (v3dResizePending) return;
+  v3dResizePending = true;
+  requestAnimationFrame(() => { v3dResizePending = false; drawV3D(); });
+}
+
+function initV3D() {
+  bindV3DControls();
+  renderV3DState();
+  syncV3DControls();
+  window.addEventListener('resize', scheduleV3DResize);
+}
+
+/* ---------- 計算カード: ヘモグロビンのサブユニット数(段階開示) ---------- */
+// peptide-sequencing.html の条件開示カード(条件を1つずつ「開く」)と同じ操作感。
+// 3Dビューとは連動しない(タスク13の範囲外)。
+const calcOpened = new Set();
+
+function renderCalculation() {
+  const calc = DATA.calculation;
+  document.getElementById('calc-prompt').textContent = calc.prompt;
+
+  let h = '';
+  DATA.calculationSteps.forEach((s, i) => {
+    const opened = calcOpened.has(i);
+    h += `<div class="condcard${opened ? ' opened' : ''}">`;
+    h += `<div class="condtop"><span class="condnum mono">ステップ${s.n}</span>` +
+      (opened ? '<span class="condstate mono">開封済</span>' : '') + '</div>';
+    h += `<p class="condtext">${esc(s.question)}</p>`;
+    if (opened) {
+      h += `<p class="condresult mono">${esc(s.expression)} = ${esc(s.valueLabel)}</p>`;
+      h += `<p class="condcount">${esc(s.comment)}</p>`;
+    } else {
+      h += `<button type="button" class="btn sm" data-calc-open="${i}">開く</button>`;
+    }
+    h += '</div>';
+  });
+  document.getElementById('calc-steps').innerHTML = h;
+  document.querySelectorAll('#calc-steps button[data-calc-open]').forEach(btn => {
+    btn.addEventListener('click', () => { calcOpened.add(+btn.dataset.calcOpen); renderCalculation(); });
+  });
+
+  const allOpen = calcOpened.size === DATA.calculationSteps.length;
+  const answerEl = document.getElementById('calc-answer');
+  answerEl.hidden = !allOpen;
+  if (allOpen) {
+    const linkedNames = calc.linkedClassifications
+      .map(id => DATA.classifications.find(c => c.id === id).name).join('・');
+    answerEl.innerHTML =
+      `<p class="condresult mono">サブユニット数 = ${calc.answerSubunits}</p>` +
+      `<p class="condcount">この結果は、ヘモグロビンが${esc(linkedNames)}であること(下の分類カード参照)、` +
+      `${LEVEL_LABEL[calc.linkedLevel]}構造をもつことの根拠になっている。</p>`;
+  }
+}
+
+/* ---------- 分類カード: 組成・形状の2軸 + 複合タンパク質の内訳 ---------- */
+function renderClassifications() {
+  const AXES = [
+    { key: 'composition', label: '組成による分類' },
+    { key: 'shape', label: '形状による分類' },
+  ];
+  let h = '';
+  AXES.forEach(axis => {
+    const items = DATA.classifications.filter(c => c.axis === axis.key);
+    h += `<div class="clsgroup"><div class="axislabel">${esc(axis.label)}</div><div class="clspair">`;
+    items.forEach(c => {
+      h += `<div class="clsitem"><div class="clsname">${esc(c.name)}</div>` +
+        `<div class="clsdef">${esc(c.definition)}</div>` +
+        `<div class="clsex">例: ${esc(c.examples.join('・'))}</div></div>`;
+    });
+    h += '</div></div>';
+  });
+  document.getElementById('cls-axes').innerHTML = h;
+
+  let conjH = '';
+  DATA.conjugatedTypes.forEach(t => {
+    const flag = t.coverage === 'conditional' ? '<span class="covflag" aria-hidden="true">†</span>' : '';
+    conjH += `<div class="conjrow"><span class="conjname">${esc(t.name)}${flag}</span>` +
+      `<span class="conjex mono">${esc(t.component)} / ${esc(t.example)}</span></div>`;
+  });
+  document.getElementById('cls-conjugated').innerHTML = conjH;
+
+  document.getElementById('cls-foot').textContent =
+    '†は教科書によって扱いが割れる項目(coverage: conditional)。' +
+    'ヘモグロビンは複合タンパク質(色素タンパク質)であり球状タンパク質でもある — 下の計算カードで扱う四次構造の例。';
+}
+
+/* ---------- 応用カード: 酵素の失活・ビウレット反応 ---------- */
+function renderApplications() {
+  let h = '';
+  DATA.applications.forEach(a => {
+    h += `<div class="appblock"><h3>${esc(a.title)}</h3><p>${esc(a.body)}</p>`;
+    if (a.id === 'enzyme-denaturation' && a.linkedOperations.length) {
+      const opNames = a.linkedOperations.map(id => DATA.operations.find(o => o.id === id).name).join('・');
+      h += `<p class="note">関連: 上の表2(操作×壊れる結合)の「${esc(opNames)}」の行と対応する。</p>`;
+    }
+    if (a.id === 'biuret') {
+      // 教材間リンク: 既存29本はいずれも本文中に他教材へのhrefを持たず、
+      // manifest.json の related 経由で index.html のカードにリンクが出る方式のみを使っている
+      // (build.mjs の card() 参照)。ここでも同じ方式に合わせ、本文では名前を挙げるだけにする。
+      h += '<p class="note">呈色反応そのものの詳細は「アミノ酸マトリクス」教材で扱う。</p>';
+    }
+    h += '</div>';
+  });
+  document.getElementById('app-body').innerHTML = h;
+}
+
+renderTable1();
+renderTable2();
+bindScrollShadow('t1-wrap');
+bindScrollShadow('t2-wrap');
+initV3D();
+renderCalculation();
+renderClassifications();
+renderApplications();
+</script>
+</div>
+</body>
+</html>

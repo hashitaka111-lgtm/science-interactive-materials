@@ -1,0 +1,2054 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>酵素反応速度論 — ミカエリス・メンテン式の導き方と読み方</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans+JP:wght@300;400;500;600;700&family=IBM+Plex+Mono:ital,wght@0,400;0,600;1,400&display=swap" rel="stylesheet">
+<style>
+:root{
+  --ink:#0E2429;
+  --ink2:#3E585E;
+  --ink3:#748C90;
+  --paper:#E3EAEB;
+  --card:#F9FBFB;
+  --rule:#C0D1D3;
+  --grid:#D6E2E3;
+  --enz:#12626C;
+  --sub:#BE7415;
+  --es:#6A4A99;
+  --prod:#A32C52;
+  --warn:#8A5A00;
+  --t1:#A8324E;
+  --t2:#5E4A96;
+  --t3:#B8791A;
+  --t4:#3F6470;
+  --tn:#8FA6A9;
+  --sans:"IBM Plex Sans JP","Hiragino Kaku Gothic ProN","Yu Gothic",system-ui,sans-serif;
+  --mono:"IBM Plex Mono","SFMono-Regular",Menlo,monospace;
+  --maxw:1080px;
+}
+
+*{box-sizing:border-box}
+html{-webkit-text-size-adjust:100%}
+body{
+  margin:0;
+  background:var(--paper);
+  background-image:
+    linear-gradient(to right, rgba(255,255,255,.55) 1px, transparent 1px),
+    linear-gradient(to bottom, rgba(255,255,255,.55) 1px, transparent 1px);
+  background-size:28px 28px;
+  color:var(--ink);
+  font-family:var(--sans);
+  font-weight:400;
+  font-size:16px;
+  line-height:1.85;
+  letter-spacing:.01em;
+}
+.wrap{max-width:var(--maxw);margin:0 auto;padding:0 22px 120px}
+
+/* ---------- header ---------- */
+header.top{
+  border-bottom:1px solid var(--rule);
+  background:linear-gradient(180deg,#F4F8F8 0%, rgba(244,248,248,0) 100%);
+}
+.top-inner{max-width:var(--maxw);margin:0 auto;padding:52px 22px 40px}
+.eyebrow{
+  font-family:var(--mono);font-size:12px;letter-spacing:.18em;
+  text-transform:uppercase;color:var(--enz);margin:0 0 18px;
+  display:flex;gap:14px;align-items:center;flex-wrap:wrap;
+}
+.eyebrow span:nth-child(2){color:var(--ink3)}
+h1{
+  font-size:clamp(30px,5.4vw,52px);line-height:1.22;margin:0 0 18px;
+  font-weight:600;letter-spacing:-.015em;
+}
+.lede{font-size:clamp(15px,2.1vw,18px);color:var(--ink2);max-width:44em;margin:0}
+
+/* ---------- hero canvas ---------- */
+.hero-fig{
+  margin:36px auto 0;max-width:var(--maxw);padding:0 22px;
+}
+.hero-box{
+  background:var(--card);border:1px solid var(--rule);
+  padding:18px 18px 10px;position:relative;
+}
+.hero-box canvas{width:100%;height:260px;display:block}
+.hero-eq{
+  position:absolute;right:26px;top:22px;text-align:right;
+}
+
+/* ---------- generic section ---------- */
+section{padding-top:78px}
+.sec-head{display:flex;align-items:baseline;gap:16px;border-bottom:1px solid var(--rule);padding-bottom:10px;margin-bottom:26px}
+.sec-mark{font-family:var(--mono);font-size:12px;color:var(--enz);letter-spacing:.14em;white-space:nowrap;padding-top:4px}
+h2{font-size:clamp(21px,3.2vw,28px);font-weight:600;margin:0;letter-spacing:-.01em;line-height:1.4}
+h3{font-size:16px;font-weight:600;margin:34px 0 10px;letter-spacing:.01em}
+p{margin:0 0 16px;max-width:46em}
+.dim{color:var(--ink2)}
+.small{font-size:14px;line-height:1.75}
+.mono{font-family:var(--mono)}
+
+/* ---------- cards ---------- */
+.cards{display:grid;grid-template-columns:repeat(auto-fit,minmax(215px,1fr));gap:1px;background:var(--rule);border:1px solid var(--rule);margin:22px 0}
+.cards .c{background:var(--card);padding:16px 18px}
+.cards .c b{display:block;font-weight:600;font-size:14.5px;margin-bottom:4px}
+.cards .c span{font-size:13.5px;color:var(--ink2);line-height:1.7;display:block}
+
+/* ---------- equations ---------- */
+.eq{font-family:var(--sans);font-size:19px;line-height:1;display:flex;align-items:center;justify-content:center;gap:.3em;flex-wrap:wrap}
+.eq.left{justify-content:flex-start}
+.eq i{font-style:italic;font-weight:500}
+.eq .op{margin:0 .18em;color:var(--ink2)}
+.fr{display:inline-flex;flex-direction:column;align-items:center;vertical-align:middle;margin:0 .2em;line-height:1.35}
+.fr .n{padding:0 .45em .12em;border-bottom:1.4px solid currentColor}
+.fr .d{padding:.12em .45em 0}
+.eqbox{background:var(--card);border:1px solid var(--rule);padding:22px 18px;margin:20px 0}
+.eqbox.accent{border-left:3px solid var(--enz)}
+sub{font-size:.68em;font-style:normal}
+sup{font-size:.68em}
+
+/* ---------- scheme ---------- */
+.scheme{background:var(--card);border:1px solid var(--rule);padding:26px 18px 18px;margin:24px 0}
+.scheme svg{width:100%;height:auto;display:block;max-width:620px;margin:0 auto}
+.legend{display:flex;gap:20px;flex-wrap:wrap;justify-content:center;margin-top:18px;font-size:13px;font-family:var(--mono)}
+.legend i{width:11px;height:11px;display:inline-block;margin-right:6px;border-radius:2px;vertical-align:-1px}
+
+/* ---------- stepper ---------- */
+.stepper{border:1px solid var(--rule);background:var(--card);margin:24px 0}
+.step-bar{display:flex;gap:0;border-bottom:1px solid var(--rule);flex-wrap:wrap}
+.step-bar button{
+  flex:1 1 auto;min-width:38px;border:0;border-right:1px solid var(--rule);
+  background:transparent;font-family:var(--mono);font-size:12px;color:var(--ink3);
+  padding:9px 4px;cursor:pointer;transition:background .15s,color .15s;
+}
+.step-bar button:last-child{border-right:0}
+.step-bar button:hover{background:#EDF3F3;color:var(--ink)}
+.step-bar button[aria-current="true"]{background:var(--enz);color:#fff}
+.step-body{padding:26px 22px 22px;min-height:250px}
+.step-title{font-family:var(--mono);font-size:12px;letter-spacing:.14em;color:var(--enz);margin-bottom:14px}
+.step-note{font-size:14.5px;color:var(--ink2);margin:20px auto 0;max-width:40em;line-height:1.85}
+.step-nav{display:flex;justify-content:space-between;align-items:center;border-top:1px solid var(--rule);padding:10px 16px}
+.step-nav button{
+  font-family:var(--sans);font-size:13.5px;border:1px solid var(--rule);background:#fff;
+  padding:6px 16px;cursor:pointer;color:var(--ink);transition:border-color .15s,background .15s;
+}
+.step-nav button:hover:not(:disabled){border-color:var(--enz);background:#EDF3F3}
+.step-nav button:disabled{opacity:.35;cursor:default}
+.step-count{font-family:var(--mono);font-size:12px;color:var(--ink3)}
+
+/* ---------- interactive panels ---------- */
+.panel{border:1px solid var(--rule);background:var(--card);margin:24px 0}
+.panel-grid{display:grid;grid-template-columns:1fr 262px;gap:1px;background:var(--rule)}
+.panel-grid.two{grid-template-columns:1fr 1fr}
+.panel-grid.one{grid-template-columns:1fr}
+.panel-plot{background:var(--card);padding:16px 14px 8px;min-width:0}
+.panel-side{background:var(--card);padding:18px 18px 22px}
+.panel-plot canvas{width:100%;display:block}
+.plot-tall{height:340px}
+.plot-mid{height:300px}
+.plot-sm{height:240px}
+.plot-sq{height:290px}
+
+/* three-up comparison of double-reciprocal plots */
+.lbgrid{display:grid;grid-template-columns:repeat(3,1fr);gap:1px;background:var(--rule);border:1px solid var(--rule);margin:24px 0}
+.lbcell{background:var(--card);padding:14px 12px 8px;min-width:0}
+.lbcell canvas{width:100%;display:block}
+.lbcap{font-family:var(--mono);font-size:12px;letter-spacing:.08em;font-weight:600;margin-bottom:2px}
+.lbsub{font-size:12px;color:var(--ink2);line-height:1.6;min-height:3.2em}
+
+/* scheme trio */
+.schemetrio{display:grid;grid-template-columns:repeat(3,1fr);gap:1px;background:var(--rule);border:1px solid var(--rule);margin:24px 0}
+.schemecell{background:var(--card);padding:16px 14px 14px}
+.schemecell svg{width:100%;height:auto;display:block}
+.schemecell h4{margin:0 0 2px;font-size:14.5px;font-weight:600}
+.schemecell p{font-size:12.5px;color:var(--ink2);margin:8px 0 0;line-height:1.7;max-width:none}
+
+/* result table inside a panel */
+.mini{width:100%;border-collapse:collapse;font-size:13px;min-width:520px}
+.mini th,.mini td{padding:8px 12px;border-bottom:1px solid var(--rule);text-align:right;white-space:nowrap}
+.mini th{font-size:11.5px;font-weight:600;color:var(--ink2);background:#EFF4F4}
+.mini th:first-child,.mini td:first-child{text-align:left}
+.mini tbody tr:last-child td{border-bottom:0}
+.mini td.num{font-family:var(--mono)}
+.swatch{display:inline-block;width:22px;height:0;border-top-width:2.5px;border-top-style:solid;vertical-align:4px;margin-right:8px}
+
+/* alpha pad */
+.padwrap{display:grid;grid-template-columns:300px 1fr;gap:1px;background:var(--rule)}
+.padcell{background:var(--card);padding:16px 14px 10px;min-width:0}
+.padcell canvas{width:100%;display:block}
+.verdict{padding:14px 18px;background:var(--card);border-top:1px solid var(--rule);display:flex;gap:22px;align-items:baseline;flex-wrap:wrap}
+.verdict .vname{font-size:19px;font-weight:600}
+.verdict .vdesc{font-size:13.5px;color:var(--ink2);flex:1 1 260px;line-height:1.7}
+.presets{display:flex;flex-wrap:wrap;gap:7px;margin:0 0 14px}
+.presets button{font-family:var(--sans);font-size:12.5px;padding:6px 12px;border:1px solid var(--rule);background:#fff;color:var(--ink2);cursor:pointer;transition:all .15s}
+.presets button:hover{border-color:var(--enz)}
+.presets button[aria-pressed="true"]{background:var(--enz);border-color:var(--enz);color:#fff}
+
+.ctrl{margin-bottom:20px}
+.ctrl label{display:flex;justify-content:space-between;align-items:baseline;font-size:13px;color:var(--ink2);margin-bottom:6px;gap:8px}
+.ctrl .val{font-family:var(--mono);font-size:14px;color:var(--ink);font-weight:600}
+input[type=range]{
+  -webkit-appearance:none;appearance:none;width:100%;height:22px;background:transparent;cursor:pointer;margin:0;
+}
+input[type=range]::-webkit-slider-runnable-track{height:3px;background:var(--rule)}
+input[type=range]::-moz-range-track{height:3px;background:var(--rule)}
+input[type=range]::-webkit-slider-thumb{
+  -webkit-appearance:none;width:16px;height:16px;border-radius:50%;background:var(--enz);
+  margin-top:-6.5px;border:2px solid var(--card);box-shadow:0 0 0 1px var(--enz);
+}
+input[type=range]::-moz-range-thumb{
+  width:14px;height:14px;border-radius:50%;background:var(--enz);border:2px solid var(--card);box-shadow:0 0 0 1px var(--enz);
+}
+input[type=range]:focus-visible{outline:2px solid var(--enz);outline-offset:4px}
+
+.readout{border-top:1px solid var(--rule);padding-top:14px;margin-top:6px}
+.readout div{display:flex;justify-content:space-between;font-size:13px;padding:3px 0;gap:10px}
+.readout div span:last-child{font-family:var(--mono);font-weight:600}
+.regime{
+  margin-top:14px;padding:11px 13px;font-size:13px;line-height:1.7;
+  background:#EDF3F3;border-left:3px solid var(--enz);
+}
+.toggles{display:flex;flex-wrap:wrap;gap:7px;margin-top:16px}
+.toggles button{
+  font-family:var(--mono);font-size:11.5px;letter-spacing:.04em;padding:5px 10px;
+  border:1px solid var(--rule);background:#fff;color:var(--ink2);cursor:pointer;transition:all .15s;
+}
+.toggles button[aria-pressed="true"]{background:var(--enz);border-color:var(--enz);color:#fff}
+.toggles button:hover{border-color:var(--enz)}
+
+/* occupancy strip */
+.occ-wrap{padding:4px 14px 20px;background:var(--card)}
+.occ-head{display:flex;justify-content:space-between;align-items:baseline;font-size:12.5px;color:var(--ink2);margin-bottom:8px;font-family:var(--mono)}
+.occ{display:grid;grid-template-columns:repeat(50,1fr);gap:2px}
+.occ i{
+  display:block;height:16px;border-radius:2px 2px 3px 3px;background:#D3DEDF;
+  border-bottom:2px solid #BCCBCC;transition:background .18s,border-color .18s;
+}
+.occ i.on{background:var(--es);border-bottom-color:#4A3270}
+
+/* ---------- table ---------- */
+.tablewrap{overflow-x:auto;border:1px solid var(--rule);margin:22px 0;background:var(--card)}
+table{border-collapse:collapse;width:100%;min-width:620px;font-size:13.5px}
+th,td{text-align:right;padding:10px 14px;border-bottom:1px solid var(--rule);white-space:nowrap}
+th{font-weight:600;font-size:12px;color:var(--ink2);letter-spacing:.03em;background:#EFF4F4}
+th:first-child,td:first-child{text-align:left;white-space:normal;min-width:150px}
+td.num{font-family:var(--mono)}
+tbody tr:last-child td{border-bottom:0}
+tbody tr:hover{background:#EFF4F4}
+.hl td{background:#F4EFF8}
+.hl:hover td{background:#EEE6F5}
+
+/* ---------- notes ---------- */
+.notelist{border-top:1px solid var(--rule);margin-top:24px}
+.notelist div{border-bottom:1px solid var(--rule);padding:15px 0;display:grid;grid-template-columns:130px 1fr;gap:18px}
+.notelist b{font-weight:600;font-size:13.5px;color:var(--enz)}
+.notelist p{margin:0;font-size:14.5px;color:var(--ink2)}
+
+footer{border-top:1px solid var(--rule);margin-top:80px;padding-top:22px;font-size:12.5px;color:var(--ink3);font-family:var(--mono);line-height:1.9}
+
+@media (max-width:820px){
+  .panel-grid,.panel-grid.two{grid-template-columns:1fr}
+  .lbgrid,.schemetrio,.padwrap{grid-template-columns:1fr}
+  .lbsub{min-height:0}
+  .hero-box canvas{height:220px}
+  .hero-eq{position:static;text-align:left;margin-bottom:6px}
+  .notelist div{grid-template-columns:1fr;gap:4px}
+  .occ{grid-template-columns:repeat(25,1fr)}
+  .step-body{padding:20px 14px}
+  body{font-size:15.5px}
+}
+@media (prefers-reduced-motion:reduce){
+  *{transition:none !important;animation:none !important}
+}
+</style>
+</head>
+<body>
+
+<header class="top">
+  <div class="top-inner">
+    <div class="eyebrow"><span>酵素反応速度論</span><span>基本式と3つの阻害様式</span></div>
+    <h1>酵素はなぜ、基質を増やしても<br>それ以上速くならないのか</h1>
+    <p class="lede">ミカエリス・メンテン式を、置いている仮定のところから組み立て直す。式が出たあとは基質濃度と酵素濃度を動かして曲線の応じ方を確かめ、後半で阻害剤を入れる。競合・不競合・非競合の3つは、同じ曲線のどこを変形させるかで区別がつく。</p>
+  </div>
+</header>
+
+<div class="hero-fig">
+  <div class="hero-box">
+    <div class="hero-eq eq">
+      <i>v</i><span class="op">=</span>
+      <span class="fr"><span class="n"><i>V</i><sub>max</sub>[S]</span><span class="d"><i>K</i><sub>m</sub> + [S]</span></span>
+    </div>
+    <canvas id="heroCv"></canvas>
+  </div>
+</div>
+
+<div class="wrap">
+
+<!-- ============ 1 ============ -->
+<section id="s1">
+  <div class="sec-head"><div class="sec-mark">01</div><h2>何を測り、何を仮定しているか</h2></div>
+  <p>速度論の式は、測定条件を外すと途端に成り立たなくなる。まず土俵を決める。</p>
+  <p>測るのは<b>初速度</b>。反応を開始した直後、生成物がまだほとんど溜まっていない時間帯での生成物の増え方（曲線の最初の傾き）を読む。時間が経つと基質が減り、生成物が逆反応や阻害に効きはじめるので、そこはもう別の話になる。</p>
+  <div class="cards">
+    <div class="c"><b>基質は1種類</b><span>活性部位も1つ。2基質反応は別の式になる</span></div>
+    <div class="c"><b>[S]<sub>0</sub> ≫ [E]<sub>T</sub></b><span>基質は酵素より3〜6桁多い。だから反応中も [S] はほぼ一定と見なせる</span></div>
+    <div class="c"><b>逆反応を無視</b><span>初速度なので [P] ≈ 0。E + P → ES は起きていない</span></div>
+    <div class="c"><b>酵素は失活しない</b><span>測定中に変性・分解しない温度とpHで測る</span></div>
+    <div class="c"><b>生成物阻害なし</b><span>出てきた P が活性部位に居座らない</span></div>
+    <div class="c"><b>阻害剤なし</b><span>01〜09 はこの条件で進める。10 以降で阻害剤を入れ、この式がどう変形するかを見る</span></div>
+  </div>
+</section>
+
+<!-- ============ 2 ============ -->
+<section id="s2">
+  <div class="sec-head"><div class="sec-mark">02</div><h2>反応スキームと、2通りの近似</h2></div>
+
+  <div class="scheme">
+    <svg viewBox="0 0 620 150" role="img" aria-label="E + S が可逆的に ES を作り、ES から E と P が生じる反応スキーム">
+      <defs>
+        <marker id="ar" markerWidth="8" markerHeight="8" refX="7" refY="3" orient="auto">
+          <path d="M0,0 L7,3 L0,6 z" fill="#3E585E"/>
+        </marker>
+      </defs>
+      <g font-family="IBM Plex Sans JP, sans-serif" font-size="22" font-weight="600">
+        <text x="18" y="82" fill="#12626C">E</text>
+        <text x="46" y="82" fill="#3E585E">+</text>
+        <text x="72" y="82" fill="#BE7415">S</text>
+        <text x="243" y="82" fill="#6A4A99">ES</text>
+        <text x="470" y="82" fill="#12626C">E</text>
+        <text x="498" y="82" fill="#3E585E">+</text>
+        <text x="524" y="82" fill="#A32C52">P</text>
+      </g>
+      <!-- forward / back arrows -->
+      <line x1="108" y1="68" x2="228" y2="68" stroke="#3E585E" stroke-width="1.4" marker-end="url(#ar)"/>
+      <line x1="228" y1="84" x2="108" y2="84" stroke="#3E585E" stroke-width="1.4" marker-end="url(#ar)"/>
+      <line x1="292" y1="76" x2="455" y2="76" stroke="#3E585E" stroke-width="1.4" marker-end="url(#ar)"/>
+      <g font-family="IBM Plex Mono, monospace" font-size="13" fill="#0E2429">
+        <text x="150" y="58">k₁</text>
+        <text x="150" y="106">k₋₁</text>
+        <text x="352" y="64">k₂ = k<tspan font-size="10" dy="2">cat</tspan></text>
+      </g>
+      <g font-family="IBM Plex Mono, monospace" font-size="10.5" fill="#748C90">
+        <text x="118" y="128">二次 · M⁻¹s⁻¹</text>
+        <text x="292" y="128">一次 · s⁻¹</text>
+      </g>
+    </svg>
+    <div class="legend">
+      <span><i style="background:#12626C"></i>E 遊離酵素</span>
+      <span><i style="background:#BE7415"></i>S 基質</span>
+      <span><i style="background:#6A4A99"></i>ES 複合体</span>
+      <span><i style="background:#A32C52"></i>P 生成物</span>
+    </div>
+  </div>
+
+  <p>生成物が出てくる速さは、ES が壊れて P になる段階そのもの。</p>
+  <div class="eqbox accent">
+    <div class="eq"><i>v</i><span class="op">=</span><i>k</i><sub>2</sub>[ES]</div>
+  </div>
+  <p>ところが [ES] は実験者には見えない。分光光度計で測っているのは P の増え方であって、酵素のうち何割が基質を掴んでいるかは直接読めない。既知なのは仕込んだ全酵素量 [E]<sub>T</sub> と基質濃度 [S] だけ。この2つから [ES] を出すために近似が要る。</p>
+
+  <div class="cards">
+    <div class="c"><b>迅速平衡近似（1913）</b><span>Michaelis と Menten。<i>k</i><sub>2</sub> ≪ <i>k</i><sub>−1</sub> を仮定し、ES は E + S と平衡にあるとする。触媒段階が遅い酵素でしか使えない</span></div>
+    <div class="c"><b>定常状態近似（1925）</b><span>Briggs と Haldane。d[ES]/d<i>t</i> = 0 とだけ置く。<i>k</i><sub>2</sub> の大小を問わないので適用範囲が広い</span></div>
+  </div>
+  <p>仮定がゆるいのは後者。以下は定常状態近似で進める。迅速平衡のほうは導出の最後で比べる。</p>
+</section>
+
+<!-- ============ 3 ============ -->
+<section id="s3">
+  <div class="sec-head"><div class="sec-mark">03</div><h2>導出</h2></div>
+  <p class="small dim">番号をクリックすると各段階に飛べる。</p>
+  <div class="stepper">
+    <div class="step-bar" id="derivBar" role="tablist" aria-label="導出の段階"></div>
+    <div class="step-body" id="derivBody"></div>
+    <div class="step-nav">
+      <button id="derivPrev">← 戻る</button>
+      <span class="step-count" id="derivCount"></span>
+      <button id="derivNext">進む →</button>
+    </div>
+  </div>
+</section>
+
+<!-- ============ 4 ============ -->
+<section id="s4">
+  <div class="sec-head"><div class="sec-mark">04</div><h2>基質濃度を変える</h2></div>
+  <p>スライダーで [S] を動かす。曲線上の点、そして下に並んだ酵素100分子のうち何個が基質を掴んでいるかが連動する。速度はこの本数にそのまま比例している。</p>
+
+  <div class="panel">
+    <div class="panel-grid">
+      <div class="panel-plot">
+        <canvas id="mainCv" class="plot-tall"></canvas>
+      </div>
+      <div class="panel-side">
+        <div class="ctrl">
+          <label for="sSl"><span>基質濃度 [S]</span><span class="val" id="sVal"></span></label>
+          <input type="range" id="sSl" min="0" max="1000" value="100">
+        </div>
+        <div class="ctrl">
+          <label for="kmSl"><span><i>K</i><sub>m</sub></span><span class="val" id="kmVal"></span></label>
+          <input type="range" id="kmSl" min="5" max="300" value="50">
+        </div>
+        <div class="ctrl">
+          <label for="kcatSl"><span><i>k</i><sub>cat</sub></span><span class="val" id="kcatVal"></span></label>
+          <input type="range" id="kcatSl" min="20" max="600" value="200">
+        </div>
+        <div class="ctrl">
+          <label for="etSl"><span>全酵素濃度 [E]<sub>T</sub></span><span class="val" id="etVal"></span></label>
+          <input type="range" id="etSl" min="2" max="40" value="10">
+        </div>
+        <div class="readout">
+          <div><span><i>V</i><sub>max</sub> = <i>k</i><sub>cat</sub>[E]<sub>T</sub></span><span id="roVmax"></span></div>
+          <div><span>初速度 <i>v</i></span><span id="roV"></span></div>
+          <div><span><i>v</i> / <i>V</i><sub>max</sub> = θ</span><span id="roTheta"></span></div>
+          <div><span>[S] / <i>K</i><sub>m</sub></span><span id="roRatio"></span></div>
+        </div>
+        <div class="regime" id="regime"></div>
+        <div class="toggles">
+          <button id="tgTan" aria-pressed="true">初期接線</button>
+          <button id="tgAsym" aria-pressed="true">漸近線</button>
+          <button id="tgLog" aria-pressed="false">横軸を対数に</button>
+        </div>
+      </div>
+    </div>
+    <div class="occ-wrap">
+      <div class="occ-head"><span>酵素100分子の占有状態</span><span id="occTxt"></span></div>
+      <div class="occ" id="occ" aria-hidden="true"></div>
+    </div>
+  </div>
+
+  <h3>3つの領域</h3>
+  <div class="cards">
+    <div class="c"><b>[S] ≪ <i>K</i><sub>m</sub>　基質について一次</b><span><i>v</i> ≈ (<i>V</i><sub>max</sub>/<i>K</i><sub>m</sub>)[S]。活性部位はほとんど空いているので、基質を足した分だけ素直に速くなる。原点を通る直線に見える</span></div>
+    <div class="c"><b>[S] = <i>K</i><sub>m</sub>　半分が埋まる</b><span><i>v</i> = <i>V</i><sub>max</sub>/2。これが <i>K</i><sub>m</sub> の定義そのもの。単位が濃度になる理由もここにある</span></div>
+    <div class="c"><b>[S] ≫ <i>K</i><sub>m</sub>　零次</b><span><i>v</i> ≈ <i>V</i><sub>max</sub>。空いている酵素がもうない。基質を足しても順番待ちの列が伸びるだけで、処理能力は変わらない</span></div>
+  </div>
+  <p>横軸を対数にすると、双曲線がS字に化ける。曲がり角は <i>K</i><sub>m</sub> のちょうど上、変化の大半は <i>K</i><sub>m</sub> の前後1桁ずつ、合わせて2桁の範囲で起きている。生体内の基質濃度がしばしば <i>K</i><sub>m</sub> 付近にあるのは、この帯域でだけ濃度変化が速度に伝わるからでもある。</p>
+</section>
+
+<!-- ============ 5 ============ -->
+<section id="s5">
+  <div class="sec-head"><div class="sec-mark">05</div><h2>酵素濃度を変える</h2></div>
+  <p><i>V</i><sub>max</sub> = <i>k</i><sub>cat</sub>[E]<sub>T</sub> だから、酵素を2倍入れれば、どの [S] でも速度は2倍になる。いっぽう <i>K</i><sub>m</sub> = (<i>k</i><sub>−1</sub> + <i>k</i><sub>2</sub>)/<i>k</i><sub>1</sub> には [E]<sub>T</sub> がどこにも入っていない。酵素をいくら増やしても半飽和点は動かない。</p>
+
+  <div class="panel">
+    <div class="panel-grid">
+      <div class="panel-plot">
+        <canvas id="famCv" class="plot-tall"></canvas>
+      </div>
+      <div class="panel-side">
+        <div class="ctrl">
+          <label for="famSl"><span>[E]<sub>T</sub> の倍率</span><span class="val" id="famVal"></span></label>
+          <input type="range" id="famSl" min="0" max="4" step="1" value="2">
+        </div>
+        <p class="small dim" style="margin-top:-4px">基準は [E]<sub>T</sub> = 10 nM、<i>k</i><sub>cat</sub> = 200 s⁻¹、<i>K</i><sub>m</sub> = 0.50 mM。</p>
+        <div class="readout">
+          <div><span>[E]<sub>T</sub></span><span id="fEt"></span></div>
+          <div><span><i>V</i><sub>max</sub></span><span id="fVmax"></span></div>
+          <div><span><i>K</i><sub>m</sub></span><span id="fKm"></span></div>
+          <div><span><i>k</i><sub>cat</sub></span><span id="fKcat"></span></div>
+        </div>
+        <div class="regime" id="famNote"></div>
+        <div class="toggles">
+          <button id="tgNorm" aria-pressed="false"><i>v</i>/<i>V</i><sub>max</sub> で規格化</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <p>規格化ボタンを押すと、5本の曲線がぴたりと1本に重なる。<i>v</i>/<i>V</i><sub>max</sub> = [S]/(<i>K</i><sub>m</sub> + [S]) の右辺に酵素濃度が現れないので当然ではあるものの、実験の意味はここにある。</p>
+  <div class="cards">
+    <div class="c"><b>天井は酵素の量</b><span><i>V</i><sub>max</sub> は「どれだけ入れたか」で決まる。だから <i>V</i><sub>max</sub> 単体では酵素の性能を語れない</span></div>
+    <div class="c"><b>形は酵素の性質</b><span><i>K</i><sub>m</sub> と <i>k</i><sub>cat</sub> は分子1個あたりの量。精製標品でも粗抽出液でも同じ値が出るはず</span></div>
+    <div class="c"><b>だから <i>k</i><sub>cat</sub> を出す</b><span><i>k</i><sub>cat</sub> = <i>V</i><sub>max</sub>/[E]<sub>T</sub>。酵素のモル濃度が分からないと計算できないので、純度と分子量が要る</span></div>
+  </div>
+</section>
+
+<!-- ============ 6 ============ -->
+<section id="s6">
+  <div class="sec-head"><div class="sec-mark">06</div><h2>定常状態近似は本当に成り立っているのか</h2></div>
+  <p>d[ES]/d<i>t</i> = 0 と置いた瞬間、話は一気に進んだ。ただしこれは近似であって、成り立つ理由がある。微分方程式を近似せずに数値的に解いて、[ES] の振る舞いを直接見る。</p>
+  <div class="eqbox">
+    <div class="eq left small" style="font-size:16px;flex-direction:column;align-items:flex-start;gap:10px">
+      <div class="eq left">d[S]/d<i>t</i><span class="op">=</span>−<i>k</i><sub>1</sub>[E][S]<span class="op">+</span><i>k</i><sub>−1</sub>[ES]</div>
+      <div class="eq left">d[ES]/d<i>t</i><span class="op">=</span><i>k</i><sub>1</sub>[E][S]<span class="op">−</span>(<i>k</i><sub>−1</sub><span class="op">+</span><i>k</i><sub>2</sub>)[ES]</div>
+      <div class="eq left">d[P]/d<i>t</i><span class="op">=</span><i>k</i><sub>2</sub>[ES]<span class="op">,</span>　[E]<span class="op">=</span>[E]<sub>T</sub><span class="op">−</span>[ES]</div>
+    </div>
+  </div>
+
+  <div class="panel">
+    <div class="panel-grid two">
+      <div class="panel-plot">
+        <div class="occ-head" style="padding:0 4px 6px"><span>最初の5ミリ秒</span><span>立ち上がり</span></div>
+        <canvas id="fastCv" class="plot-mid"></canvas>
+      </div>
+      <div class="panel-plot">
+        <div class="occ-head" style="padding:0 4px 6px"><span>反応の全経過</span><span>基質が尽きるまで</span></div>
+        <canvas id="slowCv" class="plot-mid"></canvas>
+      </div>
+    </div>
+    <div class="panel-grid one">
+      <div class="panel-side" style="display:grid;grid-template-columns:repeat(auto-fit,minmax(190px,1fr));gap:22px">
+        <div class="ctrl" style="margin:0">
+          <label for="simS"><span>初期基質 [S]<sub>0</sub></span><span class="val" id="simSVal"></span></label>
+          <input type="range" id="simS" min="10" max="300" value="100">
+        </div>
+        <div class="ctrl" style="margin:0">
+          <label for="simE"><span>酵素 [E]<sub>T</sub>（対数）</span><span class="val" id="simEVal"></span></label>
+          <input type="range" id="simE" min="0" max="120" value="30">
+        </div>
+        <div class="ctrl" style="margin:0">
+          <label for="simK1"><span><i>k</i><sub>1</sub></span><span class="val" id="simK1Val"></span></label>
+          <input type="range" id="simK1" min="10" max="200" value="100">
+        </div>
+        <div class="readout" style="border:0;padding:0;margin:0">
+          <div><span>立ち上がりの時定数 τ</span><span id="simTau"></span></div>
+          <div><span>[ES] の定常値</span><span id="simEs"></span></div>
+          <div><span>[S]<sub>0</sub> / [E]<sub>T</sub></span><span id="simRatio"></span></div>
+        </div>
+      </div>
+    </div>
+    <div class="occ-wrap" style="padding-top:0">
+      <div class="regime" id="simNote"></div>
+    </div>
+  </div>
+
+  <p>左のパネルで [ES] はゼロから急に立ち上がり、すぐ平らになる。この立ち上がりに要する時間は τ ≈ 1/(<i>k</i><sub>1</sub>([S] + <i>K</i><sub>m</sub>)) で、ミリ秒のオーダー。ふつうの分光光度計では見えない領域で、専用のストップトフロー装置を使ってはじめて観測できる。</p>
+  <p>右のパネルが本題。基質が減り生成物が増えていくあいだ、[ES] はほとんど水平のまま。理由は単純で、[S]<sub>0</sub> が [E]<sub>T</sub> より桁違いに多いから、酵素側の内訳が変わる余地がない。スライダーで [E]<sub>T</sub> を [S]<sub>0</sub> に近づけていくと、この平坦さが崩れていくのが見える。定常状態近似が壊れる条件は、そこにある。</p>
+</section>
+
+<!-- ============ 7 ============ -->
+<section id="s7">
+  <div class="sec-head"><div class="sec-mark">07</div><h2>3つのパラメータの読み方</h2></div>
+  <div class="notelist">
+    <div>
+      <b><i>K</i><sub>m</sub>　mol/L</b>
+      <p>速度が最大の半分になる基質濃度。小さいほど薄い基質でも働ける。ただし解離定数 <i>K</i><sub>s</sub> = <i>k</i><sub>−1</sub>/<i>k</i><sub>1</sub> と一致するのは <i>k</i><sub>2</sub> ≪ <i>k</i><sub>−1</sub> のときだけで、一般には <i>K</i><sub>m</sub> = <i>K</i><sub>s</sub> + <i>k</i><sub>2</sub>/<i>k</i><sub>1</sub> ≥ <i>K</i><sub>s</sub>。親和性の指標として使うなら、この上乗せ分を承知したうえで。</p>
+    </div>
+    <div>
+      <b><i>k</i><sub>cat</sub>　s⁻¹</b>
+      <p>ターンオーバー数。酵素1分子が飽和条件下で1秒間に何分子の基質を変換するか。<i>V</i><sub>max</sub>/[E]<sub>T</sub> で求める。カタラーゼの 4×10<sup>7</sup> s⁻¹ は、1分子が1秒に4千万個の過酸化水素を分解する計算になる。</p>
+    </div>
+    <div>
+      <b><i>k</i><sub>cat</sub>/<i>K</i><sub>m</sub>　M⁻¹s⁻¹</b>
+      <p>[S] ≪ <i>K</i><sub>m</sub> の領域での見かけの二次速度定数。<i>v</i> = (<i>k</i><sub>cat</sub>/<i>K</i><sub>m</sub>)[E]<sub>T</sub>[S]。掴む能力と壊す能力の両方が入るので、酵素の総合的な腕前を1つの数字で比べたいときはこれを見る。上限は E と S が拡散でぶつかる速さ、10<sup>8</sup>〜10<sup>9</sup> M⁻¹s⁻¹。ここに達した酵素は、もう化学反応ではなく出会いが律速している。</p>
+    </div>
+  </div>
+
+  <div class="tablewrap">
+    <table>
+      <thead><tr><th>酵素 / 基質</th><th><i>k</i><sub>cat</sub> (s⁻¹)</th><th><i>K</i><sub>m</sub> (M)</th><th><i>k</i><sub>cat</sub>/<i>K</i><sub>m</sub> (M⁻¹s⁻¹)</th></tr></thead>
+      <tbody>
+        <tr><td>カタラーゼ / H₂O₂</td><td class="num">4×10⁷</td><td class="num">1.1</td><td class="num">4×10⁷</td></tr>
+        <tr><td>炭酸脱水酵素 / CO₂</td><td class="num">1×10⁶</td><td class="num">1.2×10⁻²</td><td class="num">8.3×10⁷</td></tr>
+        <tr><td>アセチルコリンエステラーゼ / アセチルコリン</td><td class="num">1.4×10⁴</td><td class="num">9×10⁻⁵</td><td class="num">1.6×10⁸</td></tr>
+        <tr><td>フマラーゼ / フマル酸</td><td class="num">8.0×10²</td><td class="num">5×10⁻⁶</td><td class="num">1.6×10⁸</td></tr>
+        <tr class="hl"><td>キモトリプシン / N-アセチルフェニルアラニンエチルエステル</td><td class="num">1.0×10²</td><td class="num">6.6×10⁻⁴</td><td class="num">1.5×10⁵</td></tr>
+        <tr class="hl"><td>キモトリプシン / N-アセチルグリシンエチルエステル</td><td class="num">5.1×10⁻²</td><td class="num">1.2×10⁻¹</td><td class="num">4.3×10⁻¹</td></tr>
+      </tbody>
+    </table>
+  </div>
+  <p class="small dim">紫の2行は同じキモトリプシンで基質だけを替えたもの。側鎖がベンゼン環かHかの違いで、<i>k</i><sub>cat</sub>/<i>K</i><sub>m</sub> が約35万倍違う。基質特異性の正体は、この比の差として現れる。値は代表的な教科書（Lehninger、Berg）の掲載値で、測定条件によって変わる。</p>
+</section>
+
+<!-- ============ 8 ============ -->
+<section id="s8">
+  <div class="sec-head"><div class="sec-mark">08</div><h2>双曲線を直線に変換する</h2></div>
+  <p>双曲線から目分量で <i>V</i><sub>max</sub> を読むのは難しい。漸近線は無限遠にあるので、有限のデータからは必ず外挿になる。座標を取り替えて直線にしてしまえば、切片と傾きから値が読める。コンピュータで非線形フィットする前の時代に発達した手法で、いまも構造を目で見るために使われている。</p>
+
+  <div class="panel">
+    <div class="panel-grid">
+      <div class="panel-plot">
+        <canvas id="linCv" class="plot-tall"></canvas>
+      </div>
+      <div class="panel-side">
+        <div class="toggles" style="margin:0 0 18px">
+          <button class="linBtn" data-m="lb" aria-pressed="true">Lineweaver–Burk</button>
+          <button class="linBtn" data-m="eh" aria-pressed="false">Eadie–Hofstee</button>
+          <button class="linBtn" data-m="hw" aria-pressed="false">Hanes–Woolf</button>
+        </div>
+        <div class="eqbox" style="margin:0 0 14px;padding:14px 12px">
+          <div class="eq" id="linEq" style="font-size:16px"></div>
+        </div>
+        <div class="readout" style="border:0;padding:0">
+          <div><span>傾き</span><span id="linSlope"></span></div>
+          <div><span>縦軸切片</span><span id="linYi"></span></div>
+          <div><span>横軸切片</span><span id="linXi"></span></div>
+        </div>
+        <div class="regime" id="linNote"></div>
+        <div class="ctrl" style="margin:16px 0 0">
+          <label for="linSl"><span>[E]<sub>T</sub> の倍率</span><span class="val" id="linVal"></span></label>
+          <input type="range" id="linSl" min="0" max="2" step="1" value="1">
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <p>酵素濃度を変えると、3本の直線がどう動くかに注目してほしい。Lineweaver–Burk では傾きも縦軸切片も <i>V</i><sub>max</sub> に反比例して動くのに、横軸切片 −1/<i>K</i><sub>m</sub> だけは釘で留めたように動かない。酵素量を変えても <i>K</i><sub>m</sub> が変わらないという事実が、そのまま図形として出ている。</p>
+  <p>ただし Lineweaver–Burk をパラメータ推定に使うのはやめたほうがいい。低い基質濃度、つまり測定誤差が最も大きいデータ点が、逆数を取ると横軸の遠くへ飛ばされる。そこが傾きを支配してしまうので、誤差が不当に重く扱われる。3つのうち誤差の乗り方が比較的おとなしいのは Hanes–Woolf。現在の標準は、変換せずに双曲線へ直接非線形最小二乗をかけることになっている。</p>
+</section>
+
+<!-- ============ 9 ============ -->
+<section id="s9">
+  <div class="sec-head"><div class="sec-mark">09</div><h2>同じ形をした式たち</h2></div>
+  <p>θ = [S]/(<i>K</i><sub>m</sub> + [S]) という形は、酵素だけのものではない。有限個の席を1対1で奪い合う状況は、どれもこの式になる。</p>
+  <div class="cards">
+    <div class="c"><b>ミオグロビンの酸素結合</b><span><i>Y</i> = <i>p</i>O₂ / (<i>P</i><sub>50</sub> + <i>p</i>O₂)。<i>P</i><sub>50</sub> が <i>K</i><sub>m</sub> に対応する。ヘム1個につき酸素1分子</span></div>
+    <div class="c"><b>弱酸の解離</b><span>非解離型の割合は [H⁺]/(<i>K</i><sub>a</sub> + [H⁺])。プロトンが基質、共役塩基が席。pH = p<i>K</i><sub>a</sub> で半分という関係は、[S] = <i>K</i><sub>m</sub> で半分と同じ構造</span></div>
+    <div class="c"><b>ラングミュア吸着</b><span>θ = <i>KP</i>/(1 + <i>KP</i>)。固体表面の吸着席が埋まっていく。1918年、酵素の式の5年後</span></div>
+  </div>
+  <p>例外はヘモグロビン。4つのサブユニットが互いの結合状態を伝え合うので、席が独立ではなくなり曲線がS字になる。アロステリック酵素が示すS字も同じ理由で、ヒル式 θ = [S]<sup><i>n</i></sup>/(<i>K</i> + [S]<sup><i>n</i></sup>) で近似される。逆に言えば、双曲線が出たということは「席は独立している」という情報が得られたことになる。</p>
+</section>
+
+<!-- ============ 10 ============ -->
+<section id="s10">
+  <div class="sec-head"><div class="sec-mark">10</div><h2>阻害剤が入る</h2></div>
+  <p>ここから条件を1つ緩める。反応液に、酵素に結合して働きを鈍らせる分子 I がいるとする。可逆的に結合し、結合と解離は基質のやりとりより速く平衡に達するものとする。</p>
+  <p>阻害剤が結合できる相手は2つしかない。基質を掴んでいない遊離酵素 E と、すでに基質を掴んでいる ES。それぞれに解離定数を1つずつ与えれば、話はそれで尽きる。</p>
+
+  <div class="eqbox accent">
+    <div class="eq left small" style="font-size:17px;flex-direction:column;align-items:flex-start;gap:12px">
+      <div class="eq left">E + I ⇌ EI<span style="width:26px"></span><i>K</i><sub>i</sub><span class="op">=</span><span class="fr"><span class="n">[E][I]</span><span class="d">[EI]</span></span></div>
+      <div class="eq left">ES + I ⇌ ESI<span style="width:14px"></span><i>K</i><sub>i</sub>′<span class="op">=</span><span class="fr"><span class="n">[ES][I]</span><span class="d">[ESI]</span></span></div>
+    </div>
+  </div>
+  <p>EI も ESI も生成物を出さない行き止まり。どちらの結合が起きるかで、名前が3つに分かれる。</p>
+
+  <div class="schemetrio">
+    <div class="schemecell">
+      <h4 style="color:var(--t1)">競合阻害</h4>
+      <div class="lbcap" style="color:var(--ink3);font-weight:400">I は E だけに結合する</div>
+      <svg viewBox="0 0 260 150" role="img" aria-label="競合阻害の反応スキーム。阻害剤は遊離酵素にだけ結合する">
+        <defs><marker id="a1" markerWidth="7" markerHeight="7" refX="6" refY="2.6" orient="auto"><path d="M0,0 L6,2.6 L0,5.2 z" fill="#3E585E"/></marker>
+        <marker id="a1g" markerWidth="7" markerHeight="7" refX="6" refY="2.6" orient="auto"><path d="M0,0 L6,2.6 L0,5.2 z" fill="#C0D1D3"/></marker></defs>
+        <g font-family="IBM Plex Sans JP, sans-serif" font-size="15" font-weight="600">
+          <text x="8" y="30" fill="#12626C">E</text><text x="26" y="30" fill="#3E585E">+</text><text x="44" y="30" fill="#BE7415">S</text>
+          <text x="112" y="30" fill="#6A4A99">ES</text>
+          <text x="196" y="30" fill="#12626C">E</text><text x="214" y="30" fill="#3E585E">+</text><text x="232" y="30" fill="#A32C52">P</text>
+          <text x="4" y="122" fill="#33454B">EI</text>
+          <text x="106" y="122" fill="#C0D1D3">ESI</text>
+        </g>
+        <line x1="62" y1="21" x2="104" y2="21" stroke="#3E585E" stroke-width="1.2" marker-end="url(#a1)"/>
+        <line x1="104" y1="33" x2="62" y2="33" stroke="#3E585E" stroke-width="1.2" marker-end="url(#a1)"/>
+        <line x1="142" y1="26" x2="188" y2="26" stroke="#3E585E" stroke-width="1.2" marker-end="url(#a1)"/>
+        <line x1="12" y1="44" x2="12" y2="100" stroke="#A8324E" stroke-width="1.4" marker-end="url(#a1)"/>
+        <line x1="24" y1="100" x2="24" y2="44" stroke="#A8324E" stroke-width="1.4" marker-end="url(#a1)"/>
+        <line x1="120" y1="44" x2="120" y2="100" stroke="#DDE7E8" stroke-width="1.4" marker-end="url(#a1g)"/>
+        <g stroke="#C0D1D3" stroke-width="2"><line x1="112" y1="64" x2="130" y2="82"/><line x1="130" y1="64" x2="112" y2="82"/></g>
+        <g font-family="IBM Plex Mono, monospace" font-size="10.5">
+          <text x="32" y="76" fill="#A8324E">+I  Ki</text>
+          <text x="2" y="141" fill="#A8324E">行き止まり</text>
+        </g>
+      </svg>
+      <p>基質と阻害剤が同じ活性部位を取り合う。ES ができてしまえば阻害剤はもう入れない。</p>
+    </div>
+    <div class="schemecell">
+      <h4 style="color:var(--t2)">不競合阻害</h4>
+      <div class="lbcap" style="color:var(--ink3);font-weight:400">I は ES だけに結合する</div>
+      <svg viewBox="0 0 260 150" role="img" aria-label="不競合阻害の反応スキーム。阻害剤は酵素基質複合体にだけ結合する">
+        <g font-family="IBM Plex Sans JP, sans-serif" font-size="15" font-weight="600">
+          <text x="8" y="30" fill="#12626C">E</text><text x="26" y="30" fill="#3E585E">+</text><text x="44" y="30" fill="#BE7415">S</text>
+          <text x="112" y="30" fill="#6A4A99">ES</text>
+          <text x="196" y="30" fill="#12626C">E</text><text x="214" y="30" fill="#3E585E">+</text><text x="232" y="30" fill="#A32C52">P</text>
+          <text x="4" y="122" fill="#C0D1D3">EI</text>
+          <text x="106" y="122" fill="#33454B">ESI</text>
+        </g>
+        <line x1="62" y1="21" x2="104" y2="21" stroke="#3E585E" stroke-width="1.2" marker-end="url(#a1)"/>
+        <line x1="104" y1="33" x2="62" y2="33" stroke="#3E585E" stroke-width="1.2" marker-end="url(#a1)"/>
+        <line x1="142" y1="26" x2="188" y2="26" stroke="#3E585E" stroke-width="1.2" marker-end="url(#a1)"/>
+        <line x1="12" y1="44" x2="12" y2="100" stroke="#DDE7E8" stroke-width="1.4" marker-end="url(#a1g)"/>
+        <g stroke="#C0D1D3" stroke-width="2"><line x1="4" y1="64" x2="22" y2="82"/><line x1="22" y1="64" x2="4" y2="82"/></g>
+        <line x1="118" y1="44" x2="118" y2="100" stroke="#5E4A96" stroke-width="1.4" marker-end="url(#a1)"/>
+        <line x1="130" y1="100" x2="130" y2="44" stroke="#5E4A96" stroke-width="1.4" marker-end="url(#a1)"/>
+        <g font-family="IBM Plex Mono, monospace" font-size="10.5">
+          <text x="138" y="76" fill="#5E4A96">+I  Ki′</text>
+          <text x="104" y="141" fill="#5E4A96">行き止まり</text>
+        </g>
+      </svg>
+      <p>基質が結合して形が変わってはじめて、阻害剤の座席が現れる。基質がいなければ阻害も起きない。</p>
+    </div>
+    <div class="schemecell">
+      <h4 style="color:var(--t3)">非競合阻害</h4>
+      <div class="lbcap" style="color:var(--ink3);font-weight:400">I は E にも ES にも、同じ強さで結合する</div>
+      <svg viewBox="0 0 260 150" role="img" aria-label="非競合阻害の反応スキーム。阻害剤は遊離酵素と複合体の両方に等しく結合する">
+        <g font-family="IBM Plex Sans JP, sans-serif" font-size="15" font-weight="600">
+          <text x="8" y="30" fill="#12626C">E</text><text x="26" y="30" fill="#3E585E">+</text><text x="44" y="30" fill="#BE7415">S</text>
+          <text x="112" y="30" fill="#6A4A99">ES</text>
+          <text x="196" y="30" fill="#12626C">E</text><text x="214" y="30" fill="#3E585E">+</text><text x="232" y="30" fill="#A32C52">P</text>
+          <text x="4" y="122" fill="#33454B">EI</text>
+          <text x="106" y="122" fill="#33454B">ESI</text>
+        </g>
+        <line x1="62" y1="21" x2="104" y2="21" stroke="#3E585E" stroke-width="1.2" marker-end="url(#a1)"/>
+        <line x1="104" y1="33" x2="62" y2="33" stroke="#3E585E" stroke-width="1.2" marker-end="url(#a1)"/>
+        <line x1="142" y1="26" x2="188" y2="26" stroke="#3E585E" stroke-width="1.2" marker-end="url(#a1)"/>
+        <line x1="12" y1="44" x2="12" y2="100" stroke="#B8791A" stroke-width="1.4" marker-end="url(#a1)"/>
+        <line x1="24" y1="100" x2="24" y2="44" stroke="#B8791A" stroke-width="1.4" marker-end="url(#a1)"/>
+        <line x1="118" y1="44" x2="118" y2="100" stroke="#B8791A" stroke-width="1.4" marker-end="url(#a1)"/>
+        <line x1="130" y1="100" x2="130" y2="44" stroke="#B8791A" stroke-width="1.4" marker-end="url(#a1)"/>
+        <line x1="28" y1="117" x2="100" y2="117" stroke="#C0D1D3" stroke-width="1.2" stroke-dasharray="3 3"/>
+        <g font-family="IBM Plex Mono, monospace" font-size="10.5">
+          <text x="32" y="70" fill="#B8791A">Ki</text>
+          <text x="138" y="70" fill="#B8791A">Ki′= Ki</text>
+          <text x="2" y="141" fill="#8FA6A9">EI も S を結合できる</text>
+        </g>
+      </svg>
+      <p>活性部位とは別の場所に座る。基質が入っていようがいまいが関係なく、掴まれた酵素は仕事をしない。</p>
+    </div>
+  </div>
+
+  <h3>一般式を導く</h3>
+  <div class="stepper">
+    <div class="step-bar" id="inhBar" role="tablist" aria-label="阻害を含む式の導出"></div>
+    <div class="step-body" id="inhBody"></div>
+    <div class="step-nav">
+      <button id="inhPrev">← 戻る</button>
+      <span class="step-count" id="inhCount"></span>
+      <button id="inhNext">進む →</button>
+    </div>
+  </div>
+</section>
+
+<!-- ============ 11 ============ -->
+<section id="s11">
+  <div class="sec-head"><div class="sec-mark">11</div><h2>3つを並べて、同じ強さで効かせる</h2></div>
+  <p>阻害剤の量を [I]/<i>K</i><sub>i</sub> という無次元の目盛りで揃え、3つの型に同時に同じ強さをかける。灰色の細い線が阻害なしの元の曲線。どこが引きずられて、どこが動かないかを見る。</p>
+
+  <div class="panel">
+    <div class="panel-grid">
+      <div class="panel-plot">
+        <canvas id="cmpCv" class="plot-tall"></canvas>
+      </div>
+      <div class="panel-side">
+        <div class="ctrl">
+          <label for="rSl1"><span>阻害剤の量 [I]/<i>K</i><sub>i</sub></span><span class="val" id="rVal1"></span></label>
+          <input type="range" class="rSl" id="rSl1" min="0" max="40" value="10">
+        </div>
+        <div class="ctrl">
+          <label for="isSl"><span>基質濃度 [S]</span><span class="val" id="isVal"></span></label>
+          <input type="range" id="isSl" min="0" max="1000" value="100">
+        </div>
+        <div class="toggles" style="margin-top:0">
+          <button class="fcBtn" data-f="all" aria-pressed="true">3つとも</button>
+          <button class="fcBtn" data-f="t1" aria-pressed="false">競合</button>
+          <button class="fcBtn" data-f="t2" aria-pressed="false">不競合</button>
+          <button class="fcBtn" data-f="t3" aria-pressed="false">非競合</button>
+        </div>
+        <div class="regime" id="cmpNote" style="margin-top:16px"></div>
+      </div>
+    </div>
+    <div class="tablewrap" style="border:0;border-top:1px solid var(--rule);margin:0">
+      <table class="mini" id="cmpTable"></table>
+    </div>
+  </div>
+
+  <p>三角の目印は、各曲線自身の半飽和点、つまり見かけの <i>K</i><sub>m</sub> の位置。競合では右へ動き、不競合では左へ動き、非競合では元の場所から動かない。天井のほうは逆で、競合だけが元の <i>V</i><sub>max</sub> に届く。</p>
+  <div class="cards">
+    <div class="c"><b style="color:var(--t1)">競合　<i>V</i><sub>max</sub> は無傷、<i>K</i><sub>m</sub> が α 倍</b><span>基質を無限に増やせば阻害剤は活性部位から締め出される。だから天井は変わらない。ただし同じ速度を出すのに、より濃い基質が要るようになる</span></div>
+    <div class="c"><b style="color:var(--t2)">不競合　両方が 1/α′ 倍</b><span><i>V</i><sub>max</sub> も <i>K</i><sub>m</sub> も同じ割合で下がる。比 <i>V</i><sub>max</sub>/<i>K</i><sub>m</sub> は変わらないので、低い基質濃度では効いていないように見える</span></div>
+    <div class="c"><b style="color:var(--t3)">非競合　<i>V</i><sub>max</sub> だけが 1/α 倍</b><span>酵素の一定割合が常に取り上げられる。実質的に酵素の量を減らしたのと同じで、曲線は縦にだけ縮む。05 で見た酵素濃度の効果とそっくり</span></div>
+  </div>
+</section>
+
+<!-- ============ 12 ============ -->
+<section id="s12">
+  <div class="sec-head"><div class="sec-mark">12</div><h2>効き目は基質濃度でどう変わるか</h2></div>
+  <p>同じ阻害剤を同じ量入れても、基質がどれだけあるかで効き方が変わる。縦軸は阻害率、つまり阻害なしのときと比べて速度が何パーセント落ちたか。横軸は基質濃度で、<i>K</i><sub>m</sub> を1とした対数目盛り。</p>
+
+  <div class="panel">
+    <div class="panel-grid">
+      <div class="panel-plot">
+        <canvas id="frcCv" class="plot-tall"></canvas>
+      </div>
+      <div class="panel-side">
+        <div class="ctrl">
+          <label for="rSl2"><span>阻害剤の量 [I]/<i>K</i><sub>i</sub></span><span class="val" id="rVal2"></span></label>
+          <input type="range" class="rSl" id="rSl2" min="0" max="40" value="10">
+        </div>
+        <div class="readout">
+          <div><span style="color:var(--t1)">競合の阻害率</span><span id="fr1"></span></div>
+          <div><span style="color:var(--t2)">不競合の阻害率</span><span id="fr2"></span></div>
+          <div><span style="color:var(--t3)">非競合の阻害率</span><span id="fr3"></span></div>
+          <div><span>共通の上限 1 − 1/α</span><span id="frCap"></span></div>
+        </div>
+        <div class="regime" id="frcNote" style="margin-top:16px"></div>
+      </div>
+    </div>
+  </div>
+
+  <p>3本の曲線は、右下がり、水平、右上がりに分かれる。同じ上限値に対して、競合はそこから始まって薄れていき、非競合はずっとそこに留まり、不競合はそこへ向かって強まっていく。この形の違いが、3つの型のいちばん実質的な差になる。</p>
+  <div class="cards">
+    <div class="c"><b>基質を増やせば勝てる</b><span>競合阻害だけ。メタノール中毒にエタノールを投与するのは、この関係を利用してアルコール脱水素酵素の活性部位を先に埋める処置</span></div>
+    <div class="c"><b>基質が増えると負ける</b><span>不競合阻害。阻害剤が結合する相手そのものが ES なので、基質が増えるほど標的が増える。薬としては都合がよく、体内で基質が溜まっても効き目が落ちない</span></div>
+    <div class="c"><b>基質と無関係</b><span>非競合阻害。どの濃度でも同じ割合だけ削られる。逆に言えば、基質濃度を振っても阻害率が動かないことが、この型を疑う根拠になる</span></div>
+  </div>
+</section>
+
+<!-- ============ 13 ============ -->
+<section id="s13">
+  <div class="sec-head"><div class="sec-mark">13</div><h2>二重逆数プロットの見分け方</h2></div>
+  <p>08 で作った 1/<i>v</i> 対 1/[S] のプロットに、阻害剤を段階的に加える。3本の直線がどこで交わるかが、そのまま型の名前になる。灰色が阻害なし、薄い色が半分の量、濃い色が現在の量。</p>
+
+  <div class="panel" style="border:0;margin:0">
+    <div class="panel-side" style="border:1px solid var(--rule);border-bottom:0">
+      <div class="ctrl" style="margin:0;max-width:340px">
+        <label for="rSl3"><span>阻害剤の量 [I]/<i>K</i><sub>i</sub></span><span class="val" id="rVal3"></span></label>
+        <input type="range" class="rSl" id="rSl3" min="0" max="40" value="10">
+      </div>
+    </div>
+  </div>
+  <div class="lbgrid" style="margin-top:0">
+    <div class="lbcell">
+      <div class="lbcap" style="color:var(--t1)">競合</div>
+      <div class="lbsub">縦軸切片 1/<i>V</i><sub>max</sub> が動かない。3本が縦軸上の1点で交わる</div>
+      <canvas id="lbC" class="plot-sm"></canvas>
+    </div>
+    <div class="lbcell">
+      <div class="lbcap" style="color:var(--t2)">不競合</div>
+      <div class="lbsub">傾き <i>K</i><sub>m</sub>/<i>V</i><sub>max</sub> が動かない。3本が平行になり、交点を持たない</div>
+      <canvas id="lbU" class="plot-sm"></canvas>
+    </div>
+    <div class="lbcell">
+      <div class="lbcap" style="color:var(--t3)">非競合</div>
+      <div class="lbsub">横軸切片 −1/<i>K</i><sub>m</sub> が動かない。3本が横軸上の1点で交わる</div>
+      <canvas id="lbN" class="plot-sm"></canvas>
+    </div>
+  </div>
+
+  <p>実験データからどの型かを判定するときは、阻害剤濃度を数段階に振って測り、この図を描くのが伝統的なやり方。交点が縦軸上なら競合、横軸上なら非競合、平行なら不競合。交点が第2象限の横軸から外れた場所に来たら混合型で、これが実際にはいちばん多い。</p>
+  <p class="small dim">08 で書いたとおり、この図はパラメータの数値を出すには向かない。型を見分ける道具として使い、<i>K</i><sub>i</sub> の値そのものは非線形フィットで求める。</p>
+</section>
+
+<!-- ============ 14 ============ -->
+<section id="s14">
+  <div class="sec-head"><div class="sec-mark">14</div><h2>3つは同じ式の3つの場所にすぎない</h2></div>
+  <p>ここまで別々に扱ってきたが、式は1本しかない。α と α′ という2つのつまみがあり、その組み合わせに名前が付いているだけ。下の四角い盤面の点を動かすと、そこがどの型に当たるかと、そのときの曲線が同時に変わる。</p>
+
+  <div class="panel">
+    <div class="padwrap">
+      <div class="padcell">
+        <div class="presets">
+          <button class="psBtn" data-p="none">阻害なし</button>
+          <button class="psBtn" data-p="t1" aria-pressed="true">競合</button>
+          <button class="psBtn" data-p="t2">不競合</button>
+          <button class="psBtn" data-p="t3">非競合</button>
+          <button class="psBtn" data-p="t4">混合</button>
+        </div>
+        <canvas id="padCv" class="plot-sq"></canvas>
+        <div class="lbsub" style="min-height:0;margin-top:6px">盤面をドラッグ。軸と対角線には吸い付く</div>
+      </div>
+      <div class="padcell">
+        <canvas id="padVCv" class="plot-sq"></canvas>
+      </div>
+    </div>
+    <div class="verdict">
+      <div class="vname" id="padName"></div>
+      <div class="vdesc" id="padDesc"></div>
+    </div>
+    <div class="tablewrap" style="border:0;border-top:1px solid var(--rule);margin:0">
+      <table class="mini" id="padTable"></table>
+    </div>
+  </div>
+
+  <div class="eqbox accent">
+    <div class="eq"><i>v</i><span class="op">=</span><span class="fr"><span class="n"><i>V</i><sub>max</sub>[S]</span><span class="d">α<i>K</i><sub>m</sub> + α′[S]</span></span><span style="width:30px"></span>α<span class="op">=</span>1<span class="op">+</span><span class="fr"><span class="n">[I]</span><span class="d"><i>K</i><sub>i</sub></span></span><span class="op">,</span>　α′<span class="op">=</span>1<span class="op">+</span><span class="fr"><span class="n">[I]</span><span class="d"><i>K</i><sub>i</sub>′</span></span></div>
+  </div>
+  <p>α = α′ = 1 なら阻害なしで、08 までの式に戻る。原点から離れる方向によって名前が変わり、そのどれもが同じ1本の式の上にある。<i>K</i><sub>i</sub> ≠ <i>K</i><sub>i</sub>′ の混合型が盤面の大部分を占めていることに注意してほしい。競合・不競合・非競合は、盤面の縁と対角線という測度ゼロの場所にすぎない。</p>
+</section>
+
+<!-- ============ 15 ============ -->
+<section id="s15">
+  <div class="sec-head"><div class="sec-mark">15</div><h2>対照表と、実際の薬</h2></div>
+  <div class="tablewrap">
+    <table>
+      <thead><tr><th>型</th><th>結合相手</th><th>α</th><th>α′</th><th><i>V</i><sub>max</sub><sup>app</sup></th><th><i>K</i><sub>m</sub><sup>app</sup></th><th><i>k</i><sub>cat</sub>/<i>K</i><sub>m</sub></th><th>高い [S] で</th><th>二重逆数</th></tr></thead>
+      <tbody>
+        <tr><td style="color:var(--t1);font-weight:600">競合</td><td>E のみ</td><td class="num">1+[I]/<i>K</i><sub>i</sub></td><td class="num">1</td><td>変わらない</td><td class="num">α<i>K</i><sub>m</sub> ↑</td><td class="num">1/α ↓</td><td>阻害が消える</td><td>縦軸切片が共通</td></tr>
+        <tr><td style="color:var(--t2);font-weight:600">不競合</td><td>ES のみ</td><td class="num">1</td><td class="num">1+[I]/<i>K</i><sub>i</sub>′</td><td class="num"><i>V</i><sub>max</sub>/α′ ↓</td><td class="num"><i>K</i><sub>m</sub>/α′ ↓</td><td>変わらない</td><td>阻害が強まる</td><td>3本が平行</td></tr>
+        <tr><td style="color:var(--t3);font-weight:600">非競合</td><td>両方・同じ強さ</td><td class="num">1+[I]/<i>K</i><sub>i</sub></td><td class="num">= α</td><td class="num"><i>V</i><sub>max</sub>/α ↓</td><td>変わらない</td><td class="num">1/α ↓</td><td>変わらない</td><td>横軸切片が共通</td></tr>
+        <tr><td style="color:var(--t4);font-weight:600">混合</td><td>両方・違う強さ</td><td class="num">1+[I]/<i>K</i><sub>i</sub></td><td class="num">1+[I]/<i>K</i><sub>i</sub>′</td><td class="num"><i>V</i><sub>max</sub>/α′ ↓</td><td class="num">(α/α′)<i>K</i><sub>m</sub></td><td class="num">1/α ↓</td><td>一部だけ残る</td><td>第2象限で交差</td></tr>
+      </tbody>
+    </table>
+  </div>
+
+  <h3>実際の阻害剤</h3>
+  <div class="notelist">
+    <div><b style="color:var(--t1)">競合</b><p>メトトレキサートはジヒドロ葉酸に似た形をしていて、ジヒドロ葉酸還元酵素の活性部位を奪う。スタチン類は HMG-CoA 還元酵素に対して同じことをする。メタノールやエチレングリコールの中毒でエタノールを点滴するのも、アルコール脱水素酵素の活性部位を先に占領して有毒な代謝物を作らせない狙い。教科書の古典例はコハク酸脱水素酵素に対するマロン酸で、コハク酸と炭素1個しか違わない。</p></div>
+    <div><b style="color:var(--t2)">不競合</b><p>リチウムによるイノシトールモノホスファターゼの阻害が代表例。除草剤グリホサートは EPSP 合成酵素に対し、シキミ酸-3-リン酸に関して不競合な挙動を示す。1基質の酵素では珍しく、基質を2つとる反応で片方を固定して測ったときによく現れる。</p></div>
+    <div><b style="color:var(--t3)">非競合</b><p>α と α′ がぴったり等しい純粋な非競合は、実際にはほとんど観測されない。活性部位から離れた場所に結合するアロステリック阻害剤が近い挙動を示すが、たいていは基質の結合に多少とも影響するので混合型になる。教科書で非競合が独立した型として扱われるのは、式が簡単で <i>V</i><sub>max</sub> だけが下がるという整理がしやすいから。</p></div>
+    <div><b>この枠組みの外</b><p>アスピリンはシクロオキシゲナーゼのセリン残基をアセチル化し、ペニシリンはトランスペプチダーゼと共有結合を作る。どちらも外れないので、上の式には乗らない。不可逆阻害は残存活性の時間変化で解析する別の話になる。</p></div>
+  </div>
+</section>
+
+<!-- ============ 16 ============ -->
+
+<section id="s16">
+  <div class="sec-head"><div class="sec-mark">16</div><h2>この式が使えなくなるとき</h2></div>
+  <div class="notelist">
+    <div><b>多基質反応</b><p>細胞内の酵素の多くは基質を2つ以上とる。ランダム機構、順序機構、ピンポン機構それぞれに固有の速度式があり、1基質の式では扱えない。片方の基質を飽和濃度で固定すれば、見かけ上この式に落とせる。</p></div>
+    <div><b>アロステリック酵素</b><p>ホスホフルクトキナーゼのような調節酵素はS字曲線を描く。<i>K</i><sub>m</sub> という言い方をせず、半飽和濃度 <i>K</i><sub>0.5</sub> と呼ぶ。</p></div>
+    <div><b>酵素と基質が同程度の濃度</b><p>[S]<sub>0</sub> ≫ [E]<sub>T</sub> が崩れると定常状態近似が使えない。細胞内では実際にこの状況が起きることがあり、そのときは総括的な速度式ではなく数値計算で扱う。</p></div>
+    <div><b>条件を揃えずに比較する</b><p><i>V</i><sub>max</sub> も <i>K</i><sub>m</sub> も pH、温度、イオン強度、緩衝液の種類で動く。文献値を並べるときは測定条件を確認する。</p></div>
+    <div><b>阻害剤の結合が遅い</b><p>10 以降は、阻害剤の結合と解離が基質のやりとりより速く平衡に達すると仮定している。結合が遅い阻害剤（slow-binding inhibitor）や、時間とともに効きが強まる阻害剤では、初速度そのものが測れない。</p></div>
+    <div><b>不可逆阻害</b><p>共有結合を作る阻害剤には <i>K</i><sub>i</sub> が定義できない。酵素が1個ずつ永久に失われていくので、残った活性の減り方を時間で追う。</p></div>
+  </div>
+</section>
+
+<footer>
+  酵素反応速度論 · Briggs–Haldane の定常状態近似による導出 · 競合・不競合・非競合・混合の4様式<br>
+  数値はすべてブラウザ上で計算している。パラメータを変えれば図はその場で描き直される。
+</footer>
+
+</div>
+
+<script>
+"use strict";
+const RM = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+
+/* ---------- canvas helper ---------- */
+function fit(cv){
+  const r = cv.getBoundingClientRect();
+  const dpr = window.devicePixelRatio || 1;
+  cv.width = Math.max(1, Math.round(r.width*dpr));
+  cv.height = Math.max(1, Math.round(r.height*dpr));
+  const ctx = cv.getContext('2d');
+  ctx.setTransform(dpr,0,0,dpr,0,0);
+  ctx.setLineDash([]);
+  ctx.globalAlpha = 1;
+  ctx.clearRect(0,0,r.width,r.height);
+  return {ctx, w:r.width, h:r.height};
+}
+const C = {
+  ink:'#0E2429', ink2:'#3E585E', ink3:'#8AA0A3',
+  rule:'#C0D1D3', grid:'#DDE7E8',
+  enz:'#12626C', sub:'#BE7415', es:'#6A4A99', prod:'#A32C52'
+};
+function dash(ctx,on){ ctx.setLineDash(on?[4,4]:[]); }
+function label(ctx,txt,x,y,col,align,size,weight){
+  ctx.fillStyle = col||C.ink3;
+  ctx.font = (weight||400)+' '+(size||11)+'px "IBM Plex Mono", monospace';
+  ctx.textAlign = align||'left';
+  ctx.textBaseline = 'middle';
+  ctx.fillText(txt,x,y);
+}
+function niceTicks(max,n){
+  const raw = max/n, mag = Math.pow(10, Math.floor(Math.log10(raw))), norm = raw/mag;
+  let step = norm<1.5?1:norm<3?2:norm<7?5:10;
+  step *= mag;
+  const out=[];
+  for(let t=0;t<=max*1.0001;t+=step) out.push(+t.toFixed(10));
+  return out;
+}
+function decFor(max){
+  const a = Math.abs(max);
+  if(a>=50) return 0;
+  if(a>=5) return 1;
+  if(a>=0.5) return 2;
+  if(a>=0.02) return 3;
+  return 4;
+}
+function tick(v,max){
+  if(v===0) return '0';
+  return v.toFixed(decFor(max));
+}
+
+/* =========================================================
+   HERO
+   ========================================================= */
+const heroCv = document.getElementById('heroCv');
+let heroT = 0, heroDone = false;
+function drawHero(prog){
+  const {ctx,w,h} = fit(heroCv);
+  const m = {l:52, r:26, t:22, b:34};
+  const pw = w-m.l-m.r, ph = h-m.t-m.b;
+  const KM = 0.5, VM = 2.0, SMAX = 5;
+  const X = s => m.l + (s/SMAX)*pw;
+  const Y = v => m.t + ph - (v/(VM*1.12))*ph;
+
+  ctx.strokeStyle = C.grid; ctx.lineWidth = 1;
+  for(let i=0;i<=10;i++){
+    const x = m.l + pw*i/10;
+    ctx.beginPath(); ctx.moveTo(x,m.t); ctx.lineTo(x,m.t+ph); ctx.stroke();
+  }
+  for(let i=0;i<=6;i++){
+    const y = m.t + ph*i/6;
+    ctx.beginPath(); ctx.moveTo(m.l,y); ctx.lineTo(m.l+pw,y); ctx.stroke();
+  }
+  // asymptote
+  ctx.strokeStyle = C.ink3; dash(ctx,true); ctx.lineWidth=1;
+  ctx.beginPath(); ctx.moveTo(m.l,Y(VM)); ctx.lineTo(m.l+pw,Y(VM)); ctx.stroke();
+  dash(ctx,false);
+  label(ctx,'Vmax', m.l+pw-4, Y(VM)-11, C.ink3,'right',11,600);
+
+  // axes
+  ctx.strokeStyle = C.ink; ctx.lineWidth = 1.4;
+  ctx.beginPath();
+  ctx.moveTo(m.l, m.t-4); ctx.lineTo(m.l, m.t+ph); ctx.lineTo(m.l+pw+6, m.t+ph);
+  ctx.stroke();
+  label(ctx,'v', m.l-12, m.t+4, C.ink,'center',12,600);
+  label(ctx,'[S]', m.l+pw+2, m.t+ph+16, C.ink,'right',12,600);
+
+  // curve
+  ctx.strokeStyle = C.enz; ctx.lineWidth = 2.4; ctx.lineJoin='round';
+  ctx.beginPath();
+  const N = 400, lim = Math.floor(N*prog);
+  for(let i=0;i<=lim;i++){
+    const s = SMAX*i/N, v = VM*s/(KM+s);
+    if(i===0) ctx.moveTo(X(s),Y(v)); else ctx.lineTo(X(s),Y(v));
+  }
+  ctx.stroke();
+
+  if(prog>0.16){
+    const a = Math.min(1,(prog-0.16)/0.18);
+    ctx.globalAlpha = a;
+    ctx.strokeStyle = C.sub; dash(ctx,true); ctx.lineWidth=1.2;
+    ctx.beginPath(); ctx.moveTo(X(KM),m.t+ph); ctx.lineTo(X(KM),Y(VM/2)); ctx.lineTo(m.l,Y(VM/2)); ctx.stroke();
+    dash(ctx,false);
+    ctx.fillStyle = C.sub;
+    ctx.beginPath(); ctx.arc(X(KM),Y(VM/2),4,0,7); ctx.fill();
+    label(ctx,'Km', X(KM), m.t+ph+16, C.sub,'center',11,600);
+    label(ctx,'Vmax/2', m.l-8, Y(VM/2), C.sub,'right',11,600);
+    ctx.globalAlpha = 1;
+  }
+}
+function heroLoop(){
+  heroT += 0.012;
+  const p = RM ? 1 : Math.min(1, heroT);
+  drawHero(p);
+  if(p<1) requestAnimationFrame(heroLoop); else heroDone=true;
+}
+
+/* =========================================================
+   03  DERIVATION STEPPER
+   ========================================================= */
+const F = (n,d) => '<span class="fr"><span class="n">'+n+'</span><span class="d">'+d+'</span></span>';
+const steps = [
+  { t:'速度の定義',
+    eq:'<i>v</i><span class="op">=</span><i>k</i><sub>2</sub>[ES]',
+    n:'生成物が現れる速さは、ES が触媒段階を通る速さそのもの。[ES] さえ分かれば話は終わる。ここから先は全部、[ES] を既知量で書き直すための作業。' },
+  { t:'酵素の保存則',
+    eq:'[E]<sub>T</sub><span class="op">=</span>[E]<span class="op">+</span>[ES]',
+    n:'加えた酵素は、遊離しているか基質を掴んでいるかのどちらか。実験者が知っているのは [E]<sub>T</sub> のほうで、遊離酵素 [E] は測れない。この式で [E] を追い出す。' },
+  { t:'ES の増減を書き下す',
+    eq:'<span class="fr"><span class="n">d[ES]</span><span class="d">d<i>t</i></span></span><span class="op">=</span><i>k</i><sub>1</sub>[E][S]<span class="op">−</span><i>k</i><sub>−1</sub>[ES]<span class="op">−</span><i>k</i><sub>2</sub>[ES]',
+    n:'ES が生まれるのは E と S の会合から。消えるのは元に戻る解離と、生成物になる触媒段階の2経路。会合だけが二次反応なので、[E] と [S] の積になっている。' },
+  { t:'定常状態を置く',
+    eq:'0<span class="op">=</span><i>k</i><sub>1</sub>[E][S]<span class="op">−</span>(<i>k</i><sub>−1</sub><span class="op">+</span><i>k</i><sub>2</sub>)[ES]',
+    n:'反応開始からごく短い立ち上がり時間を過ぎると、ES は作られる分と壊れる分が釣り合って、ほとんど動かなくなる。微分方程式が代数方程式に変わる。この仮定が妥当かどうかは 06 で数値的に確かめる。' },
+  { t:'遊離酵素を消す',
+    eq:'<i>k</i><sub>1</sub>([E]<sub>T</sub><span class="op">−</span>[ES])[S]<span class="op">=</span>(<i>k</i><sub>−1</sub><span class="op">+</span><i>k</i><sub>2</sub>)[ES]',
+    n:'保存則の [E] = [E]<sub>T</sub> − [ES] を代入した。未知数が [ES] ひとつになった。' },
+  { t:'[ES] について解く',
+    eq:'[ES]<span class="op">=</span>'+F('[E]<sub>T</sub>[S]','('+'<i>k</i><sub>−1</sub>+<i>k</i><sub>2</sub>)/<i>k</i><sub>1</sub> + [S]'),
+    n:'左辺を展開して [ES] でまとめ、両辺を <i>k</i><sub>1</sub> で割った。分母に速度定数の組み合わせがひとかたまりで現れている。' },
+  { t:'ミカエリス定数を定義',
+    eq:'<i>K</i><sub>m</sub><span class="op">≡</span>'+F('<i>k</i><sub>−1</sub> + <i>k</i><sub>2</sub>','<i>k</i><sub>1</sub>')+'<span class="op">→</span>[ES]<span class="op">=</span>'+F('[E]<sub>T</sub>[S]','<i>K</i><sub>m</sub> + [S]'),
+    n:'3つの速度定数がここで1つの定数にまとまる。分子は s⁻¹、分母は M⁻¹s⁻¹ なので、<i>K</i><sub>m</sub> の単位は M。濃度の次元を持つ量になったことが、あとで「半飽和濃度」として読める理由。' },
+  { t:'速度の式に戻す',
+    eq:'<i>v</i><span class="op">=</span><i>k</i><sub>2</sub>[ES]<span class="op">=</span>'+F('<i>k</i><sub>2</sub>[E]<sub>T</sub>[S]','<i>K</i><sub>m</sub> + [S]'),
+    n:'step 01 の定義に代入しただけ。あとは分子の定数をまとめる。' },
+  { t:'ミカエリス・メンテン式',
+    eq:'<i>v</i><span class="op">=</span>'+F('<i>V</i><sub>max</sub>[S]','<i>K</i><sub>m</sub> + [S]')+'<span class="op">,</span>　<i>V</i><sub>max</sub><span class="op">=</span><i>k</i><sub>cat</sub>[E]<sub>T</sub>',
+    n:'[S] → ∞ の極限で <i>v</i> → <i>k</i><sub>2</sub>[E]<sub>T</sub>。これが到達しうる上限なので <i>V</i><sub>max</sub> と名づける。<i>k</i><sub>2</sub> を <i>k</i><sub>cat</sub> と書き替えれば完成。[S] = <i>K</i><sub>m</sub> を入れると <i>v</i> = <i>V</i><sub>max</sub>/2 になることを、その場で確かめてみるといい。' },
+  { t:'迅速平衡近似と比べる',
+    eq:'<i>K</i><sub>s</sub><span class="op">=</span>'+F('<i>k</i><sub>−1</sub>','<i>k</i><sub>1</sub>')+'<span class="op">,</span>　<i>K</i><sub>m</sub><span class="op">=</span><i>K</i><sub>s</sub><span class="op">+</span>'+F('<i>k</i><sub>2</sub>','<i>k</i><sub>1</sub>'),
+    n:'Michaelis と Menten の元々の導出では ES が E + S と平衡にあるとして、解離定数 <i>K</i><sub>s</sub> が分母に来た。式の形は同じ。違いは <i>k</i><sub>2</sub>/<i>k</i><sub>1</sub> の上乗せだけで、<i>k</i><sub>2</sub> ≪ <i>k</i><sub>−1</sub> なら消える。<i>K</i><sub>m</sub> は必ず <i>K</i><sub>s</sub> 以上になるので、<i>K</i><sub>m</sub> をそのまま結合の強さと読むと、実際より弱く見積もることになる。' }
+];
+function makeStepper(prefix, steps){
+  const bar = document.getElementById(prefix+'Bar');
+  const body = document.getElementById(prefix+'Body');
+  const cnt = document.getElementById(prefix+'Count');
+  const prevB = document.getElementById(prefix+'Prev'), nextB = document.getElementById(prefix+'Next');
+  let cur = 0;
+  function show(i){
+    cur = i;
+    const s = steps[i];
+    body.innerHTML = '<div class="step-title">'+String(i+1).padStart(2,'0')+' · '+s.t+'</div>'+
+                     '<div class="eq" style="margin:26px 0 8px">'+s.eq+'</div>'+
+                     '<div class="step-note">'+s.n+'</div>';
+    [...bar.children].forEach((b,j)=>b.setAttribute('aria-current', j===i?'true':'false'));
+    cnt.textContent = (i+1)+' / '+steps.length;
+    prevB.disabled = i===0; nextB.disabled = i===steps.length-1;
+  }
+  steps.forEach((s,i)=>{
+    const b = document.createElement('button');
+    b.textContent = String(i+1).padStart(2,'0');
+    b.setAttribute('role','tab');
+    b.onclick = ()=>show(i);
+    bar.appendChild(b);
+  });
+  prevB.onclick = ()=>show(Math.max(0,cur-1));
+  nextB.onclick = ()=>show(Math.min(steps.length-1,cur+1));
+  show(0);
+}
+
+/* section 10 — derivation with inhibitor */
+const inhSteps = [
+  { t:'2つの解離定数',
+    eq:'<i>K</i><sub>i</sub><span class="op">=</span>'+F('[E][I]','[EI]')+'<span class="op">,</span>　<i>K</i><sub>i</sub>′<span class="op">=</span>'+F('[ES][I]','[ESI]'),
+    n:'阻害剤が結合できる相手は E と ES の2つだけ。それぞれに解離定数を1つ与える。小さいほど強く結合する。片方が無限大なら、その結合は起きないという意味になる。' },
+  { t:'保存則が4項になる',
+    eq:'[E]<sub>T</sub><span class="op">=</span>[E]<span class="op">+</span>[ES]<span class="op">+</span>[EI]<span class="op">+</span>[ESI]',
+    n:'酵素の居場所が2つ増えた。EI も ESI も生成物を出さないので、そこに捕まった分だけ実働の酵素が減る。' },
+  { t:'2つの係数にまとめる',
+    eq:'α<span class="op">≡</span>1<span class="op">+</span>'+F('[I]','<i>K</i><sub>i</sub>')+'<span class="op">,</span>　α′<span class="op">≡</span>1<span class="op">+</span>'+F('[I]','<i>K</i><sub>i</sub>′')+'<span class="op">→</span>[E]<sub>T</sub><span class="op">=</span>α[E]<span class="op">+</span>α′[ES]',
+    n:'[EI] = [E][I]/<i>K</i><sub>i</sub> だから [E] + [EI] = α[E]。同じ要領で [ES] + [ESI] = α′[ES]。阻害剤の濃度と解離定数の情報が、この2つの無次元数に全部畳み込まれる。阻害剤がなければ α = α′ = 1。' },
+  { t:'定常状態の関係はそのまま',
+    eq:'[E]<span class="op">=</span>'+F('<i>K</i><sub>m</sub>[ES]','[S]'),
+    n:'ES の生成と消失の釣り合いは、阻害剤がいてもいなくても同じ。04 で置いた 0 = <i>k</i><sub>1</sub>[E][S] − (<i>k</i><sub>−1</sub>+<i>k</i><sub>2</sub>)[ES] を [E] について解いただけ。EI と ESI は行き止まりなので、この式には顔を出さない。' },
+  { t:'代入して [ES] を出す',
+    eq:'[E]<sub>T</sub><span class="op">=</span>[ES]<span style="width:5px"></span>(<span class="fr"><span class="n">α<i>K</i><sub>m</sub></span><span class="d">[S]</span></span><span class="op">+</span>α′)<span class="op">→</span>[ES]<span class="op">=</span>'+F('[E]<sub>T</sub>[S]','α<i>K</i><sub>m</sub> + α′[S]'),
+    n:'前の2つを組み合わせるだけ。α と α′ が分母の別々の項に付くところが要点で、この位置の違いが3つの型の差を生む。' },
+  { t:'一般化した速度式',
+    eq:'<i>v</i><span class="op">=</span>'+F('<i>V</i><sub>max</sub>[S]','α<i>K</i><sub>m</sub> + α′[S]'),
+    n:'α = α′ = 1 を入れれば元のミカエリス・メンテン式に戻る。阻害の話は、分母の2つの項に別々の重みが付いたというだけの変更。' },
+  { t:'見かけのパラメータに直す',
+    eq:'<i>V</i><sub>max</sub><sup>app</sup><span class="op">=</span>'+F('<i>V</i><sub>max</sub>','α′')+'<span class="op">,</span>　<i>K</i><sub>m</sub><sup>app</sup><span class="op">=</span>'+F('α','α′')+'<i>K</i><sub>m</sub>',
+    n:'分母を α′ で割ると <i>v</i> = <i>V</i><sub>max</sub><sup>app</sup>[S] / (<i>K</i><sub>m</sub><sup>app</sup> + [S]) という元と同じ形になる。阻害剤入りの系も、測ってみれば普通の双曲線に見えるということ。何が起きたかは、この2つの見かけの値を阻害なしの値と比べて初めて分かる。' },
+  { t:'3つの型はここに落ちる',
+    eq:'競合 : α′=1<span style="width:24px"></span>不競合 : α=1<span style="width:24px"></span>非競合 : α′=α',
+    n:'競合は ES に結合しないので α′ = 1。<i>V</i><sub>max</sub><sup>app</sup> は無傷で <i>K</i><sub>m</sub><sup>app</sup> だけが α 倍になる。不競合は E に結合しないので α = 1、両方が 1/α′ 倍。非競合は両方に同じ強さで結合するので α = α′ となり、<i>K</i><sub>m</sub><sup>app</sup> は動かず <i>V</i><sub>max</sub><sup>app</sup> だけが下がる。どれにも当てはまらない一般の場合が混合型。' }
+];
+
+/* =========================================================
+   04  MAIN INTERACTIVE
+   ========================================================= */
+const M = { s:0.5, km:0.5, kcat:200, et:10, smax:5, tan:true, asym:true, log:false };
+const mainCv = document.getElementById('mainCv');
+const occEl = document.getElementById('occ');
+for(let i=0;i<100;i++) occEl.appendChild(document.createElement('i'));
+
+const Vmax = () => M.kcat*M.et/1000;            // µM/s
+const rate = s => Vmax()*s/(M.km+s);            // µM/s
+const SMIN_LOG = 0.005;
+
+function xPos(s,m,pw){
+  if(!M.log) return m.l + (s/M.smax)*pw;
+  const a = Math.log10(SMIN_LOG), b = Math.log10(M.smax);
+  const t = (Math.log10(Math.max(s,SMIN_LOG))-a)/(b-a);
+  return m.l + t*pw;
+}
+function drawMain(){
+  const {ctx,w,h} = fit(mainCv);
+  const m = {l:60, r:20, t:22, b:42};
+  const pw = w-m.l-m.r, ph = h-m.t-m.b;
+  const VM = Vmax(), vTop = VM*1.15;
+  const Y = v => m.t + ph - (v/vTop)*ph;
+
+  // grid + x ticks
+  ctx.strokeStyle = C.grid; ctx.lineWidth = 1;
+  let xt;
+  if(M.log){
+    xt = [];
+    for(let e=-2;e<=1;e++) for(const k of [1,2,5]){ const val=k*Math.pow(10,e); if(val>=SMIN_LOG&&val<=M.smax) xt.push(val); }
+  } else xt = niceTicks(M.smax,5);
+  xt.forEach(t=>{
+    const x = xPos(t,m,pw);
+    ctx.beginPath(); ctx.moveTo(x,m.t); ctx.lineTo(x,m.t+ph); ctx.stroke();
+  });
+  const yt = niceTicks(vTop,5);
+  yt.forEach(t=>{
+    const y = Y(t);
+    if(y<m.t-1) return;
+    ctx.beginPath(); ctx.moveTo(m.l,y); ctx.lineTo(m.l+pw,y); ctx.stroke();
+    label(ctx, tick(t,vTop), m.l-8, y, C.ink3, 'right', 10.5);
+  });
+  xt.forEach(t=>{
+    const x = xPos(t,m,pw);
+    const txt = M.log ? (t<0.01? t.toFixed(3) : t<0.1? t.toFixed(2) : t<1? t.toFixed(1) : String(t)) : String(+t.toFixed(2));
+    label(ctx, txt, x, m.t+ph+15, C.ink3, 'center', 10.5);
+  });
+
+  // asymptote + half
+  if(M.asym){
+    ctx.strokeStyle = C.ink3; dash(ctx,true);
+    ctx.beginPath(); ctx.moveTo(m.l,Y(VM)); ctx.lineTo(m.l+pw,Y(VM)); ctx.stroke();
+    ctx.beginPath(); ctx.moveTo(m.l,Y(VM/2)); ctx.lineTo(m.l+pw,Y(VM/2)); ctx.stroke();
+    dash(ctx,false);
+    label(ctx,'Vmax', m.l+pw-3, Y(VM)-10, C.ink2,'right',10.5,600);
+    label(ctx,'Vmax/2', m.l+pw-3, Y(VM/2)-10, C.ink3,'right',10.5,600);
+  }
+  // tangent at origin (linear axis only)
+  if(M.tan && !M.log){
+    const slope = VM/M.km;
+    const sEnd = Math.min(M.smax, vTop/slope);
+    ctx.strokeStyle = C.sub; dash(ctx,true); ctx.lineWidth=1.3;
+    ctx.beginPath(); ctx.moveTo(xPos(0,m,pw),Y(0)); ctx.lineTo(xPos(sEnd,m,pw),Y(slope*sEnd)); ctx.stroke();
+    dash(ctx,false);
+    label(ctx,'傾き Vmax/Km', xPos(sEnd,m,pw)+4, Y(slope*sEnd)+2, C.sub,'left',10.5,600);
+  }
+  // Km marker
+  ctx.strokeStyle = C.es; dash(ctx,true); ctx.lineWidth=1.2;
+  ctx.beginPath(); ctx.moveTo(xPos(M.km,m,pw),m.t+ph); ctx.lineTo(xPos(M.km,m,pw),Y(VM/2)); ctx.stroke();
+  dash(ctx,false);
+  label(ctx,'Km', xPos(M.km,m,pw), m.t+ph+29, C.es,'center',11,600);
+
+  // axes
+  ctx.strokeStyle = C.ink; ctx.lineWidth=1.4;
+  ctx.beginPath(); ctx.moveTo(m.l,m.t-4); ctx.lineTo(m.l,m.t+ph); ctx.lineTo(m.l+pw+6,m.t+ph); ctx.stroke();
+  label(ctx,'v  (µM/s)', m.l-46, m.t+6, C.ink,'left',11,600);
+  label(ctx,'[S]  (mM)'+(M.log?'  ·  log':''), m.l+pw+2, m.t+ph+30, C.ink,'right',11,600);
+
+  // curve
+  ctx.strokeStyle = C.enz; ctx.lineWidth = 2.4;
+  ctx.beginPath();
+  const N=500;
+  for(let i=0;i<=N;i++){
+    let s;
+    if(M.log){ const a=Math.log10(SMIN_LOG),b=Math.log10(M.smax); s = Math.pow(10, a+(b-a)*i/N); }
+    else s = M.smax*i/N;
+    const x = xPos(s,m,pw), y = Y(rate(s));
+    if(i===0) ctx.moveTo(x,y); else ctx.lineTo(x,y);
+  }
+  ctx.stroke();
+
+  // current point
+  const v = rate(M.s);
+  const px = xPos(M.s,m,pw), py = Y(v);
+  ctx.strokeStyle = C.prod; dash(ctx,true); ctx.lineWidth=1.2;
+  ctx.beginPath(); ctx.moveTo(px,m.t+ph); ctx.lineTo(px,py); ctx.lineTo(m.l,py); ctx.stroke();
+  dash(ctx,false);
+  ctx.fillStyle = '#fff'; ctx.strokeStyle = C.prod; ctx.lineWidth=2.4;
+  ctx.beginPath(); ctx.arc(px,py,5.5,0,7); ctx.fill(); ctx.stroke();
+}
+function updateMain(){
+  const v = rate(M.s), VM = Vmax(), th = M.s/(M.km+M.s);
+  document.getElementById('sVal').textContent = M.s.toFixed(3)+' mM';
+  document.getElementById('kmVal').textContent = M.km.toFixed(2)+' mM';
+  document.getElementById('kcatVal').textContent = M.kcat+' s⁻¹';
+  document.getElementById('etVal').textContent = M.et+' nM';
+  document.getElementById('roVmax').textContent = VM.toFixed(2)+' µM/s';
+  document.getElementById('roV').textContent = v.toFixed(3)+' µM/s';
+  document.getElementById('roTheta').textContent = (th*100).toFixed(1)+' %';
+  document.getElementById('roRatio').textContent = (M.s/M.km).toFixed(2);
+
+  const n = Math.round(th*100);
+  [...occEl.children].forEach((el,i)=> el.classList.toggle('on', i<n));
+  document.getElementById('occTxt').textContent = n+' / 100 が ES';
+
+  const r = M.s/M.km;
+  const reg = document.getElementById('regime');
+  if(r<0.2) reg.innerHTML = '<b>低基質領域</b>　[S] は K<sub>m</sub> の '+r.toFixed(2)+' 倍。ほぼ直線に乗っていて、基質を2倍にすれば速度もほぼ2倍。見かけ上は基質について一次反応。';
+  else if(r<5) reg.innerHTML = '<b>遷移領域</b>　[S] は K<sub>m</sub> の '+r.toFixed(2)+' 倍。曲がっている最中。速度は増えるが、増え方は基質濃度に追いつかなくなってきた。';
+  else reg.innerHTML = '<b>飽和領域</b>　[S] は K<sub>m</sub> の '+r.toFixed(1)+' 倍。酵素の '+(th*100).toFixed(0)+'% がふさがっていて、基質を足しても行列が伸びるだけ。速度はほぼ零次。';
+
+  drawMain();
+}
+const sSl=document.getElementById('sSl'), kmSl=document.getElementById('kmSl'),
+      kcatSl=document.getElementById('kcatSl'), etSl=document.getElementById('etSl');
+sSl.oninput = e => { M.s = (+e.target.value)/200; updateMain(); };
+kmSl.oninput = e => { M.km = (+e.target.value)/100; updateMain(); };
+kcatSl.oninput = e => { M.kcat = +e.target.value; updateMain(); };
+etSl.oninput = e => { M.et = +e.target.value; updateMain(); };
+function tog(id,key,after){
+  const b = document.getElementById(id);
+  b.onclick = ()=>{ M[key] = !M[key]; b.setAttribute('aria-pressed', M[key]); (after||updateMain)(); };
+}
+tog('tgTan','tan'); tog('tgAsym','asym'); tog('tgLog','log');
+
+// click / drag on plot to set [S]
+function pickS(ev){
+  const r = mainCv.getBoundingClientRect();
+  const x = (ev.touches? ev.touches[0].clientX : ev.clientX) - r.left;
+  const m = {l:60,r:20}, pw = r.width-m.l-m.r;
+  let t = (x-m.l)/pw; t = Math.max(0,Math.min(1,t));
+  if(M.log){ const a=Math.log10(SMIN_LOG),b=Math.log10(M.smax); M.s = Math.pow(10,a+(b-a)*t); }
+  else M.s = t*M.smax;
+  sSl.value = Math.round(M.s*200);
+  updateMain();
+}
+let dragging=false;
+mainCv.addEventListener('pointerdown', e=>{dragging=true; mainCv.setPointerCapture(e.pointerId); pickS(e);});
+mainCv.addEventListener('pointermove', e=>{ if(dragging) pickS(e); });
+mainCv.addEventListener('pointerup', ()=>dragging=false);
+mainCv.style.cursor='crosshair';
+
+/* =========================================================
+   05  ENZYME CONCENTRATION FAMILY
+   ========================================================= */
+const FAM = { mult:2, norm:false };
+const MULTS = [0.25,0.5,1,2,4];
+const BASE = { km:0.5, kcat:200, et:10, smax:5 };
+const famCv = document.getElementById('famCv');
+
+function drawFam(){
+  const {ctx,w,h} = fit(famCv);
+  const m = {l:60,r:20,t:22,b:42};
+  const pw=w-m.l-m.r, ph=h-m.t-m.b;
+  const maxV = FAM.norm ? 1.15 : BASE.kcat*BASE.et*4/1000*1.12;
+  const Y = v => m.t+ph-(v/maxV)*ph;
+  const X = s => m.l+(s/BASE.smax)*pw;
+
+  ctx.strokeStyle=C.grid; ctx.lineWidth=1;
+  niceTicks(BASE.smax,5).forEach(t=>{ ctx.beginPath(); ctx.moveTo(X(t),m.t); ctx.lineTo(X(t),m.t+ph); ctx.stroke();
+    label(ctx,String(+t.toFixed(2)),X(t),m.t+ph+15,C.ink3,'center',10.5); });
+  niceTicks(maxV,5).forEach(t=>{ const y=Y(t); if(y<m.t-1)return;
+    ctx.beginPath(); ctx.moveTo(m.l,y); ctx.lineTo(m.l+pw,y); ctx.stroke();
+    label(ctx, tick(t,maxV), m.l-8,y,C.ink3,'right',10.5); });
+
+  // Km vertical — fixed
+  ctx.strokeStyle=C.es; dash(ctx,true); ctx.lineWidth=1.3;
+  ctx.beginPath(); ctx.moveTo(X(BASE.km),m.t); ctx.lineTo(X(BASE.km),m.t+ph); ctx.stroke();
+  dash(ctx,false);
+  label(ctx,'Km  動かない', X(BASE.km)+6, m.t+10, C.es,'left',10.5,600);
+
+  ctx.strokeStyle=C.ink; ctx.lineWidth=1.4;
+  ctx.beginPath(); ctx.moveTo(m.l,m.t-4); ctx.lineTo(m.l,m.t+ph); ctx.lineTo(m.l+pw+6,m.t+ph); ctx.stroke();
+  label(ctx, FAM.norm? 'v / Vmax' : 'v  (µM/s)', m.l-48, m.t+6, C.ink,'left',11,600);
+  label(ctx,'[S]  (mM)', m.l+pw+2, m.t+ph+30, C.ink,'right',11,600);
+
+  MULTS.forEach((mu,idx)=>{
+    const vm = BASE.kcat*BASE.et*mu/1000;
+    const sel = idx===FAM.mult;
+    ctx.strokeStyle = sel? C.enz : 'rgba(18,98,108,0.28)';
+    ctx.lineWidth = sel? 2.6 : 1.5;
+    ctx.beginPath();
+    for(let i=0;i<=300;i++){
+      const s = BASE.smax*i/300;
+      let v = vm*s/(BASE.km+s);
+      if(FAM.norm) v = v/vm;
+      const x=X(s), y=Y(v);
+      if(i===0) ctx.moveTo(x,y); else ctx.lineTo(x,y);
+    }
+    ctx.stroke();
+    if(!FAM.norm){
+      const yv = Y(vm);
+      ctx.strokeStyle = sel? 'rgba(18,98,108,.55)' : 'rgba(18,98,108,.18)';
+      dash(ctx,true); ctx.lineWidth=1;
+      ctx.beginPath(); ctx.moveTo(m.l,yv); ctx.lineTo(m.l+pw,yv); ctx.stroke(); dash(ctx,false);
+      label(ctx, '×'+mu, m.l+pw-4, yv-9, sel?C.enz:C.ink3,'right',10.5, sel?600:400);
+    }
+  });
+  if(FAM.norm) label(ctx,'5本すべて重なっている', m.l+pw-8, m.t+ph-16, C.enz,'right',11.5,600);
+}
+function updateFam(){
+  const mu = MULTS[FAM.mult];
+  document.getElementById('famVal').textContent = '×'+mu;
+  document.getElementById('fEt').textContent = (BASE.et*mu).toFixed(1)+' nM';
+  document.getElementById('fVmax').textContent = (BASE.kcat*BASE.et*mu/1000).toFixed(2)+' µM/s';
+  document.getElementById('fKm').textContent = BASE.km.toFixed(2)+' mM';
+  document.getElementById('fKcat').textContent = BASE.kcat+' s⁻¹';
+  document.getElementById('famNote').innerHTML = FAM.norm
+    ? '縦軸を各曲線自身の V<sub>max</sub> で割った。酵素量の情報が消え、形だけが残る。'
+    : '酵素を '+mu+' 倍にすると天井も '+mu+' 倍。曲線は縦方向にだけ伸び縮みし、横方向には動かない。';
+  drawFam();
+}
+document.getElementById('famSl').oninput = e=>{ FAM.mult = +e.target.value; updateFam(); };
+const nb = document.getElementById('tgNorm');
+nb.onclick = ()=>{ FAM.norm=!FAM.norm; nb.setAttribute('aria-pressed',FAM.norm); updateFam(); };
+
+/* =========================================================
+   06  ODE SIMULATION
+   ========================================================= */
+const SIM = { s0:1e-3, et:1e-6, k1:1e8, k2:200, km:5e-4 };
+// k1 slider gives k1 in units of 1e6 M^-1 s^-1 ; k_-1 derived from Km
+function simDeriv(y,p){
+  const [S,ES] = y;
+  const E = Math.max(0, p.et - ES);
+  const assoc = p.k1*E*S;
+  const dS  = -assoc + p.km1*ES;
+  const dES = assoc - (p.km1+p.k2)*ES;
+  return [dS,dES];
+}
+function integrate(p, tEnd, dt, nOut){
+  let S = p.s0, ES = 0, P = 0, t = 0;
+  const out = {t:[],S:[],ES:[],P:[]};
+  const steps = Math.round(tEnd/dt);
+  const every = Math.max(1, Math.floor(steps/nOut));
+  for(let i=0;i<=steps;i++){
+    if(i%every===0){ out.t.push(t); out.S.push(S); out.ES.push(ES); out.P.push(P); }
+    const y=[S,ES];
+    const k1v = simDeriv(y,p);
+    const k2v = simDeriv([S+dt/2*k1v[0], ES+dt/2*k1v[1]],p);
+    const k3v = simDeriv([S+dt/2*k2v[0], ES+dt/2*k2v[1]],p);
+    const k4v = simDeriv([S+dt*k3v[0], ES+dt*k3v[1]],p);
+    const dS  = (k1v[0]+2*k2v[0]+2*k3v[0]+k4v[0])/6;
+    const dES = (k1v[1]+2*k2v[1]+2*k3v[1]+k4v[1])/6;
+    const esMid = ES + dt/2*dES;
+    S  += dt*dS;  if(S<0) S=0;
+    ES += dt*dES; if(ES<0) ES=0;
+    P  += dt*p.k2*esMid;
+    t  += dt;
+  }
+  return out;
+}
+/* Slow phase: the ES mode relaxes ~10^5 times faster than S drains,
+   so an explicit solver would need millions of steps. Update ES with the
+   exact solution of its (linear) equation over each step, and get S from
+   the exact mass balance S = S0 - ES - P. */
+function integrateStiff(p, tEnd, nSteps, nOut){
+  let ES=0, P=0, S=p.s0, t=0;
+  const dt = tEnd/nSteps;
+  const out={t:[],S:[],ES:[],P:[]};
+  const every = Math.max(1, Math.floor(nSteps/nOut));
+  for(let i=0;i<=nSteps;i++){
+    if(i%every===0){ out.t.push(t); out.S.push(S); out.ES.push(ES); out.P.push(P); }
+    const b = p.k1*S + p.km1 + p.k2;
+    const esInf = p.k1*p.et*S/b;
+    const e = Math.exp(-b*dt);
+    const esNew = esInf + (ES-esInf)*e;
+    const esAvg = esInf + (ES-esInf)*(1-e)/(b*dt);
+    P += p.k2*esAvg*dt;
+    ES = esNew;
+    S = p.s0 - ES - P;
+    if(S<0){ S=0; }
+    t += dt;
+  }
+  return out;
+}
+function drawSim(cv, data, tEnd, tUnit){
+  const {ctx,w,h} = fit(cv);
+  const m={l:52,r:44,t:16,b:34};
+  const pw=w-m.l-m.r, ph=h-m.t-m.b;
+  const sMax = SIM.s0*1.05;
+  const X = t => m.l + (t/tEnd)*pw;
+  const Y = c => m.t+ph - (c/sMax)*ph;
+  const Yes = c => m.t+ph - (c/(SIM.et*1.25))*ph;
+
+  ctx.strokeStyle=C.grid; ctx.lineWidth=1;
+  const tFull = tEnd*tUnit.f;
+  for(let i=0;i<=5;i++){ const x=m.l+pw*i/5; ctx.beginPath(); ctx.moveTo(x,m.t); ctx.lineTo(x,m.t+ph); ctx.stroke();
+    label(ctx, tick(tFull*i/5, tFull), x, m.t+ph+14, C.ink3,'center',10); }
+  for(let i=0;i<=4;i++){ const y=m.t+ph*i/4; ctx.beginPath(); ctx.moveTo(m.l,y); ctx.lineTo(m.l+pw,y); ctx.stroke(); }
+
+  // left axis labels (S, P in mM)
+  for(let i=0;i<=4;i++){ const c = sMax*(4-i)/4; label(ctx, tick(c*1000, sMax*1000), m.l-7, m.t+ph*i/4, C.ink3,'right',10); }
+  // right axis labels (ES in nM)
+  for(let i=0;i<=4;i++){ const c = SIM.et*1.25*(4-i)/4; label(ctx,(c*1e9).toFixed(0), m.l+pw+7, m.t+ph*i/4, C.es,'left',10); }
+
+  ctx.strokeStyle=C.ink; ctx.lineWidth=1.3;
+  ctx.beginPath(); ctx.moveTo(m.l,m.t-2); ctx.lineTo(m.l,m.t+ph); ctx.lineTo(m.l+pw,m.t+ph); ctx.stroke();
+  ctx.strokeStyle=C.es; ctx.beginPath(); ctx.moveTo(m.l+pw,m.t-2); ctx.lineTo(m.l+pw,m.t+ph); ctx.stroke();
+
+  label(ctx,'mM', m.l-7, m.t-8, C.ink3,'right',9.5);
+  label(ctx,'nM', m.l+pw+7, m.t-8, C.es,'left',9.5);
+  label(ctx, tUnit.name, m.l+pw, m.t+ph+27, C.ink,'right',10.5,600);
+
+  function line(arr, yf, col, lw){
+    ctx.strokeStyle=col; ctx.lineWidth=lw; ctx.beginPath();
+    for(let i=0;i<data.t.length;i++){
+      const x=X(data.t[i]), y=yf(arr[i]);
+      if(i===0) ctx.moveTo(x,y); else ctx.lineTo(x,y);
+    }
+    ctx.stroke();
+  }
+  line(data.S, Y, C.sub, 2);
+  line(data.P, Y, C.prod, 2);
+  line(data.ES, Yes, C.es, 2.4);
+
+  // inline legend
+  const lg = [['[S]',C.sub],['[P]',C.prod],['[ES]',C.es]];
+  lg.forEach((g,i)=>{
+    const x = m.l+8+i*54, y = m.t+10;
+    ctx.fillStyle=g[1]; ctx.fillRect(x,y-4,10,3);
+    label(ctx,g[0],x+14,y-2,g[1],'left',10.5,600);
+  });
+}
+function runSim(){
+  const km1 = SIM.k1*SIM.km - SIM.k2;
+  const p = {s0:SIM.s0, et:SIM.et, k1:SIM.k1, k2:SIM.k2, km1:Math.max(0,km1)};
+  // fast window
+  const tauEst = 1/(SIM.k1*(SIM.s0+SIM.km));
+  const tFast = Math.min(0.02, Math.max(6*tauEst, 2e-4));
+  const fast = integrate(p, tFast, tFast/8000, 500);
+  // slow window: time to consume ~95% of S at steady rate
+  const vss = SIM.k2*SIM.et*SIM.s0/(SIM.km+SIM.s0);
+  const tSlow = Math.min(400, Math.max(3*tFast, 1.6*SIM.s0/vss));
+  const slow = integrateStiff(p, tSlow, 6000, 600);
+
+  const fu = tFast<0.01 ? {name:'時間 (ms)', f:1000} : {name:'時間 (s)', f:1};
+  drawSim(document.getElementById('fastCv'), fast, tFast, fu);
+  drawSim(document.getElementById('slowCv'), slow, tSlow, tSlow<2?{name:'時間 (ms)',f:1000}:{name:'時間 (s)',f:1});
+
+  const esSS = SIM.et*SIM.s0/(SIM.km+SIM.s0);
+  const ratio = SIM.s0/SIM.et;
+  document.getElementById('simTau').textContent = (tauEst*1000).toFixed(3)+' ms';
+  document.getElementById('simEs').textContent = esSS>=1e-6 ? (esSS*1e6).toFixed(2)+' µM' : (esSS*1e9).toFixed(1)+' nM';
+  document.getElementById('simRatio').textContent = (ratio>=10? Math.round(ratio).toLocaleString() : ratio.toFixed(1))+' 倍';
+  document.getElementById('simSVal').textContent = (SIM.s0*1000).toFixed(2)+' mM';
+  document.getElementById('simEVal').textContent = SIM.et>=1e-6 ? (SIM.et*1e6).toFixed(2)+' µM' : (SIM.et*1e9).toFixed(1)+' nM';
+  document.getElementById('simK1Val').textContent = (SIM.k1/1e6).toFixed(0)+'×10⁶ M⁻¹s⁻¹';
+
+  const note = document.getElementById('simNote');
+  if(ratio>=300) note.innerHTML = '<b>近似は良好</b>　基質が酵素の '+Math.round(ratio).toLocaleString()+' 倍ある。右のパネルで [ES] は水平のまま。定常状態近似は安心して使える。';
+  else if(ratio>=30) note.innerHTML = '<b>まだ使える</b>　比は '+Math.round(ratio)+' 倍。反応後半で [S] が K<sub>m</sub> を下回ると [ES] が下がりはじめるが、各瞬間ごとには定常状態が成り立っている。';
+  else note.innerHTML = '<b>近似が崩れる</b>　比は '+ratio.toFixed(1)+' 倍しかない。酵素に基質が奪われて [S] 自体が目減りし、[ES] に平坦な区間が現れない。この条件でミカエリス・メンテン式を当てはめると、パラメータを取り違える。';
+}
+let simTimer=null;
+function simLater(){ clearTimeout(simTimer); simTimer=setTimeout(runSim,60); }
+document.getElementById('simS').oninput = e=>{ SIM.s0 = (+e.target.value)/100*1e-3; simLater(); };
+document.getElementById('simE').oninput = e=>{ SIM.et = Math.pow(10, -8 + (+e.target.value)/30); simLater(); };
+document.getElementById('simK1').oninput = e=>{
+  SIM.k1 = (+e.target.value)*1e6;
+  if(SIM.k1*SIM.km <= SIM.k2) SIM.k1 = (SIM.k2*1.05)/SIM.km;
+  simLater();
+};
+SIM.k1 = 100e6; SIM.et = 1e-7; SIM.s0 = 1e-3;
+
+/* =========================================================
+   08  LINEARIZED PLOTS
+   ========================================================= */
+const LIN = { mode:'lb', mult:1 };
+const LMULT = [0.5,1,2];
+const linCv = document.getElementById('linCv');
+const LDEF = { km:0.5, vmax:2.0 };   // mM, µM/s
+
+function drawLin(){
+  const {ctx,w,h} = fit(linCv);
+  const m={l:66,r:24,t:24,b:46};
+  const pw=w-m.l-m.r, ph=h-m.t-m.b;
+  const km = LDEF.km;
+  const vmaxes = LMULT.map(mu=>LDEF.vmax*mu);
+  const vmSel = LDEF.vmax*LMULT[LIN.mult];
+
+  const vmLo = LDEF.vmax*LMULT[0], vmHi = LDEF.vmax*LMULT[LMULT.length-1];
+  let xLab,yLab,xMin,xMax,yMin,yMax, fx, fy, lineOf;
+  if(LIN.mode==='lb'){
+    xLab='1/[S]  (mM⁻¹)'; yLab='1/v  (s/µM)';
+    xMin=-1/km*1.35; xMax=1/0.16; yMin=0;
+    yMax=((km/vmLo)*xMax + 1/vmLo)*1.06;
+    lineOf = vm => x => (km/vm)*x + 1/vm;
+  } else if(LIN.mode==='eh'){
+    xLab='v/[S]  (µM/s per mM)'; yLab='v  (µM/s)';
+    xMin=0; xMax=(vmHi/km)*1.1; yMin=0; yMax=vmHi*1.14;
+    lineOf = vm => x => vm - km*x;
+  } else {
+    xLab='[S]  (mM)'; yLab='[S]/v  (mM·s/µM)';
+    xMin=-km*1.35; xMax=4; yMin=0; yMax=((xMax+km)/vmLo)*1.06;
+    lineOf = vm => x => x/vm + km/vm;
+  }
+  fx = v => m.l + (v-xMin)/(xMax-xMin)*pw;
+  fy = v => m.t + ph - (v-yMin)/(yMax-yMin)*ph;
+
+  ctx.strokeStyle=C.grid; ctx.lineWidth=1;
+  const xs = niceTicks(xMax,5).concat(xMin<0? niceTicks(-xMin,2).map(t=>-t):[]);
+  xs.forEach(t=>{ if(t<xMin||t>xMax) return; ctx.beginPath(); ctx.moveTo(fx(t),m.t); ctx.lineTo(fx(t),m.t+ph); ctx.stroke();
+    label(ctx, tick(t,xMax), fx(t), m.t+ph+15, C.ink3,'center',10); });
+  niceTicks(yMax,5).forEach(t=>{ const y=fy(t); if(y<m.t)return; ctx.beginPath(); ctx.moveTo(m.l,y); ctx.lineTo(m.l+pw,y); ctx.stroke();
+    label(ctx, tick(t,yMax), m.l-8, y, C.ink3,'right',10); });
+
+  // zero axes
+  ctx.strokeStyle=C.ink; ctx.lineWidth=1.4;
+  const x0 = fx(Math.max(xMin,0)===0? 0 : xMin);
+  ctx.beginPath(); ctx.moveTo(m.l,m.t+ph); ctx.lineTo(m.l+pw,m.t+ph); ctx.stroke();
+  if(xMin<0){ ctx.beginPath(); ctx.moveTo(fx(0),m.t); ctx.lineTo(fx(0),m.t+ph); ctx.stroke(); }
+  else { ctx.beginPath(); ctx.moveTo(m.l,m.t); ctx.lineTo(m.l,m.t+ph); ctx.stroke(); }
+  label(ctx,yLab, m.l-52, m.t+4, C.ink,'left',10.5,600);
+  label(ctx,xLab, m.l+pw, m.t+ph+31, C.ink,'right',10.5,600);
+
+  vmaxes.forEach((vm,i)=>{
+    const sel = i===LIN.mult;
+    const f = lineOf(vm);
+    ctx.strokeStyle = sel? C.enz : 'rgba(18,98,108,.26)';
+    ctx.lineWidth = sel? 2.5 : 1.5;
+    ctx.beginPath();
+    let started=false;
+    for(let k=0;k<=200;k++){
+      const x = xMin + (xMax-xMin)*k/200;
+      const y = f(x);
+      if(y<yMin-0.001 || y>yMax) { started=false; continue; }
+      const px=fx(x), py=fy(y);
+      if(!started){ ctx.moveTo(px,py); started=true; } else ctx.lineTo(px,py);
+    }
+    ctx.stroke();
+    if(sel){
+      // intercept markers
+      const yi = f(0);
+      if(yi>=yMin && yi<=yMax){
+        ctx.fillStyle=C.prod; ctx.beginPath(); ctx.arc(fx(0),fy(yi),4.5,0,7); ctx.fill();
+      }
+      // x-intercept
+      let xi = null;
+      if(LIN.mode==='lb') xi = -1/km;
+      else if(LIN.mode==='hw') xi = -km;
+      else xi = vm/km;
+      if(xi>=xMin && xi<=xMax){
+        ctx.fillStyle=C.es; ctx.beginPath(); ctx.arc(fx(xi),fy(0),4.5,0,7); ctx.fill();
+        label(ctx, LIN.mode==='eh'?'Vmax/Km':(LIN.mode==='lb'?'−1/Km':'−Km'), fx(xi), fy(0)-14, C.es,'center',10.5,600);
+      }
+    }
+  });
+
+  const tag = LMULT.map(mu=>'×'+mu);
+  tag.forEach((t,i)=>{
+    label(ctx,t, m.l+pw-8, m.t+12+i*15, i===LIN.mult?C.enz:C.ink3,'right',10.5, i===LIN.mult?600:400);
+  });
+}
+function updateLin(){
+  const mu = LMULT[LIN.mult], vm = LDEF.vmax*mu, km = LDEF.km;
+  document.getElementById('linVal').textContent = '×'+mu;
+  const eq = document.getElementById('linEq');
+  const slope = document.getElementById('linSlope'),
+        yi = document.getElementById('linYi'),
+        xi = document.getElementById('linXi');
+  const note = document.getElementById('linNote');
+  if(LIN.mode==='lb'){
+    eq.innerHTML = '<span class="fr"><span class="n">1</span><span class="d"><i>v</i></span></span><span class="op">=</span><span class="fr"><span class="n"><i>K</i><sub>m</sub></span><span class="d"><i>V</i><sub>max</sub></span></span><span class="op">·</span><span class="fr"><span class="n">1</span><span class="d">[S]</span></span><span class="op">+</span><span class="fr"><span class="n">1</span><span class="d"><i>V</i><sub>max</sub></span></span>';
+    slope.textContent = (km/vm).toFixed(3);
+    yi.textContent = '1/Vmax = '+(1/vm).toFixed(3);
+    xi.textContent = '−1/Km = '+(-1/km).toFixed(2);
+    note.innerHTML = '横軸切片は酵素量に依存しない。傾きと縦軸切片だけが V<sub>max</sub> に反比例して動く。誤差の大きい低[S]点が右端に飛ぶのが弱点。';
+  } else if(LIN.mode==='eh'){
+    eq.innerHTML = '<i>v</i><span class="op">=</span>−<i>K</i><sub>m</sub><span class="op">·</span><span class="fr"><span class="n"><i>v</i></span><span class="d">[S]</span></span><span class="op">+</span><i>V</i><sub>max</sub>';
+    slope.textContent = '−Km = '+(-km).toFixed(2);
+    yi.textContent = 'Vmax = '+vm.toFixed(2);
+    xi.textContent = 'Vmax/Km = '+(vm/km).toFixed(2);
+    note.innerHTML = '傾きがそのまま −K<sub>m</sub>。酵素量を変えても傾きは変わらず、線が平行移動する。両軸に v が入るので誤差が両軸に乗る。';
+  } else {
+    eq.innerHTML = '<span class="fr"><span class="n">[S]</span><span class="d"><i>v</i></span></span><span class="op">=</span><span class="fr"><span class="n">1</span><span class="d"><i>V</i><sub>max</sub></span></span><span class="op">·</span>[S]<span class="op">+</span><span class="fr"><span class="n"><i>K</i><sub>m</sub></span><span class="d"><i>V</i><sub>max</sub></span></span>';
+    slope.textContent = '1/Vmax = '+(1/vm).toFixed(3);
+    yi.textContent = 'Km/Vmax = '+(km/vm).toFixed(3);
+    xi.textContent = '−Km = '+(-km).toFixed(2);
+    note.innerHTML = '横軸切片が直接 −K<sub>m</sub>。3つの変換のうち、測定誤差の重みづけが最も素直なのがこれ。';
+  }
+  drawLin();
+}
+document.querySelectorAll('.linBtn').forEach(b=>{
+  b.onclick = ()=>{
+    LIN.mode = b.dataset.m;
+    document.querySelectorAll('.linBtn').forEach(o=>o.setAttribute('aria-pressed', o===b));
+    updateLin();
+  };
+});
+document.getElementById('linSl').oninput = e=>{ LIN.mult = +e.target.value; updateLin(); };
+
+/* =========================================================
+   10-14  INHIBITION
+   ========================================================= */
+const T = { none:'#8FA6A9', t1:'#A8324E', t2:'#5E4A96', t3:'#B8791A', t4:'#3F6470' };
+const DP = { t1:[], t2:[7,4], t3:[11,3,2,3], t4:[2,4] };
+const IN = { km:0.5, vmax:2.0, smax:5, r:1.0, s:0.5, focus:'all' };
+const TYPES = [
+  {k:'t1', name:'競合',   a:r=>1+r, ap:r=>1   },
+  {k:'t2', name:'不競合', a:r=>1,   ap:r=>1+r },
+  {k:'t3', name:'非競合', a:r=>1+r, ap:r=>1+r }
+];
+const vGen = (s,a,ap) => IN.vmax*s/(a*IN.km + ap*s);
+
+/* shared axis painter for the inhibition panels */
+function grid(ctx,m,pw,ph,xt,yt,X,Y,xRef,yRef,xLab,yLab,xFmt){
+  ctx.strokeStyle=C.grid; ctx.lineWidth=1;
+  xt.forEach(t=>{ const x=X(t); ctx.beginPath(); ctx.moveTo(x,m.t); ctx.lineTo(x,m.t+ph); ctx.stroke();
+    label(ctx,(xFmt?xFmt(t):tick(t,xRef)),x,m.t+ph+15,C.ink3,'center',10); });
+  yt.forEach(t=>{ const y=Y(t); if(y<m.t-1) return; ctx.beginPath(); ctx.moveTo(m.l,y); ctx.lineTo(m.l+pw,y); ctx.stroke();
+    label(ctx,tick(t,yRef),m.l-8,y,C.ink3,'right',10); });
+  ctx.strokeStyle=C.ink; ctx.lineWidth=1.4;
+  ctx.beginPath(); ctx.moveTo(m.l,m.t-4); ctx.lineTo(m.l,m.t+ph); ctx.lineTo(m.l+pw+6,m.t+ph); ctx.stroke();
+  label(ctx,yLab,6,m.t+4,C.ink,'left',10.5,600);
+  label(ctx,xLab,m.l+pw+2,m.t+ph+30,C.ink,'right',10.5,600);
+}
+function curve(ctx,X,Y,f,x0,x1,n,col,lw,dashPat,alpha){
+  ctx.save();
+  if(alpha!==undefined) ctx.globalAlpha=alpha;
+  ctx.strokeStyle=col; ctx.lineWidth=lw; ctx.lineJoin='round';
+  ctx.setLineDash(dashPat||[]);
+  ctx.beginPath();
+  for(let i=0;i<=n;i++){ const x=x0+(x1-x0)*i/n, y=Y(f(x));
+    if(i===0) ctx.moveTo(X(x),y); else ctx.lineTo(X(x),y); }
+  ctx.stroke();
+  ctx.restore();
+}
+function legendBox(ctx,x,y,items){
+  items.forEach((it,i)=>{
+    const yy = y+i*16;
+    ctx.save();
+    ctx.strokeStyle=it[1]; ctx.lineWidth=2.2; ctx.setLineDash(it[2]||[]);
+    ctx.beginPath(); ctx.moveTo(x,yy); ctx.lineTo(x+24,yy); ctx.stroke();
+    ctx.restore();
+    label(ctx,it[0],x+30,yy,it[1],'left',10.5,600);
+  });
+}
+
+/* ---------- 11 : three types side by side ---------- */
+const cmpCv = document.getElementById('cmpCv');
+function drawCmp(){
+  const {ctx,w,h} = fit(cmpCv);
+  const m={l:58,r:22,t:20,b:48};
+  const pw=w-m.l-m.r, ph=h-m.t-m.b;
+  const yMax=IN.vmax*1.14;
+  const X=s=>m.l+(s/IN.smax)*pw, Y=v=>m.t+ph-(v/yMax)*ph;
+  grid(ctx,m,pw,ph,niceTicks(IN.smax,5),niceTicks(yMax,5),X,Y,IN.smax,yMax,'[S]  (mM)','v  (µM/s)');
+
+  ctx.strokeStyle=C.ink3; dash(ctx,true); ctx.lineWidth=1;
+  ctx.beginPath(); ctx.moveTo(m.l,Y(IN.vmax)); ctx.lineTo(m.l+pw,Y(IN.vmax)); ctx.stroke(); dash(ctx,false);
+  label(ctx,'Vmax', m.l+pw-3, Y(IN.vmax)-10, C.ink3,'right',10.5,600);
+
+  curve(ctx,X,Y,s=>vGen(s,1,1),0,IN.smax,300,T.none,1.6,[]);
+  const r=IN.r;
+  TYPES.forEach(t=>{
+    const a=t.a(r), ap=t.ap(r);
+    const on = IN.focus==='all' || IN.focus===t.k;
+    curve(ctx,X,Y,s=>vGen(s,a,ap),0,IN.smax,300,T[t.k], on?2.6:1.2, DP[t.k], on?1:0.22);
+  });
+
+  // half-saturation markers on the axis
+  function tri(x,col,filled){
+    const y=m.t+ph;
+    ctx.beginPath(); ctx.moveTo(x,y+3); ctx.lineTo(x-4.5,y+11); ctx.lineTo(x+4.5,y+11); ctx.closePath();
+    if(filled){ ctx.fillStyle=col; ctx.fill(); } else { ctx.strokeStyle=col; ctx.lineWidth=1.4; ctx.stroke(); }
+  }
+  tri(X(IN.km), C.ink2, false);
+  TYPES.forEach(t=>{
+    const a=t.a(r), ap=t.ap(r), kmA=(a/ap)*IN.km;
+    if(kmA>IN.smax) return;
+    if(IN.focus!=='all' && IN.focus!==t.k) return;
+    tri(X(kmA), T[t.k], true);
+  });
+
+  // current [S]
+  ctx.strokeStyle=C.ink2; dash(ctx,true); ctx.lineWidth=1.1;
+  ctx.beginPath(); ctx.moveTo(X(IN.s),m.t); ctx.lineTo(X(IN.s),m.t+ph); ctx.stroke(); dash(ctx,false);
+  ctx.fillStyle=T.none; ctx.beginPath(); ctx.arc(X(IN.s),Y(vGen(IN.s,1,1)),3.5,0,7); ctx.fill();
+  TYPES.forEach(t=>{
+    if(IN.focus!=='all' && IN.focus!==t.k) return;
+    const a=t.a(r), ap=t.ap(r);
+    ctx.fillStyle='#fff'; ctx.strokeStyle=T[t.k]; ctx.lineWidth=2.2;
+    ctx.beginPath(); ctx.arc(X(IN.s),Y(vGen(IN.s,a,ap)),4.6,0,7); ctx.fill(); ctx.stroke();
+  });
+
+  legendBox(ctx, m.l+14, m.t+12, [
+    ['阻害なし',T.none,[]],
+    ['競合',T.t1,DP.t1],['不競合',T.t2,DP.t2],['非競合',T.t3,DP.t3]
+  ]);
+}
+function updCmp(){
+  const r=IN.r, v0=vGen(IN.s,1,1);
+  document.getElementById('isVal').textContent = IN.s.toFixed(3)+' mM';
+  let rows = '<thead><tr><th>型</th><th>α</th><th>α′</th><th>Vmax<sup>app</sup></th><th>Km<sup>app</sup></th><th>kcat/Km（相対）</th><th>現在の [S] での阻害率</th></tr></thead><tbody>';
+  rows += '<tr><td><span class="swatch" style="border-top-color:'+T.none+'"></span>阻害なし</td><td class="num">1.00</td><td class="num">1.00</td><td class="num">'+IN.vmax.toFixed(2)+'</td><td class="num">'+IN.km.toFixed(2)+'</td><td class="num">1.00</td><td class="num">0 %</td></tr>';
+  TYPES.forEach(t=>{
+    const a=t.a(r), ap=t.ap(r);
+    const vm=IN.vmax/ap, kmA=(a/ap)*IN.km, v=vGen(IN.s,a,ap);
+    const inh = v0>0 ? (1-v/v0)*100 : 0;
+    const ds = DP[t.k].length? 'dashed':'solid';
+    rows += '<tr><td><span class="swatch" style="border-top-color:'+T[t.k]+';border-top-style:'+ds+'"></span>'+t.name+'</td>'+
+            '<td class="num">'+a.toFixed(2)+'</td><td class="num">'+ap.toFixed(2)+'</td>'+
+            '<td class="num">'+vm.toFixed(2)+'</td><td class="num">'+kmA.toFixed(2)+'</td>'+
+            '<td class="num">'+(1/a).toFixed(2)+'</td><td class="num">'+inh.toFixed(1)+' %</td></tr>';
+  });
+  rows += '</tbody>';
+  document.getElementById('cmpTable').innerHTML = rows;
+
+  const note = document.getElementById('cmpNote');
+  const ratio = IN.s/IN.km;
+  if(r===0) note.innerHTML = '阻害剤ゼロ。4本の曲線が完全に重なっている。スライダーを動かすと、どこから離れていくかが分かる。';
+  else if(ratio<0.5) note.innerHTML = '<b>低い [S] で比べている</b>　競合と非競合はよく効いているのに、不競合はほとんど効いていない。ES がまだ少ないので、不競合阻害剤には結合する相手がいない。';
+  else if(ratio>4) note.innerHTML = '<b>高い [S] で比べている</b>　競合の効き目が薄れ、不競合が最も強く効いている。基質を増やすほど ES が増え、不競合阻害剤の標的が増える。';
+  else note.innerHTML = '<b>[S] は Km の '+ratio.toFixed(1)+' 倍</b>　[S] = Km ちょうどでは競合と不競合の阻害率が完全に一致してしまう。この付近だけを測っても型は決まらない。基質濃度を上下に2桁は振る必要がある。';
+  drawCmp();
+}
+
+/* ---------- 12 : fractional inhibition vs [S] ---------- */
+const frcCv = document.getElementById('frcCv');
+function drawFrc(){
+  const {ctx,w,h} = fit(frcCv);
+  const m={l:58,r:22,t:20,b:48};
+  const pw=w-m.l-m.r, ph=h-m.t-m.b;
+  const lo=Math.log10(0.01), hi=Math.log10(100);          // [S]/Km
+  const X=u=>m.l+((u-lo)/(hi-lo))*pw;                     // u = log10([S]/Km)
+  const Y=p=>m.t+ph-(p/100)*ph;
+  const xt=[-2,-1,0,1,2];
+  ctx.strokeStyle=C.grid; ctx.lineWidth=1;
+  xt.forEach(u=>{ ctx.beginPath(); ctx.moveTo(X(u),m.t); ctx.lineTo(X(u),m.t+ph); ctx.stroke();
+    label(ctx, u===0?'Km':(u<0?'Km/'+Math.pow(10,-u):Math.pow(10,u)+'Km'), X(u), m.t+ph+15, u===0?C.ink:C.ink3,'center',10.5,u===0?600:400); });
+  [0,25,50,75,100].forEach(p=>{ ctx.beginPath(); ctx.moveTo(m.l,Y(p)); ctx.lineTo(m.l+pw,Y(p)); ctx.stroke();
+    label(ctx,p+'',m.l-8,Y(p),C.ink3,'right',10); });
+  ctx.strokeStyle=C.ink; ctx.lineWidth=1.4;
+  ctx.beginPath(); ctx.moveTo(m.l,m.t-4); ctx.lineTo(m.l,m.t+ph); ctx.lineTo(m.l+pw+6,m.t+ph); ctx.stroke();
+  label(ctx,'阻害率 (%)',m.l-52,m.t+4,C.ink,'left',10.5,600);
+  label(ctx,'基質濃度（Km を 1 とした対数目盛り）',m.l+pw+2,m.t+ph+30,C.ink,'right',10.5,600);
+
+  const r=IN.r, cap=(1-1/(1+r))*100;
+  ctx.strokeStyle=C.ink3; dash(ctx,true); ctx.lineWidth=1;
+  ctx.beginPath(); ctx.moveTo(m.l,Y(cap)); ctx.lineTo(m.l+pw,Y(cap)); ctx.stroke(); dash(ctx,false);
+
+  TYPES.forEach(t=>{
+    const a=t.a(r), ap=t.ap(r);
+    curve(ctx,X,Y,u=>{
+      const s=IN.km*Math.pow(10,u);
+      const v0=vGen(s,1,1), v=vGen(s,a,ap);
+      return v0>0 ? (1-v/v0)*100 : 0;
+    }, lo, hi, 300, T[t.k], 2.6, DP[t.k]);
+  });
+
+  // current [S]
+  const u0=Math.log10(Math.max(IN.s,IN.km*0.01)/IN.km);
+  if(u0>=lo && u0<=hi){
+    ctx.strokeStyle=C.ink2; dash(ctx,true); ctx.lineWidth=1.1;
+    ctx.beginPath(); ctx.moveTo(X(u0),m.t); ctx.lineTo(X(u0),m.t+ph); ctx.stroke(); dash(ctx,false);
+    TYPES.forEach(t=>{
+      const a=t.a(r), ap=t.ap(r), s=IN.s;
+      const p=(1-vGen(s,a,ap)/vGen(s,1,1))*100;
+      ctx.fillStyle='#fff'; ctx.strokeStyle=T[t.k]; ctx.lineWidth=2.2;
+      ctx.beginPath(); ctx.arc(X(u0),Y(p),4.4,0,7); ctx.fill(); ctx.stroke();
+    });
+  }
+  // direct labels, placed where the three curves are well separated
+  const yAt=(t,u)=>{ const s=IN.km*Math.pow(10,u), a=t.a(r), ap=t.ap(r);
+    return (1-vGen(s,a,ap)/vGen(s,1,1))*100; };
+  if(r>0.05){
+    label(ctx,'非競合 ＝ 上限 1−1/α ＝ '+cap.toFixed(0)+'%', m.l+pw-4, Y(cap)-12, T.t3,'right',11,600);
+    label(ctx,'競合',   X(-0.6), Y(yAt(TYPES[0],-0.6))+16, T.t1,'center',12,600);
+    label(ctx,'不競合', X( 0.6), Y(yAt(TYPES[1], 0.6))+16, T.t2,'center',12,600);
+  }
+}
+function updFrc(){
+  const r=IN.r, s=IN.s, v0=vGen(s,1,1);
+  const p = t => (1-vGen(s,t.a(r),t.ap(r))/v0)*100;
+  document.getElementById('fr1').textContent = p(TYPES[0]).toFixed(1)+' %';
+  document.getElementById('fr2').textContent = p(TYPES[1]).toFixed(1)+' %';
+  document.getElementById('fr3').textContent = p(TYPES[2]).toFixed(1)+' %';
+  document.getElementById('frCap').textContent = ((1-1/(1+r))*100).toFixed(1)+' %';
+  document.getElementById('frcNote').innerHTML = r===0
+    ? '阻害剤ゼロ。3本とも横軸に張り付いている。'
+    : '3本とも同じ高さ '+((1-1/(1+r))*100).toFixed(0)+'% を目指すが、そこへの近づき方が逆向き。競合は左端で、不競合は右端でその値に達し、非競合はどこでもその値。';
+  drawFrc();
+}
+
+/* ---------- 13 : three double-reciprocal signatures ---------- */
+const LBX = 2.5;   // 1/[S] max
+function lbYMax(){
+  const r=IN.r; let mx=(IN.km/IN.vmax)*LBX + 1/IN.vmax;
+  TYPES.forEach(t=>{ const a=t.a(r), ap=t.ap(r); mx=Math.max(mx,(a*IN.km/IN.vmax)*LBX + ap/IN.vmax); });
+  return mx*1.12;
+}
+function drawLBmini(cv, key){
+  const {ctx,w,h}=fit(cv);
+  const m={l:48,r:14,t:16,b:38};
+  const pw=w-m.l-m.r, ph=h-m.t-m.b;
+  const xMin=-1/IN.km*1.5, xMax=LBX, yMax=lbYMax();
+  const X=x=>m.l+((x-xMin)/(xMax-xMin))*pw, Y=y=>m.t+ph-(y/yMax)*ph;
+
+  ctx.strokeStyle=C.grid; ctx.lineWidth=1;
+  [-2,-1,0,1,2,3].forEach(t=>{ if(t<xMin||t>xMax)return; ctx.beginPath(); ctx.moveTo(X(t),m.t); ctx.lineTo(X(t),m.t+ph); ctx.stroke();
+    label(ctx,String(t),X(t),m.t+ph+13,C.ink3,'center',9.5); });
+  niceTicks(yMax,4).forEach(t=>{ const y=Y(t); if(y<m.t)return; ctx.beginPath(); ctx.moveTo(m.l,y); ctx.lineTo(m.l+pw,y); ctx.stroke();
+    label(ctx,tick(t,yMax),m.l-6,y,C.ink3,'right',9.5); });
+  ctx.strokeStyle=C.ink; ctx.lineWidth=1.3;
+  ctx.beginPath(); ctx.moveTo(m.l,m.t+ph); ctx.lineTo(m.l+pw,m.t+ph); ctx.stroke();
+  ctx.beginPath(); ctx.moveTo(X(0),m.t); ctx.lineTo(X(0),m.t+ph); ctx.stroke();
+  label(ctx,'1/v',m.l-42,m.t+2,C.ink,'left',9.5,600);
+  label(ctx,'1/[S]',m.l+pw,m.t+ph+27,C.ink,'right',9.5,600);
+
+  const type = TYPES.find(t=>t.k===key);
+  const levels = [0, IN.r/2, IN.r];
+  levels.forEach((r,i)=>{
+    const a=type.a(r), ap=type.ap(r);
+    const f = x => (a*IN.km/IN.vmax)*x + ap/IN.vmax;
+    const col = i===0 ? T.none : T[key];
+    const alpha = i===1 ? 0.42 : 1;
+    ctx.save();
+    ctx.globalAlpha=alpha; ctx.strokeStyle=col; ctx.lineWidth=i===2?2.4:1.6; ctx.setLineDash([]);
+    ctx.beginPath();
+    let started=false;
+    for(let k=0;k<=120;k++){
+      const x=xMin+(xMax-xMin)*k/120, y=f(x);
+      if(y<0||y>yMax){ started=false; continue; }
+      if(!started){ ctx.moveTo(X(x),Y(y)); started=true; } else ctx.lineTo(X(x),Y(y));
+    }
+    ctx.stroke(); ctx.restore();
+  });
+
+  // the invariant
+  if(key==='t1'){
+    ctx.fillStyle=T.t1; ctx.beginPath(); ctx.arc(X(0),Y(1/IN.vmax),5,0,7); ctx.fill();
+    label(ctx,'1/Vmax',X(0)+9,Y(1/IN.vmax)-2,T.t1,'left',10,600);
+  } else if(key==='t3'){
+    ctx.fillStyle=T.t3; ctx.beginPath(); ctx.arc(X(-1/IN.km),Y(0),5,0,7); ctx.fill();
+    label(ctx,'−1/Km',X(-1/IN.km),Y(0)-13,T.t3,'center',10,600);
+  } else {
+    label(ctx,'傾き一定',m.l+pw-6,m.t+10,T.t2,'right',10,600);
+  }
+}
+function updLB(){
+  drawLBmini(document.getElementById('lbC'),'t1');
+  drawLBmini(document.getElementById('lbU'),'t2');
+  drawLBmini(document.getElementById('lbN'),'t3');
+}
+
+/* ---------- 14 : the alpha / alpha-prime pad ---------- */
+const PAD = { a:2, b:0, max:6 };
+const padCv = document.getElementById('padCv'), padVCv = document.getElementById('padVCv');
+function classify(a,b){
+  const e=0.06;
+  if(a<e && b<e) return {k:'none', name:'阻害なし', col:C.enz,
+    d:'α = α′ = 1。分母は Km + [S] に戻り、08 までと同じ曲線になる。'};
+  if(b<e) return {k:'t1', name:'競合阻害', col:T.t1,
+    d:'ES には結合しない。天井の Vmax は動かず、半飽和点だけが右へ '+(1+a).toFixed(1)+' 倍に伸びる。基質を十分入れれば阻害は消える。'};
+  if(a<e) return {k:'t2', name:'不競合阻害', col:T.t2,
+    d:'遊離酵素には結合しない。Vmax も Km も同じ '+(1/(1+b)).toFixed(2)+' 倍になるので、曲線は原点付近では元と重なったまま、天井だけが落ちる。'};
+  if(Math.abs(a-b)<e) return {k:'t3', name:'非競合阻害', col:T.t3,
+    d:'E と ES を区別せず、同じ強さで捕まえる。Km は動かず Vmax だけが '+(1/(1+a)).toFixed(2)+' 倍。酵素の量を減らしたのと区別がつかない。'};
+  return {k:'t4', name:'混合型阻害', col:T.t4,
+    d:'E と ES の両方に、違う強さで結合する。Km'+(a>b?'は右へ':'は左へ')+'動きつつ Vmax も下がる。実在の阻害剤の多くはここに入る。'};
+}
+function drawPad(){
+  const {ctx,w,h}=fit(padCv);
+  const m={l:44,r:16,t:16,b:38};
+  const pw=w-m.l-m.r, ph=h-m.t-m.b;
+  const X=v=>m.l+(v/PAD.max)*pw, Y=v=>m.t+ph-(v/PAD.max)*ph;
+
+  ctx.strokeStyle=C.grid; ctx.lineWidth=1;
+  for(let t=0;t<=PAD.max;t++){
+    ctx.beginPath(); ctx.moveTo(X(t),m.t); ctx.lineTo(X(t),m.t+ph); ctx.stroke();
+    ctx.beginPath(); ctx.moveTo(m.l,Y(t)); ctx.lineTo(m.l+pw,Y(t)); ctx.stroke();
+    label(ctx,String(t),X(t),m.t+ph+13,C.ink3,'center',9.5);
+    label(ctx,String(t),m.l-7,Y(t),C.ink3,'right',9.5);
+  }
+  // archetype loci
+  ctx.save();
+  ctx.strokeStyle=T.t3; ctx.lineWidth=2.5; ctx.globalAlpha=.32;
+  ctx.beginPath(); ctx.moveTo(X(0),Y(0)); ctx.lineTo(X(PAD.max),Y(PAD.max)); ctx.stroke();
+  ctx.strokeStyle=T.t1; ctx.beginPath(); ctx.moveTo(X(0),Y(0)); ctx.lineTo(X(PAD.max),Y(0)); ctx.stroke();
+  ctx.strokeStyle=T.t2; ctx.beginPath(); ctx.moveTo(X(0),Y(0)); ctx.lineTo(X(0),Y(PAD.max)); ctx.stroke();
+  ctx.restore();
+  label(ctx,'競合',X(PAD.max)-6,Y(0)-14,T.t1,'right',10.5,600);
+  label(ctx,'不競合',X(0)+9,Y(PAD.max)+8,T.t2,'left',10.5,600);
+  label(ctx,'非競合',X(PAD.max*.62)+8,Y(PAD.max*.62)-4,T.t3,'left',10.5,600);
+  label(ctx,'混合',X(PAD.max*.72),Y(PAD.max*.26),T.t4,'center',11,600);
+  label(ctx,'混合',X(PAD.max*.26),Y(PAD.max*.78),T.t4,'center',11,600);
+
+  ctx.strokeStyle=C.ink; ctx.lineWidth=1.4;
+  ctx.beginPath(); ctx.moveTo(m.l,m.t); ctx.lineTo(m.l,m.t+ph); ctx.lineTo(m.l+pw,m.t+ph); ctx.stroke();
+  label(ctx,'[I]/Ki  （E に結合）',m.l+pw,m.t+ph+27,C.ink,'right',10,600);
+  label(ctx,'[I]/Ki′',m.l-38,m.t+2,C.ink,'left',10,600);
+
+  const c=classify(PAD.a,PAD.b);
+  ctx.strokeStyle=c.col; dash(ctx,true); ctx.lineWidth=1;
+  ctx.beginPath(); ctx.moveTo(X(PAD.a),m.t+ph); ctx.lineTo(X(PAD.a),Y(PAD.b)); ctx.lineTo(m.l,Y(PAD.b)); ctx.stroke(); dash(ctx,false);
+  ctx.fillStyle='#fff'; ctx.strokeStyle=c.col; ctx.lineWidth=3;
+  ctx.beginPath(); ctx.arc(X(PAD.a),Y(PAD.b),8,0,7); ctx.fill(); ctx.stroke();
+}
+function drawPadV(){
+  const {ctx,w,h}=fit(padVCv);
+  const m={l:54,r:20,t:16,b:42};
+  const pw=w-m.l-m.r, ph=h-m.t-m.b;
+  const yMax=IN.vmax*1.14;
+  const X=s=>m.l+(s/IN.smax)*pw, Y=v=>m.t+ph-(v/yMax)*ph;
+  grid(ctx,m,pw,ph,niceTicks(IN.smax,5),niceTicks(yMax,4),X,Y,IN.smax,yMax,'[S]  (mM)','v  (µM/s)');
+
+  const a=1+PAD.a, ap=1+PAD.b, c=classify(PAD.a,PAD.b);
+  const vmA=IN.vmax/ap, kmA=(a/ap)*IN.km;
+
+  ctx.strokeStyle=C.ink3; dash(ctx,true); ctx.lineWidth=1;
+  ctx.beginPath(); ctx.moveTo(m.l,Y(IN.vmax)); ctx.lineTo(m.l+pw,Y(IN.vmax)); ctx.stroke();
+  ctx.strokeStyle=c.col; ctx.beginPath(); ctx.moveTo(m.l,Y(vmA)); ctx.lineTo(m.l+pw,Y(vmA)); ctx.stroke();
+  dash(ctx,false);
+  label(ctx,'Vmax',m.l+pw-3,Y(IN.vmax)-10,C.ink3,'right',10,600);
+  if(Math.abs(vmA-IN.vmax)>0.02) label(ctx,'Vmax app',m.l+pw-3,Y(vmA)-10,c.col,'right',10,600);
+
+  curve(ctx,X,Y,s=>vGen(s,1,1),0,IN.smax,300,T.none,1.6,[]);
+  curve(ctx,X,Y,s=>vGen(s,a,ap),0,IN.smax,300,c.col,2.8,[]);
+
+  [[IN.km,C.ink2,false],[kmA,c.col,true]].forEach(([kx,col,filled])=>{
+    if(kx>IN.smax) return;
+    const y=m.t+ph;
+    ctx.beginPath(); ctx.moveTo(X(kx),y+3); ctx.lineTo(X(kx)-4.5,y+11); ctx.lineTo(X(kx)+4.5,y+11); ctx.closePath();
+    if(filled){ ctx.fillStyle=col; ctx.fill(); } else { ctx.strokeStyle=col; ctx.lineWidth=1.4; ctx.stroke(); }
+  });
+  legendBox(ctx,m.l+14,m.t+12,[['阻害なし',T.none,[]],[c.name,c.col,[]]]);
+}
+function updPad(){
+  const c=classify(PAD.a,PAD.b);
+  const a=1+PAD.a, ap=1+PAD.b;
+  document.getElementById('padName').textContent=c.name;
+  document.getElementById('padName').style.color=c.col;
+  document.getElementById('padDesc').innerHTML=c.d;
+  document.getElementById('padTable').innerHTML =
+    '<thead><tr><th>[I]/Ki</th><th>[I]/Ki′</th><th>α</th><th>α′</th><th>Vmax<sup>app</sup></th><th>Km<sup>app</sup></th><th>kcat/Km（相対）</th></tr></thead><tbody><tr>'+
+    '<td class="num">'+PAD.a.toFixed(2)+'</td><td class="num">'+PAD.b.toFixed(2)+'</td>'+
+    '<td class="num">'+a.toFixed(2)+'</td><td class="num">'+ap.toFixed(2)+'</td>'+
+    '<td class="num">'+(IN.vmax/ap).toFixed(2)+' µM/s</td>'+
+    '<td class="num">'+((a/ap)*IN.km).toFixed(3)+' mM</td>'+
+    '<td class="num">'+(1/a).toFixed(2)+'</td></tr></tbody>';
+  document.querySelectorAll('.psBtn').forEach(b=>b.setAttribute('aria-pressed', b.dataset.p===c.k));
+  drawPad(); drawPadV();
+}
+function padPick(ev){
+  const rect=padCv.getBoundingClientRect();
+  const m={l:44,r:16,t:16,b:38};
+  const pw=rect.width-m.l-m.r, ph=rect.height-m.t-m.b;
+  let a=((ev.clientX-rect.left)-m.l)/pw*PAD.max;
+  let b=(m.t+ph-(ev.clientY-rect.top))/ph*PAD.max;
+  a=Math.max(0,Math.min(PAD.max,a)); b=Math.max(0,Math.min(PAD.max,b));
+  const snap=0.3;
+  if(Math.abs(a-b)<snap){ const mid=(a+b)/2; a=mid; b=mid; }
+  if(b<snap) b=0;
+  if(a<snap) a=0;
+  PAD.a=a; PAD.b=b; updPad();
+}
+let padDrag=false;
+padCv.addEventListener('pointerdown', e=>{ padDrag=true; padCv.setPointerCapture(e.pointerId); padPick(e); });
+padCv.addEventListener('pointermove', e=>{ if(padDrag) padPick(e); });
+padCv.addEventListener('pointerup', ()=>padDrag=false);
+padCv.style.cursor='crosshair';
+document.querySelectorAll('.psBtn').forEach(b=>{
+  b.onclick=()=>{
+    const p=b.dataset.p;
+    if(p==='none'){ PAD.a=0; PAD.b=0; }
+    else if(p==='t1'){ PAD.a=2; PAD.b=0; }
+    else if(p==='t2'){ PAD.a=0; PAD.b=2; }
+    else if(p==='t3'){ PAD.a=2; PAD.b=2; }
+    else { PAD.a=3.5; PAD.b=1; }
+    updPad();
+  };
+});
+
+/* ---------- shared controls ---------- */
+function updInh(){ updCmp(); updFrc(); updLB(); }
+function setR(v){
+  IN.r=v;
+  document.querySelectorAll('.rSl').forEach(sl=>{ sl.value=Math.round(v*10); });
+  ['rVal1','rVal2','rVal3'].forEach(id=>{ document.getElementById(id).textContent=v.toFixed(1); });
+  updInh();
+}
+document.querySelectorAll('.rSl').forEach(sl=>{ sl.oninput = e=>setR((+e.target.value)/10); });
+document.getElementById('isSl').oninput = e=>{ IN.s=(+e.target.value)/200; updCmp(); updFrc(); };
+document.querySelectorAll('.fcBtn').forEach(b=>{
+  b.onclick=()=>{
+    IN.focus=b.dataset.f;
+    document.querySelectorAll('.fcBtn').forEach(o=>o.setAttribute('aria-pressed', o===b));
+    updCmp();
+  };
+});
+cmpCv.style.cursor='crosshair';
+function cmpPick(ev){
+  const rect=cmpCv.getBoundingClientRect();
+  const m={l:58,r:22}, pw=rect.width-m.l-m.r;
+  let t=((ev.clientX-rect.left)-m.l)/pw; t=Math.max(0,Math.min(1,t));
+  IN.s=t*IN.smax;
+  document.getElementById('isSl').value=Math.round(IN.s*200);
+  updCmp(); updFrc();
+}
+let cmpDrag=false;
+cmpCv.addEventListener('pointerdown', e=>{ cmpDrag=true; cmpCv.setPointerCapture(e.pointerId); cmpPick(e); });
+cmpCv.addEventListener('pointermove', e=>{ if(cmpDrag) cmpPick(e); });
+cmpCv.addEventListener('pointerup', ()=>cmpDrag=false);
+
+/* =========================================================
+   boot
+   ========================================================= */
+function redrawAll(){
+  if(heroDone||RM) drawHero(1);
+  drawMain(); drawFam(); drawLin(); runSim();
+  drawCmp(); drawFrc(); updLB(); drawPad(); drawPadV();
+}
+function boot(){
+  makeStepper('deriv', steps);
+  makeStepper('inh', inhSteps);
+  updateMain();
+  updateFam();
+  updateLin();
+  runSim();
+  setR(1.0);
+  document.getElementById('isSl').value = Math.round(IN.s*200);
+  updPad();
+  heroLoop();
+}
+window.addEventListener('resize', (()=>{ let t; return ()=>{ clearTimeout(t); t=setTimeout(redrawAll,150); }; })());
+if(document.fonts && document.fonts.ready){ document.fonts.ready.then(redrawAll); }
+boot();
+</script>
+</body>
+</html>

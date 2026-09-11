@@ -1,0 +1,1748 @@
+<!doctype html>
+<html lang="ja">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>ドップラー効果インタラクティブ</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500&family=IBM+Plex+Sans+JP:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+*{box-sizing:border-box}
+:root{
+  --ink:#16232B; --muted:#5E6E76; --paper:#EDF1EF; --surface:#FFFFFF;
+  --rule:#D6DDDA; --rule-soft:#E8EDEB;
+  --c0:#B87A16; --c0t:#8A5A0C;
+  --c1:#158A6D; --c1t:#0D6A53;
+  --c2:#2457A6; --c2t:#1B4380;
+  --c3:#6E3AA7; --c3t:#572D85;
+  --c4:#A82A6A; --c4t:#831F52;
+  --c5:#3B6E1E; --c5t:#2A5215;
+  --mono:"IBM Plex Mono",ui-monospace,SFMono-Regular,Menlo,monospace;
+}
+html,body{margin:0;padding:0}
+body{
+  background:var(--paper); color:var(--ink);
+  font-family:"IBM Plex Sans JP","Hiragino Sans","Yu Gothic UI",system-ui,sans-serif;
+  font-size:13.5px; line-height:1.75; -webkit-text-size-adjust:100%;
+}
+.mono{font-family:var(--mono);font-variant-numeric:tabular-nums}
+.wrap{max-width:820px;margin:0 auto;padding:20px 14px 72px}
+.card{background:var(--surface);border:1px solid var(--rule);border-radius:3px;padding:14px;margin-bottom:14px}
+.eyebrow{display:flex;align-items:center;gap:10px;font-family:var(--mono);font-size:11.5px;letter-spacing:.14em;color:var(--muted)}
+.eyebrow::after{content:"";flex:1;height:1px;background:var(--rule)}
+h1{font-size:22px;font-weight:600;letter-spacing:.01em;margin:8px 0 2px}
+h2{font-size:13.5px;font-weight:600;margin:14px 0 6px;letter-spacing:.01em}
+h2:first-child{margin-top:0}
+p{margin:0 0 8px}
+p:last-child{margin-bottom:0}
+.note{color:var(--muted);font-size:12px;line-height:1.7}
+.sub{color:var(--muted);font-size:11.5px;font-family:var(--mono);letter-spacing:.06em}
+hr{border:none;border-top:1px solid var(--rule-soft);margin:12px 0}
+
+.btn{font:inherit;font-size:12.5px;line-height:1.4;border:1px solid var(--rule);background:#fff;color:var(--ink);border-radius:2px;padding:6px 10px;cursor:pointer}
+.btn:hover{border-color:#B4C0BC}
+.btn.on{background:var(--ink);color:#fff;border-color:var(--ink)}
+.btn:focus-visible{outline:2px solid var(--c2);outline-offset:1px}
+.btn.sm{padding:4px 8px;font-size:11.5px}
+.btnrow{display:flex;flex-wrap:wrap;gap:6px}
+.ctl{display:flex;flex-wrap:wrap;align-items:center;gap:8px;margin-top:10px}
+.ctl .lab{font-family:var(--mono);font-size:11px;letter-spacing:.1em;color:var(--muted);white-space:nowrap}
+.ctl .val{font-family:var(--mono);font-variant-numeric:tabular-nums;font-size:12.5px;min-width:80px}
+
+.viewer{position:relative;border:1px solid var(--rule-soft);border-radius:3px;background:#FBFCFB;overflow:hidden;margin-top:10px}
+svg.stage{display:block;width:100%;height:auto;touch-action:none}
+svg.stage.grab{cursor:grab}
+svg.stage.grab.drag{cursor:grabbing}
+
+.legend{display:flex;flex-wrap:wrap;gap:4px 14px;margin-top:9px;font-size:11.5px;color:var(--muted)}
+.sw{display:inline-block;width:10px;height:10px;border-radius:50%;margin-right:5px;vertical-align:-1px}
+.swl{display:inline-block;width:14px;height:0;border-top:2px solid;margin-right:5px;vertical-align:3px}
+
+table{width:100%;border-collapse:collapse;font-size:12.5px}
+th{font-weight:500;color:var(--muted);text-align:left;border-bottom:1px solid var(--rule);padding:5px 6px;font-size:11px;letter-spacing:.06em;font-family:var(--mono)}
+td{border-bottom:1px solid var(--rule-soft);padding:5px 6px;vertical-align:top}
+.num{text-align:right;font-family:var(--mono);font-variant-numeric:tabular-nums}
+tr.hi td{background:#FAFBFA;font-weight:600}
+tr.cur td{background:#F2F6FA}
+caption{caption-side:top;text-align:left;font-size:11.5px;color:var(--muted);padding:0 6px 6px}
+
+.stats{display:grid;grid-template-columns:1fr 1fr;gap:0 18px}
+.stat{display:flex;justify-content:space-between;align-items:baseline;gap:10px;border-bottom:1px solid var(--rule-soft);padding:6px 0}
+.stat .k{font-size:12px;color:var(--muted);white-space:nowrap}
+.stat .v{font-family:var(--mono);font-variant-numeric:tabular-nums;font-size:13px;text-align:right}
+
+.grid2{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.grid3{display:grid;grid-template-columns:repeat(3,1fr);gap:10px}
+input[type=range]{width:100%;max-width:220px;accent-color:#16232B;height:22px}
+
+.step{border-left:2px solid var(--rule);padding:1px 0 1px 11px;margin-bottom:10px}
+.step:last-child{margin-bottom:0;border-left-color:var(--ink)}
+.step .lbl{font-family:var(--mono);font-size:10.5px;letter-spacing:.12em;color:var(--muted)}
+.step .eq{font-family:var(--mono);font-size:12.5px;line-height:1.95;word-break:break-word}
+.step .eq sup{font-size:.78em}
+
+.warn{color:var(--c4t);font-size:11.5px;line-height:1.7}
+ul.tight{margin:0;padding-left:1.1em}
+ul.tight li{margin-bottom:5px}
+
+.fx{font-family:var(--mono);font-size:16px;line-height:2.2;padding:4px 0 2px;letter-spacing:.01em}
+.fx.small{font-size:13px;line-height:2}
+.fx .sym{cursor:pointer;padding:2px 3px;border-radius:2px;border-bottom:1px dashed var(--rule);-webkit-tap-highlight-color:transparent;touch-action:manipulation}
+.fx .sym:hover{background:#F6EEDC}
+.fx .sym.on{background:#F6E3BC;border-bottom:1px solid var(--c0);font-weight:500}
+.symdesc{font-size:12px;color:var(--muted);border-left:2px solid var(--c0);padding:2px 0 2px 10px;margin-top:4px;min-height:3.4em;line-height:1.7}
+.symdesc b{color:var(--ink);font-weight:600}
+
+.frac{display:inline-flex;flex-direction:column;vertical-align:middle;text-align:center;margin:0 5px;line-height:1.42}
+.frac .n{padding:0 7px 2px}
+.frac .d{padding:2px 7px 0;border-top:1.4px solid var(--ink)}
+.cV{color:var(--c2t)} .cW{color:var(--c1t)} .cO{color:var(--c3t)} .cS{color:var(--c4t)} .cF{color:var(--c0t)}
+.fx .sym.cV.on{background:#DEE8F5;border-bottom-color:var(--c2)}
+.fx .sym.cW.on{background:#D8ECE5;border-bottom-color:var(--c1)}
+.fx .sym.cO.on{background:#E6DDF2;border-bottom-color:var(--c3)}
+.fx .sym.cS.on{background:#F5DCE8;border-bottom-color:var(--c4)}
+
+.wblk{border:1px solid var(--rule-soft);border-radius:3px;padding:8px 10px 10px}
+.wblk .hd{font-family:var(--mono);font-size:11px;letter-spacing:.1em;display:flex;align-items:center;gap:7px;margin-bottom:2px}
+.wblk .ctl{margin-top:6px}
+.wblk .ctl .lab{font-size:10.5px}
+.wblk .ctl .val{font-size:12px;min-width:72px}
+.wblk input[type=range]{max-width:150px}
+.wblk .der{font-family:var(--mono);font-size:11px;color:var(--muted);margin-top:7px;line-height:1.65;font-variant-numeric:tabular-nums}
+.tag{display:inline-block;font-family:var(--mono);font-size:10.5px;letter-spacing:.08em;border:1px solid var(--rule);border-radius:2px;padding:0 5px;color:var(--muted)}
+.tag.lit{border-color:var(--c0);background:#F6E3BC;color:var(--c0t)}
+.tag.bad{border-color:var(--c4);background:#F5DCE8;color:var(--c4t)}
+
+@media (max-width:430px){
+  body{font-size:13px}
+  .wrap{padding:14px 10px 56px}
+  .card{padding:11px}
+  h1{font-size:19px}
+  .grid2,.grid3,.stats{grid-template-columns:1fr}
+  table{font-size:12px}
+  th,td{padding:4px 4px}
+  .btn{padding:6px 8px;font-size:12px}
+  input[type=range]{max-width:none;flex:1 1 100%}
+  .step .eq{font-size:11.5px}
+  .ctl .val{min-width:0}
+  .fx{font-size:14px;line-height:2.3}
+  .fx.small{font-size:11.5px}
+  .symdesc{min-height:5em}
+}
+</style>
+</head>
+<body>
+<div class="wrap">
+
+<header>
+  <div class="eyebrow">DOPPLER EFFECT</div>
+  <h1>ドップラー効果インタラクティブ</h1>
+  <p class="note">音源が動くと波長が変わり、観測者が動くと波面をまたぐ回数が変わる。別々の理由で起きているのに、式では分母と分子に分かれて同居している。ここを分けて見ておくと、風が入っても斜めに通過しても、超音波で血流を測る場面でも同じ式で押し通せる。</p>
+</header>
+
+<div class="card">
+  <div class="eyebrow">WAVEFRONTS</div>
+  <p class="note" style="margin-top:9px">音源が一定の間隔で出した波面を、そのまま同心円で描いている。円の中心は出した瞬間の音源の位置に置き去りになり、音源だけが先へ進む。だから前は詰まり、後ろは開く。</p>
+  <div class="btnrow" id="presetsel" style="margin-top:10px"></div>
+  <div class="viewer"><svg class="stage" id="sv-wf" role="img" aria-label="動く音源から出る波面"><g id="wf-static"></g><g id="wf-dyn"></g></svg></div>
+  <div id="transport1"></div>
+  <div class="grid2" style="margin-top:10px" id="mainsliders"></div>
+  <div class="legend">
+    <span><span class="swl" style="border-color:var(--c2)"></span>波面（1 周期ごと）</span>
+    <span><span class="sw" style="background:var(--c4)"></span>音源</span>
+    <span><span class="sw" style="background:var(--c3)"></span>観測者</span>
+    <span><span class="swl" style="border-color:var(--c4)"></span>衝撃波面</span>
+    <span><span class="swl" style="border-color:var(--c0);border-top-style:dashed"></span>波長の実測</span>
+  </div>
+  <div class="stats" id="wfstats" style="margin-top:10px"></div>
+  <p class="note" id="wfnote" style="margin-top:9px"></p>
+</div>
+
+<div class="card">
+  <div class="eyebrow">OBSERVED FREQUENCY</div>
+  <p class="note" style="margin-top:9px">式の文字に触れると、それがどの速度で、上の図のどこにいるかが分かる。押すと固定、もう一度押すと解除。</p>
+  <div class="fx" id="fxmain"></div>
+  <div class="symdesc" id="symdesc"></div>
+  <div class="fx small" id="fxnum" style="margin-top:6px"></div>
+  <div class="fx small" id="fxlam"></div>
+  <div class="stats" id="fstats" style="margin-top:10px"></div>
+  <p class="note" id="fnote" style="margin-top:9px"></p>
+  <hr>
+  <h2>符号で迷わないための一手</h2>
+  <p class="note">正の向きを「音源から観測者へ向かう向き」に固定してしまう。あとは v<sub>s</sub>、v<sub>o</sub>、w をその向きの成分としてそのまま代入するだけで、近づく離れるを考える必要がなくなる。観測者が音源の反対側に回り込んだら、正の向きも一緒に反転する。</p>
+  <div class="step"><span class="lbl">RULE</span><div class="eq">正の向き = 音源 → 観測者　　f′ = f<sub>0</sub>(V + w &minus; v<sub>o</sub>) / (V + w &minus; v<sub>s</sub>)</div></div>
+  <p class="note">分子が観測者、分母が音源。取り違えたら「音源が音速に近づくと分母が 0 に近づいて f′ が発散する」を思い出せばいい。観測者がどれだけ速く走っても f′ は発散しない。この非対称が分母と分子の割り当てを決めている。</p>
+  <h2>1 次近似で済ませたときの誤差</h2>
+  <p class="note">Δf/f<sub>0</sub> ≒ (v<sub>s</sub> &minus; v<sub>o</sub>)/V は暗算には便利だが、速度が音速の 10% を超えると効いてくる。音源が動く場合と観測者が動く場合の差も、同じところから出てくる。</p>
+  <div id="lintable"></div>
+</div>
+
+<div class="card">
+  <div class="eyebrow">SHOCK WAVE</div>
+  <p class="note" style="margin-top:9px">音源が空気に対して音速を超えると、どの波面にも共通の接線が引ける。τ が約分で消えるので、円錐の角度は経過時間によらない。</p>
+  <div class="viewer"><svg class="stage" id="sv-mach" role="img" aria-label="マッハ円錐の作図"><g id="mach-static"></g></svg></div>
+  <div class="stats" id="machstats" style="margin-top:10px"></div>
+  <p class="note" id="machnote" style="margin-top:9px"></p>
+  <h2>ソニックブームが届くまで</h2>
+  <p class="note">頭上を通り過ぎてから轟音が届くまでには間がある。円錐が斜めに引きずられているぶんだけ遅れる。高度 h、マッハ数 M なら、機体が水平に h&radic;(M<sup>2</sup>&minus;1) だけ進んだところで地上に届く。</p>
+  <div id="boomparams"></div>
+  <div id="boomtable" style="margin-top:10px"></div>
+  <p class="note" style="margin-top:8px">上の表は成層圏の音速を使っている。高度 10 km では気温が &minus;50°C 前後まで下がり、音速は 300 m/s 程度。地表の 340 m/s で計算すると遅れ時間を 1 割ほど短く見積もる。</p>
+</div>
+
+<div class="card">
+  <div class="eyebrow">FLY-BY &middot; 遅延時間の数値解</div>
+  <p class="note" style="margin-top:9px">音源が横を通り過ぎる場合、いま聞こえている音は過去の位置から出ている。発射時刻と受信時刻を結ぶ方程式を解かないと、振動数の時間変化は出せない。ここは閉じた式に頼らず、遅延時間の 2 次方程式を解いて数値微分している。</p>
+  <div class="viewer"><svg class="stage" id="sv-fly" role="img" aria-label="斜めに通過する音源と観測振動数の時間変化"><g id="fly-static"></g><g id="fly-dyn"></g></svg></div>
+  <div id="flyparams"></div>
+  <div class="legend">
+    <span><span class="swl" style="border-color:var(--c4)"></span>厳密（遅延時間を解く）</span>
+    <span><span class="swl" style="border-color:var(--c1);border-top-style:dashed"></span>近似（受信時の位置で角度をとる）</span>
+    <span><span class="swl" style="border-color:var(--c3);border-top-style:dashed"></span>前方・後方の漸近値</span>
+  </div>
+  <div class="stats" id="flystats" style="margin-top:10px"></div>
+  <p class="note" id="flynote" style="margin-top:9px"></p>
+</div>
+
+<div class="card">
+  <div class="eyebrow">WAVEFRONTS &middot; 3D</div>
+  <p class="note" style="margin-top:9px">上空を飛ぶ音源の波面を球として描き、地面との切り口を同時に出している。地上に現れる円の並びの縁が、そのままブームの届く境界になる。ドラッグで視点が回る。</p>
+  <div class="viewer"><svg class="stage grab" id="sv-3d" role="img" aria-label="球面波とマッハ円錐の3D表示"><g id="d3-static"></g></svg></div>
+  <div class="ctl">
+    <span class="lab">視点</span>
+    <button class="btn sm" id="v3-side">真横</button>
+    <button class="btn sm" id="v3-top">真上</button>
+    <button class="btn sm" id="v3-front">正面</button>
+    <button class="btn sm on" id="v3-obl">斜め</button>
+  </div>
+  <div id="d3params"></div>
+  <p class="note" id="d3note" style="margin-top:9px"></p>
+</div>
+
+<div class="card">
+  <div class="eyebrow">DOPPLER ULTRASOUND</div>
+  <p class="note" style="margin-top:9px">超音波で血流を測るとき、血球はまず動く観測者として音を受け取り、次に動く音源として散乱する。ドップラー効果が 2 回かかるので、片道の 2 倍の周波数差が出る。</p>
+  <div class="viewer"><svg class="stage" id="sv-us" role="img" aria-label="超音波ドップラーによる血流計測の配置"><g id="us-static"></g><g id="us-dyn"></g></svg></div>
+  <div class="grid2" style="margin-top:10px" id="usparams"></div>
+  <div class="fx small" id="fxus" style="margin-top:10px"></div>
+  <div class="stats" id="usstats" style="margin-top:10px"></div>
+  <p class="note" id="usnote" style="margin-top:9px"></p>
+  <h2>角度が大きいと何が起きるか</h2>
+  <p class="note">補正をかけずに測ると見かけの速度は cos&theta; 倍になる。圧較差は速度の 2 乗で効くので cos<sup>2</sup>&theta; 倍。帯は角度を 5° 読み違えたときの誤差の幅で、&theta; が大きいほど急に広がる。</p>
+  <div class="viewer"><svg class="stage" id="sv-usg" role="img" aria-label="入射角による速度と圧較差の過小評価"><g id="usg-static"></g><g id="usg-dyn"></g></svg></div>
+  <div id="ustable" style="margin-top:12px"></div>
+  <p class="note" id="usnote2" style="margin-top:9px"></p>
+</div>
+
+<div class="card">
+  <div class="eyebrow">DERIVATION</div>
+
+  <h2>波長が変わる側と、数える回数が変わる側</h2>
+  <p class="note">音源が振動数 f<sub>0</sub> で鳴りながら速さ v<sub>s</sub> で動き、空気全体が速さ w で流れている。正の向きは音源から観測者へ向かう向きにとる。周期 T = 1/f<sub>0</sub> のあいだに、直前の波面は地面に対して (V+w)T 進み、音源自身は v<sub>s</sub>T だけ追いかける。差が波面の間隔になる。</p>
+  <div class="step"><span class="lbl">WAVELENGTH</span><div class="eq">&lambda;<sub>前</sub> = (V + w &minus; v<sub>s</sub>) / f<sub>0</sub>　　&lambda;<sub>後</sub> = (V &minus; w + v<sub>s</sub>) / f<sub>0</sub></div></div>
+  <p class="note">観測者から見た波面の接近速度は (V + w) &minus; v<sub>o</sub>。この速さで間隔 &lambda;<sub>前</sub> の列を横切るので、単位時間に出会う波面の数は割り算で出る。</p>
+  <div class="step"><span class="lbl">GENERAL</span><div class="eq">f′ = {(V + w) &minus; v<sub>o</sub>} / &lambda;<sub>前</sub> = f<sub>0</sub> (V + w &minus; v<sub>o</sub>) / (V + w &minus; v<sub>s</sub>)</div></div>
+  <p class="note">近似はどこにも入っていない。ここまでは音源と観測者が一直線に並んでいることだけが条件で、速度が音速に近くても成り立つ。</p>
+
+  <h2>風が消えるとき、消えないとき</h2>
+  <p class="note">w は分子と分母に同じだけ入る。二人とも止まっていれば約分されて f′ = f<sub>0</sub>。風だけではドップラー効果は起きない。動いている人がいるときだけ、風は「音速が V+w に変わった」形で効く。</p>
+  <div class="step"><span class="lbl">TAILWIND</span><div class="eq">V = 340、v<sub>s</sub> = 30、v<sub>o</sub> = 0 のとき　w = 0 で f′/f<sub>0</sub> = 1.0968、追い風 w = +30 で 1.0882</div></div>
+  <p class="note">追い風だと変化が小さくなる。波が速く逃げるぶん、同じ 1 周期で音源が詰められる割合が減るから。向かい風なら逆に大きくなる。「風で音が高くなる」は間違いで、風は変化の効き方だけを変える。</p>
+
+  <h2>音源と観測者は対等ではない</h2>
+  <p class="note">同じ速さ u で近づく場合を比べる。音源が動くなら V/(V&minus;u)、観測者が動くなら (V+u)/V。1 次までは両方 1 + u/V で一致するが、そこから先がずれる。</p>
+  <div class="step"><span class="lbl">EXPANSION</span><div class="eq">V/(V&minus;u) = 1 + u/V + (u/V)<sup>2</sup> + &hellip;　　(V+u)/V = 1 + u/V</div></div>
+  <p class="note">差は (u/V)<sup>2</sup> から。V = 340、u = 34 で 1.111 対 1.100 の 1.0% 差、u = 100 で 9.5%。速度が音速の何割かを 2 乗した分だけ食い違うと覚えると早い。分母が 0 になりうるのは音源側だけで、この非対称が式の形そのもの。光では媒質がないので、この差は消えて相対速度だけで決まる形になる。</p>
+
+  <h2>斜めに通過するときの遅延時間</h2>
+  <p class="note">一直線の式は、真正面から来るときにしか使えない。横を通り過ぎる音源では、いま耳に届いた音は過去の位置から出ている。発射時刻 t<sub>e</sub> と受信時刻 t を結ぶ条件を書く。発射点 P、経過時間 &tau; = t &minus; t<sub>e</sub>、観測者の位置 X(t)、風 <b>w</b> として、波面が観測者に触れる条件はこうなる。</p>
+  <div class="step"><span class="lbl">RETARDED</span><div class="eq">|X(t<sub>e</sub>+&tau;) &minus; P &minus; <b>w</b>&tau;| = V&tau;</div></div>
+  <div class="step"><span class="lbl">QUADRATIC</span><div class="eq">(|<b>u</b>|<sup>2</sup> &minus; V<sup>2</sup>)&tau;<sup>2</sup> + 2(<b>D</b>&middot;<b>u</b>)&tau; + |<b>D</b>|<sup>2</sup> = 0　　<b>u</b> = <b>v</b><sub>o</sub> &minus; <b>w</b>、<b>D</b> = X(t<sub>e</sub>) &minus; P</div></div>
+  <p class="note">|<b>u</b>| &lt; V なら 2 次の係数が負で、根の積 |<b>D</b>|<sup>2</sup>/(|<b>u</b>|<sup>2</sup>&minus;V<sup>2</sup>) も負。だから正の根がちょうど 1 つに決まる。閉じた形で解けるので、あとは受信時刻を発射時刻の関数として並べるだけ。</p>
+  <div class="step"><span class="lbl">FREQUENCY</span><div class="eq">f<sub>obs</sub> = f<sub>0</sub> &middot; dt<sub>e</sub>/dt = f<sub>0</sub> / (dt/dt<sub>e</sub>)　　分母は中心差分で数値微分</div></div>
+  <p class="note">一直線に並べて計算させると、上の閉じた式と小数点以下 10 桁まで一致する。FLY-BY のカードにその照合を出してある。数値微分で出した f<sub>obs</sub> を受信時刻で積分すると発射した波面の総数に戻るので、二重の検算になる。</p>
+  <p class="note">教科書がよくやる「受信した瞬間の音源位置で角度をとる」は、この遅延を無視した近似。振動数が f<sub>0</sub> を横切るタイミングが最接近距離 d を音が渡る時間だけずれるので、通過音の前後の非対称として現れる。d が大きく v<sub>s</sub>/V が大きいほど差が開く。</p>
+
+  <h2>音速を超えたら</h2>
+  <p class="note">音源が空気に対して持つ速さは v<sub>rel</sub> = v<sub>s</sub> &minus; w。時刻 t<sub>e</sub> に出た波面は半径 V&tau;、その中心から現在の音源までの距離は |v<sub>rel</sub>|&tau;。音源から円に接線を引くと、直角三角形の斜辺が |v<sub>rel</sub>|&tau;、対辺が V&tau; になる。</p>
+  <div class="step"><span class="lbl">MACH</span><div class="eq">sin&mu; = V&tau; / (|v<sub>rel</sub>|&tau;) = V/|v<sub>rel</sub>| = 1/M　　M = |v<sub>rel</sub>|/V</div></div>
+  <p class="note">&tau; が約分で消えるのがここの急所。どの波面に対しても同じ角度になるので、接線が全部そろって 1 枚の面をつくる。M = 1.2 で &mu; = 56.4°、M = 1.5 で 41.8°、M = 2 で 30°。速いほど円錐は細くなる。</p>
+  <p class="note">前方に置いた観測者に対しては、式の分母 V + w &minus; v<sub>s</sub> が負になる。負の振動数に物理的な意味はないが、遅延時間の方程式では dt/dt<sub>e</sub> &lt; 0 に対応していて、あとから出た音が先に届くことを表す。実際に音源が通り過ぎるまで何も聞こえず、通り過ぎた瞬間に、それまでの音がひとまとめに、しかも時間を逆順にして届く。</p>
+
+  <h2>壁の反射は 2 回のドップラー</h2>
+  <p class="note">静止した音源が f<sub>0</sub> を出し、速さ u で近づく壁がそれを跳ね返す。壁はまず動く観測者、次に動く音源として働く。</p>
+  <div class="step"><span class="lbl">STEP 1</span><div class="eq">f<sub>1</sub> = f<sub>0</sub> (V + u)/V　　壁が受け取る振動数</div></div>
+  <div class="step"><span class="lbl">STEP 2</span><div class="eq">f<sub>2</sub> = f<sub>1</sub> &middot; V/(V &minus; u) = f<sub>0</sub> (V + u)/(V &minus; u)</div></div>
+  <p class="note">元の音と重ねると毎秒 |f<sub>2</sub> &minus; f<sub>0</sub>| = 2f<sub>0</sub>u/(V&minus;u) 回のうなりが出る。この 2 段構えが、そのまま超音波ドップラーの原理になる。</p>
+
+  <h2>超音波ドップラーで血流を測る</h2>
+  <p class="note">探触子は静止していて、組織中の音速は c。血球が速さ v で、ビーム方向と角度 &theta; をなして流れている。ビーム方向の速度成分は v cos&theta;。探触子に近づく向きを正にとる。</p>
+  <div class="step"><span class="lbl">RECEIVE</span><div class="eq">f<sub>1</sub> = f<sub>0</sub> (c + v cos&theta;) / c　　血球は動く観測者</div></div>
+  <div class="step"><span class="lbl">SCATTER</span><div class="eq">f<sub>2</sub> = f<sub>1</sub> &middot; c / (c &minus; v cos&theta;) = f<sub>0</sub> (c + v cos&theta;)/(c &minus; v cos&theta;)　　血球は動く音源</div></div>
+  <div class="step"><span class="lbl">SHIFT</span><div class="eq">&Delta;f = f<sub>2</sub> &minus; f<sub>0</sub> = 2 f<sub>0</sub> v cos&theta; / (c &minus; v cos&theta;)　　厳密</div></div>
+  <div class="step"><span class="lbl">CLINICAL</span><div class="eq">&Delta;f ≒ 2 f<sub>0</sub> v cos&theta; / c　　装置が使う形</div></div>
+  <p class="note">落としているのは分母の v cos&theta; だけ。v = 1 m/s、c = 1540 m/s なら比率は 6.5&times;10<sup>&minus;4</sup> で、速度に直すと装置は 0.065% だけ過大に出す。無視して構わない大きさだが、どこを落としたかは押さえておく。係数の 2 は往復で 2 回ドップラーがかかることから来ていて、ここを 1 にすると速度が半分になる。</p>
+  <div class="step"><span class="lbl">INVERT</span><div class="eq">v = &Delta;f &middot; c / {cos&theta; (2f<sub>0</sub> + &Delta;f)}　　厳密　　装置は v ≒ &Delta;f c / (2 f<sub>0</sub> cos&theta;)</div></div>
+
+  <h2>cos&theta; で割り戻す、その落とし穴</h2>
+  <p class="note">角度補正をかけずに &theta; = 0 とみなすと、見かけの速度は真の値の cos&theta; 倍になる。60° で半分。ここに簡易ベルヌーイ式 &Delta;P = 4v<sup>2</sup> を通すと、圧較差は cos<sup>2</sup>&theta; 倍で 4 分の 1 まで落ちる。</p>
+  <div class="step"><span class="lbl">UNDER</span><div class="eq">v<sub>見かけ</sub> = v cos&theta;　　&Delta;P<sub>見かけ</sub> = 4v<sup>2</sup>cos<sup>2</sup>&theta;</div></div>
+  <p class="note">真の 4.0 m/s（圧較差 64 mmHg、重症の大動脈弁狭窄）が 60° で 2.0 m/s、16 mmHg。数字だけ見れば軽症に化ける。速度が 2 乗で効く指標を扱うときは、角度のずれが二重に効くと考えたほうがいい。</p>
+  <p class="note">補正をかけても角度の推定そのものに誤差が残る。相対誤差は cos&theta;/cos(&theta;+&Delta;&theta;) &minus; 1 で、&Delta;&theta; = 5° なら 20° で 3.7%、45° で 10.0%、60° で 18.3%、70° で 32.2%。tan&theta;&middot;&Delta;&theta; という目安は 60° で 15.1% と出るので、大きい角度では目安のほうが甘めに出る。&theta; &le; 60° に収めるという臨床の作法はここから来ている。&theta; = 90° では cos&theta; = 0 で、どれだけ速く流れていても信号が出ない。</p>
+
+  <h2>パルスドップラーの折り返し</h2>
+  <p class="note">パルス波では 1 秒あたりの送信回数 PRF でしか波形を標本化できないので、ナイキスト周波数 PRF/2 を超える &Delta;f は折り返して逆向きに見える。深さ d まで往復する時間が必要なので PRF は c/(2d) が上限。</p>
+  <div class="step"><span class="lbl">NYQUIST</span><div class="eq">v<sub>max</sub> = c &middot; PRF / (4 f<sub>0</sub> cos&theta;) = c<sup>2</sup> / (8 d f<sub>0</sub> cos&theta;)</div></div>
+  <p class="note">c = 1540、深さ 5 cm、5 MHz、&theta; = 0 なら 1.19 m/s。弁狭窄の 4 m/s は到底測れない。周波数を下げるか、連続波ドップラーに切り替えるか、ベースラインをずらすことになる。振動数を上げると感度は上がるが測れる速度の上限は下がる、というのがこの式の読みどころ。</p>
+</div>
+
+<div class="card">
+  <div class="eyebrow">NOTES</div>
+
+  <h2>どの近似がどこで効くか</h2>
+  <div id="apptable"></div>
+
+  <h2>使った定数</h2>
+  <p class="note" id="constnote"></p>
+  <p class="note">空気中の音速は 15°C で 340 m/s を既定にした。断熱式 V = &radic;(&gamma;RT/M) に &gamma; = 1.4、M = 28.9647 g/mol を入れると 0°C で 331.32 m/s、15°C で 340.30 m/s。教科書の V = 331.5 + 0.6t は 15°C で 340.5 m/s で、0.06% ほど高い。0°C 乾燥空気の実測は 331.29 m/s（Wong 1986）で断熱式とほぼ一致するので、教科書の 331.5 のほうが古い測定に由来する丸めと見ていい。ドップラーの計算では音速そのものより速度の比が効くので、この程度の差は結果をほとんど動かさない。</p>
+  <p class="note">組織中の音速は 1540 m/s を既定にした。これは装置が距離換算に使っている軟部組織の平均値で、実測は血液 1570、骨格筋 1580、肝 1550 前後、脂肪 1450 とばらつく。教科書には 1500 と書かれていることもあるが、装置の表示と突き合わせるなら 1540 を採るべき。皮下脂肪の厚い被検者では深さ表示が数% ずれるのはこの食い違いのせい。速度計測のほうは &Delta;f と c が比例するので、c を 1450 で計算すると速度も 6% 小さく出る。</p>
+  <p class="note">大動脈弁狭窄の重症度の目安（最大流速 4.0 m/s、平均圧較差 40 mmHg）と簡易ベルヌーイ式 &Delta;P = 4v<sup>2</sup> は臨床ガイドラインの慣用値。&Delta;P = 4v<sup>2</sup> 自体、粘性損失と近位側の流速を落とした近似で、狭窄が軽いときほど誤差が大きい。</p>
+
+  <h2>取り違えやすいところ</h2>
+  <ul class="tight note">
+    <li>音源が動いても波長が変わるだけで、音速は変わらない。音速を決めるのは媒質の温度だけ。「速い音源からは速い音が出る」は誤り。</li>
+    <li>観測者が動いても波長は変わらない。変わるのは 1 秒あたりに何本の波面をまたぐか。ここを混ぜると分母と分子を取り違える。</li>
+    <li>風が吹いても、二人とも止まっていれば振動数は変わらない。変わるのは波長と、地面に対する音の速さ。</li>
+    <li>分母が 0 に近づくのは音源側だけ。観測者がどれだけ速く走っても f′ は発散しない。</li>
+    <li>音源が遠ざかるときの f′ は f<sub>0</sub>V/(V+v<sub>s</sub>) で、近づくときの f<sub>0</sub>V/(V&minus;v<sub>s</sub>) と平均しても f<sub>0</sub> にならない。高いほうへ寄る。</li>
+    <li>斜めに通過する音源では、真横に来た瞬間に f′ = f<sub>0</sub> にはならない。音が届くまでの遅れのぶん、少し後になる。</li>
+    <li>マッハ角は音源の速さだけで決まり、経過時間にも音源からの距離にもよらない。</li>
+    <li>超音波ドップラーの係数 2 は往復で 2 回かかるから。片道の式で計算すると速度が半分になる。</li>
+    <li>cos&theta; で割り戻すのは補正であって、測定値そのものではない。角度の入力を間違えるとその比でまるごとずれる。</li>
+    <li>&theta; = 90° で信号が消えるのは血流が止まったからではない。ビームに垂直な流れは原理的に見えない。</li>
+    <li>血管断面の平均流速は最大流速の半分程度（層流の放物線分布）。最大流速から流量を出すと 2 倍になる。</li>
+  </ul>
+</div>
+
+</div>
+<script>
+"use strict";
+const TAU=Math.PI*2, RAD=Math.PI/180, DEG=180/Math.PI;
+const INK='#16232B',MUT='#5E6E76',RULE='#D6DDDA',SOFT='#E8EDEB';
+const CGOLD='#B87A16',CGRN='#158A6D',CBLU='#2457A6',CPUR='#6E3AA7',CCRM='#A82A6A',COLV='#3B6E1E';
+const CGOLDT='#8A5A0C',CGRNT='#0D6A53',CBLUT='#1B4380',CPURT='#572D85',CCRMT='#831F52';
+
+/* ---------- 定数（データ駆動） ---------- */
+const GAMMA=1.4, RGAS=8.314462618, MAIR=0.0289647, T0K=273.15;
+const V0ADIA=Math.sqrt(GAMMA*RGAS*T0K/MAIR);            /* 0°C の音速：断熱式 331.32 */
+
+/* 音源のプリセット。V も一緒に置き換える */
+const PRESETS=[
+  {id:'amb',  nm:'救急車 30',      vs:30,  vo:0,   w:0,   V:340, f0:170},
+  {id:'shin', nm:'新幹線 90',      vs:90,  vo:0,   w:0,   V:340, f0:170},
+  {id:'run',  nm:'観測者が走る',   vs:0,   vo:-40, w:0,   V:340, f0:170},
+  {id:'tail', nm:'追い風 40',      vs:90,  vo:0,   w:40,  V:340, f0:170},
+  {id:'head', nm:'向かい風 40',    vs:90,  vo:0,   w:-40, V:340, f0:170},
+  {id:'both', nm:'両方が動く',     vs:60,  vo:40,  w:0,   V:340, f0:170},
+  {id:'son',  nm:'ちょうど音速',   vs:340, vo:0,   w:0,   V:340, f0:400},
+  {id:'sup',  nm:'超音速 M=1.4',   vs:476, vo:0,   w:0,   V:340, f0:400}
+];
+/* 空気の音速の基準値 */
+const VREF=[
+  {nm:'断熱式 0°C',  v:V0ADIA, note:'√(γRT/M) の理論値'},
+  {nm:'実測 0°C',    v:331.29, note:'乾燥空気の実測（Wong 1986）'},
+  {nm:'教科書 0°C',  v:331.5,  note:'331.5+0.6t の切片。古い測定に由来する丸め'}
+];
+/* 組織の音速。装置の既定は 1540 */
+const TISSUE=[
+  {id:'std',  nm:'1540 標準', c:1540, note:'装置が距離換算に使う軟部組織の平均値'},
+  {id:'txt',  nm:'1500 教科書', c:1500, note:'教科書でよく見る丸め値'},
+  {id:'bld',  nm:'血液 1570', c:1570, note:'血液の実測値（37°C）'},
+  {id:'fat',  nm:'脂肪 1450', c:1450, note:'脂肪の実測値。深さ表示がずれる原因'},
+  {id:'mus',  nm:'筋 1580',   c:1580, note:'骨格筋の実測値'}
+];
+const SPEEDS=[{v:0.015,nm:'0.015×'},{v:0.04,nm:'0.04×'},{v:0.1,nm:'0.1×'},{v:0.25,nm:'0.25×'}];
+const MTAB=[1.05,1.1,1.2,1.4,1.6,2.0,2.5,3.0];
+const LINV=[10,20,34,50,80,120,200,300];
+const ANGTAB=[0,15,20,30,45,60,70,80,85,90];
+const SYMS=[
+  {k:'f0',desc:'<b>f<sub>0</sub></b>　音源そのものの振動数。音源が動いても、これは 1 ミリも変わらない。変わるのは受け取る側の勘定だけ。'},
+  {k:'V', desc:'<b>V</b>　媒質の中を音が進む速さ。空気の温度でだけ決まり、音源や観測者の速さとは無関係。15°C で 340 m/s 前後。'},
+  {k:'w', desc:'<b>w</b>　風速。音源から観測者へ向かう向きを正にとる。分子と分母に同じだけ入るので、二人とも止まっていれば約分されて消える。'},
+  {k:'vo',desc:'<b>v<sub>o</sub></b>　観測者の速度。分子に入る。波長は変えず、単位時間に何本の波面をまたぐかだけを変える。だから分母のように 0 に近づくことがない。'},
+  {k:'vs',desc:'<b>v<sub>s</sub></b>　音源の速度。分母に入る。波長そのものを縮めたり伸ばしたりする。音速に近づくと分母が 0 に近づき、f′ が跳ね上がる。'}
+];
+const APPROX=[
+  ['Δf/f₀ ≒ (v_s − v_o)/V','暗算・概算','(v/V)² から下を落としている。v = 34 m/s で 1.0%、100 m/s で 9.5% ずれる'],
+  ['音源と観測者を入れ替えても同じ','古典ドップラー','入れ替えると差が出る。34 m/s で 1.0%、100 m/s で 9.5%'],
+  ['受信した瞬間の位置で角度をとる','斜めに通過する音源','正しくは音を出した瞬間の位置。最接近距離を音が渡る時間だけずれる'],
+  ['風は音速に足すだけ','風があるとき','実際は高さで風速が変わって音線が曲がる。地表付近で数%'],
+  ['Δf = 2f₀v cosθ / c','超音波ドップラー','分母の v cosθ を落としている。v = 1 m/s で 0.065%'],
+  ['ΔP = 4v²','圧較差の推定','粘性損失と近位側の流速を落とした簡易ベルヌーイ式。狭窄が軽いほど誤差が大きい'],
+  ['血流を 1 本の速度で代表','血流速度計測','層流なら放物線分布。断面平均は最大値のおよそ半分'],
+  ['組織音速を 1540 m/s で一定','距離と速度の換算','脂肪 1450、筋 1580。速度も c に比例してずれる'],
+  ['空気を理想気体とみなす','音速の温度換算','湿度と圧力の効果は常温で 0.1% 程度'],
+  ['音源を点とみなす','波面の同心円','音源の寸法が波長より十分小さいときだけ']
+];
+
+const ST={
+  vs:90, vo:0, w:0, V:340, f0:170,
+  t:0, playing:true, speed:0.04,
+  hl:null, hlPin:false,
+  d:40,
+  alt:10, altV:300,
+  yaw:-0.62, pitch:0.36,
+  usF0:5.0, usV:1.00, usTh:60, usDep:50, usTi:0
+};
+
+/* ---------- 小道具 ---------- */
+const clamp=(v,a,b)=>v<a?a:(v>b?b:v);
+const f1=v=>(Math.round(v*100)/100).toString();
+function niceCeil(v){
+  if(v<=0) return 1;
+  const e=Math.floor(Math.log10(v)), m=v/Math.pow(10,e);
+  const lad=[1,1.2,1.5,2,2.5,3,4,5,6,8,10];
+  for(const q of lad) if(m<=q+1e-12) return q*Math.pow(10,e);
+  return 10*Math.pow(10,e);
+}
+function fmt(v,sig){
+  sig=sig||4;
+  if(!isFinite(v)) return '—';
+  if(v===0) return '0';
+  const av=Math.abs(v);
+  if(av>=1e-3&&av<1e6){
+    let s=v.toPrecision(sig);
+    if(s.indexOf('e')<0&&s.indexOf('.')>=0) s=s.replace(/0+$/,'').replace(/\.$/,'');
+    return s;
+  }
+  const e=Math.floor(Math.log10(av));
+  return (v/Math.pow(10,e)).toFixed(sig-1)+'×10<sup>'+String(e).replace('-','\u2212')+'</sup>';
+}
+function mn(v){ return String(v).replace('-','\u2212'); }
+function LN(x1,y1,x2,y2,c,w,dash,op){
+  return '<line x1="'+f1(x1)+'" y1="'+f1(y1)+'" x2="'+f1(x2)+'" y2="'+f1(y2)+'" stroke="'+c+'" stroke-width="'+(w||1)+'"'+
+    (dash?' stroke-dasharray="'+dash+'"':'')+(op!==undefined?' opacity="'+op+'"':'')+' stroke-linecap="round"/>';
+}
+function TX(x,y,s,c,size,anchor,weight,op){
+  return '<text x="'+f1(x)+'" y="'+f1(y)+'" fill="'+c+'" font-family="IBM Plex Mono, monospace" font-size="'+(size||10)+'"'+
+    (anchor?' text-anchor="'+anchor+'"':'')+(weight?' font-weight="'+weight+'"':'')+(op!==undefined?' opacity="'+op+'"':'')+'>'+s+'</text>';
+}
+function TXJ(x,y,s,c,size,anchor,weight,op){
+  return '<text x="'+f1(x)+'" y="'+f1(y)+'" fill="'+c+'" font-family="IBM Plex Sans JP, sans-serif" font-size="'+(size||10)+'"'+
+    (anchor?' text-anchor="'+anchor+'"':'')+(weight?' font-weight="'+weight+'"':'')+(op!==undefined?' opacity="'+op+'"':'')+'>'+s+'</text>';
+}
+function PL(pts,c,w,dash,op){
+  if(pts.length<2) return '';
+  let d='M'+f1(pts[0][0])+' '+f1(pts[0][1]);
+  for(let i=1;i<pts.length;i++) d+='L'+f1(pts[i][0])+' '+f1(pts[i][1]);
+  return '<path d="'+d+'" fill="none" stroke="'+c+'" stroke-width="'+(w||1.6)+'"'+
+    (dash?' stroke-dasharray="'+dash+'"':'')+(op!==undefined?' opacity="'+op+'"':'')+' stroke-linejoin="round" stroke-linecap="round"/>';
+}
+function POLY(pts,fill,stroke,sw,op){
+  if(pts.length<3) return '';
+  let s='';
+  for(const p of pts) s+=f1(p[0])+','+f1(p[1])+' ';
+  return '<polygon points="'+s.trim()+'" fill="'+(fill||'none')+'"'+
+    (stroke?' stroke="'+stroke+'" stroke-width="'+(sw||1)+'"':'')+(op!==undefined?' opacity="'+op+'"':'')+'/>';
+}
+function AR(x1,y1,x2,y2,c,w,hs,op){
+  const dx=x2-x1, dy=y2-y1, len=Math.hypot(dx,dy);
+  if(len<0.6) return '';
+  hs=hs||6;
+  const ux=dx/len, uy=dy/len, px=-uy, py=ux;
+  const bx=x2-ux*hs, by=y2-uy*hs;
+  return LN(x1,y1,bx,by,c,w||1.6,null,op)+
+    '<polygon points="'+f1(x2)+','+f1(y2)+' '+f1(bx+px*hs*0.42)+','+f1(by+py*hs*0.42)+' '+f1(bx-px*hs*0.42)+','+f1(by-py*hs*0.42)+'" fill="'+c+'"'+(op!==undefined?' opacity="'+op+'"':'')+'/>';
+}
+function CIRC(x,y,r,fill,stroke,sw,dash,op){
+  return '<circle cx="'+f1(x)+'" cy="'+f1(y)+'" r="'+f1(r)+'" fill="'+(fill||'none')+'"'+
+    (stroke?' stroke="'+stroke+'" stroke-width="'+(sw||1)+'"':'')+(dash?' stroke-dasharray="'+dash+'"':'')+(op!==undefined?' opacity="'+op+'"':'')+'/>';
+}
+function RECT(x,y,w,h,fill,stroke,sw,dash,op){
+  return '<rect x="'+f1(x)+'" y="'+f1(y)+'" width="'+f1(w)+'" height="'+f1(h)+'" fill="'+(fill||'none')+'"'+
+    (stroke?' stroke="'+stroke+'" stroke-width="'+(sw||1)+'"':'')+(dash?' stroke-dasharray="'+dash+'"':'')+(op!==undefined?' opacity="'+op+'"':'')+'/>';
+}
+function ARC(cx,cy,r,a0,a1,c,w,dash,op){
+  const x0=cx+r*Math.cos(a0), y0=cy-r*Math.sin(a0);
+  const x1=cx+r*Math.cos(a1), y1=cy-r*Math.sin(a1);
+  const large=(Math.abs(a1-a0)>Math.PI)?1:0, sweep=(a1>a0)?0:1;
+  return '<path d="M'+f1(x0)+' '+f1(y0)+'A'+f1(r)+' '+f1(r)+' 0 '+large+' '+sweep+' '+f1(x1)+' '+f1(y1)+
+    '" fill="none" stroke="'+c+'" stroke-width="'+(w||1)+'"'+(dash?' stroke-dasharray="'+dash+'"':'')+(op!==undefined?' opacity="'+op+'"':'')+'/>';
+}
+function DIM(x1,y,x2,c,lab,size,op){
+  const s=size||9;
+  let o=LN(x1,y,x2,y,c,1.2,null,op);
+  for(const q of [[x1,1],[x2,-1]]){
+    o+=LN(q[0],y-3.5,q[0],y+3.5,c,1.2,null,op);
+    o+=LN(q[0],y,q[0]+q[1]*5,y-2.6,c,1.1,null,op)+LN(q[0],y,q[0]+q[1]*5,y+2.6,c,1.1,null,op);
+  }
+  if(lab) o+=TX((x1+x2)/2,y-6,lab,c,s,'middle','500',op);
+  return o;
+}
+function setVB(id,w,h){ const s=document.getElementById(id); if(s) s.setAttribute('viewBox','0 0 '+w+' '+h); }
+function put(id,s){ const e=document.getElementById(id); if(e) e.innerHTML=s; }
+function stt(k,v){ return '<div class="stat"><span class="k">'+k+'</span><span class="v">'+v+'</span></div>'; }
+function cents(r){ return 1200*Math.log(r)/Math.LN2; }
+
+let narrow=window.innerWidth<=430;
+
+/* ---------- スライダー登録 ---------- */
+const SLREG=[];
+function addSlider(host,id,lab,min,max,step,getv,setv,fmtf,unit,cb){
+  const row=document.createElement('div'); row.className='ctl';
+  row.innerHTML='<span class="lab">'+lab+'</span><input type="range" id="'+id+'" min="'+min+'" max="'+max+'" step="'+step+'"><span class="val mono" id="vv-'+id+'"></span>';
+  const h=document.getElementById(host); if(!h) return;
+  h.appendChild(row);
+  const el=row.querySelector('input');
+  el.addEventListener('input',function(){ setv(+el.value); (cb||onParam)(); });
+  SLREG.push({id:id,getv:getv,fmtf:fmtf,unit:unit,el:el});
+}
+function syncSliders(){
+  for(const r of SLREG){
+    const raw=Math.round(r.getv());
+    if(+r.el.value!==raw) r.el.value=raw;
+    const box=document.getElementById('vv-'+r.id);
+    if(box) box.textContent=r.fmtf(raw)+(r.unit?' '+r.unit:'');
+  }
+}
+
+/* ---------- 再生コントロール ---------- */
+const TRANS=[];
+function buildTransport(host){
+  const row=document.createElement('div'); row.className='ctl';
+  row.innerHTML='<button class="btn" data-a="play"></button>'+
+    '<button class="btn sm" data-a="step">コマ送り</button>'+
+    '<button class="btn sm" data-a="reset">最初に戻す</button>'+
+    '<span class="lab">速さ</span><span class="btnrow" data-a="spd"></span>';
+  const h=document.getElementById(host); if(!h) return;
+  h.appendChild(row);
+  row.querySelector('[data-a="play"]').addEventListener('click',function(){ ST.playing=!ST.playing; syncTransport(); });
+  row.querySelector('[data-a="step"]').addEventListener('click',function(){ ST.playing=false; ST.t+=cycleT()/40; syncTransport(); dyn(); });
+  row.querySelector('[data-a="reset"]').addEventListener('click',function(){ ST.t=0; syncTransport(); dyn(); });
+  const box=row.querySelector('[data-a="spd"]');
+  for(const s of SPEEDS){
+    const b=document.createElement('button');
+    b.className='btn sm'; b.textContent=s.nm; b.setAttribute('data-v',s.v);
+    b.addEventListener('click',function(){ ST.speed=s.v; syncTransport(); });
+    box.appendChild(b);
+  }
+  TRANS.push({play:row.querySelector('[data-a="play"]'),box:box});
+}
+function syncTransport(){
+  for(const t of TRANS){
+    t.play.textContent=ST.playing?'一時停止':'再生';
+    for(const b of t.box.children) b.classList.toggle('on',Math.abs(+b.getAttribute('data-v')-ST.speed)<1e-9);
+  }
+}
+
+/* ---------- 共通の物理 ---------- */
+function machRel(){ return Math.abs(ST.vs-ST.w)/ST.V; }
+function lamFront(){ return (ST.V+ST.w-ST.vs)/ST.f0; }
+function lamBack(){ return (ST.V-ST.w+ST.vs)/ST.f0; }
+function fClosed(){ return ST.f0*(ST.V+ST.w-ST.vo)/(ST.V+ST.w-ST.vs); }
+
+/* ---------- 波面のアニメーション ---------- */
+let WF={};
+function layoutWF(){
+  const W=narrow?360:740, H=narrow?300:346;
+  const XW=narrow?18:26, XS0=narrow?1.2:2.0, O0=XW-(narrow?3.6:5.0);
+  WF={W:W,H:H,XW:XW,XS0:XS0,O0:O0,s:W/XW,cy:H*0.52};
+  setVB('sv-wf',W,H);
+}
+function PX(x){ return x*WF.s; }
+function PY(y){ return WF.cy-y*WF.s; }
+function cycleT(){
+  const XW=WF.XW||26, XS0=WF.XS0||2, O0=WF.O0||21;
+  let a=1e9,b=1e9;
+  if(Math.abs(ST.vs)>1e-9) a=(ST.vs>0?(XW-0.8-XS0):(XS0-0.4))/Math.abs(ST.vs);
+  if(ST.vo>1e-9) b=(XW-0.5-O0)/ST.vo;
+  else if(ST.vo<-1e-9) b=(O0-0.5)/(-ST.vo);
+  return Math.max(0.015,Math.min(0.22,a,b));
+}
+/* 発射時刻 te の波面が観測者に届く時刻（遅延時間の 2 次方程式を解く） */
+function arriveWF(te){
+  const P=WF.XS0+ST.vs*te;
+  const D=(WF.O0+ST.vo*te)-P;
+  const u=ST.vo-ST.w;
+  const a=u*u-ST.V*ST.V, b=D*u, c2=D*D;
+  const disc=b*b-a*c2;
+  if(disc<0||Math.abs(a)<1e-12) return NaN;
+  const s=Math.sqrt(disc);
+  const r1=(-b+s)/a, r2=(-b-s)/a;
+  let tau=Infinity;
+  if(r1>1e-13&&r1<tau) tau=r1;
+  if(r2>1e-13&&r2<tau) tau=r2;
+  return isFinite(tau)?te+tau:NaN;
+}
+function fObsWF(te){
+  const h=2e-7;
+  const t1=arriveWF(te-h), t2=arriveWF(te+h);
+  if(!isFinite(t1)||!isFinite(t2)) return NaN;
+  const dd=(t2-t1)/(2*h);
+  if(Math.abs(dd)<1e-12) return NaN;
+  return ST.f0/dd;
+}
+/* 受信時刻 tw に届いている音の発射時刻をすべて拾う（1 フレーム 1 回だけ計算） */
+let ERC={k:null,v:[]};
+function emitRoots(tw){
+  const key=tw+'|'+ST.vs+'|'+ST.vo+'|'+ST.w+'|'+ST.V+'|'+WF.O0;
+  if(ERC.k===key) return ERC.v;
+  const out=[], N=300, span=Math.max(0.02,(WF.XW*2.2)/ST.V);
+  let prev=null,pte=null;
+  for(let i=0;i<=N;i++){
+    const te=tw-span+span*i/N;
+    const v=arriveWF(te);
+    if(!isFinite(v)){ prev=null; continue; }
+    const g=v-tw;
+    if(prev!==null&&prev*g<=0&&Math.abs(g-prev)>1e-15){
+      let lo=pte,hi=te;
+      for(let k=0;k<60;k++){
+        const m=(lo+hi)/2, gm=arriveWF(m)-tw;
+        if((arriveWF(lo)-tw)*gm<=0) hi=m; else lo=m;
+      }
+      out.push((lo+hi)/2);
+    }
+    prev=g; pte=te;
+  }
+  ERC={k:key,v:out};
+  return out;
+}
+function hlw(k,base,on){ return ST.hl===k?CGOLDT:base; }
+function hlt(k,base){ return ST.hl===k?3.0:base; }
+
+function drawWfStatic(){
+  layoutWF();
+  const W=WF.W,H=WF.H,XW=WF.XW,cy=WF.cy;
+  let o='';
+  o+=LN(0,H-20,W,H-20,RULE,1);
+  const stp=narrow?3:5;
+  for(let m=0;m<=XW;m+=1){
+    const X=PX(m), big=(m%stp===0);
+    o+=LN(X,H-20,X,H-20+(big?5:2.5),RULE,1);
+    if(big) o+=TX(clamp(X,9,W-9),H-6,m+'',MUT,8.5,'middle');
+  }
+  o+=TX(W-4,H-26,'x [m]',MUT,9.5,'end');
+  put('wf-static',o);
+}
+function drawWfDyn(){
+  const W=WF.W,H=WF.H,XW=WF.XW,XS0=WF.XS0,O0=WF.O0,s=WF.s,cy=WF.cy;
+  const TC=cycleT(), tw=((ST.t%TC)+TC)%TC;
+  const V=ST.V,w=ST.w,vs=ST.vs,vo=ST.vo,f0=ST.f0;
+  const sx=XS0+vs*tw, ox=O0+vo*tw;
+  const RMAX=XW*1.75;
+  let o='';
+
+  /* 衝撃波の静寂域を先に敷く */
+  const vrel=vs-w, M=Math.abs(vrel)/V;
+  const sup=M>1.000001;
+  let mu=0,sgn=vrel>=0?1:-1;
+  if(sup){
+    mu=Math.asin(1/M);
+    /* 音が届いている側（円錐の内側）だけを薄く塗る */
+    const Rb=XW*3.2, f0a=sgn>0?Math.PI:0, pts=[[PX(sx),PY(0)]];
+    for(let i=0;i<=24;i++){
+      const al=f0a-mu+2*mu*i/24;
+      pts.push([PX(sx+Rb*Math.cos(al)),PY(Rb*Math.sin(al))]);
+    }
+    o+=POLY(pts,CBLU,null,0,0.075);
+  }
+
+  /* 同心円 */
+  const nmax=Math.floor(tw*f0+1e-9);
+  const fr=[];
+  for(let n=nmax;n>=0;n--){
+    const te=n/f0, tau=tw-te, R=V*tau;
+    if(R>RMAX) break;
+    fr.push({cx:XS0+vs*te+w*tau,R:R});
+  }
+  let stp2=1;
+  if(fr.length>46) stp2=Math.ceil(fr.length/46);
+  for(let j=fr.length-1;j>=0;j-=stp2){
+    const q=fr[j];
+    const op=clamp(0.80-0.62*q.R/RMAX,0.13,0.80);
+    o+=CIRC(PX(q.cx),PY(0),q.R*s,null,hlw('V',CBLU),ST.hl==='V'?1.7:1.15,null,op);
+  }
+
+  /* 波長の実測（前方） */
+  const lamF=lamFront(), lamB=lamBack();
+  if(lamF>0.03){
+    let j=-1;
+    for(let i=0;i<fr.length;i++){ if(fr[i].cx+fr[i].R<XW-0.4) j=i; else break; }
+    if(j>=1){
+      const a=fr[j-1].cx+fr[j-1].R, b=fr[j].cx+fr[j].R;
+      const yD=24;
+      o+=LN(PX(a),PY(0),PX(a),yD,RULE,1,'2 3');
+      o+=LN(PX(b),PY(0),PX(b),yD,RULE,1,'2 3');
+      o+=DIM(PX(a),yD,PX(b),CGOLDT,'λ前 = '+lamF.toFixed(3)+' m',9);
+    }
+  }
+  if(lamB>0.03){
+    let j=-1;
+    for(let i=0;i<fr.length;i++){ if(fr[i].cx-fr[i].R>0.4) j=i; else break; }
+    if(j>=1){
+      const a=fr[j].cx-fr[j].R, b=fr[j-1].cx-fr[j-1].R;
+      const yD=H-38;
+      o+=LN(PX(a),PY(0),PX(a),yD,RULE,1,'2 3');
+      o+=LN(PX(b),PY(0),PX(b),yD,RULE,1,'2 3');
+      o+=DIM(PX(a),yD,PX(b),CGOLDT,'λ後 = '+lamB.toFixed(3)+' m',9);
+    }
+  }
+
+  /* 衝撃波面と作図 */
+  if(sup){
+    const Lc=XW*3.0, ux=-sgn*Math.cos(mu), uy=Math.sin(mu);
+    for(const q of [1,-1])
+      o+=LN(PX(sx),PY(0),PX(sx+Lc*ux),PY(q*Lc*uy),CCRM,2.2);
+    const jj=Math.min(fr.length-1,Math.max(1,Math.floor(fr.length*0.55)));
+    if(jj>=1){
+      const C=fr[jj], AC=Math.abs(sx-C.cx), AT=Math.sqrt(Math.max(0,AC*AC-C.R*C.R));
+      const Tx=sx+AT*ux, Ty=AT*uy;
+      o+=LN(PX(sx),PY(0),PX(C.cx),PY(0),CCRMT,1.3,'3 3');
+      o+=LN(PX(C.cx),PY(0),PX(Tx),PY(Ty),CCRMT,1.3);
+      o+=CIRC(PX(Tx),PY(Ty),2.6,CCRMT);
+      o+=TXJ((PX(sx)+PX(C.cx))/2,PY(0)+13,'|v−w|τ',CCRMT,9,'middle');
+      o+=TXJ((PX(C.cx)+PX(Tx))/2+8,(PY(0)+PY(Ty))/2,'Vτ',CCRMT,9,'start');
+    }
+    const lx=clamp(PX(sx-sgn*XW*0.30),60,W-60);
+    o+=TXJ(lx,PY(0)-(narrow?54:70),'音が届いている',CBLUT,10,'middle','500');
+    const lx2=clamp(PX(sx+sgn*XW*0.16),60,W-60);
+    o+=TXJ(lx2,PY(0)-(narrow?66:86),'静寂（まだ音が来ない）',CCRMT,10,'middle','500');
+    const ar=narrow?26:34, a0=sgn>0?Math.PI:0;
+    o+=LN(PX(sx),PY(0),PX(sx)+(sgn>0?-1:1)*ar*1.6,PY(0),CCRMT,1,'3 3');
+    o+=ARC(PX(sx),PY(0),ar,a0,a0-sgn*mu,CCRMT,1.4);
+    const la=a0-sgn*mu/2;
+    o+=TX(PX(sx)+(ar+13)*Math.cos(la),PY(0)-(ar+13)*Math.sin(la)+3,'μ='+(mu*DEG).toFixed(1)+'°',CCRMT,10,'middle','500');
+  }
+
+  /* 音源 */
+  const spx=PX(sx), spy=PY(0);
+  if(spx>-30&&spx<W+30){
+    o+=CIRC(spx,spy,5.6,hlw('vs',CCRM));
+    if(Math.abs(vs)>0.5){
+      const L=clamp(Math.abs(vs)/ST.V*70,10,86);
+      o+=AR(spx,spy-17,spx+Math.sign(vs)*L,spy-17,hlw('vs',CCRM),hlt('vs',1.9),6.5);
+      o+=TX(spx+Math.sign(vs)*L/2,spy-23,'v_s='+mn(vs)+'',hlw('vs',CCRMT),9.5,'middle','500');
+    }
+    o+=TXJ(spx,spy+18,'音源',hlw('vs',CCRMT),10,'middle','500');
+  }
+  /* 観測者 */
+  const opx=PX(ox), opy=PY(0);
+  if(opx>-30&&opx<W+30){
+    o+=POLY([[opx,opy-6],[opx+5.6,opy+4],[opx-5.6,opy+4]],hlw('vo',CPUR));
+    if(Math.abs(vo)>0.5){
+      const L=clamp(Math.abs(vo)/ST.V*70,10,86);
+      o+=AR(opx,opy+21,opx+Math.sign(vo)*L,opy+21,hlw('vo',CPUR),hlt('vo',1.9),6.5);
+      o+=TX(opx+Math.sign(vo)*L/2,opy+34,'v_o='+mn(vo),hlw('vo',CPURT),9.5,'middle','500');
+    }
+    o+=TXJ(opx,opy-12,'観測者',hlw('vo',CPURT),10,'middle','500');
+  }
+  /* 風 */
+  if(Math.abs(w)>0.5){
+    const yb=narrow?20:22, L=clamp(Math.abs(w)/ST.V*140,18,110);
+    const x0=W*0.5-Math.sign(w)*L/2;
+    o+=AR(x0,yb,x0+Math.sign(w)*L,yb,hlw('w',CGRN),hlt('w',2.0),7);
+    o+=TX(W*0.5,yb-8,'風 w = '+mn(w)+' m/s',hlw('w',CGRNT),10,'middle','500');
+  }else{
+    o+=TX(W*0.5,narrow?16:18,'風なし',MUT,9.5,'middle');
+  }
+  /* 観測点の受信振動数 */
+  const roots=emitRoots(tw);
+  if(roots.length&&opx>-20&&opx<W+20){
+    const vals=roots.map(fObsWF).filter(isFinite);
+    if(vals.length){
+      const txt=vals.length>1
+        ? vals.map(function(v){return (Math.abs(v)).toFixed(1);}).join(' / ')+' Hz（同時に2つ）'
+        : Math.abs(vals[0]).toFixed(1)+' Hz'+(vals[0]<0?'（逆順）':'');
+      o+=TXJ(clamp(opx,50,W-50),opy+(vo!==0?48:34),'受信 f′ = '+txt,CPURT,10.5,'middle','500');
+    }
+  }else if(sup&&opx>-20&&opx<W+20){
+    o+=TXJ(clamp(opx,50,W-50),opy+34,'まだ何も届いていない',CCRMT,10.5,'middle','500');
+  }
+  o+=TX(6,H-26,'t = '+(tw*1000).toFixed(1)+' ms',MUT,9);
+  put('wf-dyn',o);
+}
+function drawWfStats(){
+  const V=ST.V,w=ST.w,vs=ST.vs,vo=ST.vo,f0=ST.f0;
+  const M=machRel(), lamF=lamFront(), lamB=lamBack();
+  const den=V+w-vs, num=V+w-vo, fp=f0*num/den;
+  const TC=cycleT(), tw=((ST.t%TC)+TC)%TC;
+  const roots=emitRoots(tw);
+  let fnum=NaN;
+  if(roots.length) { const v=roots.map(fObsWF).filter(isFinite); if(v.length) fnum=v[v.length-1]; }
+  const ox=WF.O0+vo*tw, sx=WF.XS0+vs*tw;
+  const ahead=ox>sx;
+  let h='';
+  h+=stt('音速に対する音源の速さ M','<span style="color:'+(M>1?CCRMT:INK)+'">'+M.toFixed(3)+'</span>');
+  h+=stt('λ 前方',(lamF>0?lamF.toFixed(4)+' m':'—（波面を追い越す）'));
+  h+=stt('λ 後方',lamB.toFixed(4)+' m');
+  h+=stt('f′ 前方（式）',den>0?(f0*num/den).toFixed(2)+' Hz':'—');
+  h+=stt('f′ 後方（式）',(f0*(V-w+vo)/(V-w+vs)).toFixed(2)+' Hz');
+  h+=stt('f′ 数値解（観測者位置）',isFinite(fnum)?(Math.abs(fnum)).toFixed(4)+' Hz':'—');
+  if(ahead&&den>0&&isFinite(fnum))
+    h+=stt('式との差',Math.abs(fnum-fp).toExponential(2)+' Hz');
+  else
+    h+=stt('観測者の位置',ahead?'音源の前方':'音源の後方');
+  h+=stt('音程差',(den>0?cents(fp/f0).toFixed(1)+' セント':'—'));
+  put('wfstats',h);
+}
+function drawWfNote(){
+  const V=ST.V,w=ST.w,vs=ST.vs,vo=ST.vo;
+  const M=machRel(), den=V+w-vs;
+  let s='';
+  if(M>1.000001){
+    const mu=Math.asin(1/M)*DEG;
+    s='音源が空気に対して音速を超えている（M = '+M.toFixed(3)+'）。波面が一枚の面にそろい、半頂角 '+mu.toFixed(1)+
+      '° の円錐ができる。sin μ = 1/M に経過時間が入らないので、この角度は音源からの距離によらず一定。円錐の外側には音がまだ届いていない。';
+  }else if(Math.abs(M-1)<1e-3){
+    s='音源が波面にちょうど追いついている。前方の波面がすべて音源の位置に重なるので λ前 = 0、式の分母も 0 になる。これが f′ の発散する点。';
+  }else if(vs===0&&vo===0&&w!==0){
+    s='風だけが吹いている状態。波長は '+lamFront().toFixed(3)+' m と '+lamBack().toFixed(3)+
+      ' m で前後に違うが、観測者が受け取る振動数は f₀ のまま。風は分子と分母に同じだけ入って約分される。';
+  }else if(vs===0&&vo!==0){
+    s='音源は止まっていて観測者だけが動いている。同心円は完全な同心のままで、波長はどこも '+lamFront().toFixed(3)+
+      ' m。変わるのは 1 秒あたりに何本の波面をまたぐかだけ。';
+  }else if(vo===0&&vs!==0){
+    s='音源だけが動いている。円の中心が出した瞬間の位置に置き去りになるので、前方で '+lamFront().toFixed(3)+' m、後方で '+
+      lamBack().toFixed(3)+' m と波長そのものが変わる。比は '+(lamBack()/lamFront()).toFixed(3)+' 倍。';
+  }else{
+    s='音源と観測者の両方が動いている。波長を決めるのは音源の速さだけ、波面を数える回数を決めるのは観測者の速さだけ。分母と分子で役割が分かれている。';
+  }
+  if(den<=0&&M<=1.000001) s+=' 分母が 0 以下になっているので、前方に向かう式は使えない。';
+  put('wfnote',s);
+}
+
+/* ---------- 観測振動数の式 ---------- */
+const FXM='f′ = <span class="sym cF" data-s="f0">f<sub>0</sub></span> &middot; '+
+  '<span class="frac">'+
+  '<span class="n"><span class="sym cV" data-s="V">V</span> + <span class="sym cW" data-s="w">w</span> &minus; <span class="sym cO" data-s="vo">v<sub>o</sub></span></span>'+
+  '<span class="d"><span class="sym cV" data-s="V">V</span> + <span class="sym cW" data-s="w">w</span> &minus; <span class="sym cS" data-s="vs">v<sub>s</sub></span></span>'+
+  '</span>　<span class="sub">分子＝観測者　分母＝音源</span>';
+function buildFx(){
+  put('fxmain',FXM);
+  for(const el of document.querySelectorAll('#fxmain .sym')){
+    const key=el.getAttribute('data-s');
+    el.setAttribute('tabindex','0');
+    el.addEventListener('pointerenter',function(){ if(!ST.hlPin) setHl(key); });
+    el.addEventListener('pointerleave',function(){ if(!ST.hlPin) setHl(null); });
+    el.addEventListener('focus',function(){ if(!ST.hlPin) setHl(key); });
+    el.addEventListener('click',function(){
+      if(ST.hlPin&&ST.hl===key){ ST.hlPin=false; setHl(null); }
+      else { ST.hlPin=true; setHl(key); }
+    });
+  }
+}
+function setHl(k){
+  ST.hl=k;
+  for(const el of document.querySelectorAll('#fxmain .sym'))
+    el.classList.toggle('on',k!==null&&el.getAttribute('data-s')===k);
+  const s=SYMS.find(function(q){return q.k===k;});
+  put('symdesc',s?s.desc:'記号に触れると、それがどの速度で、上の図のどこにいるかが光る。押すと固定、もう一度押すと解除。');
+  drawWfDyn();
+}
+function drawFormula(){
+  const V=ST.V,w=ST.w,vs=ST.vs,vo=ST.vo,f0=ST.f0;
+  const num=V+w-vo, den=V+w-vs, fp=f0*num/den;
+  const numTxt='<span class="cV">'+V+'</span>'+
+    (w>=0?' + <span class="cW">'+w+'</span>':' &minus; <span class="cW">'+Math.abs(w)+'</span>')+
+    (vo>=0?' &minus; <span class="cO">'+vo+'</span>':' + <span class="cO">'+Math.abs(vo)+'</span>');
+  const denTxt='<span class="cV">'+V+'</span>'+
+    (w>=0?' + <span class="cW">'+w+'</span>':' &minus; <span class="cW">'+Math.abs(w)+'</span>')+
+    (vs>=0?' &minus; <span class="cS">'+vs+'</span>':' + <span class="cS">'+Math.abs(vs)+'</span>');
+  let h='f′ = <span class="cF">'+f0+'</span> &middot; '+
+    '<span class="frac"><span class="n">'+numTxt+'</span><span class="d">'+denTxt+'</span></span>'+
+    ' = <span class="cF">'+f0+'</span> &middot; <span class="frac"><span class="n">'+mn(num.toFixed(1))+'</span><span class="d">'+mn(den.toFixed(1))+'</span></span> = ';
+  h+= (Math.abs(den)<1e-9) ? '<span class="cS">発散</span>'
+     : (den<0 ? '<span class="cS">'+mn(fp.toFixed(2))+' Hz</span>' : '<b>'+fp.toFixed(2)+' Hz</b>');
+  put('fxnum',h);
+  const lf=lamFront(), lb=lamBack();
+  put('fxlam','λ<sub>前</sub> = ('+V+(w>=0?'+'+w:'&minus;'+Math.abs(w))+(vs>=0?'&minus;'+vs:'+'+Math.abs(vs))+') / '+f0+' = '+
+    (lf>0?lf.toFixed(4)+' m':'<span class="cS">'+mn(lf.toFixed(4))+' m</span>')+
+    '　λ<sub>後</sub> = '+lb.toFixed(4)+' m');
+
+  const lin=f0*(1+(vs-vo)/V);
+  let g='';
+  g+=stt('厳密な f′',den>0?fp.toFixed(3)+' Hz':'—');
+  g+=stt('1 次近似 f₀(1+(v_s−v_o)/V)',lin.toFixed(3)+' Hz');
+  g+=stt('近似のずれ',den>0?((lin/fp-1)*100).toFixed(3)+' %':'—');
+  g+=stt('Δf = f′ − f₀',den>0?mn(fp-f0>=0?'+'+(fp-f0).toFixed(2):(fp-f0).toFixed(2))+' Hz':'—');
+  g+=stt('音源だけ v_s で近づくと',(f0*V/(V-vs)).toFixed(3)+' Hz');
+  g+=stt('観測者だけ同じ速さなら',(f0*(V+vs)/V).toFixed(3)+' Hz');
+  put('fstats',g);
+
+  let n='';
+  if(Math.abs(den)<1e-9) n='分母が 0。音源が波面に追いついていて、前方の波長が 0 になっている。式は発散するが、現実には非線形な圧力の壁ができる。';
+  else if(den<0) n='分母が負。音源が音速より速いので、前方に向かう音は音源に置き去りにされる。この値に振動数としての意味はなく、音が到達順序を逆にして届くことを表している。';
+  else if(vs===0&&vo===0) n='どちらも止まっているので f′ = f₀。風があっても変わらない。';
+  else n='分子と分母のずれが '+((num/den-1)*100).toFixed(2)+' %。音源の速さが音速の '+((vs/V)*100).toFixed(1)+
+    ' %、観測者が '+((vo/V)*100).toFixed(1)+' % なので、1 次近似との食い違いは '+Math.abs((lin/(f0*num/den)-1)*100).toFixed(3)+' % に収まっている。';
+  put('fnote',n);
+}
+function buildLinTable(){
+  const V=ST.V;
+  let h='<table><thead><tr><th>v [m/s]</th><th>v/V</th><th>音源が近づく</th><th>観測者が近づく</th><th>1 次近似</th><th>音源側のずれ</th></tr></thead><tbody>';
+  for(const v of LINV){
+    if(v>=V) continue;
+    const a=V/(V-v), b=(V+v)/V, c=1+v/V;
+    h+='<tr><td class="num">'+v+'</td><td class="num">'+(v/V).toFixed(3)+'</td><td class="num">'+a.toFixed(4)+
+       '</td><td class="num">'+b.toFixed(4)+'</td><td class="num">'+c.toFixed(4)+'</td><td class="num">'+((c/a-1)*100).toFixed(2)+' %</td></tr>';
+  }
+  h+='</tbody></table>';
+  put('lintable',h);
+}
+
+/* ---------- 衝撃波の作図 ---------- */
+function drawMach(){
+  const W=narrow?360:740, H=narrow?250:262;
+  setVB('sv-mach',W,H);
+  const V=ST.V, vrel=ST.vs-ST.w, M=Math.abs(vrel)/V, sgn=vrel>=0?1:-1;
+  const cy=H*0.56, NP=4;
+  /* 世界幅は円と経路の大きい方に合わせる */
+  const span=Math.max(V,Math.abs(vrel))*1.0;
+  const s=(W*0.34)/Math.max(span,1e-9);
+  const ax=sgn>0?W*0.78:W*0.22;
+  const dt=1;
+  let o='';
+  o+=LN(0,cy,W,cy,SOFT,1,'4 4');
+  /* 円と発射点 */
+  for(let i=0;i<NP;i++){
+    const tau=(NP-i)*dt/NP;
+    const cX=ax-sgn*Math.abs(vrel)*tau*s;
+    const R=V*tau*s;
+    o+=CIRC(cX,cy,R,null,CBLU,1.3,null,0.62);
+    o+=CIRC(cX,cy,2.4,CBLU,null,0,null,0.8);
+  }
+  o+=CIRC(ax,cy,5.6,CCRM);
+  o+=TXJ(ax,cy+19,'いまの音源',CCRMT,10,'middle','500');
+  /* 経路 */
+  const tail=ax-sgn*Math.abs(vrel)*dt*s;
+  o+=AR(tail,cy-0.001,ax,cy,CCRMT,1.6,7,0.9);
+  o+=TXJ((tail+ax)/2,cy-8,'|v_s−w|·τ',CCRMT,9.5,'middle');
+
+  if(M>1.000001){
+    const mu=Math.asin(1/M);
+    const Lc=W*1.6, ux=-sgn*Math.cos(mu), uy=Math.sin(mu);
+    for(const q of [1,-1]) o+=LN(ax,cy,ax+Lc*ux,cy-q*Lc*uy,CCRM,2.2);
+    /* 接点の直角三角形（いちばん外の円） */
+    const tau=dt, cX=ax-sgn*Math.abs(vrel)*tau*s, R=V*tau*s, AC=Math.abs(ax-cX);
+    const AT=Math.sqrt(Math.max(0,AC*AC-R*R));
+    const Tx=ax+AT*ux, Ty=cy-AT*uy;
+    o+=LN(cX,cy,Tx,Ty,CGOLDT,1.6);
+    o+=CIRC(Tx,Ty,3,CGOLDT);
+    o+=TXJ((cX+Tx)/2+7,(cy+Ty)/2,'V·τ',CGOLDT,10,'start','500');
+    /* 直角記号 */
+    const n1=[(Tx-cX)/R,(Ty-cy)/R], n2=[ux,-uy];
+    const q1=[Tx-n1[0]*7,Ty-n1[1]*7], q2=[Tx-n2[0]*7,Ty-n2[1]*7];
+    o+=PL([q1,[q1[0]-n2[0]*7,q1[1]-n2[1]*7],q2],CGOLDT,1);
+    const ar=narrow?30:40, a0=sgn>0?Math.PI:0;
+    o+=ARC(ax,cy,ar,a0,a0-sgn*mu,CCRMT,1.5);
+    const la=a0-sgn*mu/2;
+    o+=TX(ax+(ar+16)*Math.cos(la),cy-(ar+16)*Math.sin(la)+3,'μ',CCRMT,12,'middle','600');
+    o+=TXJ(sgn>0?10:W-10,20,'sin μ = Vτ / |v_s−w|τ = 1/M = '+(1/M).toFixed(4)+'　→　μ = '+(mu*DEG).toFixed(2)+'°',CCRMT,11,sgn>0?'start':'end','500');
+    o+=TXJ(sgn>0?10:W-10,36,'τ が約分で消えるので、どの波面でも同じ角度になる',MUT,10,sgn>0?'start':'end');
+  }else{
+    o+=TXJ(10,20,'M = '+M.toFixed(3)+' < 1　音源はどの波面の内側にもいる',CBLUT,11,'start','500');
+    o+=TXJ(10,36,'共通の接線が引けないので、衝撃波面はできない',MUT,10,'start');
+  }
+  put('mach-static',o);
+}
+function drawMachStats(){
+  const V=ST.V, vrel=ST.vs-ST.w, M=Math.abs(vrel)/V;
+  let h='';
+  h+=stt('空気に対する音源の速さ',Math.abs(vrel).toFixed(1)+' m/s');
+  h+=stt('マッハ数 M',M.toFixed(4));
+  if(M>1.000001){
+    const mu=Math.asin(1/M);
+    h+=stt('sin μ = 1/M',(1/M).toFixed(4));
+    h+=stt('マッハ角 μ',(mu*DEG).toFixed(2)+'°');
+    h+=stt('衝撃波面の法線と進行方向',(90-mu*DEG).toFixed(2)+'°');
+    h+=stt('静寂域','進行方向から '+(mu*DEG).toFixed(1)+'° の外側');
+  }else{
+    h+=stt('マッハ角 μ','—');
+    h+=stt('音より遅れる割合',((1-M)*100).toFixed(1)+' %');
+    h+=stt('前方の波長',lamFront().toFixed(4)+' m');
+    h+=stt('状態',M>0.999?'音速にほぼ一致':'亜音速');
+  }
+  put('machstats',h);
+  const el=document.getElementById('machnote');
+  if(el) el.innerHTML = M>1.000001
+    ? 'マッハ角は音源の速さと音速だけで決まる。音源からの距離にも経過時間にもよらないので、円錐は相似形のまま引きずられていく。M = '+M.toFixed(3)+' で μ = '+(Math.asin(1/M)*DEG).toFixed(1)+'°。'
+    : '亜音速では音源がつねに波面の内側にいるので、どの円にも共通の接線が引けない。音源速度を音速より上げると（上のスライダー）、接線が現れて円錐になる。';
+}
+function buildBoomTable(){
+  const V=ST.altV, h=ST.alt*1000;
+  let s='<table><thead><tr><th>M</th><th>μ</th><th>水平距離</th><th>頭上通過から</th><th>機速</th></tr></thead><tbody>';
+  const cur=Math.abs(ST.vs-ST.w)/ST.V;
+  for(const M of MTAB){
+    const mu=Math.asin(1/M), L=h/Math.tan(mu), u=M*V;
+    const near=Math.abs(M-cur)<0.06;
+    s+='<tr'+(near?' class="cur"':'')+'><td class="num">'+M.toFixed(2)+'</td><td class="num">'+(mu*DEG).toFixed(1)+'°</td><td class="num">'+
+      (L/1000).toFixed(1)+' km</td><td class="num">'+(L/u).toFixed(1)+' s</td><td class="num">'+u.toFixed(0)+' m/s</td></tr>';
+  }
+  s+='</tbody></table>';
+  put('boomtable',s);
+}
+
+/* ---------- 斜めに通過する音源（遅延時間の数値解） ---------- */
+let FLY={};
+function flySetup(){
+  const d=ST.d;
+  const vsE=Math.abs(ST.vs)<3?3:Math.abs(ST.vs);
+  const L=Math.max(8*d,240);
+  const TF=L/vsE;
+  FLY={d:d,vsE:vsE,L:L,L2:L/2,TF:TF};
+}
+function flySrc(te){ return -FLY.L2+FLY.vsE*te; }
+function arriveFly(te){
+  const px=flySrc(te);
+  const Dx=0-px, Dy=FLY.d;
+  const ux=-ST.w, uy=0;
+  const a=ux*ux+uy*uy-ST.V*ST.V, b=Dx*ux+Dy*uy, c2=Dx*Dx+Dy*Dy;
+  const disc=b*b-a*c2;
+  if(disc<0||Math.abs(a)<1e-12) return NaN;
+  const s=Math.sqrt(disc);
+  const r1=(-b+s)/a, r2=(-b-s)/a;
+  let tau=Infinity;
+  if(r1>1e-13&&r1<tau) tau=r1;
+  if(r2>1e-13&&r2<tau) tau=r2;
+  return isFinite(tau)?te+tau:NaN;
+}
+function fFly(te){
+  const h=FLY.TF*2e-6;
+  const t1=arriveFly(te-h), t2=arriveFly(te+h);
+  if(!isFinite(t1)||!isFinite(t2)) return NaN;
+  const dd=(t2-t1)/(2*h);
+  if(Math.abs(dd)<1e-14) return NaN;
+  return ST.f0/dd;
+}
+/* 受信時刻 t のとき、音源の「いまの位置」で角度をとった近似 */
+function fNaive(t){
+  const px=flySrc(t);
+  const Dx=0-px, Dy=FLY.d, R=Math.hypot(Dx,Dy);
+  if(R<1e-9) return NaN;
+  const nx=Dx/R;
+  const Vw=ST.V+ST.w*nx, vr=FLY.vsE*nx;
+  if(Math.abs(Vw-vr)<1e-9) return NaN;
+  return ST.f0*Vw/(Vw-vr);
+}
+function flyCurve(){
+  const N=520, pts=[], tes=[];
+  let tmin=Infinity,tmax=-Infinity,fmin=Infinity,fmax=-Infinity;
+  for(let i=0;i<=N;i++){
+    const te=FLY.TF*i/N, t=arriveFly(te), f=fFly(te);
+    if(!isFinite(t)||!isFinite(f)) continue;
+    pts.push([t,f,te]); tes.push(te);
+    if(t<tmin) tmin=t; if(t>tmax) tmax=t;
+    const af=Math.abs(f);
+    if(af<fmin) fmin=af; if(af>fmax) fmax=af;
+  }
+  /* 位相の検算：f_obs を受信時刻で積分すると波面の総数に戻る */
+  let integ=0;
+  for(let i=1;i<pts.length;i++){
+    const dt=pts[i][0]-pts[i-1][0];
+    integ+=0.5*(pts[i][1]+pts[i-1][1])*dt;
+  }
+  return {pts:pts,tmin:tmin,tmax:tmax,fmin:fmin,fmax:fmax,integ:integ,total:ST.f0*FLY.TF};
+}
+function flyPhase(){ return ((ST.t/0.30)%1+1)%1; }
+
+function drawFly(){
+  flySetup();
+  const W=narrow?360:740, H=narrow?430:400;
+  setVB('sv-fly',W,H);
+  const pad=narrow?30:44;
+  const topH=narrow?150:158, gapY=narrow?26:26;
+  const gx0=pad, gx1=W-pad*0.5;
+  /* 上段：平面図 */
+  const d=FLY.d, L=FLY.L;
+  const sxs=(gx1-gx0)/L, syr=Math.min(sxs,(topH-34)/(d*1.35));
+  const cx=function(x){ return (gx0+gx1)/2+x*sxs; };
+  const cyv=function(y){ return topH-14-y*syr; };
+  const cur=flyCurve();
+  let o='<defs><clipPath id="flyclip"><rect x="0" y="0" width="'+W+'" height="'+(topH+24)+'"/></clipPath></defs>';
+  o+='<g clip-path="url(#flyclip)">';
+  o+=LN(cx(-L/2),cyv(0),cx(L/2),cyv(0),RULE,1);
+  o+=TXJ(gx0,16,'平面図　経路 '+L.toFixed(0)+' m、観測者は経路から '+d+' m 離れている',MUT,10,'start');
+  /* 波面の見本 */
+  /* 時計は「受信時刻」で回す。発射時刻で回すと、音がまだ届いていない間ずっと図が空になる */
+  const ph=flyPhase(), tn=cur.tmin+(cur.tmax-cur.tmin)*ph;
+  const NE=narrow?9:12;
+  for(let j=0;j<=NE;j++){
+    const te=FLY.TF*j/NE;
+    if(te>tn) continue;
+    const tau=tn-te, R=ST.V*tau, ccx=flySrc(te)+ST.w*tau;
+    if(R*sxs<1) continue;
+    o+='<ellipse cx="'+f1(cx(ccx))+'" cy="'+f1(cyv(0))+'" rx="'+f1(R*sxs)+'" ry="'+f1(R*syr)+
+       '" fill="none" stroke="'+CBLU+'" stroke-width="1" opacity="'+clamp(0.62-0.5*tau/FLY.TF,0.1,0.62).toFixed(2)+'"/>';
+  }
+  /* 観測者・音源・遅延位置 */
+  const obx=cx(0), oby=cyv(d);
+  o+=POLY([[obx,oby-6],[obx+5.6,oby+4],[obx-5.6,oby+4]],CPUR);
+  o+=TXJ(obx,oby-11,'観測者',CPURT,10,'middle','500');
+  const nowx=flySrc(tn);
+  o+=CIRC(cx(nowx),cyv(0),5,CCRM,null,0,null,0.35);
+  /* いま届いている音の発射位置（超音速では複数になりうる） */
+  const brs=[];
+  {
+    const N=360, teH=Math.min(tn,FLY.TF); let pv=null,pt=null;
+    for(let i=0;i<=N;i++){
+      const te=teH*i/N, a=arriveFly(te);
+      if(!isFinite(a)){ pv=null; continue; }
+      const g=a-tn;
+      if(pv!==null&&pv*g<=0){
+        let lo=pt,hi=te;
+        for(let k=0;k<50;k++){ const m=(lo+hi)/2; if((arriveFly(lo)-tn)*(arriveFly(m)-tn)<=0) hi=m; else lo=m; }
+        brs.push((lo+hi)/2);
+      }
+      pv=g; pt=te;
+    }
+  }
+  let teNow=brs.length?brs[brs.length-1]:NaN;
+  for(let bi=0;bi<brs.length;bi++){
+    const rx=flySrc(brs[bi]), main=(bi===brs.length-1);
+    o+=CIRC(cx(rx),cyv(0),main?5.4:4.2,main?CCRM:'#D28FB0');
+    o+=LN(cx(rx),cyv(0),obx,oby,CCRMT,main?1.4:1,'4 3',main?1:0.55);
+    if(main){
+      o+=TXJ(clamp(cx(rx),46,W-46),cyv(0)+15,'音を出した位置',CCRMT,9.5,'middle','500');
+      const R=Math.hypot(rx,d);
+      o+=TX((cx(rx)+obx)/2+6,(cyv(0)+oby)/2,'R='+R.toFixed(0)+'m',CCRMT,9,'start');
+    }
+  }
+  if(brs.length){
+    o+=LN(cx(nowx),cyv(0),obx,oby,CGRNT,1.2,'2 4',0.8);
+    o+=TXJ(clamp(cx(nowx),40,W-40),cyv(0)+27,'いまの位置',CGRNT,9.5,'middle');
+  }
+  o+=DIM(cx(-L/2),topH-6,cx(L/2),MUT,'',9);
+  o+='</g>';
+
+  /* 下段：f(t) のグラフ */
+  const gy0=topH+gapY, gy1=H-30;
+  const f0=ST.f0;
+  let ylo=Math.min(cur.fmin,f0)*0.92, yhi=Math.max(cur.fmax,f0)*1.08;
+  const YCAP=f0*4.0;
+  if(yhi>YCAP) yhi=YCAP;
+  if(!isFinite(ylo)||!isFinite(yhi)||yhi-ylo<1e-6){ ylo=f0*0.5; yhi=f0*1.5; }
+  const t0=cur.tmin, t1=cur.tmax;
+  const gX=function(t){ return gx0+(gx1-gx0)*(t-t0)/Math.max(1e-9,t1-t0); };
+  /* 変化が大きすぎるときだけ対数目盛にする */
+  const LOGY=(ylo>0&&yhi/ylo>6);
+  const lg0=LOGY?Math.log(ylo):0, lg1=LOGY?Math.log(yhi):1;
+  const gY=function(f){
+    const u=LOGY?(Math.log(clamp(f,ylo,yhi))-lg0)/(lg1-lg0):(f-ylo)/(yhi-ylo);
+    return clamp(gy1-(gy1-gy0)*u,gy0-1,gy1+1);
+  };
+  o+=LN(gx0,gy1,gx1,gy1,INK,1);
+  o+=LN(gx0,gy0,gx0,gy1,INK,1);
+  for(let i=0;i<=5;i++){
+    const f=LOGY?Math.exp(lg0+(lg1-lg0)*i/5):(ylo+(yhi-ylo)*i/5), Y=gY(f);
+    o+=LN(gx0-4,Y,gx0,Y,RULE,1);
+    o+=TX(gx0-6,Y+3,f.toFixed(0),MUT,8.5,'end');
+    if(i>0&&i<5) o+=LN(gx0,Y,gx1,Y,SOFT,1,'2 5');
+  }
+  for(let i=0;i<=4;i++){
+    const t=t0+(t1-t0)*i/4, X=gX(t);
+    o+=LN(X,gy1,X,gy1+4,RULE,1);
+    o+=TX(X,gy1+15,t.toFixed(2),MUT,8.5,'middle');
+  }
+  o+=TX(gx1,gy1+27,'受信時刻 t [s]',MUT,9.5,'end');
+  o+=TX(gx0-6,gy0-8,'f [Hz]',MUT,9.5,'end');
+  if(LOGY) o+=TX(gx1,gy0-8,'縦軸は対数目盛',MUT,9,'end');
+  /* 漸近値 */
+  const V=ST.V,w=ST.w,vs=FLY.vsE;
+  const fhi=f0*(V+w)/(V+w-vs), flo=f0*(V-w)/(V-w+vs);
+  for(const q of [[fhi,'前方 '+ (V+w-vs>0?fhi.toFixed(1):'—')],[flo,'後方 '+flo.toFixed(1)],[f0,'f₀ = '+f0]]){
+    if(!isFinite(q[0])||q[0]<ylo||q[0]>yhi) continue;
+    o+=LN(gx0,gY(q[0]),gx1,gY(q[0]),CPUR,1,'4 4',0.7);
+    o+=TX(gx1-2,gY(q[0])-4,q[1],CPURT,9,'end');
+  }
+  /* 近似カーブ */
+  const pn=[];
+  for(let i=0;i<=200;i++){
+    const t=t0+(t1-t0)*i/200, f=fNaive(t);
+    if(!isFinite(f)||f<ylo-50||f>yhi+50) continue;
+    pn.push([gX(t),gY(f)]);
+  }
+  o+=PL(pn,CGRN,1.6,'5 4');
+  /* 厳密カーブ */
+  const pe=[];
+  for(const q of cur.pts) pe.push([gX(q[0]),gY(Math.abs(q[1]))]);
+  o+=PL(pe,CCRM,2.2);
+  /* 超音速ならブーム到達（受信時刻の最小値）に印 */
+  if(Math.abs(ST.vs-ST.w)/ST.V>1.000001){
+    o+=LN(gX(t0),gy0,gX(t0),gy1,CCRM,1.4,'5 3',0.85);
+    o+=TXJ(gX(t0)+5,(gy0+gy1)/2,'ここより前は静寂',CCRMT,9.5,'start');
+  }
+  /* いまの点 */
+  const tnow=arriveFly(teNow);
+  if(isFinite(tnow)&&tnow>=t0&&tnow<=t1){
+    const fnow=Math.abs(fFly(teNow));
+    if(isFinite(fnow)){
+      o+=LN(gX(tnow),gy0,gX(tnow),gy1,CGOLDT,1,'3 3',0.7);
+      o+=CIRC(gX(tnow),gY(fnow),4.4,CCRMT);
+      o+=TX(clamp(gX(tnow),gx0+30,gx1-30),gy0-3,fnow.toFixed(1)+' Hz',CCRMT,10,'middle','500');
+    }
+  }
+  put('fly-static',o);
+  put('fly-dyn','');
+
+  /* 統計 */
+  const sub=Math.abs(ST.vs-ST.w)/ST.V<0.999999;
+  let mx=0;
+  if(sub){
+    for(const q of cur.pts){
+      const fn=fNaive(q[0]), fe=Math.abs(q[1]);
+      if(!isFinite(fn)||fn<0) continue;
+      const dd=Math.abs(fe-fn);
+      if(dd>mx) mx=dd;
+    }
+  }
+  let g='';
+  g+=stt('通過に使う音源速度',FLY.vsE.toFixed(0)+' m/s'+(Math.abs(ST.vs)<3?'（下限まで引き上げ）':''));
+  g+=stt('前方の漸近値',(V+w-vs>0?fhi.toFixed(2)+' Hz':'—'));
+  g+=stt('後方の漸近値',flo.toFixed(2)+' Hz');
+  g+=stt('遷移にかかる時間',(2*FLY.d/FLY.vsE).toFixed(3)+' s 程度');
+  g+=stt('近似との最大差',sub?(mx.toFixed(2)+' Hz（'+(mx/f0*100).toFixed(1)+' %）'):'—（超音速では比較にならない）');
+  g+=stt('遅延による時間のずれ',(FLY.d/ST.V).toFixed(4)+' s');
+  g+=stt('∫f dt（数値積分）',cur.integ.toFixed(4));
+  g+=stt('発射した波面の総数',cur.total.toFixed(4)+'（差 '+Math.abs(cur.integ-cur.total).toExponential(1)+'）');
+  put('flystats',g);
+
+  const M=Math.abs(ST.vs-ST.w)/ST.V;
+  let nt='';
+  if(M>1.000001){
+    nt='音源が超音速なので、受信時刻が発射時刻に対して単調でなくなる。曲線が折り返しているのは、あとから出た音が先に届く区間があるから。折り返しより左は音がまだ届いていない静寂域で、境界がソニックブームの到達時刻にあたる。';
+  }else{
+    nt='赤が遅延時間を解いた厳密な曲線、緑の破線が「受信した瞬間の音源位置で角度をとる」近似。近似は音が渡る時間を無視しているので、f′ が f₀ を横切るタイミングが '+
+       (FLY.d/ST.V).toFixed(4)+' 秒ぶん早く出る。最接近距離が大きいほど、音源が速いほど、この差は開く。';
+  }
+  nt+=' 数値微分で出した f_obs を受信時刻で積分すると '+cur.integ.toFixed(3)+' 本になり、実際に発射した '+cur.total.toFixed(3)+
+      ' 本と一致する。波面は途中で消えたり増えたりしないので、この一致は計算が正しいことの裏取りになる。';
+  put('flynote',nt);
+}
+
+/* ---------- 3D（SVG への投影を自前で計算） ---------- */
+function proj3(p,SC,DIST,CX,CY){
+  const cy=Math.cos(ST.yaw), sy=Math.sin(ST.yaw);
+  const X=p[0]*cy-p[1]*sy, Y=p[0]*sy+p[1]*cy;
+  const cp=Math.cos(ST.pitch), sp=Math.sin(ST.pitch);
+  const D=Y*cp-p[2]*sp, U=Y*sp+p[2]*cp;
+  const k=DIST/(DIST+D);
+  return {x:CX+X*SC*k, y:CY-U*SC*k, d:D};
+}
+function draw3D(){
+  const W=narrow?350:620, H=narrow?300:352;
+  setVB('sv-3d',W,H);
+  const DIST=11.0;
+  const h=ST.alt*1000, V=ST.altV;
+  const vs=Math.max(Math.abs(ST.vs),20), M=vs/V;
+  const Lx=4*h, S=Lx/2;
+  const X0=-1.6*S, TF=3.2*S/vs;
+  const ph=((ST.t/0.42)%1+1)%1, tn=TF*ph;
+  /* 表示する波面は直近 TW 秒ぶんに絞る（古い球は画面外まで広がって邪魔になる） */
+  const RMAX=1.05*S, TW=Math.min(TF,RMAX/V);
+  /* カメラは機体を追う。箱の大きさは固定なので、拡大率は動いても変わらない */
+  const apx=X0+vs*tn;
+  const XH=0.75*RMAX+0.45*S, YH=Math.max(0.85*S,0.85*RMAX);
+  const cxc=apx-0.45*RMAX, zt=Math.min(h+RMAX,1.05*S);
+  const FIT=[];
+  for(const zz of [0,zt/S]){
+    for(let i=0;i<=4;i++){
+      const u=-1+2*i/4;
+      FIT.push([u*XH/S,-YH/S,zz]); FIT.push([u*XH/S,YH/S,zz]);
+      FIT.push([-XH/S,u*YH/S,zz]); FIT.push([XH/S,u*YH/S,zz]);
+    }
+  }
+  let bx0=1e9,bx1=-1e9,by0=1e9,by1=-1e9;
+  for(const q of FIT){
+    const r=proj3(q,1,DIST,0,0);
+    if(r.x<bx0)bx0=r.x; if(r.x>bx1)bx1=r.x;
+    if(r.y<by0)by0=r.y; if(r.y>by1)by1=r.y;
+  }
+  const SC=Math.min((W-26)/Math.max(bx1-bx0,1e-6),(H-44)/Math.max(by1-by0,1e-6));
+  const CX=W/2-(bx0+bx1)/2*SC, CY=(H-18)/2-(by0+by1)/2*SC;
+  const P=function(x,y,z){ return proj3([(x-cxc)/S,y/S,z/S],SC,DIST,CX,CY); };
+  const items=[];
+  const push=function(k,s){ items.push({k:k,s:s}); };
+
+  /* 地面のグリッド。線は世界座標に固定してあるので、機体が進むと後ろへ流れる */
+  const GS=S/3;
+  const i0=Math.ceil((cxc-XH)/GS), i1=Math.floor((cxc+XH)/GS);
+  const j0=Math.ceil(-YH/GS), j1=Math.floor(YH/GS);
+  for(let i=i0;i<=i1;i++){
+    const pa=[];
+    for(let k=0;k<=10;k++){ const q=P(i*GS,-YH+2*YH*k/10,0); pa.push([q.x,q.y]); }
+    push(9,PL(pa,SOFT,1));
+  }
+  for(let j=j0;j<=j1;j++){
+    const pb=[];
+    for(let k=0;k<=10;k++){ const q=P(cxc-XH+2*XH*k/10,j*GS,0); pb.push([q.x,q.y]); }
+    push(9,PL(pb,SOFT,1));
+  }
+  /* 飛行経路 */
+  const a0=P(cxc-XH,0,h), a1=P(cxc+XH,0,h);
+  push(8,LN(a0.x,a0.y,a1.x,a1.y,RULE,1.2,'5 4'));
+
+  /* 波面 */
+  const NE=narrow?7:9;
+  const te0=tn-TW;
+  for(let j=0;j<=NE;j++){
+    const te=te0+(tn-te0)*j/NE;
+    const tau=tn-te, R=V*tau, cxp=X0+vs*te+ST.w*tau;
+    if(R<S*0.015||R>RMAX*1.02) continue;
+    const op=clamp(0.6-0.42*tau/TF,0.1,0.6);
+    /* 鉛直断面（y = 0）。地面より下は描かない */
+    let seg=[],out=[];
+    for(let i=0;i<=72;i++){
+      const al=TAU*i/72, x=cxp+R*Math.cos(al), z=h+R*Math.sin(al);
+      if(z<0||z>zt){ if(seg.length>1) out.push(seg); seg=[]; continue; }
+      const q=P(x,0,z); seg.push([q.x,q.y]);
+    }
+    if(seg.length>1) out.push(seg);
+    for(const sg of out) push(2,PL(sg,CBLU,1.1,null,op));
+    /* 地面との切り口 */
+    if(R>h&&Math.sqrt(R*R-h*h)<RMAX*1.05){
+      const r=Math.sqrt(R*R-h*h), pts=[];
+      for(let i=0;i<=64;i++){
+        const al=TAU*i/64, q=P(cxp+r*Math.cos(al),r*Math.sin(al),0);
+        pts.push([q.x,q.y]);
+      }
+      push(1.5,PL(pts,CGRN,1.3,null,Math.min(0.85,op*1.4)));
+    }
+  }
+  /* マッハ円錐（波面より下に敷く） */
+  if(M>1.000001){
+    const mu=Math.asin(1/M);
+    for(let i=0;i<14;i++){
+      const fi=TAU*i/14;
+      const dx=-Math.cos(mu), dy=Math.sin(mu)*Math.cos(fi), dz=Math.sin(mu)*Math.sin(fi);
+      let len=1.30*S;
+      if(dz<-1e-9) len=Math.min(len,h/(-dz));
+      if(dz>1e-9) len=Math.min(len,(zt-h)/dz);
+      if(dx<-1e-9) len=Math.min(len,(apx-(cxc-XH))/(-dx));
+      if(len<=0) continue;
+      const q0=P(apx,0,h), q1=P(apx+dx*len,dy*len,h+dz*len);
+      push(2.5,LN(q0.x,q0.y,q1.x,q1.y,CCRM,1.1,null,0.42));
+    }
+  }
+  /* 機体 */
+  const ap=P(apx,0,h);
+  push(0,CIRC(ap.x,ap.y,5,CCRM));
+  const gp=P(apx,0,0);
+  push(4,LN(ap.x,ap.y,gp.x,gp.y,RULE,1,'2 3'));
+  push(4,CIRC(gp.x,gp.y,2.6,MUT));
+
+  items.sort(function(p,q){return q.k-p.k;});
+  let o=items.map(function(q){return q.s;}).join('');
+  o+=TXJ(8,15,'青 = 鉛直断面の波面　緑 = 地面との切り口'+(M>1.000001?'　赤 = マッハ円錐':''),MUT,9.5);
+  o+=TXJ(8,H-8,'高度 '+ST.alt+' km　M = '+M.toFixed(2)+'　表示範囲 '+(Lx/1000).toFixed(0)+' km',MUT,9);
+  put('d3-static',o);
+  const el=document.getElementById('d3note');
+  if(el) el.innerHTML = M>1.000001
+    ? '地面に現れる緑の円が互いに重ならず、外側に共通の包絡線を持っているのが分かる。この包絡線が双曲線で、ブームが届く帯（ブームカーペット）の境界。機体の真下ではなく、通り過ぎたあとに追いかけてくる。'
+    : '亜音速だと地面の円が入れ子になり、包絡線ができない。音は機体より先に届くので、近づいてくる音が聞こえる。音源速度を音速より上げると円が重ならなくなる。';
+}
+
+/* ---------- 超音波ドップラー ---------- */
+function usC(){ return TISSUE[ST.usTi].c; }
+function usDf(th){                       /* 厳密 */
+  const c=usC(), v=ST.usV, f0=ST.usF0*1e6, ct=Math.cos(th*RAD);
+  return 2*f0*v*ct/(c-v*ct);
+}
+function usDfApx(th){                    /* 装置が使う近似 */
+  const c=usC(), v=ST.usV, f0=ST.usF0*1e6, ct=Math.cos(th*RAD);
+  return 2*f0*v*ct/c;
+}
+function usVfromDf(df,thAss){            /* 厳密な逆算 */
+  const c=usC(), f0=ST.usF0*1e6, ct=Math.cos(thAss*RAD);
+  if(Math.abs(ct)<1e-9) return Infinity;
+  return df*c/(ct*(2*f0+df));
+}
+function usNyq(){
+  const c=usC(), d=ST.usDep/1000, f0=ST.usF0*1e6, ct=Math.cos(ST.usTh*RAD);
+  const prf=c/(2*d);
+  return {prf:prf, vmax:(Math.abs(ct)<1e-6)?Infinity:c*prf/(4*f0*ct)};
+}
+function drawUS(){
+  const W=narrow?360:740, H=narrow?290:266;
+  setVB('sv-us',W,H);
+  const th=ST.usTh*RAD;
+  const qx=narrow?W*0.42:W*0.46, qy=H*0.66, rv=narrow?16:20;
+  const Lb=narrow?100:132;
+  const pxp=qx+Lb*Math.cos(th), pyp=qy-Lb*Math.sin(th);
+  let o='';
+  /* 血管 */
+  o+=RECT(0,qy-rv,W,2*rv,CCRM,null,0,null,0.07);
+  o+=LN(0,qy-rv,W,qy-rv,CCRM,1.4,null,0.6);
+  o+=LN(0,qy+rv,W,qy+rv,CCRM,1.4,null,0.6);
+  o+=TXJ(8,H-8,'血管の流れは右向き（探触子に近づく側）。血球の速さは中心ほど速い',CCRMT,9.5,'start');
+  /* 血球（放物線分布） */
+  const ph=((ST.t/0.05)%1+1)%1;
+  const NB=narrow?7:11;
+  for(let i=0;i<NB;i++){
+    for(const yr of [-0.72,-0.34,0,0.34,0.72]){
+      const prof=1-yr*yr;
+      const x=((i/NB+ph*prof*0.9)%1)*W;
+      o+=CIRC(x,qy+yr*rv,2.5,CCRM,null,0,null,0.42);
+    }
+  }
+  o+=AR(6,qy,6+48,qy,CCRMT,1.8,7);
+  o+=TX(6,qy+rv+15,'v = '+ST.usV.toFixed(2)+' m/s',CCRMT,10,'start','500');
+  /* ビーム（探触子から少し先まで広がる扇） */
+  const half=4.5*RAD, Lb2=Lb*1.34;
+  const w1=[pxp-Lb2*Math.cos(th-half),pyp+Lb2*Math.sin(th-half)];
+  const w2=[pxp-Lb2*Math.cos(th+half),pyp+Lb2*Math.sin(th+half)];
+  o+=POLY([[pxp,pyp],w1,w2],CBLU,null,0,0.11);
+  o+=LN(pxp,pyp,pxp-Lb2*Math.cos(th),pyp+Lb2*Math.sin(th),CBLU,1.2,'4 3',0.75);
+  /* 探触子 */
+  const pw=narrow?34:42, pd=14;
+  const ux=Math.cos(th), uy=-Math.sin(th);
+  const vx=-uy, vy=ux;
+  const cxp=pxp+ux*pd*0.5, cyp=pyp+uy*pd*0.5;
+  o+=POLY([[cxp-vx*pw/2-ux*pd/2,cyp-vy*pw/2-uy*pd/2],[cxp+vx*pw/2-ux*pd/2,cyp+vy*pw/2-uy*pd/2],
+           [cxp+vx*pw/2+ux*pd/2,cyp+vy*pw/2+uy*pd/2],[cxp-vx*pw/2+ux*pd/2,cyp-vy*pw/2+uy*pd/2]],INK);
+  o+=TXJ(clamp(pxp+ux*30,26,W-26),pyp+uy*30+4,'探触子',INK,10,'middle','600');
+  /* 角度 */
+  const ar=narrow?30:38;
+  o+=LN(qx,qy,qx+ar*1.5,qy,MUT,1,'3 3');
+  o+=ARC(qx,qy,ar,0,th,CGOLDT,1.5);
+  o+=TX(qx+(ar+18)*Math.cos(th/2),qy-(ar+18)*Math.sin(th/2)-4,'θ='+ST.usTh+'°',CGOLDT,11,'middle','600');
+  o+=CIRC(qx,qy,3.4,CGOLDT);
+  /* 往復するパルス */
+  const pp=((ST.t/0.018)%1+1)%1;
+  const dist=Math.hypot(pxp-qx,pyp-qy);
+  if(pp<0.5){
+    const r=dist*(pp/0.5);
+    for(const k of [0,1,2]){
+      const rr=r-k*11; if(rr<2||rr>dist) continue;
+      o+=ARC(pxp,pyp,rr,Math.PI+th-0.36,Math.PI+th+0.36,CBLU,1.6,null,0.75-k*0.2);
+    }
+  }else{
+    const r=dist*((pp-0.5)/0.5);
+    for(const k of [0,1,2]){
+      const rr=r-k*11; if(rr<2||rr>dist) continue;
+      o+=ARC(qx,qy,rr,th-0.36,th+0.36,CGRN,1.6,null,0.75-k*0.2);
+    }
+  }
+  o+=TX(qx+ux*(dist*0.72)-vx*24,qy+uy*(dist*0.72)-vy*24,'f₀ 送信',CBLUT,10.5,'middle','600');
+  o+=TX(qx+ux*(dist*0.34)+vx*26,qy+uy*(dist*0.34)+vy*26,'f₂ 受信',CGRNT,10.5,'middle','600');
+  o+=LN(qx+7,qy-7,Math.min(qx-24,W-160),22,CGOLDT,1,'3 3',0.7);
+  o+=TXJ(Math.min(qx-28,W-164),18,'散乱体（赤血球）が f₁ で受け取り f₂ で返す',CGOLDT,10,'end','500');
+  put('us-static',o);
+  put('us-dyn','');
+}
+function drawUSGraph(){
+  const W=narrow?360:740, H=narrow?250:236;
+  setVB('sv-usg',W,H);
+  const padL=narrow?36:46, padR=14, padT=16, padB=30;
+  const gx0=padL,gx1=W-padR,gy0=padT,gy1=H-padB;
+  const X=function(th){ return gx0+(gx1-gx0)*th/90; };
+  const Y=function(r){ return gy1-(gy1-gy0)*clamp(r,0,1.4)/1.4; };
+  let o='';
+  o+=LN(gx0,gy1,gx1,gy1,INK,1)+LN(gx0,gy0,gx0,gy1,INK,1);
+  for(let i=0;i<=7;i++){
+    const r=1.4*i/7, Yv=Y(r);
+    o+=LN(gx0-4,Yv,gx0,Yv,RULE,1);
+    o+=TX(gx0-6,Yv+3,r.toFixed(1),MUT,8.5,'end');
+    if(i>0) o+=LN(gx0,Yv,gx1,Yv,SOFT,1,'2 5');
+  }
+  for(let t=0;t<=90;t+=15){
+    o+=LN(X(t),gy1,X(t),gy1+4,RULE,1);
+    o+=TX(X(t),gy1+15,t+'°',MUT,8.5,'middle');
+  }
+  o+=TX(gx1,gy1+27,'入射角 θ',MUT,9.5,'end');
+  o+=TX(gx0-6,gy0-4,'真値との比',MUT,9.5,'end');
+  /* ±5° の誤差帯（補正あり） */
+  const up=[],dn=[];
+  for(let t=0;t<=88;t+=1){
+    const c=Math.cos(t*RAD);
+    const a=c/Math.cos(clamp(t+5,0,89.5)*RAD), b=c/Math.cos(Math.max(t-5,0)*RAD);
+    up.push([X(t),Y(Math.min(a,1.4))]); dn.push([X(t),Y(b)]);
+  }
+  const band=up.concat(dn.slice().reverse());
+  o+=POLY(band,CGOLD,null,0,0.14);
+  o+=PL(up,CGOLDT,1,'3 3',0.8); o+=PL(dn,CGOLDT,1,'3 3',0.8);
+  o+=LN(gx0,Y(1),gx1,Y(1),INK,1.1,'5 4',0.6);
+  /* cosθ と cos²θ */
+  const c1=[],c2=[];
+  for(let t=0;t<=90;t+=1){
+    const c=Math.cos(t*RAD);
+    c1.push([X(t),Y(c)]); c2.push([X(t),Y(c*c)]);
+  }
+  o+=PL(c1,CCRM,2.2); o+=PL(c2,CPUR,2.0);
+  /* 60° の目安 */
+  o+=LN(X(60),gy0,X(60),gy1,CGRN,1.2,'4 4',0.8);
+  o+=TXJ(X(60)-4,gy1-8,'臨床の目安 θ ≤ 60°',CGRNT,9.5,'end');
+  /* 現在の θ */
+  const t=ST.usTh, c=Math.cos(t*RAD);
+  o+=LN(X(t),gy0,X(t),gy1,CGOLDT,1.2);
+  o+=CIRC(X(t),Y(c),4.2,CCRMT); o+=CIRC(X(t),Y(c*c),4.2,CPURT);
+  o+=TXJ(gx0+6,gy0+11,'θ = '+t+'° のとき　速度 '+(c*100).toFixed(0)+' %　圧較差 '+(c*c*100).toFixed(0)+' %',CGOLDT,10.5,'start','500');
+  o+=TX(gx1-4,Y(0.72),'cos θ（速度）',CCRMT,9.5,'end','500');
+  o+=TX(gx1-4,Y(0.30),'cos²θ（圧較差）',CPURT,9.5,'end','500');
+  put('usg-static',o);
+  put('usg-dyn','');
+}
+
+function drawUSStats(){
+  const c=usC(), f0=ST.usF0*1e6, v=ST.usV, th=ST.usTh, ct=Math.cos(th*RAD);
+  const dfEx=usDf(th), dfAp=usDfApx(th);
+  const vMachine=(Math.abs(ct)<1e-9)?Infinity:dfEx*c/(2*f0*ct);      /* 装置の近似逆算（角度は正しく入れた場合） */
+  const vNoCorr=dfEx*c/(2*f0);                                        /* 角度補正をしない場合 */
+  const dPtrue=4*v*v, dPseen=4*vNoCorr*vNoCorr;
+  const ny=usNyq();
+  let h='';
+  h+=stt('Δf 厳密',dfEx.toFixed(2)+' Hz');
+  h+=stt('Δf 装置の式',dfAp.toFixed(2)+' Hz');
+  h+=stt('近似で落ちた分',(Math.abs(dfEx)<1e-9?'—':((dfAp/dfEx-1)*100).toFixed(4)+' %'));
+  h+=stt('可聴音として',(dfEx/1000).toFixed(3)+' kHz');
+  h+=stt('角度補正あり（θ 正確）',(Math.abs(ct)<1e-9?'—':vMachine.toFixed(4)+' m/s'));
+  h+=stt('角度補正なしの見かけ',vNoCorr.toFixed(4)+' m/s');
+  h+=stt('過小評価',((1-ct)*100).toFixed(1)+' %（cos θ = '+ct.toFixed(4)+'）');
+  h+=stt('圧較差 4v²',dPtrue.toFixed(1)+' → '+dPseen.toFixed(1)+' mmHg');
+  h+=stt('PRF の上限（深さ '+ST.usDep+' mm）',(ny.prf/1000).toFixed(2)+' kHz');
+  h+=stt('折り返さずに測れる速度',(isFinite(ny.vmax)?ny.vmax.toFixed(3)+' m/s':'—'));
+  put('usstats',h);
+
+  put('fxus',
+    '<span class="cF">f₁</span> = f₀ (c + v cos θ)/c　→　'+
+    '<span class="cF">f₂</span> = f₁ &middot; c/(c &minus; v cos θ)　→　'+
+    'Δf = <span class="frac"><span class="n">2 f₀ v cos θ</span><span class="d">c &minus; v cos θ</span></span> = '+
+    '<span class="frac"><span class="n">2 &middot; '+ST.usF0.toFixed(1)+'×10⁶ &middot; '+v.toFixed(2)+' &middot; '+ct.toFixed(4)+
+    '</span><span class="d">'+c+' &minus; '+(v*ct).toFixed(3)+'</span></span> = <b>'+dfEx.toFixed(1)+' Hz</b>');
+
+  let n='';
+  if(th>=89.5){
+    n='ビームと血流が直交しているので cos θ = 0。どれだけ速く流れていても周波数差が出ない。血流が見えないときは、まず角度を疑う。';
+  }else{
+    n='いまの配置では Δf = '+(dfEx/1000).toFixed(2)+' kHz。'+
+      (dfEx>20&&dfEx<20000?'ちょうど可聴域に入るので、装置のスピーカーからそのまま音として出せる。':'可聴域から外れている。')+
+      ' 装置の式は分母の v cos θ を落としているぶん速度を '+Math.abs((dfAp/dfEx-1)*100).toFixed(4)+
+      ' % だけ過大に見積もるが、これは無視して差し支えない大きさ。効いてくるのは角度のほうで、補正をかけずに測ると '+
+      (ct*100).toFixed(0)+' % の速度、圧較差なら '+(ct*ct*100).toFixed(0)+' % にまで落ちる。';
+  }
+  if(isFinite(ny.vmax)&&v>ny.vmax)
+    n+=' いまの速度 '+v.toFixed(2)+' m/s はナイキスト限界 '+ny.vmax.toFixed(2)+
+       ' m/s を超えている。パルスドップラーでは折り返して逆向きの流れに見える。周波数を下げるか連続波に切り替えるしかない。';
+  put('usnote',n);
+
+  const c60=Math.cos(60*RAD);
+  put('usnote2','大動脈弁狭窄の目安は最大流速 4.0 m/s（圧較差 64 mmHg）。これを角度補正なしに 60° で測ると 2.0 m/s、'+
+    (4*2*2).toFixed(0)+' mmHg で、数字だけ見れば軽症に化ける。逆に角度を正しく入れても、5° 読み違えると 60° では '+
+    ((Math.cos(60*RAD)/Math.cos(65*RAD)-1)*100).toFixed(1)+' % ずれる。20° なら '+
+    ((Math.cos(20*RAD)/Math.cos(25*RAD)-1)*100).toFixed(1)+' % で収まるので、できるだけ流れに沿って当てる。');
+}
+function buildUSTable(){
+  const c=usC(), f0=ST.usF0*1e6, v=ST.usV;
+  let s='<table><caption>真の流速 '+v.toFixed(2)+' m/s、'+ST.usF0.toFixed(1)+' MHz、c = '+c+' m/s のとき</caption>'+
+    '<thead><tr><th>θ</th><th>cos θ</th><th>Δf</th><th>見かけの速度</th><th>圧較差</th><th>±5° の誤差</th></tr></thead><tbody>';
+  for(const th of ANGTAB){
+    const ct=Math.cos(th*RAD), df=usDf(th), vs=v*ct;
+    const er=(th>=90)?NaN:(Math.cos(th*RAD)/Math.cos(Math.min(th+5,89.9)*RAD)-1)*100;
+    const cur=Math.abs(th-ST.usTh)<3;
+    s+='<tr'+(cur?' class="cur"':'')+'><td class="num">'+th+'°</td><td class="num">'+ct.toFixed(4)+
+      '</td><td class="num">'+(df/1000).toFixed(3)+' kHz</td><td class="num">'+vs.toFixed(3)+' m/s</td><td class="num">'+
+      (4*vs*vs).toFixed(1)+' mmHg</td><td class="num">'+(isFinite(er)?er.toFixed(1)+' %':'—')+'</td></tr>';
+  }
+  s+='</tbody></table>';
+  put('ustable',s);
+}
+
+/* ---------- 表 ---------- */
+function buildApprox(){
+  let h='<table><thead><tr><th>近似</th><th>効く場所</th><th>ずれの大きさ</th></tr></thead><tbody>';
+  for(const r of APPROX) h+='<tr><td>'+r[0]+'</td><td>'+r[1]+'</td><td>'+r[2]+'</td></tr>';
+  h+='</tbody></table>';
+  put('apptable',h);
+}
+function buildConstNote(){
+  const V=ST.V;
+  const t=T0K*((V/V0ADIA)*(V/V0ADIA)-1);
+  const vtxt=331.5+0.6*t;
+  put('constnote',
+    '上のスライダーの音速は '+V+' m/s。断熱式 V = V₀√(1+t/273.15) から逆算すると '+t.toFixed(1)+
+    '°C 相当で、同じ温度を教科書の V = 331.5 + 0.6t に入れると '+vtxt.toFixed(2)+' m/s、差は '+
+    Math.abs((vtxt/V-1)*100).toFixed(3)+' %。組織中の音速は「'+TISSUE[ST.usTi].nm+'」を選んでいる。'+TISSUE[ST.usTi].note+'。');
+}
+
+/* ---------- UI ---------- */
+function buildPresets(){
+  const box=document.getElementById('presetsel'); box.innerHTML='';
+  for(const p of PRESETS){
+    const b=document.createElement('button');
+    b.className='btn sm'; b.textContent=p.nm; b.setAttribute('data-p',p.id);
+    b.addEventListener('click',function(){
+      ST.vs=p.vs; ST.vo=p.vo; ST.w=p.w; ST.V=p.V; ST.f0=p.f0; ST.t=0; onParam();
+    });
+    box.appendChild(b);
+  }
+}
+function buildMainUI(){
+  const host=document.getElementById('mainsliders'); host.innerHTML='';
+  const mk=function(id,title,sw){
+    const col=document.createElement('div'); col.className='wblk';
+    col.innerHTML='<div class="hd"><span class="sw" style="background:'+sw+'"></span>'+title+'</div><div id="'+id+'"></div><div class="der" id="der-'+id+'"></div>';
+    host.appendChild(col);
+  };
+  mk('slA','動くもの',CCRM);
+  mk('slB','場のほう',CBLU);
+  addSlider('slA','sVS','音源 v_s',-150,520,1,function(){return ST.vs;},function(v){ST.vs=v;},function(v){return mn(v.toFixed(0));},'m/s');
+  addSlider('slA','sVO','観測者 v_o',-150,150,1,function(){return ST.vo;},function(v){ST.vo=v;},function(v){return mn(v.toFixed(0));},'m/s');
+  addSlider('slB','sW','風 w',-80,80,1,function(){return ST.w;},function(v){ST.w=v;},function(v){return mn(v.toFixed(0));},'m/s');
+  addSlider('slB','sV','音速 V',280,400,1,function(){return ST.V;},function(v){ST.V=v;},function(v){return v.toFixed(0);},'m/s');
+  addSlider('slB','sF0','音源 f₀',60,500,5,function(){return ST.f0;},function(v){ST.f0=v;},function(v){return v.toFixed(0);},'Hz');
+}
+function syncMainDer(){
+  const V=ST.V,w=ST.w,vs=ST.vs,vo=ST.vo;
+  const t=T0K*((V/V0ADIA)*(V/V0ADIA)-1);
+  put('der-slA','v_s/V = '+(vs/V).toFixed(3)+'　v_o/V = '+(vo/V).toFixed(3)+'<br>空気に対する音源 M = '+machRel().toFixed(3));
+  put('der-slB','V は '+t.toFixed(1)+'°C 相当（断熱式）<br>λ₀ = V/f₀ = '+(V/ST.f0).toFixed(4)+' m');
+}
+function buildFlyUI(){
+  addSlider('flyparams','sD','最接近距離 d',5,200,5,function(){return ST.d;},function(v){ST.d=v;},function(v){return v.toFixed(0);},'m',onParamFly);
+}
+function build3DUI(){
+  addSlider('d3params','sALT','高度',1,15,1,function(){return ST.alt;},function(v){ST.alt=v;},function(v){return v.toFixed(0);},'km',onParam3D);
+  addSlider('d3params','sALTV','上空の音速',280,345,1,function(){return ST.altV;},function(v){ST.altV=v;},function(v){return v.toFixed(0);},'m/s',onParam3D);
+}
+function buildBoomUI(){
+  addSlider('boomparams','sALT2','高度',1,15,1,function(){return ST.alt;},function(v){ST.alt=v;},function(v){return v.toFixed(0);},'km',onParam3D);
+}
+function buildUSUI(){
+  const host=document.getElementById('usparams'); host.innerHTML='';
+  const mk=function(id,title,sw){
+    const col=document.createElement('div'); col.className='wblk';
+    col.innerHTML='<div class="hd"><span class="sw" style="background:'+sw+'"></span>'+title+'</div><div id="'+id+'"></div>';
+    host.appendChild(col);
+  };
+  mk('usA','測る対象',CCRM);
+  mk('usB','装置の設定',CBLU);
+  addSlider('usA','uV','血流速度 v',5,600,5,function(){return ST.usV*100;},function(v){ST.usV=v/100;},function(v){return (v/100).toFixed(2);},'m/s',onParamUS);
+  addSlider('usA','uTh','入射角 θ',0,90,1,function(){return ST.usTh;},function(v){ST.usTh=v;},function(v){return v.toFixed(0);},'°',onParamUS);
+  addSlider('usB','uF0','探触子 f₀',10,120,5,function(){return ST.usF0*10;},function(v){ST.usF0=v/10;},function(v){return (v/10).toFixed(1);},'MHz',onParamUS);
+  addSlider('usB','uD','深さ',10,200,5,function(){return ST.usDep;},function(v){ST.usDep=v;},function(v){return v.toFixed(0);},'mm',onParamUS);
+  const r=document.createElement('div'); r.className='ctl';
+  r.innerHTML='<span class="lab">組織音速</span><span class="btnrow" id="tisel"></span>';
+  document.getElementById('usB').appendChild(r);
+  TISSUE.forEach(function(e,i){
+    const b=document.createElement('button');
+    b.className='btn sm'; b.textContent=e.nm; b.setAttribute('data-ti',i);
+    b.addEventListener('click',function(){ ST.usTi=i; syncButtons(); onParamUS(); buildConstNote(); });
+    document.getElementById('tisel').appendChild(b);
+  });
+}
+function syncButtons(){
+  const ts=document.getElementById('tisel');
+  if(ts) for(const b of ts.children) b.classList.toggle('on',+b.getAttribute('data-ti')===ST.usTi);
+}
+
+/* ---------- 更新 ---------- */
+function onParam(){ syncSliders(); refresh(); }
+function onParamFly(){ syncSliders(); drawFly(); }
+function onParam3D(){ syncSliders(); draw3D(); buildBoomTable(); }
+function onParamUS(){ syncSliders(); drawUS(); drawUSGraph(); drawUSStats(); buildUSTable(); }
+function refresh(){
+  syncSliders(); syncTransport(); syncButtons(); syncMainDer();
+  drawWfStatic();
+  drawFormula(); buildLinTable();
+  drawMach(); drawMachStats(); buildBoomTable();
+  drawFly(); draw3D();
+  drawUS(); drawUSGraph(); drawUSStats(); buildUSTable();
+  buildApprox(); buildConstNote();
+  dyn();
+}
+function dyn(){
+  drawWfDyn(); drawWfStats(); drawWfNote();
+  drawFly(); draw3D(); drawUS();
+}
+
+/* ---------- 操作 ---------- */
+function bindClick(id,fn){ const e=document.getElementById(id); if(e) e.addEventListener('click',fn); }
+function setView(id,yaw,pitch){
+  ST.yaw=yaw; ST.pitch=pitch;
+  for(const q of ['v3-side','v3-top','v3-front','v3-obl']){ const e=document.getElementById(q); if(e) e.classList.toggle('on',q===id); }
+  draw3D();
+}
+bindClick('v3-side',function(){ setView('v3-side',0,0); });
+bindClick('v3-top',function(){ setView('v3-top',0,1.5); });
+bindClick('v3-front',function(){ setView('v3-front',Math.PI/2,0.05); });
+bindClick('v3-obl',function(){ setView('v3-obl',-0.62,0.36); });
+(function(){
+  const sv=document.getElementById('sv-3d');
+  if(!sv) return;
+  let d=false,px=0,py=0;
+  sv.addEventListener('pointerdown',function(e){ d=true;px=e.clientX;py=e.clientY;sv.setPointerCapture(e.pointerId);sv.classList.add('drag');e.preventDefault(); });
+  sv.addEventListener('pointermove',function(e){
+    if(!d) return;
+    ST.yaw+=(e.clientX-px)*0.008;
+    ST.pitch=clamp(ST.pitch+(e.clientY-py)*0.006,-1.5,1.5);
+    px=e.clientX; py=e.clientY;
+    for(const q of ['v3-side','v3-top','v3-front','v3-obl']){ const el=document.getElementById(q); if(el) el.classList.remove('on'); }
+    draw3D();
+  });
+  const up=function(){ d=false; sv.classList.remove('drag'); };
+  sv.addEventListener('pointerup',up);
+  sv.addEventListener('pointercancel',up);
+})();
+/* 波面の図をなぞって音源と観測者をつかむ */
+(function(){
+  const sv=document.getElementById('sv-wf');
+  if(!sv) return;
+  let grab=null;
+  const wx=function(e){
+    const r=sv.getBoundingClientRect();
+    return (e.clientX-r.left)/r.width*WF.XW;
+  };
+  sv.addEventListener('pointerdown',function(e){
+    const TC=cycleT(), tw=((ST.t%TC)+TC)%TC;
+    const x=wx(e), sx=WF.XS0+ST.vs*tw, ox=WF.O0+ST.vo*tw;
+    if(Math.abs(x-sx)<Math.abs(x-ox)&&Math.abs(x-sx)<1.6) grab='s';
+    else if(Math.abs(x-ox)<1.6) grab='o';
+    if(grab){ sv.setPointerCapture(e.pointerId); e.preventDefault(); }
+  });
+  sv.addEventListener('pointermove',function(e){
+    if(!grab) return;
+    const TC=cycleT(), tw=((ST.t%TC)+TC)%TC, x=clamp(wx(e),0.3,WF.XW-0.3);
+    if(grab==='s') WF.XS0=x-ST.vs*tw;
+    else WF.O0=clamp(x-ST.vo*tw,0.3,WF.XW-0.3);
+    dyn();
+  });
+  const up=function(){ grab=null; };
+  sv.addEventListener('pointerup',up);
+  sv.addEventListener('pointercancel',up);
+})();
+
+let rt=null;
+window.addEventListener('resize',function(){
+  clearTimeout(rt);
+  rt=setTimeout(function(){
+    const n=window.innerWidth<=430;
+    if(n!==narrow){ narrow=n; refresh(); }
+  },150);
+});
+
+/* ---------- 時間を進める ---------- */
+let last=0;
+function frame(ts){
+  if(ST.playing){
+    if(last) ST.t+=Math.min(0.05,(ts-last)/1000)*ST.speed;
+    last=ts; dyn();
+  }else last=ts;
+  requestAnimationFrame(frame);
+}
+
+/* ---------- 起動 ---------- */
+layoutWF();
+buildFx();
+buildPresets();
+buildMainUI();
+buildTransport('transport1');
+buildFlyUI();
+build3DUI();
+buildBoomUI();
+buildUSUI();
+setHl(null);
+refresh();
+requestAnimationFrame(frame);
+</script>
+</body>
+</html>

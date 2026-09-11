@@ -1,0 +1,443 @@
+{
+  "materialId": "chem-protein-structure",
+  "title": "タンパク質の構造と変性",
+  "type": "マトリクス型",
+  "scope": "高校化学（化学）の教科書範囲",
+  "schemaVersion": 1,
+  "coverageValues": ["core", "conditional", "out"],
+  "coverageMeaning": "core は教科書が共通して扱う。conditional は教科書によって扱いが割れる。out は範囲外。描画側で真偽に潰さないこと。",
+  "confidenceValues": ["high", "low"],
+  "confidenceMeaning": "記述内容そのものの確からしさ。coverage とは独立に持つ。",
+
+  "levels": [
+    {
+      "order": 1,
+      "name": "一次構造",
+      "definition": "ポリペプチド鎖におけるアミノ酸の配列順序。",
+      "aliases": [],
+      "aliasNote": "",
+      "example": "インスリンのアミノ酸配列",
+      "coverage": "core",
+      "confidence": "high"
+    },
+    {
+      "order": 2,
+      "name": "二次構造",
+      "definition": "主鎖どうしの水素結合によってできる、らせん状やシート状の規則的な繰り返し構造。",
+      "aliases": ["α-ヘリックス", "β-シート"],
+      "aliasNote": "β-シートは教科書によって β構造、ひだ状構造 とも書かれる。α-ヘリックスは らせん構造 と併記されることが多い。",
+      "example": "α-ヘリックス、β-シート",
+      "coverage": "core",
+      "confidence": "high"
+    },
+    {
+      "order": 3,
+      "name": "三次構造",
+      "definition": "1本のポリペプチド鎖全体が、側鎖どうしの結合や相互作用によって折りたたまれてできる立体構造。",
+      "aliases": [],
+      "aliasNote": "",
+      "example": "ミオグロビン",
+      "coverage": "core",
+      "confidence": "high"
+    },
+    {
+      "order": 4,
+      "name": "四次構造",
+      "definition": "三次構造をとった複数のポリペプチド鎖（サブユニット）が集まってできる構造。",
+      "aliases": ["サブユニット構造"],
+      "aliasNote": "発展扱いにしている教科書がある。",
+      "example": "ヘモグロビン（4つのサブユニット）",
+      "coverage": "conditional",
+      "confidence": "high"
+    }
+  ],
+
+  "bonds": [
+    {
+      "id": "peptide",
+      "name": "ペプチド結合",
+      "covalent": true,
+      "role": "chain",
+      "roleLabel": "鎖そのものをつくる",
+      "aliases": [],
+      "note": "二次以降の構造の中にも当然存在するが、立体構造を保つ役割は担わない。共有結合なので、加水分解しないかぎり切れない。",
+      "coverage": "core",
+      "confidence": "high"
+    },
+    {
+      "id": "hydrogen",
+      "name": "水素結合",
+      "covalent": false,
+      "role": "fold",
+      "roleLabel": "立体構造を保つ",
+      "aliases": [],
+      "note": "同じ水素結合でも、二次構造では主鎖どうし、三次以降では側鎖どうしと相手が変わる。ここを取り違える生徒が多い。",
+      "coverage": "core",
+      "confidence": "high"
+    },
+    {
+      "id": "disulfide",
+      "name": "ジスルフィド結合",
+      "covalent": true,
+      "role": "fold",
+      "roleLabel": "立体構造を保つ",
+      "aliases": ["S−S結合"],
+      "note": "共有結合でありながら立体構造を保つ側にある。ペプチド結合と同じ列に入るが役割が違う。",
+      "coverage": "core",
+      "confidence": "high"
+    },
+    {
+      "id": "ionic",
+      "name": "イオン結合",
+      "covalent": false,
+      "role": "fold",
+      "roleLabel": "立体構造を保つ",
+      "aliases": ["静電気的な引力"],
+      "note": "側鎖の電荷どうしの引力なので、pH が変わると失われる。",
+      "coverage": "core",
+      "confidence": "high"
+    },
+    {
+      "id": "hydrophobic",
+      "name": "疎水性相互作用",
+      "covalent": false,
+      "role": "fold",
+      "roleLabel": "立体構造を保つ",
+      "aliases": ["疎水結合"],
+      "note": "厳密には結合ではないため、教科書によって 疎水結合 と 疎水性相互作用 で表記が割れる。",
+      "coverage": "core",
+      "confidence": "high"
+    }
+  ],
+
+  "matrix": [
+    {
+      "bondId": "peptide",
+      "level": 1,
+      "status": "present",
+      "where": "隣り合うアミノ酸のカルボキシ基とアミノ基が脱水縮合してできる。この結合の並びが一次構造そのもの。",
+      "coverage": "core",
+      "confidence": "high"
+    },
+    { "bondId": "peptide", "level": 2, "status": "absent", "where": "", "coverage": "core", "confidence": "high" },
+    { "bondId": "peptide", "level": 3, "status": "absent", "where": "", "coverage": "core", "confidence": "high" },
+    { "bondId": "peptide", "level": 4, "status": "absent", "where": "", "coverage": "core", "confidence": "high" },
+
+    { "bondId": "hydrogen", "level": 1, "status": "absent", "where": "", "coverage": "core", "confidence": "high" },
+    {
+      "bondId": "hydrogen",
+      "level": 2,
+      "status": "present",
+      "where": "主鎖の C=O と N−H の間ではたらき、らせんやシートの繰り返しを保つ。",
+      "coverage": "core",
+      "confidence": "high"
+    },
+    {
+      "bondId": "hydrogen",
+      "level": 3,
+      "status": "present",
+      "where": "側鎖どうし（ヒドロキシ基、アミノ基、カルボキシ基など）の間ではたらく。",
+      "coverage": "core",
+      "confidence": "high"
+    },
+    {
+      "bondId": "hydrogen",
+      "level": 4,
+      "status": "present",
+      "where": "別のサブユニットの側鎖との間ではたらく。",
+      "coverage": "conditional",
+      "confidence": "high"
+    },
+
+    { "bondId": "disulfide", "level": 1, "status": "absent", "where": "", "coverage": "core", "confidence": "high" },
+    { "bondId": "disulfide", "level": 2, "status": "absent", "where": "", "coverage": "core", "confidence": "high" },
+    {
+      "bondId": "disulfide",
+      "level": 3,
+      "status": "present",
+      "where": "システインの側鎖の −SH どうしが酸化されて −S−S− になる。",
+      "coverage": "core",
+      "confidence": "high"
+    },
+    {
+      "bondId": "disulfide",
+      "level": 4,
+      "status": "absent",
+      "where": "高校教科書では、サブユニットどうしを結ぶ結合としては扱わない。",
+      "coverage": "conditional",
+      "confidence": "high"
+    },
+
+    { "bondId": "ionic", "level": 1, "status": "absent", "where": "", "coverage": "core", "confidence": "high" },
+    { "bondId": "ionic", "level": 2, "status": "absent", "where": "", "coverage": "core", "confidence": "high" },
+    {
+      "bondId": "ionic",
+      "level": 3,
+      "status": "present",
+      "where": "側鎖の −COO⁻ と −NH₃⁺ の間にはたらく静電気的な引力。",
+      "coverage": "core",
+      "confidence": "high"
+    },
+    {
+      "bondId": "ionic",
+      "level": 4,
+      "status": "present",
+      "where": "サブユニットをまたいで同じ引力がはたらく。",
+      "coverage": "conditional",
+      "confidence": "high"
+    },
+
+    { "bondId": "hydrophobic", "level": 1, "status": "absent", "where": "", "coverage": "core", "confidence": "high" },
+    { "bondId": "hydrophobic", "level": 2, "status": "absent", "where": "", "coverage": "core", "confidence": "high" },
+    {
+      "bondId": "hydrophobic",
+      "level": 3,
+      "status": "present",
+      "where": "水になじみにくい側鎖どうしが分子の内側に集まる。",
+      "coverage": "core",
+      "confidence": "high"
+    },
+    {
+      "bondId": "hydrophobic",
+      "level": 4,
+      "status": "present",
+      "where": "サブユニットどうしの接触面で同じことが起きる。",
+      "coverage": "conditional",
+      "confidence": "high"
+    }
+  ],
+
+  "operations": [
+    {
+      "id": "heat",
+      "name": "加熱",
+      "category": "denaturation",
+      "categoryLabel": "変性",
+      "breaks": ["hydrogen", "ionic", "hydrophobic"],
+      "keeps": ["peptide"],
+      "unspecified": ["disulfide"],
+      "primaryRetained": true,
+      "higherRetained": false,
+      "reversible": false,
+      "mechanism": "熱運動が激しくなり、立体構造を保っていた弱い結合が保てなくなる。",
+      "example": "卵白を加熱すると白く固まり、冷やしてももとに戻らない。",
+      "contrastWith": "",
+      "coverage": "core",
+      "confidence": "high"
+    },
+    {
+      "id": "strongAcidBase",
+      "name": "強酸・強塩基",
+      "category": "denaturation",
+      "categoryLabel": "変性",
+      "breaks": ["ionic", "hydrogen"],
+      "keeps": ["peptide"],
+      "unspecified": ["disulfide", "hydrophobic"],
+      "primaryRetained": true,
+      "higherRetained": false,
+      "reversible": false,
+      "mechanism": "側鎖の電荷が変わり、イオン結合が失われる。",
+      "example": "牛乳に食酢を加えるとカゼインが分離する。",
+      "contrastWith": "",
+      "coverage": "core",
+      "confidence": "high"
+    },
+    {
+      "id": "heavyMetal",
+      "name": "重金属イオン",
+      "category": "denaturation",
+      "categoryLabel": "変性",
+      "breaks": ["ionic"],
+      "keeps": ["peptide"],
+      "unspecified": ["hydrogen", "hydrophobic", "disulfide"],
+      "primaryRetained": true,
+      "higherRetained": false,
+      "reversible": false,
+      "mechanism": "Cu²⁺、Pb²⁺、Hg²⁺、Ag⁺ などが側鎖の −SH や −COO⁻ と強く結びつき、立体構造が保てなくなる。",
+      "example": "卵白の水溶液に酢酸鉛(II)水溶液を加えると沈殿する。",
+      "contrastWith": "saltingOut",
+      "coverage": "core",
+      "confidence": "low"
+    },
+    {
+      "id": "organicSolvent",
+      "name": "有機溶媒",
+      "category": "denaturation",
+      "categoryLabel": "変性",
+      "breaks": ["hydrogen", "hydrophobic"],
+      "keeps": ["peptide"],
+      "unspecified": ["ionic", "disulfide"],
+      "primaryRetained": true,
+      "higherRetained": false,
+      "reversible": false,
+      "mechanism": "エタノールなどが水との関わり方を変え、水素結合と疎水性相互作用が保てなくなる。",
+      "example": "消毒用アルコールが細菌のタンパク質を変性させる。",
+      "contrastWith": "",
+      "coverage": "core",
+      "confidence": "high"
+    },
+    {
+      "id": "uv",
+      "name": "紫外線",
+      "category": "denaturation",
+      "categoryLabel": "変性",
+      "breaks": [],
+      "keeps": ["peptide"],
+      "unspecified": ["hydrogen", "ionic", "hydrophobic", "disulfide"],
+      "primaryRetained": true,
+      "higherRetained": false,
+      "reversible": false,
+      "mechanism": "強いエネルギーを受けて立体構造が保てなくなる。",
+      "example": "日焼けで皮膚のタンパク質が傷む。",
+      "contrastWith": "",
+      "coverage": "conditional",
+      "confidence": "low"
+    },
+    {
+      "id": "saltingOut",
+      "name": "塩析",
+      "category": "not-denaturation",
+      "categoryLabel": "変性ではない",
+      "breaks": [],
+      "keeps": ["peptide", "hydrogen", "disulfide", "ionic", "hydrophobic"],
+      "primaryRetained": true,
+      "higherRetained": true,
+      "reversible": true,
+      "mechanism": "多量の電解質がタンパク質に水和していた水を奪い、溶解度が下がって沈殿する。結合は1つも壊れない。",
+      "example": "卵白の水溶液に硫酸アンモニウムを多量に加えると沈殿し、水を加えると再び溶ける。",
+      "contrastWith": "heavyMetal",
+      "coverage": "core",
+      "confidence": "high"
+    }
+  ],
+
+  "classifications": [
+    {
+      "id": "simple",
+      "axis": "composition",
+      "axisLabel": "組成による分類",
+      "name": "単純タンパク質",
+      "definition": "加水分解するとアミノ酸だけが得られる。",
+      "examples": ["アルブミン", "グロブリン", "ケラチン", "コラーゲン", "フィブロイン"],
+      "coverage": "core",
+      "confidence": "high"
+    },
+    {
+      "id": "conjugated",
+      "axis": "composition",
+      "axisLabel": "組成による分類",
+      "name": "複合タンパク質",
+      "definition": "加水分解するとアミノ酸以外の成分も得られる。",
+      "examples": ["ムチン", "カゼイン", "ヘモグロビン"],
+      "coverage": "core",
+      "confidence": "high"
+    },
+    {
+      "id": "globular",
+      "axis": "shape",
+      "axisLabel": "形状による分類",
+      "name": "球状タンパク質",
+      "definition": "親水性の側鎖が外側を向いて丸くまとまり、水に溶けやすい。生命活動を維持するはたらきをもつ。",
+      "examples": ["アルブミン", "グロブリン", "ヘモグロビン", "酵素"],
+      "coverage": "core",
+      "confidence": "high"
+    },
+    {
+      "id": "fibrous",
+      "axis": "shape",
+      "axisLabel": "形状による分類",
+      "name": "繊維状タンパク質",
+      "definition": "細長い分子が束になったもので、水に溶けにくい。からだをつくる材料になる。",
+      "examples": ["ケラチン（毛髪・爪）", "コラーゲン（骨・皮膚）", "フィブロイン（絹）"],
+      "coverage": "core",
+      "confidence": "high"
+    }
+  ],
+
+  "conjugatedTypes": [
+    { "id": "glyco", "name": "糖タンパク質", "component": "糖", "example": "ムチン", "coverage": "core", "confidence": "high" },
+    { "id": "phospho", "name": "リンタンパク質", "component": "リン酸", "example": "カゼイン", "coverage": "core", "confidence": "high" },
+    { "id": "chromo", "name": "色素タンパク質", "component": "色素（ヘム）", "example": "ヘモグロビン", "coverage": "core", "confidence": "high" },
+    { "id": "nucleo", "name": "核タンパク質", "component": "核酸", "example": "ヌクレオヒストン", "coverage": "core", "confidence": "high" },
+    { "id": "lipo", "name": "リポタンパク質", "component": "脂質", "example": "血しょう中のリポタンパク質", "coverage": "conditional", "confidence": "low" }
+  ],
+
+  "calculation": {
+    "id": "hemoglobin-subunits",
+    "title": "ヘモグロビンの鉄含有率からサブユニット数を求める",
+    "prompt": "ヘモグロビンは質量パーセントで 0.34% の鉄を含み、分子量は 6.8×10⁴ である。サブユニット1つにつきヘムを1個もつとして、サブユニットの数を求めよ。",
+    "ironMassPercent": 0.34,
+    "atomicMassFe": 55.8,
+    "molecularMass": 68000,
+    "hemPerSubunit": 1,
+    "answerIronAtoms": 4,
+    "answerSubunits": 4,
+    "linkedClassifications": ["conjugated", "globular"],
+    "linkedLevel": 4,
+    "coverage": "core",
+    "confidence": "high"
+  },
+
+  "calculationSteps": [
+    {
+      "n": 1,
+      "question": "鉄原子1個を含む部分の分子量はいくらか。",
+      "expression": "55.8 ÷ 0.0034",
+      "value": 16400,
+      "valueLabel": "約 1.6×10⁴",
+      "comment": "鉄が全体の 0.34% を占めるので、鉄1個分の質量をその割合で割ると、鉄1個あたりが受け持つ分子量が出る。"
+    },
+    {
+      "n": 2,
+      "question": "分子量 6.8×10⁴ の中に鉄原子は何個含まれるか。",
+      "expression": "68000 ÷ 16400",
+      "value": 4.1,
+      "valueLabel": "約 4.1 → 4個",
+      "comment": "原子の個数は整数なので 4個。"
+    },
+    {
+      "n": 3,
+      "question": "サブユニットはいくつか。",
+      "expression": "4 ÷ 1",
+      "value": 4,
+      "valueLabel": "4つ",
+      "comment": "サブユニット1つにヘムが1個、つまり鉄原子が1個。よってサブユニットは4つ。ヘモグロビンが四次構造をもつことの根拠になる。"
+    }
+  ],
+
+  "applications": [
+    {
+      "id": "enzyme-denaturation",
+      "title": "酵素の最適温度と最適pH",
+      "body": "酵素はタンパク質なので、温度が高すぎたり pH が大きくずれたりすると変性して立体構造が崩れ、はたらきを失う。これを失活という。ヒトの体内ではたらく酵素の多くは 35〜40℃ 付近で最もはたらきが強く、それより高温にすると反応速度が急に落ちる。温度を下げても戻らないのは、変性が不可逆だから。",
+      "linkedOperations": ["heat", "strongAcidBase"],
+      "coverage": "core",
+      "confidence": "high"
+    },
+    {
+      "id": "biuret",
+      "title": "ビウレット反応",
+      "body": "ペプチド結合が2個以上あるとき、水酸化ナトリウム水溶液と硫酸銅(II)水溶液を加えると赤紫色になる。ペプチド結合そのものを見ている反応なので、変性しても一次構造が残っているかぎり反応は起きる。",
+      "linkedOperations": [],
+      "coverage": "core",
+      "confidence": "high"
+    }
+  ],
+
+  "crossReferences": [
+    { "topic": "アミノ酸の呈色反応（キサントプロテイン反応、ニンヒドリン反応、硫黄の検出）", "handling": "扱わない", "materialId": "chem-amino-acids-matrix" },
+    { "topic": "ビウレット反応の詳細", "handling": "ペプチド結合に由来することだけ触れる", "materialId": "chem-amino-acids-matrix" },
+    { "topic": "ペプチドの配列決定", "handling": "扱わない", "materialId": "chem-peptide-sequencing" },
+    { "topic": "等電点と電気泳動", "handling": "扱わない", "materialId": "" },
+    { "topic": "酵素反応の速度と基質濃度", "handling": "扱わない", "materialId": "" },
+    { "topic": "酵素の最適温度と最適pH", "handling": "変性の応用としてこの教材で扱う", "materialId": "" }
+  ],
+
+  "outOfScope": [
+    "タンパク質の生合成、DNA、遺伝暗号",
+    "ラマチャンドランプロット、モチーフ、ドメイン",
+    "平均残基分子量からの残基数の概算",
+    "ケルダール法の窒素係数",
+    "シャペロン、フォールディングの速度論"
+  ]
+}

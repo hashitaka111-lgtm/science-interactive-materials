@@ -1,0 +1,1030 @@
+<!doctype html>
+<html lang="ja">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>希薄溶液と束一的性質</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500&family=IBM+Plex+Sans+JP:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+:root{
+  --ink:#16232B; --muted:#5E6E76; --paper:#EDF1EF; --surface:#FFFFFF;
+  --rule:#D6DDDA; --rule-soft:#E8EDEB;
+  --sans:"IBM Plex Sans JP","Hiragino Sans","Yu Gothic UI",system-ui,sans-serif;
+  --mono:"IBM Plex Mono",ui-monospace,SFMono-Regular,Menlo,monospace;
+}
+*{box-sizing:border-box}
+html,body{margin:0;padding:0}
+body{background:var(--paper);color:var(--ink);font-family:var(--sans);font-size:13.5px;line-height:1.78;
+  -webkit-text-size-adjust:100%;padding:18px 12px 60px}
+.wrap{max-width:812px;margin:0 auto}
+.card{background:var(--surface);border:1px solid var(--rule);border-radius:3px;padding:18px 18px 16px;margin-bottom:14px}
+h1{font-size:22px;font-weight:600;letter-spacing:.01em;margin:10px 0 6px;line-height:1.45}
+h2{font-size:15px;font-weight:600;letter-spacing:.01em;margin:10px 0 4px}
+h3{font-size:12.5px;font-weight:600;margin:16px 0 2px}
+p{margin:6px 0}
+.eyebrow{display:flex;align-items:center;gap:10px;font-family:var(--mono);font-size:11.5px;
+  letter-spacing:.14em;color:var(--muted);text-transform:uppercase}
+.eyebrow::after{content:"";flex:1;height:1px;background:var(--rule)}
+.lede{color:var(--muted);font-size:13px}
+.note{color:var(--muted);font-size:12px;margin-top:10px}
+.eq{font-family:var(--mono);font-size:12.5px;background:var(--paper);border:1px solid var(--rule-soft);
+  border-radius:3px;padding:8px 10px;margin:10px 0;overflow-x:auto;white-space:nowrap;font-variant-numeric:tabular-nums}
+.lab{font-family:var(--mono);font-size:10.5px;letter-spacing:.08em;color:var(--muted);margin:12px 0 0}
+.chips{display:flex;flex-wrap:wrap;gap:5px;margin:6px 0 4px}
+button.chip{font-family:var(--mono);font-size:11.5px;font-weight:500;letter-spacing:.04em;color:var(--ink);
+  background:var(--surface);border:1px solid var(--rule);border-radius:2px;padding:5px 9px;cursor:pointer;line-height:1.2}
+button.chip:hover{border-color:var(--muted)}
+button.chip[aria-pressed="true"]{background:var(--ink);color:#fff;border-color:var(--ink)}
+button.chip:focus-visible{outline:2px solid var(--ink);outline-offset:1px}
+.sld{display:flex;align-items:center;gap:10px;margin:8px 0}
+.sld label{font-family:var(--mono);font-size:11px;letter-spacing:.08em;color:var(--muted);white-space:nowrap;min-width:70px}
+.sld input[type=range]{flex:1;min-width:80px;accent-color:var(--ink);height:22px}
+.sld .val{font-family:var(--mono);font-size:12.5px;font-weight:500;font-variant-numeric:tabular-nums;
+  text-align:right;min-width:104px}
+.chart{display:block;width:100%;height:auto;touch-action:pan-y;margin-top:4px}
+.chart text{font-family:var(--mono);fill:var(--muted)}
+.chart .tk{font-size:10px}
+.chart .ax{font-size:10px;letter-spacing:.08em}
+.chart .grid{stroke:var(--rule-soft);stroke-width:1;fill:none}
+.chart .axis{stroke:var(--rule);stroke-width:1;fill:none}
+.chart .guide{stroke:var(--ink);stroke-width:1;opacity:.5}
+.chart .thin{stroke-width:1.1;fill:none;opacity:.45}
+.chart .bold{stroke-width:1.9;fill:none}
+.chart .dash{stroke-dasharray:4 3}
+.chart .mk{fill:var(--ink)}
+.chart .lbl{fill:var(--ink);font-size:10px}
+.chart .chiptx{fill:#fff}
+.kv{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:0 16px;margin-top:10px}
+.kv div{display:flex;justify-content:space-between;align-items:baseline;gap:10px;
+  border-bottom:1px solid var(--rule-soft);padding:4px 0}
+.kv b{font-family:var(--mono);font-size:10.5px;font-weight:500;letter-spacing:.06em;color:var(--muted)}
+.kv span{font-family:var(--mono);font-size:12.5px;font-weight:500;font-variant-numeric:tabular-nums}
+.big3{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin-top:12px}
+.big3 div{border:1px solid var(--rule);border-radius:3px;padding:9px 10px}
+.big3 b{display:block;font-family:var(--mono);font-size:10px;font-weight:500;letter-spacing:.08em;color:var(--muted)}
+.big3 span{font-family:var(--mono);font-size:19px;font-weight:500;font-variant-numeric:tabular-nums;letter-spacing:-.01em}
+.big3 i{display:block;font-style:normal;font-family:var(--mono);font-size:10.5px;color:var(--muted)}
+.lg{display:flex;flex-wrap:wrap;gap:12px;margin-top:8px;font-family:var(--mono);font-size:11px;color:var(--muted)}
+.lg i{display:inline-block;width:16px;height:0;border-top-width:2px;border-top-style:solid;vertical-align:middle;margin-right:5px}
+.tblwrap{overflow-x:auto;margin-top:10px}
+table{width:100%;border-collapse:collapse;font-size:12px}
+th{font-family:var(--mono);font-size:10px;font-weight:500;letter-spacing:.05em;color:var(--muted);
+  text-align:right;border-bottom:1px solid var(--rule);padding:6px 5px;white-space:nowrap}
+td{padding:5px;border-bottom:1px solid var(--rule-soft);text-align:right;font-family:var(--mono);
+  font-size:11.5px;font-variant-numeric:tabular-nums;white-space:nowrap}
+th:first-child,td:first-child{text-align:left}
+td.tx{font-family:var(--sans);text-align:left;white-space:normal}
+tr.on td{background:var(--paper)}
+tbody tr[data-i]{cursor:pointer}
+ul{margin:6px 0;padding-left:18px}
+li{margin:3px 0}
+.sub{border-top:1px solid var(--rule-soft);margin-top:16px;padding-top:12px}
+@media (max-width:430px){
+  body{padding:12px 8px 44px;font-size:13px}
+  .card{padding:14px 12px 12px}
+  h1{font-size:19px}
+  .sld label{min-width:56px;font-size:10.5px}
+  .sld .val{min-width:88px;font-size:12px}
+  .kv{grid-template-columns:1fr 1fr;gap:0 12px}
+  .big3{grid-template-columns:1fr;gap:8px}
+  .big3 span{font-size:17px}
+}
+</style>
+</head>
+<body>
+<main class="wrap">
+
+<header class="card">
+  <div class="eyebrow">Raoult / colligative properties / π = cRT</div>
+  <h1>希薄溶液と束一的性質</h1>
+  <p class="lede">蒸気圧降下、沸点上昇、凝固点降下、浸透圧。この4つは別々の現象ではなく、溶媒の蒸気圧が下がるという1つの事実の見え方の違いです。溶質の種類が結果に効かないことを数値で確かめ、浸透圧が PV=nRT と同じ式になる理由まで追います。</p>
+  <p class="note">前半の温度は K と ℃ を併記。圧力は 10⁵ Pa（1 atm = 1.013×10⁵ Pa = 760 mmHg）。気体定数は R = 8.314 J·mol⁻¹·K⁻¹ = 0.08206 L·atm·mol⁻¹·K⁻¹。</p>
+</header>
+
+<section class="card">
+  <div class="eyebrow">00 / 条件</div>
+  <h2>溶媒と溶質を決める</h2>
+  <p>ここで選んだ条件が、下の 01 から 03 と 06 に反映されます。質量指定に切り替えると、同じ重さを溶かしたときに溶質ごとで結果がどれだけ変わるかを比べられます。</p>
+  <p class="lab">溶媒</p>
+  <div class="chips" data-grp="solvent" id="c-solvent"></div>
+  <p class="lab">溶質</p>
+  <div class="chips" data-grp="solute" id="c-solute"></div>
+  <div class="chips" data-grp="input"></div>
+  <div class="sld" id="sl-m"></div>
+  <div class="kv" id="rd0"></div>
+  <p class="note" id="nt0"></p>
+</section>
+
+<section class="card">
+  <div class="eyebrow">01 / 蒸気圧降下</div>
+  <h2>ラウールの法則は溶質のモル分率だけを見る</h2>
+  <div class="eq">P = x_A · P°　　ΔP = P° − P = x_B · P°　　（x_B は溶質粒子のモル分率）</div>
+  <p>直線の傾きは溶媒の蒸気圧そのもの。溶質が砂糖でも食塩でも、粒子のモル分率が同じなら同じ点に乗ります。食塩が砂糖の2倍下げるのは、1個が2個に分かれてモル分率が2倍になるからで、イオンだから強いわけではありません。</p>
+  <div id="ch1"></div>
+  <div class="sld" id="sl-m1"></div>
+  <div class="sld" id="sl-x1"></div>
+  <div class="kv" id="rd1"></div>
+  <p class="note" id="nt1"></p>
+</section>
+
+<section class="card">
+  <div class="eyebrow">02 / 相図でつながる</div>
+  <h2>沸点上昇と凝固点降下は同じ1本の曲線から出る</h2>
+  <p>溶液の蒸気圧曲線は、純溶媒の曲線を x_A 倍に押し下げただけのものです。この1本を下げると、1気圧の水平線との交点は右へ動き（沸点上昇）、固体の昇華曲線との交点は左へ動きます（凝固点降下）。両方が同時に起こる理由がここに見えます。</p>
+  <div class="chips" data-grp="view2" id="c-view2"></div>
+  <div id="ch2"></div>
+  <div class="sld" id="sl-m2"></div>
+  <div class="sld" id="sl-t2"></div>
+  <div class="kv" id="rd2"></div>
+  <div class="lg" id="lg2"></div>
+  <p class="note" id="nt2"></p>
+</section>
+
+<section class="card">
+  <div class="eyebrow">03 / まとめて計算</div>
+  <h2>4つの量を一度に出す</h2>
+  <div class="eq">ΔT_b = i·K_b·m　　ΔT_f = i·K_f·m　　π = i·c·RT　　ΔP = x_B·P°</div>
+  <p>下の3つは近似式（ΔT = K·m）の値です。その下に、近似を使わずに ln x_A = −(ΔH/R)(1/T − 1/T₀) を解いた厳密値を並べています。濃度を上げていくと差が開くので、どこまで近似が使えるかが見えます。</p>
+  <div class="sld" id="sl-m3"></div>
+  <div class="big3" id="bg3"></div>
+  <div class="kv" id="rd3"></div>
+  <p class="note" id="nt3"></p>
+</section>
+
+<section class="card">
+  <div class="eyebrow">04 / 種類によらない</div>
+  <h2>効くのは粒子の数だけ</h2>
+  <p>横軸は溶かした量そのもの（質量モル濃度）。傾きは i·K_f なので、非電解質はすべて1本に重なり、2粒子に分かれる塩はその2倍、3粒子なら3倍の傾きになります。理論値のボタンでは 1 : 2 : 3 にきれいに揃い、実測値に切り替えると電解質だけが下にずれます。</p>
+  <div class="chips" data-grp="mode4" id="c-mode4"></div>
+  <div id="ch4"></div>
+  <div class="sld" id="sl-m4"></div>
+  <div class="kv" id="rd4"></div>
+  <div class="lg" id="lg4"></div>
+  <div class="sub">
+    <h3>粒子の濃度を揃えると全部同じ値になる</h3>
+    <p>溶質粒子の質量モル濃度 i·m を下のスライダーの値に固定して、そこから逆算した表です。溶かす質量は数倍も違うのに、凝固点降下の値は小数点以下まで一致します。</p>
+    <div class="sld" id="sl-p4"></div>
+    <div class="tblwrap"><table id="tb4"><thead></thead><tbody></tbody></table></div>
+  </div>
+</section>
+
+<section class="card">
+  <div class="eyebrow">05 / 濃度の使い分け</div>
+  <h2>mol/L と mol/kg はどこで食い違うか</h2>
+  <div class="eq">c = 1000·ρ·m / (1000 + m·M)　　　ρ は溶液の密度 [g·cm⁻³]</div>
+  <p>沸点や凝固点を扱う場面では体積が温度で変わってしまうため、温度に依存しない質量モル濃度を使います。浸透圧は一定温度で測るので体積基準のモル濃度でかまいません。希薄なうちは水溶液で c ≒ m ですが、濃くなると溶質の質量が分母を押し上げてずれていきます。</p>
+  <div class="chips" data-grp="solute5" id="c-solute5"></div>
+  <div id="ch5"></div>
+  <div class="sld" id="sl-m5"></div>
+  <div class="sld" id="sl-rho"></div>
+  <div class="kv" id="rd5"></div>
+  <p class="note">実際の溶液密度は濃度で変わります。0.9% 食塩水で 1.005、5% ブドウ糖液で 1.017、1 mol/kg のスクロース水溶液なら 1.12 ほど。ここでは密度をスライダーで与えて換算式そのものを見ています。</p>
+</section>
+
+<section class="card">
+  <div class="eyebrow">06 / 浸透圧</div>
+  <h2>πV = nRT は PV = nRT と同じ式</h2>
+  <p>半透膜の左に溶液、右に純溶媒を置くと、溶媒は左へ入ろうとします。それを止めるのに必要な圧力が浸透圧です。式を並べると文字まで一致します。</p>
+  <div class="tblwrap"><table id="tb6"><thead></thead><tbody></tbody></table></div>
+  <p>同じ物質量を同じ体積に入れたとき、気体の圧力と溶液の浸透圧は同じ値になります。下で確かめてください。液柱の高さは h = π/(ρg) で、わずかな濃度でも数十メートル分の水圧に相当します。</p>
+  <div class="sld" id="sl-m6"></div>
+  <div class="sld" id="sl-t6"></div>
+  <div id="ch6"></div>
+  <div class="kv" id="rd6"></div>
+  <p class="note" id="nt6"></p>
+</section>
+
+<section class="card">
+  <div class="eyebrow">07 / 輸液と等張性</div>
+  <h2>血漿と釣り合う濃度が決まっている理由</h2>
+  <p>血漿の浸透圧モル濃度はおよそ 285 mOsm/kg。細胞膜を通れない粒子の数がこの値から外れると、赤血球は水を吸って膨らむか、水を奪われて縮みます。輸液を選ぶと、組成から浸透圧モル濃度を計算して血漿と比べます。</p>
+  <div class="chips" data-grp="fluid" id="c-fluid"></div>
+  <div id="ch7"></div>
+  <div class="tblwrap"><table id="tb7"><thead></thead><tbody></tbody></table></div>
+  <div class="kv" id="rd7"></div>
+  <p class="note" id="nt7"></p>
+  <div class="sub">
+    <h3>赤血球の体積は浸透圧に反比例する</h3>
+    <p>細胞内の水だけが出入りし、タンパク質などが占める体積は変わりません。その分を全体の 30% として、ボイル・ファントホッフの関係 V/V₀ = 0.30 + 0.70×(285/Osm) で見積もっています。1.4 倍を超えると膜が破れて溶血します。</p>
+    <div class="kv" id="rd7b"></div>
+  </div>
+</section>
+
+<section class="card">
+  <div class="eyebrow">まとめ</div>
+  <h2>持ち帰る5つ</h2>
+  <ul>
+    <li>4つの束一的性質はすべてラウールの法則の言い換え。溶質の正体は式に入らず、粒子の数だけが入る。</li>
+    <li>K_b と K_f は溶媒の定数で、沸点・凝固点と蒸発熱・融解熱から計算できる。水で K_f が K_b の3.6倍なのは融解熱が小さいから。</li>
+    <li>温度が変わる測定には質量モル濃度、一定温度で測る浸透圧にはモル濃度。</li>
+    <li>πV = nRT。理想気体からのずれを Z で測るのと同じように、溶液のずれは浸透係数 φ = i/ν で測る。</li>
+    <li>0.9% 食塩水は計算上 308 mOsm/L だが、φ = 0.93 を掛けると 285 になり血漿と等張になる。</li>
+  </ul>
+  <p class="note">定数の出典。K_b・K_f・蒸発熱・融解熱・密度は CRC Handbook 系の値。教科書では水の K_b = 0.52、K_f = 1.86 と丸めて載ることが多く、本稿の 0.515 と 1.853 は同じ量の桁を1つ増やしたものです。ファントホッフ係数の実測値は 0.1 mol/kg での値で、薄めるほど理論値 ν に近づきます。相図の曲線はクラウジウス・クラペイロンの式で蒸発熱を一定とみなして描いているため、沸点から離れた低圧側では圧力の絶対値が数十パーセントずれます。交点の温度は 1% 以内で合います。</p>
+</section>
+
+</main>
+
+<script>
+'use strict';
+/* ============ 定数とデータ ============ */
+var RJ = 8.314462;      /* J·mol^-1·K^-1 */
+var RL = 0.0820574;     /* L·atm·mol^-1·K^-1 */
+var RL5 = 0.083145;     /* L·10^5Pa·mol^-1·K^-1 */
+var MMHG = 760 / 1.01325;
+var PLASMA = 285;       /* mOsm/kg */
+
+var SER = [
+  {f:'#B87A16', t:'#8A5A0C'},
+  {f:'#158A6D', t:'#0D6A53'},
+  {f:'#2457A6', t:'#1B4380'},
+  {f:'#6E3AA7', t:'#572D85'},
+  {f:'#A82A6A', t:'#831F52'},
+  {f:'#3B6E1E', t:'#2A5215'}
+];
+
+/* Hv, Hf: J/mol / Pv25: 25℃の蒸気圧 kPa / rho: g/cm3 */
+var SOLVENTS = [
+  {id:'h2o', ja:'水', f:'H₂O', M:18.015, Tb:373.15, Tf:273.15, Kb:0.515, Kf:1.853,
+   Hv:40660, Hf:6010, Pv25:3.169, rho:0.9970, s:2},
+  {id:'c6h6', ja:'ベンゼン', f:'C₆H₆', M:78.11, Tb:353.25, Tf:278.68, Kb:2.53, Kf:5.12,
+   Hv:30720, Hf:9870, Pv25:12.70, rho:0.8765, s:0},
+  {id:'c6h12', ja:'シクロヘキサン', f:'C₆H₁₂', M:84.16, Tb:353.87, Tf:279.69, Kb:2.79, Kf:20.0,
+   Hv:29970, Hf:2630, Pv25:13.01, rho:0.7739, s:5},
+  {id:'acoh', ja:'酢酸', f:'CH₃COOH', M:60.05, Tb:391.05, Tf:289.75, Kb:3.07, Kf:3.90,
+   Hv:23700, Hf:11700, Pv25:2.07, rho:1.0490, s:1}
+];
+
+/* nu: 完全電離したときの粒子数 / iE: 0.1 mol/kg での実測ファントホッフ係数 */
+var SOLUTES = [
+  {id:'glc', ja:'グルコース', f:'C₆H₁₂O₆', M:180.16, nu:1, iE:1.00, s:1},
+  {id:'suc', ja:'スクロース', f:'C₁₂H₂₂O₁₁', M:342.30, nu:1, iE:1.00, s:1},
+  {id:'urea', ja:'尿素', f:'CO(NH₂)₂', M:60.06, nu:1, iE:1.00, s:1},
+  {id:'gly', ja:'グリセリン', f:'C₃H₈O₃', M:92.09, nu:1, iE:1.00, s:1},
+  {id:'nacl', ja:'塩化ナトリウム', f:'NaCl', M:58.44, nu:2, iE:1.87, s:2},
+  {id:'kcl', ja:'塩化カリウム', f:'KCl', M:74.55, nu:2, iE:1.85, s:2},
+  {id:'mgso4', ja:'硫酸マグネシウム', f:'MgSO₄', M:120.37, nu:2, iE:1.21, s:4},
+  {id:'cacl2', ja:'塩化カルシウム', f:'CaCl₂', M:110.98, nu:3, iE:2.53, s:3},
+  {id:'na2so4', ja:'硫酸ナトリウム', f:'Na₂SO₄', M:142.04, nu:3, iE:2.43, s:3},
+  {id:'aa', ja:'酢酸（弱電解質）', f:'CH₃COOH', M:60.05, nu:2, iE:1.01, s:0, weak:true}
+];
+
+/* phi: 浸透係数（理論の mOsm に掛けて実効値にする） */
+var FLUIDS = [
+  {id:'ns', ja:'生理食塩水 0.9%', phi:0.926, comps:[['Na⁺',154,2],['Cl⁻',154,3]],
+   note:'計算上は 308 mOsm/L ですが、φ = 0.926 を掛けた実効値が 285 になり血漿と一致します。細胞外液を増やす目的で使います。'},
+  {id:'d5w', ja:'5% ブドウ糖液', phi:1.01, comps:[['グルコース',278,1]],
+   note:'袋の中では等張ですが、投与後にグルコースが代謝されると実質的に水だけが残ります。自由水の補給に使われる理由がここにあります。'},
+  {id:'lr', ja:'乳酸リンゲル液', phi:0.93, comps:[['Na⁺',130,2],['K⁺',4,5],['Ca²⁺',1.4,0],['Cl⁻',109,3],['乳酸⁻',28,1]],
+   note:'血漿の電解質組成に近づけた輸液。計算上の 273 mOsm/L は等張に見えますが、φ を掛けた実効値は 254 でわずかに低張です。乳酸は肝臓で代謝されて重炭酸に変わります。'},
+  {id:'half', ja:'0.45% 食塩水', phi:0.93, comps:[['Na⁺',77,2],['Cl⁻',77,3]],
+   note:'低張なので水が細胞内へ移動します。急速に入れると赤血球が膨らみます。'},
+  {id:'hs3', ja:'3% 高張食塩水', phi:0.93, comps:[['Na⁺',513,2],['Cl⁻',513,3]],
+   note:'高張。細胞内から水を引き出すので、脳浮腫の治療などで使われます。末梢静脈からは入れにくい濃度です。'},
+  {id:'d10', ja:'10% ブドウ糖液', phi:1.02, comps:[['グルコース',555,1]],
+   note:'高張。糖の補給量は増えますが、末梢血管への刺激が強くなります。'}
+];
+
+/* ============ 汎用ユーティリティ ============ */
+function fx(v, d){ return (!isFinite(v)) ? '—' : v.toFixed(d); }
+function clamp(v, lo, hi){ return v < lo ? lo : (v > hi ? hi : v); }
+function esc(s){ return String(s).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;'); }
+function kv(items){
+  return items.map(function(it){ return '<div><b>' + it[0] + '</b><span>' + it[1] + '</span></div>'; }).join('');
+}
+function legend(items){
+  return items.map(function(it){
+    return '<span><i style="border-top-color:' + it.c + ';border-top-style:' + (it.dash ? 'dotted' : 'solid') +
+           '"></i>' + esc(it.t) + '</span>';
+  }).join('');
+}
+function toC(K){ return K - 273.15; }
+
+/* ============ SVG ヘルパー ============ */
+var NARROW = false;
+function scale(box, dom){
+  return {
+    l:box.l, t:box.t, w:box.w, h:box.h, x0:dom.x0, x1:dom.x1, y0:dom.y0, y1:dom.y1,
+    X:function(v){ return box.l + (v - dom.x0) / (dom.x1 - dom.x0) * box.w; },
+    Y:function(v){ return box.t + box.h - (v - dom.y0) / (dom.y1 - dom.y0) * box.h; },
+    iX:function(px){ return dom.x0 + (px - box.l) / box.w * (dom.x1 - dom.x0); }
+  };
+}
+function ticks(min, max, n){
+  var span = max - min;
+  if(!(span > 0)) return {v:[min], d:0};
+  var raw = span / n, mag = Math.pow(10, Math.floor(Math.log10(raw))), r = raw / mag;
+  var step = (r <= 1 ? 1 : r <= 2 ? 2 : r <= 2.5 ? 2.5 : r <= 5 ? 5 : 10) * mag;
+  var d = step < 1 ? Math.ceil(-Math.log10(step)) : 0;
+  if(Math.abs(step - Math.round(step)) > 1e-9) d = Math.max(d, 1);
+  var v = [];
+  for(var k = Math.ceil(min / step - 1e-9); k * step <= max + 1e-9; k++) v.push(k * step);
+  return {v:v, d:d};
+}
+var SUP = {'-3':'⁻³', '-2':'⁻²', '-1':'⁻¹', '0':'⁰', '1':'¹', '2':'²'};
+function frame(s, o){
+  var out = '', xt = ticks(s.x0, s.x1, o.nx || (NARROW ? 4 : 7));
+  if(o.ylog){
+    for(var e = Math.ceil(s.y0); e <= Math.floor(s.y1); e++){
+      var yy = s.Y(e);
+      out += '<line class="grid" x1="' + s.l + '" y1="' + yy.toFixed(1) + '" x2="' + (s.l + s.w) + '" y2="' + yy.toFixed(1) + '"/>';
+      out += '<text class="tk" x="' + (s.l - 6) + '" y="' + (yy + 3.4).toFixed(1) + '" text-anchor="end">10' +
+             (SUP[String(e)] || e) + '</text>';
+    }
+  } else {
+    var yt = ticks(s.y0, s.y1, o.ny || (NARROW ? 4 : 6));
+    yt.v.forEach(function(v){
+      var y = s.Y(v);
+      out += '<line class="grid" x1="' + s.l + '" y1="' + y.toFixed(1) + '" x2="' + (s.l + s.w) + '" y2="' + y.toFixed(1) + '"/>';
+      out += '<text class="tk" x="' + (s.l - 6) + '" y="' + (y + 3.4).toFixed(1) + '" text-anchor="end">' + v.toFixed(yt.d) + '</text>';
+    });
+  }
+  xt.v.forEach(function(v){
+    var x = s.X(v);
+    out += '<line class="grid" x1="' + x.toFixed(1) + '" y1="' + s.t + '" x2="' + x.toFixed(1) + '" y2="' + (s.t + s.h) + '"/>';
+    out += '<text class="tk" x="' + x.toFixed(1) + '" y="' + (s.t + s.h + 14) + '" text-anchor="middle">' + v.toFixed(xt.d) + '</text>';
+  });
+  out += '<line class="axis" x1="' + s.l + '" y1="' + (s.t + s.h) + '" x2="' + (s.l + s.w) + '" y2="' + (s.t + s.h) + '"/>';
+  out += '<line class="axis" x1="' + s.l + '" y1="' + s.t + '" x2="' + s.l + '" y2="' + (s.t + s.h) + '"/>';
+  out += '<text class="ax" x="' + (s.l + s.w) + '" y="' + (s.t + s.h + 29) + '" text-anchor="end">' + o.xlab + '</text>';
+  out += '<text class="ax" x="' + (s.l - 4) + '" y="' + (s.t - 8) + '" text-anchor="start">' + o.ylab + '</text>';
+  return out;
+}
+function pathOf(s, pts){
+  var lo = s.y0 - (s.y1 - s.y0) * 0.3, hi = s.y1 + (s.y1 - s.y0) * 0.3, d = '', pen = false;
+  for(var i = 0; i < pts.length; i++){
+    var y = pts[i][1];
+    if(!isFinite(y)){ pen = false; continue; }
+    d += (pen ? 'L' : 'M') + s.X(pts[i][0]).toFixed(1) + ' ' + s.Y(clamp(y, lo, hi)).toFixed(1) + ' ';
+    pen = true;
+  }
+  return d;
+}
+function chipAt(lines, px, py, s){
+  var fs = NARROW ? 9.5 : 10.5, lh = fs + 3.5, mx = 0;
+  lines.forEach(function(t){ mx = Math.max(mx, t.length); });
+  var w = mx * fs * 0.605 + 14, h = lines.length * lh + 7;
+  var x = px + 10;
+  if(x + w > s.l + s.w) x = px - 10 - w;
+  x = Math.max(s.l + 1, x);
+  var y = clamp(py - h / 2, s.t + 2, s.t + s.h - h - 2);
+  var o = '<g><rect x="' + x.toFixed(1) + '" y="' + y.toFixed(1) + '" width="' + w.toFixed(1) +
+          '" height="' + h.toFixed(1) + '" rx="2" fill="#16232B"/>';
+  lines.forEach(function(t, i){
+    o += '<text class="chiptx" x="' + (x + 7).toFixed(1) + '" y="' + (y + lh * i + fs + 3).toFixed(1) +
+         '" font-size="' + fs + '">' + esc(t) + '</text>';
+  });
+  return o + '</g>';
+}
+function svgWrap(W, H, inner, id){
+  return '<svg class="chart" id="' + id + '" viewBox="0 0 ' + W + ' ' + H + '" role="img">' + inner + '</svg>';
+}
+function attachPointer(el, cb){
+  var down = false;
+  function frac(e){
+    var r = el.getBoundingClientRect();
+    return clamp((e.clientX - r.left) / r.width, 0, 1);
+  }
+  el.addEventListener('pointerdown', function(e){
+    down = true;
+    if(el.setPointerCapture){ try{ el.setPointerCapture(e.pointerId); }catch(x){} }
+    cb(frac(e)); e.preventDefault();
+  });
+  el.addEventListener('pointermove', function(e){ if(down || e.pointerType === 'mouse') cb(frac(e)); });
+  el.addEventListener('pointerup', function(){ down = false; });
+  el.addEventListener('pointercancel', function(){ down = false; });
+}
+
+/* ============ 溶液の物理 ============ */
+function iOf(su){ return st.useNu ? su.nu : su.iE; }
+/* 溶媒1kgあたり: 粒子の物質量 = i*m、溶媒の物質量 = 1000/M */
+function xB(sv, su, m){
+  var nb = iOf(su) * m, na = 1000 / sv.M;
+  return nb / (na + nb);
+}
+function xA(sv, su, m){ return 1 - xB(sv, su, m); }
+/* 近似式 */
+function dTbApprox(sv, su, m){ return iOf(su) * sv.Kb * m; }
+function dTfApprox(sv, su, m){ return iOf(su) * sv.Kf * m; }
+/* 厳密解（クラウジウス・クラペイロンを解いたもの） */
+function tbExact(sv, xa){ return 1 / (1 / sv.Tb + RJ * Math.log(xa) / sv.Hv); }
+function tfExact(sv, xa){ return 1 / (1 / sv.Tf - RJ * Math.log(xa) / sv.Hf); }
+/* 相図の曲線（沸点で1 atmになるよう規格化、単位 atm） */
+function pLiq(sv, T){ return Math.exp(-sv.Hv / RJ * (1 / T - 1 / sv.Tb)); }
+function pTp(sv){ return pLiq(sv, sv.Tf); }
+function pSub(sv, T){ return pTp(sv) * Math.exp(-(sv.Hv + sv.Hf) / RJ * (1 / T - 1 / sv.Tf)); }
+/* 濃度換算 */
+function molarity(rho, m, M){ return 1000 * rho * m / (1000 + m * M); }
+/* 浸透圧 [10^5 Pa] */
+function osmoticP(c, T){ return c * RL5 * T; }
+
+/* ============ 状態 ============ */
+var st = {
+  sv:0, su:0, m:0.50, byMass:false, mass:20, useNu:false,
+  view2:0, x1:0, t2:0, mode4:1, m4:0, pm4:0.10,
+  su5:4, m5:1.0, rho:0.9970, c5:0,
+  m6:0.10, t6:298.15, fl:0
+};
+var G1 = {}, G2 = {}, G4 = {}, G5 = {};
+function $(id){ return document.getElementById(id); }
+function SV(){ return SOLVENTS[st.sv]; }
+function SU(){ return SOLUTES[st.su]; }
+/* 質量指定モードでは m を溶質質量から決める */
+function molality(){
+  return st.byMass ? st.mass / SU().M : st.m;
+}
+
+/* ============ コントロール生成 ============ */
+function chipsHtml(items, sel, lab){
+  return items.map(function(it, i){
+    return '<button class="chip" type="button" data-i="' + i + '" aria-pressed="' +
+      (i === sel ? 'true' : 'false') + '">' + lab(it) + '</button>';
+  }).join('');
+}
+function slider(key, label, min, max, step, val){
+  return '<label>' + label + '</label><input type="range" data-sl="' + key + '" min="' + min +
+    '" max="' + max + '" step="' + step + '" value="' + val + '"><span class="val" data-vl="' + key + '"></span>';
+}
+function syncGroup(grp, sel){
+  Array.prototype.forEach.call(document.querySelectorAll('[data-grp="' + grp + '"] button'), function(b){
+    b.setAttribute('aria-pressed', (+b.getAttribute('data-i') === sel) ? 'true' : 'false');
+  });
+}
+function syncSlider(key, val, text){
+  Array.prototype.forEach.call(document.querySelectorAll('[data-sl="' + key + '"]'), function(el){
+    el.value = String(val);
+  });
+  Array.prototype.forEach.call(document.querySelectorAll('[data-vl="' + key + '"]'), function(el){
+    el.textContent = text;
+  });
+}
+
+/* ============ 00 条件 ============ */
+function drawP0(){
+  var sv = SV(), su = SU(), m = molality(), i = iOf(su);
+  var mTxt = st.byMass
+    ? fx(st.mass, 1) + ' g/kg → ' + fx(m, 4) + ' m'
+    : fx(m, 3) + ' mol/kg';
+  syncSlider(st.byMass ? 'mass' : 'm', st.byMass ? st.mass : st.m, mTxt);
+  $('rd0').innerHTML = kv([
+    ['溶媒', sv.f + '  M ' + fx(sv.M, 2)],
+    ['K_b', fx(sv.Kb, 3) + ' K·kg/mol'],
+    ['K_f', fx(sv.Kf, 3) + ' K·kg/mol'],
+    ['溶質', su.f + '  M ' + fx(su.M, 2)],
+    ['ファントホッフ係数 i', fx(i, 2) + (st.useNu ? '（理論 ν）' : '（実測）')],
+    ['粒子の質量モル濃度 i·m', fx(i * m, 4) + ' mol/kg']
+  ]);
+  $('nt0').textContent = su.weak
+    ? '酢酸は弱電解質なので、0.1 mol/kg での電離度は 1.3% ほど。粒子はほとんど増えず i は 1.01 にとどまります。強電解質と非電解質のあいだにあることが数値で分かります。'
+    : (su.nu > 1
+      ? su.f + ' は完全に電離すれば ' + su.nu + ' 個の粒子になりますが、実測の i は ' + fx(su.iE, 2) +
+        '。イオン同士が引き合って独立に振る舞いきれず、理論値より小さくなります。'
+      : su.f + ' は電離しないので i = 1。0.1 mol/kg でも 1.00 のままです。');
+}
+
+/* ============ 01 ラウール ============ */
+function drawP1(){
+  var sv = SV(), su = SU(), m = molality();
+  var xb = xB(sv, su, m);
+  var W = NARROW ? 380 : 764, H = NARROW ? 268 : 320;
+  var box = {l:NARROW ? 46 : 58, t:24};
+  box.w = W - box.l - (NARROW ? 14 : 22);
+  box.h = H - box.t - (NARROW ? 36 : 42);
+  var x1 = clamp(xb * 2.4, 0.04, 1);
+  var s = scale(box, {x0:0, x1:x1, y0:0, y1:1});
+  G1 = {s:s, sv:sv, su:su, x1:x1};
+  if(!(st.x1 > 0) || st.x1 > x1) st.x1 = xb;
+
+  var o = '<defs><clipPath id="cq1"><rect x="' + box.l + '" y="' + box.t + '" width="' + box.w +
+          '" height="' + box.h + '"/></clipPath></defs>';
+  o += frame(s, {xlab:'溶質粒子のモル分率 x_B', ylab:'P / P°'});
+  o += '<g clip-path="url(#cq1)">';
+  o += '<path class="bold" d="' + pathOf(s, [[0, 1], [x1, 1 - x1]]) + '" stroke="' + SER[sv.s].f + '"/>';
+  o += '<line class="dash" x1="' + s.l + '" y1="' + s.Y(1).toFixed(1) + '" x2="' + (s.l + s.w) +
+       '" y2="' + s.Y(1).toFixed(1) + '" style="stroke:#5E6E76;stroke-width:1"/>';
+  o += '<text class="lbl" x="' + (s.l + 6) + '" y="' + (s.Y(1) + 13).toFixed(1) + '" style="fill:#5E6E76">純溶媒 P°</text>';
+  o += '</g><g id="q1cur"></g>';
+  $('ch1').innerHTML = svgWrap(W, H, o, 'sq1');
+  attachPointer($('sq1'), function(f){ st.x1 = clamp(f * x1, 0, x1); curP1(); });
+  $('sl-x1').innerHTML = slider('x1', 'x_B', 0, x1, x1 / 500, st.x1);
+  $('nt1').innerHTML = '25℃ での ' + sv.ja + 'の蒸気圧は ' + fx(sv.Pv25, 3) +
+    ' kPa。いまの条件（' + su.f + ' ' + fx(m, 3) + ' mol/kg）では x_B = ' + fx(xb, 5) +
+    ' なので、蒸気圧は ' + fx(xb * sv.Pv25 * 1000, 1) + ' Pa だけ下がります。';
+  curP1();
+}
+function curP1(){
+  var s = G1.s, sv = G1.sv;
+  if(!s) return;
+  var xb = clamp(st.x1, 0, G1.x1), rel = 1 - xb;
+  var x = s.X(xb), y = s.Y(rel);
+  var o = '<line class="guide" x1="' + x.toFixed(1) + '" y1="' + s.t + '" x2="' + x.toFixed(1) +
+          '" y2="' + (s.t + s.h) + '"/>';
+  o += '<line class="dash" x1="' + x.toFixed(1) + '" y1="' + s.Y(1).toFixed(1) + '" x2="' + x.toFixed(1) +
+       '" y2="' + y.toFixed(1) + '" style="stroke:#16232B;stroke-width:1.4"/>';
+  o += '<circle cx="' + x.toFixed(1) + '" cy="' + y.toFixed(1) + '" r="3.4" fill="' + SER[sv.s].f + '"/>';
+  o += chipAt(['x_B = ' + fx(xb, 5), 'P/P° = ' + fx(rel, 5)], x, y, s);
+  var el = $('q1cur');
+  if(el) el.innerHTML = o;
+  syncSlider('x1', xb, fx(xb, 5));
+  $('rd1').innerHTML = kv([
+    ['x_B', fx(xb, 5)],
+    ['P / P°', fx(rel, 5)],
+    ['P° (25℃)', fx(sv.Pv25, 3) + ' kPa'],
+    ['ΔP', fx(xb * sv.Pv25 * 1000, 1) + ' Pa']
+  ]);
+}
+
+/* ============ 02 相図 ============ */
+var VIEWS = ['全体', '凝固点付近', '沸点付近'];
+function drawP2(){
+  var sv = SV(), su = SU(), m = molality();
+  var xa = xA(sv, su, m);
+  var Tb2 = tbExact(sv, xa), Tf2 = tfExact(sv, xa);
+  var W = NARROW ? 380 : 764, H = NARROW ? 300 : 372;
+  var box = {l:NARROW ? 46 : 58, t:24};
+  box.w = W - box.l - (NARROW ? 14 : 22);
+  box.h = H - box.t - (NARROW ? 36 : 42);
+
+  var dom, ylog = false;
+  if(st.view2 === 0){
+    dom = {x0:sv.Tf - 14, x1:sv.Tb + 9, y0:-3.2, y1:0.35};
+    ylog = true;
+  } else if(st.view2 === 1){
+    var w1 = Math.max(1.2, (sv.Tf - Tf2) * 1.8);
+    var pInt = xa * pLiq(sv, Tf2), pT = pTp(sv);
+    dom = {x0:sv.Tf - w1, x1:sv.Tf + w1 * 0.4,
+           y0:Math.min(pInt, pT) * 0.80, y1:Math.max(pInt, pT) * 1.14};
+  } else {
+    var w2 = Math.max(0.8, (Tb2 - sv.Tb) * 1.8);
+    dom = {x0:sv.Tb - w2 * 0.5, x1:sv.Tb + w2, y0:0.93, y1:1.06};
+  }
+  var s = scale(box, dom);
+  G2 = {s:s, sv:sv, xa:xa, ylog:ylog, Tb2:Tb2, Tf2:Tf2};
+  if(!(st.t2 > dom.x0) || st.t2 > dom.x1) st.t2 = (dom.x0 + dom.x1) / 2;
+
+  function yv(P){ return ylog ? Math.log10(P) : P; }
+  var n = 380, i, T, pts;
+  var o = '<defs><clipPath id="cq2"><rect x="' + box.l + '" y="' + box.t + '" width="' + box.w +
+          '" height="' + box.h + '"/></clipPath></defs>';
+  o += frame(s, {xlab:'T / K', ylab:'P / atm', ylog:ylog});
+  o += '<g clip-path="url(#cq2)">';
+
+  function seg(a, b, fn){
+    var p = [], k, TT;
+    if(!(b > a)) return p;
+    for(k = 0; k <= n; k++){ TT = a + (b - a) * k / n; p.push([TT, yv(fn(TT))]); }
+    return p;
+  }
+  var xs = dom.x0, xe = dom.x1;
+  pts = seg(xs, Math.min(xe, sv.Tf + (xe - xs) * 0.03), function(T){ return pSub(sv, T); });
+  o += '<path class="bold" d="' + pathOf(s, pts) + '" stroke="' + SER[4].f + '"/>';
+  pts = seg(Math.max(xs, sv.Tf), xe, function(T){ return pLiq(sv, T); });
+  o += '<path d="' + pathOf(s, pts) + '" style="stroke:#5E6E76;stroke-width:1.3;fill:none"/>';
+  pts = seg(Math.max(xs, Tf2), xe, function(T){ return xa * pLiq(sv, T); });
+  o += '<path class="bold" d="' + pathOf(s, pts) + '" stroke="' + SER[sv.s].f + '"/>';
+
+  o += '<line class="dash" x1="' + s.l + '" y1="' + s.Y(yv(1)).toFixed(1) + '" x2="' + (s.l + s.w) +
+       '" y2="' + s.Y(yv(1)).toFixed(1) + '" style="stroke:#5E6E76;stroke-width:1"/>';
+  if(st.view2 !== 1){
+    o += '<text class="lbl" x="' + (s.l + 6) + '" y="' + (s.Y(yv(1)) - 5).toFixed(1) + '" style="fill:#5E6E76">1 atm</text>';
+  }
+  [[sv.Tb, 1, '純溶媒の沸点'], [Tb2, 1, '溶液の沸点'],
+   [sv.Tf, pTp(sv), '純溶媒の凝固点'], [Tf2, xa * pLiq(sv, Tf2), '溶液の凝固点']].forEach(function(p, k){
+    var px = s.X(p[0]), py = s.Y(yv(p[1]));
+    if(px < s.l - 2 || px > s.l + s.w + 2) return;
+    o += '<circle class="mk" cx="' + px.toFixed(1) + '" cy="' + py.toFixed(1) + '" r="3.2"/>';
+    o += '<line class="dash" x1="' + px.toFixed(1) + '" y1="' + py.toFixed(1) + '" x2="' + px.toFixed(1) +
+         '" y2="' + (s.t + s.h) + '" style="stroke:#16232B;stroke-width:1;opacity:.5"/>';
+    if(!NARROW && st.view2 !== 0){
+      o += '<text class="lbl" x="' + (px + 5).toFixed(1) + '" y="' + (s.t + 12 + (k % 2) * 12) + '">' +
+           fx(p[0], 3) + ' K</text>';
+    }
+  });
+  o += '</g><g id="q2cur"></g>';
+  $('ch2').innerHTML = svgWrap(W, H, o, 'sq2');
+  attachPointer($('sq2'), function(f){ st.t2 = dom.x0 + f * (dom.x1 - dom.x0); curP2(); });
+  $('sl-t2').innerHTML = slider('t2', 'T', dom.x0, dom.x1, (dom.x1 - dom.x0) / 500, st.t2);
+  $('lg2').innerHTML = legend([
+    {c:'#5E6E76', t:'純溶媒の蒸気圧'},
+    {c:SER[sv.s].f, t:'溶液の蒸気圧（× x_A）'},
+    {c:SER[4].f, t:'固体の昇華曲線'}
+  ]);
+  $('nt2').innerHTML = '凝固点は ' + fx(sv.Tf, 2) + ' K から ' + fx(Tf2, 3) + ' K へ（ΔT_f = ' +
+    fx(sv.Tf - Tf2, 4) + ' K）、沸点は ' + fx(sv.Tb, 2) + ' K から ' + fx(Tb2, 3) + ' K へ（ΔT_b = ' +
+    fx(Tb2 - sv.Tb, 4) + ' K）。どちらも同じ1本の曲線を x_A = ' + fx(xa, 5) + ' 倍に下げた結果です。';
+  curP2();
+}
+function curP2(){
+  var s = G2.s, sv = G2.sv, xa = G2.xa;
+  if(!s) return;
+  var T = clamp(st.t2, s.x0, s.x1);
+  var pp = pLiq(sv, T), psl = xa * pp, psb = pSub(sv, T);
+  function yv(P){ return G2.ylog ? Math.log10(P) : P; }
+  var x = s.X(T);
+  var o = '<line class="guide" x1="' + x.toFixed(1) + '" y1="' + s.t + '" x2="' + x.toFixed(1) +
+          '" y2="' + (s.t + s.h) + '"/>';
+  var yy = clamp(s.Y(clamp(yv(psl), s.y0, s.y1)), s.t, s.t + s.h);
+  o += '<circle cx="' + x.toFixed(1) + '" cy="' + yy.toFixed(1) + '" r="3.4" fill="' + SER[sv.s].f + '"/>';
+  o += chipAt([fx(T, 2) + ' K / ' + fx(toC(T), 2) + '℃',
+               '純 ' + (pp < 0.01 ? pp.toExponential(2) : fx(pp, 4)),
+               '溶液 ' + (psl < 0.01 ? psl.toExponential(2) : fx(psl, 4))], x, yy, s);
+  var el = $('q2cur');
+  if(el) el.innerHTML = o;
+  $('rd2').innerHTML = kv([
+    ['T', fx(T, 2) + ' K'],
+    ['', fx(toC(T), 2) + ' ℃'],
+    ['純溶媒 P', (pp < 0.01 ? pp.toExponential(3) : fx(pp, 5)) + ' atm'],
+    ['溶液 P', (psl < 0.01 ? psl.toExponential(3) : fx(psl, 5)) + ' atm'],
+    ['固体 P', (psb < 0.01 ? psb.toExponential(3) : fx(psb, 5)) + ' atm'],
+    ['状態', T > G2.Tb2 ? '気体' : (T < G2.Tf2 ? '固体' : '液体')]
+  ]);
+  syncSlider('t2', T, fx(T, 2) + ' K');
+}
+
+/* ============ 03 まとめて計算 ============ */
+function drawP3(){
+  var sv = SV(), su = SU(), m = molality(), i = iOf(su);
+  var xa = xA(sv, su, m), xb = 1 - xa;
+  var dTb = dTbApprox(sv, su, m), dTf = dTfApprox(sv, su, m);
+  var Tb2 = tbExact(sv, xa), Tf2 = tfExact(sv, xa);
+  var c = molarity(sv.rho, m, su.M) * i;   /* 粒子のモル濃度 */
+  var pi25 = osmoticP(c, 298.15), pi37 = osmoticP(c, 310.15);
+  $('bg3').innerHTML =
+    '<div><b>沸点上昇 ΔT_b</b><span>' + fx(dTb, 4) + ' K</span><i>沸点 ' + fx(toC(sv.Tb + dTb), 3) + ' ℃</i></div>' +
+    '<div><b>凝固点降下 ΔT_f</b><span>' + fx(dTf, 4) + ' K</span><i>凝固点 ' + fx(toC(sv.Tf - dTf), 3) + ' ℃</i></div>' +
+    '<div><b>浸透圧 π (25℃)</b><span>' + fx(pi25, 3) + '</span><i>×10⁵ Pa ＝ ' + fx(pi25 / 1.01325, 2) + ' atm</i></div>';
+  $('rd3').innerHTML = kv([
+    ['x_B', fx(xb, 5)],
+    ['ΔT_b 厳密解', fx(Tb2 - sv.Tb, 4) + ' K'],
+    ['近似とのずれ', fx((dTb / (Tb2 - sv.Tb) - 1) * 100, 2) + ' %'],
+    ['ΔT_f 厳密解', fx(sv.Tf - Tf2, 4) + ' K'],
+    ['近似とのずれ', fx((dTf / (sv.Tf - Tf2) - 1) * 100, 2) + ' %'],
+    ['粒子のモル濃度', fx(c, 4) + ' mol/L'],
+    ['π (37℃)', fx(pi37, 3) + ' ×10⁵ Pa'],
+    ['π (37℃)', fx(pi37 * MMHG, 0) + ' mmHg']
+  ]);
+  $('nt3').innerHTML = '近似式は ln(1−x_B) ≒ −x_B と 1/T − 1/T₀ ≒ ΔT/T₀² の2つを使っています。' +
+    (m < 0.6
+      ? 'いまの濃度ではずれが 1% 前後にとどまり、高校の計算はこれで十分です。'
+      : '濃度がここまで上がると近似が数パーセントずれます。厳密解のほうが小さく出るのは、ln(1−x) が −x より速く落ちるためです。') +
+    ' 浸透圧の計算には溶液密度を溶媒と同じ ' + fx(sv.rho, 4) + ' g/cm³ と置いています。';
+}
+
+/* ============ 04 種類によらない ============ */
+function drawP4(){
+  var sv = SV();
+  var W = NARROW ? 380 : 764, H = NARROW ? 288 : 340;
+  var box = {l:NARROW ? 44 : 56, t:24};
+  box.w = W - box.l - (NARROW ? 14 : 22);
+  box.h = H - box.t - (NARROW ? 36 : 42);
+  var mMax = 1.0, useNu = (st.mode4 === 0);
+  var iMax = 0;
+  SOLUTES.forEach(function(su){ iMax = Math.max(iMax, useNu ? su.nu : su.iE); });
+  var s = scale(box, {x0:0, x1:mMax, y0:0, y1:sv.Kf * iMax * mMax * 1.06});
+  G4 = {s:s, sv:sv, useNu:useNu, mMax:mMax};
+  if(!(st.m4 > 0)) st.m4 = 0.4;
+
+  var o = '<defs><clipPath id="cq4"><rect x="' + box.l + '" y="' + box.t + '" width="' + box.w +
+          '" height="' + box.h + '"/></clipPath></defs>';
+  o += frame(s, {xlab:'質量モル濃度 m / mol·kg⁻¹', ylab:'ΔT_f / K'});
+  o += '<g clip-path="url(#cq4)">';
+  var seen = {}, lgs = [];
+  SOLUTES.forEach(function(su){
+    var i = useNu ? su.nu : su.iE;
+    var col = SER[su.s];
+    o += '<path class="bold" d="' + pathOf(s, [[0, 0], [mMax, sv.Kf * i * mMax]]) +
+         '" stroke="' + col.f + '" opacity="' + (seen[i.toFixed(2)] ? 0.5 : 1) + '"/>';
+    if(!seen[i.toFixed(2)]){
+      seen[i.toFixed(2)] = 1;
+      lgs.push({c:col.f, t:su.f + '  i = ' + fx(i, 2)});
+      if(!NARROW){
+        var yy = s.Y(sv.Kf * i * mMax);
+        o += '<text class="lbl" x="' + (s.l + s.w - 3) + '" y="' + (yy - 5).toFixed(1) +
+             '" text-anchor="end" style="fill:' + col.t + '">' + su.f + '</text>';
+      }
+    }
+  });
+  o += '</g><g id="q4cur"></g>';
+  $('ch4').innerHTML = svgWrap(W, H, o, 'sq4');
+  attachPointer($('sq4'), function(f){ st.m4 = clamp(f * mMax, 0, mMax); curP4(); });
+  $('lg4').innerHTML = legend(lgs);
+  drawT4();
+  curP4();
+}
+function curP4(){
+  var s = G4.s, sv = G4.sv;
+  if(!s) return;
+  var m = clamp(st.m4, 0, G4.mMax);
+  var x = s.X(m);
+  var o = '<line class="guide" x1="' + x.toFixed(1) + '" y1="' + s.t + '" x2="' + x.toFixed(1) +
+          '" y2="' + (s.t + s.h) + '"/>';
+  var lines = [];
+  [0, 4, 7].forEach(function(k){
+    var su = SOLUTES[k], i = G4.useNu ? su.nu : su.iE, d = sv.Kf * i * m;
+    var y = clamp(s.Y(clamp(d, s.y0, s.y1)), s.t, s.t + s.h);
+    o += '<circle cx="' + x.toFixed(1) + '" cy="' + y.toFixed(1) + '" r="3" fill="' + SER[su.s].f + '"/>';
+    lines.push(su.f + ' ' + fx(d, 3));
+  });
+  o += chipAt(['m = ' + fx(m, 3)].concat(lines), x, s.t + s.h * 0.4, s);
+  var el = $('q4cur');
+  if(el) el.innerHTML = o;
+  var g = SOLUTES[0], n = SOLUTES[4], ca = SOLUTES[7];
+  var ig = G4.useNu ? g.nu : g.iE, inn = G4.useNu ? n.nu : n.iE, ic = G4.useNu ? ca.nu : ca.iE;
+  $('rd4').innerHTML = kv([
+    ['m', fx(m, 3) + ' mol/kg'],
+    ['グルコース', fx(sv.Kf * ig * m, 4) + ' K'],
+    ['NaCl', fx(sv.Kf * inn * m, 4) + ' K'],
+    ['CaCl₂', fx(sv.Kf * ic * m, 4) + ' K'],
+    ['NaCl / グルコース', fx(inn / ig, 3) + ' 倍'],
+    ['CaCl₂ / グルコース', fx(ic / ig, 3) + ' 倍']
+  ]);
+  syncSlider('m4', m, fx(m, 3) + ' mol/kg');
+}
+function drawT4(){
+  var sv = SV(), target = st.pm4, useNu = (st.mode4 === 0);
+  var t = $('tb4');
+  t.querySelector('thead').innerHTML =
+    '<tr><th>溶質</th><th>i</th><th>必要な m</th><th>溶かす質量 g/kg</th><th>i·m</th><th>ΔT_f / K</th></tr>';
+  t.querySelector('tbody').innerHTML = SOLUTES.map(function(su){
+    var i = useNu ? su.nu : su.iE, m = target / i;
+    return '<tr><td style="color:' + SER[su.s].t + '">' + su.f + '</td><td>' + fx(i, 2) + '</td><td>' +
+      fx(m, 4) + '</td><td>' + fx(m * su.M, 2) + '</td><td>' + fx(i * m, 4) + '</td><td>' +
+      fx(sv.Kf * target, 4) + '</td></tr>';
+  }).join('');
+  syncSlider('pm4', target, fx(target, 3) + ' mol/kg');
+}
+
+/* ============ 05 濃度換算 ============ */
+function drawP5(){
+  var su = SOLUTES[st.su5];
+  var W = NARROW ? 380 : 764, H = NARROW ? 268 : 320;
+  var box = {l:NARROW ? 46 : 58, t:24};
+  box.w = W - box.l - (NARROW ? 14 : 22);
+  box.h = H - box.t - (NARROW ? 36 : 42);
+  var mMax = 6, s = scale(box, {x0:0, x1:mMax, y0:0, y1:mMax * st.rho * 1.02});
+  G5 = {s:s, su:su, mMax:mMax};
+
+  var o = '<defs><clipPath id="cq5"><rect x="' + box.l + '" y="' + box.t + '" width="' + box.w +
+          '" height="' + box.h + '"/></clipPath></defs>';
+  o += frame(s, {xlab:'質量モル濃度 m / mol·kg⁻¹', ylab:'モル濃度 c / mol·L⁻¹'});
+  o += '<g clip-path="url(#cq5)">';
+  o += '<path class="ideal" d="' + pathOf(s, [[0, 0], [mMax, mMax * st.rho]]) + '"/>';
+  var pts = [];
+  for(var i = 0; i <= 240; i++){
+    var m = mMax * i / 240;
+    pts.push([m, molarity(st.rho, m, su.M)]);
+  }
+  o += '<path class="bold" d="' + pathOf(s, pts) + '" stroke="' + SER[su.s].f + '"/>';
+  o += '</g><g id="q5cur"></g>';
+  $('ch5').innerHTML = svgWrap(W, H, o, 'sq5');
+  attachPointer($('sq5'), function(f){ st.m5 = clamp(f * mMax, 0, mMax); curP5(); });
+  curP5();
+}
+function curP5(){
+  var s = G5.s, su = G5.su;
+  if(!s) return;
+  var m = clamp(st.m5, 0, G5.mMax);
+  var c = molarity(st.rho, m, su.M), capp = st.rho * m;
+  var x = s.X(m), y = clamp(s.Y(clamp(c, s.y0, s.y1)), s.t, s.t + s.h);
+  var o = '<line class="guide" x1="' + x.toFixed(1) + '" y1="' + s.t + '" x2="' + x.toFixed(1) +
+          '" y2="' + (s.t + s.h) + '"/>';
+  o += '<circle cx="' + x.toFixed(1) + '" cy="' + y.toFixed(1) + '" r="3.4" fill="' + SER[su.s].f + '"/>';
+  o += chipAt(['m = ' + fx(m, 3), 'c = ' + fx(c, 4)], x, y, s);
+  var el = $('q5cur');
+  if(el) el.innerHTML = o;
+  $('rd5').innerHTML = kv([
+    ['m', fx(m, 3) + ' mol/kg'],
+    ['c 厳密', fx(c, 4) + ' mol/L'],
+    ['c 近似 (ρ·m)', fx(capp, 4) + ' mol/L'],
+    ['ずれ', fx((capp / (c || 1) - 1) * 100, 2) + ' %'],
+    ['溶質の質量分率', fx(m * su.M / (1000 + m * su.M) * 100, 2) + ' %'],
+    ['溶液 1 L の質量', fx(st.rho * 1000, 0) + ' g']
+  ]);
+  syncSlider('m5', m, fx(m, 3) + ' mol/kg');
+}
+
+/* ============ 06 浸透圧 ============ */
+function drawP6(){
+  var sv = SV(), su = SU();
+  var c = st.m6, T = st.t6;
+  var pi = osmoticP(c, T);                 /* 10^5 Pa */
+  var pgas = c * RL5 * T;                  /* 同じ物質量の理想気体 */
+  var h = pi * 1e5 / (1000 * 9.80665);     /* m */
+  var W = NARROW ? 380 : 764, H = NARROW ? 220 : 240;
+  var cx = W / 2, tubeW = NARROW ? 62 : 78, gap = NARROW ? 26 : 34;
+  var base = H - 26, topY = 22;
+  var lv = base - 60;
+  var hMax = lv - topY - 8;
+  var dh = clamp(h / 60 * hMax, 4, hMax);
+
+  var o = '';
+  var lx = cx - gap / 2 - tubeW, rx = cx + gap / 2;
+  o += '<path d="M' + lx + ' ' + topY + ' L' + lx + ' ' + base + ' L' + (rx + tubeW) + ' ' + base +
+       ' L' + (rx + tubeW) + ' ' + topY + '" fill="none" style="stroke:#D6DDDA;stroke-width:1.2"/>';
+  o += '<path d="M' + (lx + tubeW) + ' ' + topY + ' L' + (lx + tubeW) + ' ' + (base - 18) +
+       ' M' + rx + ' ' + topY + ' L' + rx + ' ' + (base - 18) + '" fill="none" style="stroke:#D6DDDA;stroke-width:1.2"/>';
+  o += '<rect x="' + lx + '" y="' + (lv - dh) + '" width="' + tubeW + '" height="' + (base - lv + dh) +
+       '" fill="' + SER[su.s].f + '" opacity="0.20"/>';
+  o += '<rect x="' + rx + '" y="' + lv + '" width="' + tubeW + '" height="' + (base - lv) +
+       '" fill="#5E6E76" opacity="0.16"/>';
+  o += '<rect x="' + (lx + tubeW) + '" y="' + (base - 18) + '" width="' + (gap) + '" height="18" fill="' +
+       SER[su.s].f + '" opacity="0.12"/>';
+  o += '<line class="dash" x1="' + cx + '" y1="' + (base - 20) + '" x2="' + cx + '" y2="' + base +
+       '" style="stroke:#16232B;stroke-width:1.4"/>';
+  o += '<text class="tk" x="' + cx + '" y="' + (base + 14) + '" text-anchor="middle">半透膜</text>';
+  o += '<line class="dash" x1="' + (lx - 6) + '" y1="' + (lv - dh) + '" x2="' + (rx + tubeW + 6) + '" y2="' +
+       (lv - dh) + '" style="stroke:#16232B;stroke-width:1;opacity:.55"/>';
+  o += '<line class="dash" x1="' + (lx - 6) + '" y1="' + lv + '" x2="' + (rx + tubeW + 6) + '" y2="' + lv +
+       '" style="stroke:#5E6E76;stroke-width:1;opacity:.55"/>';
+  o += '<line x1="' + (rx + tubeW + 14) + '" y1="' + (lv - dh) + '" x2="' + (rx + tubeW + 14) + '" y2="' + lv +
+       '" style="stroke:#16232B;stroke-width:1"/>';
+  o += '<text class="lbl" x="' + (rx + tubeW + 20) + '" y="' + (lv - dh / 2 + 4) + '">h = ' + fx(h, 1) + ' m</text>';
+  o += '<text class="tk" x="' + (lx + tubeW / 2) + '" y="' + (topY + 12) + '" text-anchor="middle">溶液</text>';
+  o += '<text class="tk" x="' + (rx + tubeW / 2) + '" y="' + (topY + 12) + '" text-anchor="middle">純溶媒</text>';
+  o += '<text class="ax" x="4" y="' + (H - 4) + '">液柱の高さは模式的に描いています</text>';
+  $('ch6').innerHTML = svgWrap(W, H, o, 'sq6');
+
+  var t = $('tb6');
+  t.querySelector('thead').innerHTML = '<tr><th>比べる点</th><th>理想気体</th><th>希薄溶液</th></tr>';
+  t.querySelector('tbody').innerHTML = [
+    ['状態方程式', 'PV = nRT', 'πV = nRT'],
+    ['濃度で書くと', 'P = (n/V)RT', 'π = cRT'],
+    ['n が指すもの', '気体分子', '溶質粒子（i 倍）'],
+    ['圧力の正体', '分子が壁を叩く', '溶媒の流入を止める'],
+    ['成り立つ条件', '低圧・高温', '希薄'],
+    ['ずれの指標', '圧縮率因子 Z', '浸透係数 φ = i/ν']
+  ].map(function(r){
+    return '<tr><td class="tx">' + r[0] + '</td><td class="tx">' + r[1] + '</td><td class="tx">' + r[2] + '</td></tr>';
+  }).join('');
+
+  $('rd6').innerHTML = kv([
+    ['粒子濃度 c', fx(c, 3) + ' mol/L'],
+    ['温度', fx(T, 1) + ' K / ' + fx(toC(T), 1) + '℃'],
+    ['浸透圧 π', fx(pi, 4) + ' ×10⁵ Pa'],
+    ['同条件の気体 P', fx(pgas, 4) + ' ×10⁵ Pa'],
+    ['π', fx(pi / 1.01325, 3) + ' atm'],
+    ['π', fx(pi * MMHG, 0) + ' mmHg'],
+    ['液柱の高さ h', fx(h, 2) + ' m'],
+    ['沸点上昇に直すと', fx(sv.Kb * c, 5) + ' K']
+  ]);
+  $('nt6').innerHTML = '粒子 ' + fx(c, 3) + ' mol を 1 L に入れると、気体なら ' + fx(pgas, 3) +
+    '×10⁵ Pa の圧力、溶液なら ' + fx(pi, 3) + '×10⁵ Pa の浸透圧。同じ式なので値も一致します。' +
+    '同じ濃度を沸点上昇に換算すると ' + fx(sv.Kb * c, 5) + ' K で、温度計では読めません。浸透圧が分子量測定に使われるのは、同じ粒子数がこれだけ大きな量として現れるからです。';
+  syncSlider('m6', c, fx(c, 3) + ' mol/L');
+  syncSlider('t6', T, fx(T, 2) + ' K / ' + fx(toC(T), 1) + '℃');
+}
+
+/* ============ 07 輸液 ============ */
+function drawP7(){
+  var fl = FLUIDS[st.fl];
+  var theo = fl.comps.reduce(function(a, c){ return a + c[1]; }, 0);
+  var eff = theo * fl.phi;
+  var ratio = PLASMA / eff;
+  var vv = 0.30 + 0.70 * ratio;
+  var tonic = eff < PLASMA - 25 ? '低張' : (eff > PLASMA + 25 ? '高張' : '等張');
+
+  var W = NARROW ? 380 : 764, H = NARROW ? 210 : 196;
+  var box = {l:NARROW ? 10 : 14, t:26};
+  box.w = W - box.l * 2 - (NARROW ? 0 : 200);
+  var barH = 26, scaleMax = 620;
+  var o = '<text class="ax" x="' + box.l + '" y="14">浸透圧モル濃度 mOsm/L</text>';
+  var sx = function(v){ return box.l + clamp(v / scaleMax, 0, 1) * box.w; };
+  o += '<rect x="' + box.l + '" y="' + box.t + '" width="' + box.w + '" height="' + barH +
+       '" fill="#EDF1EF"/>';
+  o += '<rect x="' + sx(PLASMA - 25) + '" y="' + box.t + '" width="' + (sx(PLASMA + 25) - sx(PLASMA - 25)) +
+       '" height="' + barH + '" fill="#158A6D" opacity="0.16"/>';
+  o += '<line class="dash" x1="' + sx(PLASMA) + '" y1="' + (box.t - 4) + '" x2="' + sx(PLASMA) + '" y2="' +
+       (box.t + barH + 4) + '" style="stroke:#16232B;stroke-width:1.2"/>';
+  o += '<text class="tk" x="' + sx(PLASMA) + '" y="' + (box.t + barH + 18) + '" text-anchor="middle">血漿 285</text>';
+  o += '<rect x="' + box.l + '" y="' + box.t + '" width="' + (sx(eff) - box.l) + '" height="' + barH +
+       '" fill="' + SER[3].f + '" opacity="0.55"/>';
+  o += '<line x1="' + sx(eff) + '" y1="' + (box.t - 6) + '" x2="' + sx(eff) + '" y2="' + (box.t + barH + 6) +
+       '" style="stroke:#16232B;stroke-width:1.6"/>';
+  o += '<text class="lbl" x="' + (sx(eff) + 6) + '" y="' + (box.t - 8) + '">' + fx(eff, 0) + '</text>';
+  [0, 150, 300, 450, 600].forEach(function(v){
+    o += '<text class="tk" x="' + sx(v) + '" y="' + (box.t + barH + 32) + '" text-anchor="middle">' + v + '</text>';
+  });
+
+  /* 赤血球の模式図 */
+  var cxx = NARROW ? W / 2 : W - 100, cyy = NARROW ? 150 : 96, r0 = 26;
+  var rr = r0 * Math.pow(clamp(vv, 0.4, 2.2), 1 / 3);
+  o += '<circle cx="' + cxx + '" cy="' + cyy + '" r="' + r0 + '" fill="none" style="stroke:#D6DDDA;stroke-width:1" />';
+  o += '<circle cx="' + cxx + '" cy="' + cyy + '" r="' + rr.toFixed(1) + '" fill="' + SER[4].f +
+       '" opacity="0.22" style="stroke:' + SER[4].t + ';stroke-width:1.4"/>';
+  o += '<text class="tk" x="' + cxx + '" y="' + (cyy + r0 + 26) + '" text-anchor="middle">赤血球 V/V₀ = ' +
+       fx(vv, 2) + '</text>';
+  o += '<text class="tk" x="' + cxx + '" y="' + (cyy - r0 - 14) + '" text-anchor="middle">' + tonic + '</text>';
+  $('ch7').innerHTML = svgWrap(W, H, o, 'sq7');
+
+  var t = $('tb7');
+  t.querySelector('thead').innerHTML = '<tr><th>成分</th><th>濃度 mmol/L</th><th>寄与 mOsm/L</th></tr>';
+  t.querySelector('tbody').innerHTML = fl.comps.map(function(c){
+    return '<tr><td style="color:' + SER[c[2]].t + '">' + c[0] + '</td><td>' + fx(c[1], 1) + '</td><td>' +
+      fx(c[1], 1) + '</td></tr>';
+  }).join('') + '<tr><td>合計（理論）</td><td></td><td>' + fx(theo, 1) + '</td></tr>' +
+    '<tr class="on"><td>実効（×φ ' + fx(fl.phi, 3) + '）</td><td></td><td>' + fx(eff, 1) + '</td></tr>';
+
+  var pi37 = osmoticP(eff / 1000, 310.15);
+  $('rd7').innerHTML = kv([
+    ['理論 mOsm/L', fx(theo, 1)],
+    ['実効 mOsm/L', fx(eff, 1)],
+    ['血漿との差', (eff - PLASMA >= 0 ? '+' : '') + fx(eff - PLASMA, 1)],
+    ['張度の判定', tonic],
+    ['π (37℃)', fx(pi37, 3) + ' ×10⁵ Pa'],
+    ['π (37℃)', fx(pi37 * MMHG, 0) + ' mmHg']
+  ]);
+  $('nt7').textContent = fl.note;
+  $('rd7b').innerHTML = kv([
+    ['V / V₀', fx(vv, 3)],
+    ['体積の変化', (vv - 1 >= 0 ? '+' : '') + fx((vv - 1) * 100, 1) + ' %'],
+    ['溶血の判定', vv > 1.4 ? '溶血しうる' : '膜は保たれる']
+  ]);
+}
+
+/* ============ UI ============ */
+function buildUI(){
+  $('c-solvent').innerHTML = chipsHtml(SOLVENTS, st.sv, function(v){ return v.ja; });
+  $('c-solute').innerHTML = chipsHtml(SOLUTES, st.su, function(v){ return v.f; });
+  $('c-solute5').innerHTML = chipsHtml(SOLUTES, st.su5, function(v){ return v.f; });
+  $('c-view2').innerHTML = chipsHtml(VIEWS, st.view2, function(v){ return v; });
+  $('c-mode4').innerHTML = chipsHtml(['理論値 ν', '実測値 i'], st.mode4, function(v){ return v; });
+  $('c-fluid').innerHTML = chipsHtml(FLUIDS, st.fl, function(v){ return v.ja; });
+  document.querySelector('[data-grp="input"]').innerHTML =
+    chipsHtml(['濃度で指定', '質量で指定'], st.byMass ? 1 : 0, function(v){ return v; });
+
+  var mSl = st.byMass ? slider('mass', '質量', 0.5, 200, 0.5, st.mass)
+                      : slider('m', 'm', 0.005, 3, 0.005, st.m);
+  $('sl-m').innerHTML = mSl;
+  $('sl-m1').innerHTML = mSl;
+  $('sl-m2').innerHTML = mSl;
+  $('sl-m3').innerHTML = mSl;
+  $('sl-m4').innerHTML = slider('m4', 'm', 0, 1, 0.005, st.m4);
+  $('sl-p4').innerHTML = slider('pm4', '粒子 i·m', 0.02, 0.5, 0.005, st.pm4);
+  $('sl-m5').innerHTML = slider('m5', 'm', 0, 6, 0.02, st.m5);
+  $('sl-rho').innerHTML = slider('rho', '密度 ρ', 0.7, 1.3, 0.001, st.rho);
+  $('sl-m6').innerHTML = slider('m6', '粒子 c', 0.005, 1, 0.005, st.m6);
+  $('sl-t6').innerHTML = slider('t6', 'T', 273.15, 373.15, 1, st.t6);
+}
+function onChip(grp, i){
+  if(grp === 'solvent'){ st.sv = i; st.rho = SOLVENTS[i].rho; st.t2 = 0; syncGroup(grp, i); renderAll(); }
+  else if(grp === 'solute'){ st.su = i; st.x1 = 0; syncGroup(grp, i); drawP0(); drawP1(); drawP2(); drawP3(); drawP6(); }
+  else if(grp === 'solute5'){ st.su5 = i; syncGroup(grp, i); drawP5(); }
+  else if(grp === 'view2'){ st.view2 = i; st.t2 = 0; syncGroup(grp, i); drawP2(); }
+  else if(grp === 'mode4'){ st.mode4 = i; syncGroup(grp, i); drawP4(); }
+  else if(grp === 'fluid'){ st.fl = i; syncGroup(grp, i); drawP7(); }
+  else if(grp === 'input'){
+    st.byMass = (i === 1);
+    syncGroup(grp, i);
+    buildUI();
+    renderAll();
+  }
+}
+function onSlider(key, val){
+  if(key === 'm'){ st.m = val; st.x1 = 0; drawP0(); drawP1(); drawP2(); drawP3(); }
+  else if(key === 'mass'){ st.mass = val; st.x1 = 0; drawP0(); drawP1(); drawP2(); drawP3(); }
+  else if(key === 'x1'){ st.x1 = val; curP1(); }
+  else if(key === 't2'){ st.t2 = val; curP2(); }
+  else if(key === 'm4'){ st.m4 = val; curP4(); }
+  else if(key === 'pm4'){ st.pm4 = val; drawT4(); }
+  else if(key === 'm5'){ st.m5 = val; curP5(); }
+  else if(key === 'rho'){ st.rho = val; syncSlider('rho', val, fx(val, 3) + ' g/cm³'); drawP5(); }
+  else if(key === 'm6'){ st.m6 = val; drawP6(); }
+  else if(key === 't6'){ st.t6 = val; drawP6(); }
+}
+function renderAll(){
+  drawP0(); drawP1(); drawP2(); drawP3(); drawP4(); drawP5(); drawP6(); drawP7();
+  syncSlider('rho', st.rho, fx(st.rho, 3) + ' g/cm³');
+}
+function boot(){
+  NARROW = window.matchMedia('(max-width:430px)').matches;
+  buildUI();
+  document.addEventListener('click', function(e){
+    var b = e.target.closest ? e.target.closest('button.chip') : null;
+    if(!b) return;
+    var box = b.closest('[data-grp]');
+    if(!box) return;
+    onChip(box.getAttribute('data-grp'), +b.getAttribute('data-i'));
+  });
+  document.addEventListener('input', function(e){
+    var el = e.target;
+    if(!el || !el.getAttribute) return;
+    var k = el.getAttribute('data-sl');
+    if(!k) return;
+    onSlider(k, +el.value);
+  });
+  renderAll();
+  var tm = null;
+  window.addEventListener('resize', function(){
+    clearTimeout(tm);
+    tm = setTimeout(function(){
+      var nw = window.matchMedia('(max-width:430px)').matches;
+      if(nw !== NARROW){ NARROW = nw; renderAll(); }
+    }, 180);
+  });
+}
+if(typeof document !== 'undefined') boot();
+</script>
+</body>
+</html>

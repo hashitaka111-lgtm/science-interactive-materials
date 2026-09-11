@@ -1,0 +1,578 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>pH で操る沈殿 — 硫化物の分別沈殿と両性水酸化物</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500;600&family=IBM+Plex+Sans+JP:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+:root{
+  --ink:#16232B; --muted:#5E6E76; --paper:#EDF1EF; --surface:#FFFFFF;
+  --rule:#D6DDDA; --rule-soft:#E8EDEB;
+  --c0:#B87A16; --c0t:#8A5A0C;
+  --c1:#158A6D; --c1t:#0D6A53;
+  --c2:#2457A6; --c2t:#1B4380;
+  --c3:#6E3AA7; --c3t:#572D85;
+  --c4:#A82A6A; --c4t:#831F52;
+  --c5:#3B6E1E; --c5t:#2A5215;
+  --sans:"IBM Plex Sans JP","Hiragino Sans","Yu Gothic UI",system-ui,sans-serif;
+  --mono:"IBM Plex Mono",ui-monospace,SFMono-Regular,Menlo,monospace;
+}
+*{box-sizing:border-box}
+html,body{margin:0;padding:0}
+body{background:var(--paper);color:var(--ink);font-family:var(--sans);font-size:14px;line-height:1.72;-webkit-text-size-adjust:100%}
+.wrap{max-width:820px;margin:0 auto;padding:26px 14px 60px}
+.card{background:var(--surface);border:1px solid var(--rule);border-radius:3px;padding:16px 18px;margin-bottom:14px}
+.card.tight{padding:13px 18px}
+h1{font-size:22px;font-weight:600;letter-spacing:.01em;margin:0 0 6px;line-height:1.45}
+h2{font-size:15px;font-weight:600;margin:0 0 8px;letter-spacing:.01em}
+h3{font-size:13px;font-weight:600;margin:18px 0 6px;letter-spacing:.01em}
+p{margin:0 0 10px}p:last-child{margin-bottom:0}
+.lead{color:var(--muted);font-size:13px}
+.eyebrow{display:flex;align-items:center;gap:10px;font-family:var(--mono);font-size:11.5px;letter-spacing:.14em;color:var(--muted);text-transform:uppercase;margin:0 0 12px}
+.eyebrow::after{content:"";flex:1;height:1px;background:var(--rule)}
+.mono{font-family:var(--mono);font-variant-numeric:tabular-nums}
+.muted{color:var(--muted)}.small{font-size:12px}.xs{font-size:11.5px}
+.ctrl{display:grid;gap:10px 14px;margin:12px 0}
+.ctrl.g2{grid-template-columns:1fr 1fr}
+.field label{display:block;font-family:var(--mono);font-size:10.5px;letter-spacing:.1em;color:var(--muted);margin-bottom:3px;text-transform:uppercase}
+select,input[type=number]{width:100%;font-family:var(--mono);font-size:13px;font-variant-numeric:tabular-nums;padding:6px 7px;border:1px solid var(--rule);border-radius:2px;background:var(--surface);color:var(--ink)}
+select{font-family:var(--sans)}
+input:focus,select:focus,button:focus-visible{outline:2px solid var(--ink);outline-offset:1px}
+.btnrow{display:flex;flex-wrap:wrap;gap:5px;margin:8px 0}
+button.tog{font-family:var(--mono);font-size:11.5px;letter-spacing:.04em;padding:5px 9px;border:1px solid var(--rule);border-radius:2px;background:var(--surface);color:var(--muted);cursor:pointer}
+button.tog[aria-pressed="true"]{background:var(--ink);color:#fff;border-color:var(--ink)}
+input[type=range]{width:100%;accent-color:var(--ink);margin:2px 0}
+table{width:100%;border-collapse:collapse;font-size:12.5px}
+th,td{padding:5px 7px;border-bottom:1px solid var(--rule-soft);text-align:left;vertical-align:baseline}
+th{font-family:var(--mono);font-size:10.5px;letter-spacing:.08em;color:var(--muted);font-weight:500;text-transform:uppercase;border-bottom:1px solid var(--rule)}
+td.n,th.n{text-align:right;font-family:var(--mono);font-variant-numeric:tabular-nums}
+tr.hi td{background:var(--rule-soft)}
+td.state{font-family:var(--mono);font-size:11.5px;letter-spacing:.03em}
+.scroll{overflow-x:auto;-webkit-overflow-scrolling:touch}
+.read{border:1px solid var(--rule);border-radius:2px;padding:10px 12px;margin-top:10px}
+.read dl{display:grid;grid-template-columns:auto 1fr;gap:3px 14px;margin:0}
+.read dt{font-size:12px;color:var(--muted)}
+.read dd{margin:0;font-family:var(--mono);font-size:12.5px;font-variant-numeric:tabular-nums;text-align:right}
+.note{border-left:2px solid var(--rule);padding:2px 0 2px 11px;margin:12px 0;font-size:12.5px;color:var(--muted)}
+.note b{color:var(--ink);font-weight:600}
+.formula{font-family:var(--mono);font-size:12.5px;background:var(--rule-soft);padding:7px 10px;border-radius:2px;overflow-x:auto;white-space:nowrap}
+.chartbox{position:relative;margin:12px 0 4px;touch-action:none;cursor:crosshair}
+svg{display:block;width:100%;height:auto}
+.legend{display:flex;flex-wrap:wrap;gap:4px 14px;font-family:var(--mono);font-size:11px;color:var(--muted);margin-top:6px}
+.legend span{display:flex;align-items:center;gap:5px}
+.sw{width:14px;height:2px;display:inline-block}
+.sw.d{border-top:2px dashed currentColor;height:0}
+.banner{font-family:var(--mono);font-size:12px;letter-spacing:.03em;padding:8px 11px;border:1px solid var(--rule);border-radius:2px;margin-top:10px;line-height:1.6}
+footer{margin-top:22px;font-size:11.5px;color:var(--muted);line-height:1.7}
+footer h4{font-family:var(--mono);font-size:10.5px;letter-spacing:.12em;text-transform:uppercase;margin:0 0 6px;font-weight:500}
+.toc{display:flex;flex-wrap:wrap;gap:4px 6px;margin-top:10px}
+.toc a{font-family:var(--mono);font-size:11px;letter-spacing:.04em;color:var(--muted);text-decoration:none;border:1px solid var(--rule);border-radius:2px;padding:4px 8px}
+.toc a:hover{color:var(--ink);border-color:var(--ink)}
+@media (max-width:430px){
+  body{font-size:13.5px}
+  .wrap{padding:18px 10px 44px}
+  .card{padding:13px 12px}
+  .ctrl.g2{grid-template-columns:1fr 1fr}
+  h1{font-size:19px}
+  table{font-size:11.5px}
+  th,td{padding:4px 4px}
+}
+</style>
+</head>
+<body>
+<div class="wrap">
+
+<div class="card">
+  <div class="eyebrow">Precipitation · pH Control</div>
+  <h1>pH で操る沈殿 ― 硫化物の分別と両性水酸化物</h1>
+  <p class="lead">系統分析の骨格になる2つの操作を計算で追う。硫化水素の吹き込みで S²⁻ 濃度を pH から支配する話と、水酸化物が一度沈殿してから過剰の NaOH で溶け直す話。イオン積・溶解度換算・共通イオン効果は別ファイル。</p>
+  <div class="toc">
+    <a href="#s4">4 · 硫化物の分別沈殿</a>
+    <a href="#s5">5 · 両性水酸化物</a>
+  </div>
+</div>
+
+<!-- ================= 4 ================= -->
+<div class="card" id="s4">
+  <div class="eyebrow">4 · Sulfide Separation</div>
+  <h2>硫化水素は pH で強さが変わる沈殿剤</h2>
+  <p class="small">H₂S の二段階電離をまとめると、S²⁻ の濃度は [H⁺]² に反比例する。H₂S を吹き込み続けるかぎり [H₂S] は飽和濃度 0.10 mol/L に保たれるので、pH を 1 上げるだけで S²⁻ が 100 倍になる。この 14 桁の可動域を使って、金属イオンを 2 グループに分ける。</p>
+  <div class="formula">K₁K₂ = [H⁺]²[S²⁻] / [H₂S] &nbsp;⟹&nbsp; [S²⁻] = K₁K₂·[H₂S] / [H⁺]² = 1.2×10⁻²² / [H⁺]²</div>
+
+  <div class="ctrl g2">
+    <div class="field"><label>金属イオン濃度 / mol·L⁻¹</label><input type="number" id="m4-conc" value="0.010" step="any" min="0"></div>
+    <div class="field"><label>pH <span class="mono" id="m4-phv"></span></label><input type="range" id="m4-ph" min="0" max="14" step="0.05" value="1.00"></div>
+  </div>
+  <div class="btnrow" id="m4-pick"></div>
+
+  <div class="chartbox" id="m4-chart"></div>
+  <div class="legend">
+    <span><i class="sw" style="background:var(--ink)"></i>飽和 H₂S 下の [S²⁻]</span>
+    <span><i class="sw" style="background:var(--rule)"></i>沈殿に必要な [S²⁻]（Ksp / [Mⁿ⁺]<sup>q</sup>）</span>
+    <span style="color:var(--muted)"><i class="sw d"></i>現在の pH</span>
+  </div>
+  <div id="m4-banner"></div>
+  <div class="scroll" style="margin-top:10px"><table id="m4-table"></table></div>
+
+  <div class="note" id="m4-note"></div>
+  <div class="note">
+    <b>モデルの限界を2つ。</b>pH 8 を超えると溶けている硫黄のほとんどが HS⁻ になり、[S²⁻] が 10⁻⁴ mol/L を超えるという計算は H₂S を吹き込み続けている条件でしか成り立たない。もうひとつ、NiS と CoS は計算上 pH 2 前後で沈殿するはずなのに、実際の塩酸酸性では沈殿しない。生成が遅いという速度論の問題で、平衡計算では説明がつかない。逆に一度できてしまうと酸に溶けにくい。
+  </div>
+</div>
+
+<!-- ================= 5 ================= -->
+<div class="card" id="s5">
+  <div class="eyebrow">5 · Amphoteric Hydroxides</div>
+  <h2>Al³⁺ と Zn²⁺ は溶けるルートが2本ある</h2>
+  <p class="small">水酸化物には、金属イオンとして溶ける経路のほかに、OH⁻ を取り込んだヒドロキソ錯イオンとして溶ける経路がある。前者は OH⁻ が増えると抑えられ、後者は OH⁻ が増えるほど進む。両方を足すと溶解度は V 字を描き、その谷が「NaOH を加えると白い沈殿ができ、さらに加えると消える」という挙動になる。</p>
+  <div class="formula">Al(OH)₃ &nbsp;S = Ksp/[OH⁻]³ + 40[OH⁻] &nbsp;&nbsp;/&nbsp;&nbsp; Zn(OH)₂ &nbsp;S = Ksp/[OH⁻]² + 0.10[OH⁻]²</div>
+
+  <div class="ctrl g2">
+    <div class="field"><label>金属イオンの初濃度 / mol·L⁻¹</label><input type="number" id="m5-conc" value="0.010" step="any" min="0"></div>
+    <div class="field"><label>pH <span class="mono" id="m5-phv"></span></label><input type="range" id="m5-ph" min="0" max="14" step="0.05" value="7.00"></div>
+  </div>
+  <div class="btnrow" id="m5-pick"></div>
+
+  <div class="chartbox" id="m5-chart"></div>
+  <div class="legend">
+    <span><i class="sw" style="background:var(--rule)"></i>初濃度の水準</span>
+    <span style="color:var(--muted)"><i class="sw d"></i>沈殿開始 pH と再溶解 pH</span>
+  </div>
+  <div class="scroll" style="margin-top:10px"><table id="m5-table"></table></div>
+  <div id="m5-banner"></div>
+
+  <div class="note">
+    <b>アンモニア水を使うと結果が変わる。</b>過剰の NaOH で溶けるのは Al と Zn だが、過剰のアンモニア水で溶けるのは Zn、Cu、Ag、Ni であって Al は溶けない。前者は OH⁻ とのヒドロキソ錯体、後者は NH₃ とのアンミン錯体で、配位子が違う。この画面は OH⁻ だけを扱っているので、アンモニア系の分離はここでは再現されない。
+  </div>
+</div>
+
+<footer class="card tight">
+  <h4>定数の出典と注記</h4>
+  <p><b>硫化物の Ksp は出典で 10⁵〜10⁶ 倍ずれる。</b>原因は S²⁻ の濃度スケール。古い測定は K₂(H₂S) = 1.3×10⁻¹⁴ を前提にしており、現代の値は 10⁻¹⁹ 前後とされる。ここでは日本の高校教科書・入試で使われる旧系列（K₁ = 9.5×10⁻⁸、K₂ = 1.3×10⁻¹⁴、K₁K₂ = 1.2×10⁻²¹、ZnS = 2.2×10⁻¹⁸、CuS = 6.3×10⁻³⁶）で統一した。救いになるのは、沈殿開始 pH の式 pH = −½·log(K₁K₂[H₂S][Mⁿ⁺]/Ksp) では K₁K₂ と Ksp が同じ係数でずれて打ち消し合うこと。どちらのスケールを採っても、沈殿する pH の予測は変わらない。ずれるのは途中に出てくる [S²⁻] の数値だけ。</p>
+  <p><b>飽和 H₂S の濃度</b>は 25 ℃・1 atm で 0.10 mol/L。教科書によっては 0.10 mol/L、実測は 0.102〜0.106 mol/L。ここでは 0.10。</p>
+  <p><b>ZnS</b> は結晶形で違う。閃亜鉛鉱型 1.6×10⁻²⁴、ウルツ鉱型 2.5×10⁻²²（いずれも新スケール）。教科書系列の 2.2×10⁻¹⁸ を採用した。<b>NiS・CoS</b> は α 型（3.2×10⁻¹⁹、4.0×10⁻²¹）を採用。β 型はこれより 5〜6 桁小さい。</p>
+  <p><b>錯生成定数</b>は幅が大きい。Zn(OH)₄²⁻ の log β₄ は文献で 14.8〜17.7 と報告され、ここでは 15.5 を採って K = β₄·Ksp = 0.10 とした。K を 10 倍すれば Zn の再溶解 pH は 0.5 下がる。Al(OH)₄⁻ は K = 40（log K ≈ 1.6）。</p>
+  <p><b>Al は 2 成分モデルで近似している。</b>実際には Al(OH)²⁺、Al(OH)₂⁺、多核錯体も生じるため、この計算で出る溶解度の極小 pH 5.5 は実測の 6.0〜6.5 より低めに出る。谷の形と再溶解の位置は妥当だが、谷底の絶対値は過小評価。</p>
+</footer>
+
+</div>
+
+<script>
+"use strict";
+
+/* ============================================================
+   データ。行を足せばそのまま図と表に反映される。
+   ============================================================ */
+const K1 = 9.5e-8, K2 = 1.3e-14, H2S_SAT = 0.10;
+const K12 = K1 * K2;                 /* 1.235e-21 */
+const KW  = 1.0e-14;
+
+/* q = 化学式中の金属イオンの数。Ksp = [M]^q [S²⁻] */
+const SULFIDES = [
+  {id:"HgS",  f:"HgS",   ion:"Hg²⁺", q:1, ksp:4.0e-53, grp:"酸性"},
+  {id:"Ag2S", f:"Ag₂S",  ion:"Ag⁺",  q:2, ksp:6.3e-50, grp:"酸性"},
+  {id:"CuS",  f:"CuS",   ion:"Cu²⁺", q:1, ksp:6.3e-36, grp:"酸性"},
+  {id:"PbS",  f:"PbS",   ion:"Pb²⁺", q:1, ksp:8.0e-28, grp:"酸性"},
+  {id:"CdS",  f:"CdS",   ion:"Cd²⁺", q:1, ksp:8.0e-27, grp:"酸性"},
+  {id:"SnS",  f:"SnS",   ion:"Sn²⁺", q:1, ksp:1.0e-25, grp:"酸性"},
+  {id:"CoS",  f:"CoS",   ion:"Co²⁺", q:1, ksp:4.0e-21, grp:"中性・塩基性"},
+  {id:"NiS",  f:"NiS",   ion:"Ni²⁺", q:1, ksp:3.2e-19, grp:"中性・塩基性"},
+  {id:"ZnS",  f:"ZnS",   ion:"Zn²⁺", q:1, ksp:2.2e-18, grp:"中性・塩基性"},
+  {id:"FeS",  f:"FeS",   ion:"Fe²⁺", q:1, ksp:6.3e-18, grp:"中性・塩基性"},
+  {id:"MnS",  f:"MnS",   ion:"Mn²⁺", q:1, ksp:2.5e-13, grp:"中性・塩基性"}
+];
+const S_DEFAULT = ["CuS","PbS","CdS","ZnS","FeS","MnS"];
+
+/* amph: OH⁻ を k 個取り込む錯イオンの生成。M(OH)n(s) + k OH⁻ ⇌ 錯イオン, K = [錯]/[OH]^k */
+const HYDROXIDES = [
+  {id:"AlOH3", f:"Al(OH)₃", ion:"Al³⁺", n:3, ksp:1.3e-33, amph:{K:40,   k:1, sp:"[Al(OH)₄]⁻"},  c:"var(--c2)", ct:"var(--c2t)"},
+  {id:"ZnOH2", f:"Zn(OH)₂", ion:"Zn²⁺", n:2, ksp:3.0e-17, amph:{K:0.10, k:2, sp:"[Zn(OH)₄]²⁻"}, c:"var(--c1)", ct:"var(--c1t)"},
+  {id:"FeOH3", f:"Fe(OH)₃", ion:"Fe³⁺", n:3, ksp:6.3e-38, amph:null, c:"var(--c0)", ct:"var(--c0t)"},
+  {id:"CuOH2", f:"Cu(OH)₂", ion:"Cu²⁺", n:2, ksp:2.2e-20, amph:null, c:"var(--c4)", ct:"var(--c4t)"},
+  {id:"MgOH2", f:"Mg(OH)₂", ion:"Mg²⁺", n:2, ksp:5.6e-12, amph:null, c:"var(--c3)", ct:"var(--c3t)"}
+];
+const H_DEFAULT = ["AlOH3","ZnOH2","FeOH3"];
+
+const SERIES = ["var(--c0)","var(--c1)","var(--c2)","var(--c3)","var(--c4)","var(--c5)"];
+const SERIEST = ["var(--c0t)","var(--c1t)","var(--c2t)","var(--c3t)","var(--c4t)","var(--c5t)"];
+
+/* ============================================================
+   ユーティリティ
+   ============================================================ */
+const SUP = {"-":"⁻","0":"⁰","1":"¹","2":"²","3":"³","4":"⁴","5":"⁵","6":"⁶","7":"⁷","8":"⁸","9":"⁹"};
+const supStr = s => String(s).split("").map(c=>SUP[c]||c).join("");
+function sciU(x,sig){
+  sig=sig||2;
+  if(!isFinite(x)) return "—";
+  if(x===0) return "0";
+  const e=Math.floor(Math.log10(Math.abs(x)));
+  let m=Number((x/Math.pow(10,e)).toFixed(sig-1)), e2=e;
+  if(Math.abs(m)>=10){m/=10;e2++;}
+  if(e2>=-1&&e2<=2) return Number(x.toPrecision(sig+1)).toString();
+  return m.toFixed(sig-1)+"×10"+supStr(e2);
+}
+function sciH(x,sig){
+  sig=sig||2;
+  if(!isFinite(x)) return "—";
+  if(x===0) return "0";
+  const e=Math.floor(Math.log10(Math.abs(x)));
+  let m=Number((x/Math.pow(10,e)).toFixed(sig-1)), e2=e;
+  if(Math.abs(m)>=10){m/=10;e2++;}
+  if(e2>=-1&&e2<=2) return Number(x.toPrecision(sig+1)).toString();
+  return m.toFixed(sig-1)+"×10<sup>"+e2+"</sup>";
+}
+const narrow = () => window.innerWidth <= 430;
+function esc(t){return String(t).replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;");}
+function txt(x,y,s,o){
+  o=o||{};
+  const a=['x="'+x+'"','y="'+y+'"','fill="'+(o.fill||"var(--muted)")+'"','font-size="'+(o.size||10.5)+'"',
+           'font-family="'+(o.mono===false?"var(--sans)":"var(--mono)")+'"'];
+  if(o.anchor)a.push('text-anchor="'+o.anchor+'"');
+  if(o.weight)a.push('font-weight="'+o.weight+'"');
+  if(o.ls)a.push('letter-spacing="'+o.ls+'"');
+  return "<text "+a.join(" ")+">"+esc(s)+"</text>";
+}
+function line(x1,y1,x2,y2,o){
+  o=o||{};
+  return '<line x1="'+x1+'" y1="'+y1+'" x2="'+x2+'" y2="'+y2+'" stroke="'+(o.stroke||"var(--rule-soft)")+'" stroke-width="'+(o.w||1)+'"'+(o.dash?' stroke-dasharray="'+o.dash+'"':"")+'/>';
+}
+function chip(x,y,label,anchor){
+  const w=label.length*6.4+12,h=17;
+  let cx=x-w/2;
+  if(anchor==="start")cx=x+6;
+  if(anchor==="end")cx=x-w-6;
+  return '<g><rect x="'+cx+'" y="'+(y-h/2)+'" width="'+w+'" height="'+h+'" rx="2" fill="var(--ink)"/>'
+       + txt(cx+w/2,y+3.9,label,{fill:"#fff",size:10.5,anchor:"middle"})+"</g>";
+}
+/* pointer でなぞる共通処理 */
+function attachDrag(box, slider, xlo, xhi, pads, redraw){
+  let on=false;
+  function pick(ev){
+    const r=box.getBoundingClientRect(); if(r.width<=0) return;
+    const p=pads(); const W=700;
+    const px=(ev.clientX-r.left)/r.width*W;
+    let v=xlo+(px-p[0])/(W-p[0]-p[1])*(xhi-xlo);
+    v=Math.max(xlo,Math.min(xhi,v));
+    slider.value=v.toFixed(2); redraw();
+  }
+  box.addEventListener("pointerdown",e=>{on=true;box.setPointerCapture(e.pointerId);pick(e);e.preventDefault();});
+  box.addEventListener("pointermove",e=>{if(on){pick(e);e.preventDefault();}});
+  box.addEventListener("pointerup",()=>{on=false;});
+  box.addEventListener("pointercancel",()=>{on=false;});
+}
+
+/* ============================================================
+   モジュール 4: 硫化物の分別沈殿
+   ============================================================ */
+(function(){
+  const conc = document.getElementById("m4-conc");
+  const ph   = document.getElementById("m4-ph");
+  const phv  = document.getElementById("m4-phv");
+  const box  = document.getElementById("m4-chart");
+  const pick = document.getElementById("m4-pick");
+  const tbl  = document.getElementById("m4-table");
+  const ban  = document.getElementById("m4-banner");
+  const note = document.getElementById("m4-note");
+
+  const on = {};
+  SULFIDES.forEach(s=>{ on[s.id] = S_DEFAULT.indexOf(s.id) >= 0; });
+  SULFIDES.forEach(s=>{
+    const b=document.createElement("button");
+    b.className="tog"; b.textContent=s.f; b.setAttribute("aria-pressed", on[s.id]?"true":"false");
+    b.addEventListener("click",()=>{ on[s.id]=!on[s.id]; b.setAttribute("aria-pressed",on[s.id]?"true":"false"); draw(); });
+    pick.appendChild(b);
+  });
+
+  const s2at   = pH => K12*H2S_SAT/Math.pow(10,-2*pH);
+  const needed = (s,C) => s.ksp/Math.pow(C,s.q);
+  const startPH= (s,C) => -Math.log10(Math.sqrt(K12*H2S_SAT/needed(s,C)));
+
+  const XLO=0, XHI=14;
+  const pads = () => narrow() ? [42,12] : [50,72];
+
+  function draw(){
+    const C = Math.max(1e-12, +conc.value||0.010);
+    const p = +ph.value;
+    const N = narrow();
+    const sel = SULFIDES.filter(s=>on[s.id]);
+    phv.textContent = "= " + p.toFixed(2);
+
+    /* y 範囲 */
+    let lows = sel.map(s=>Math.log10(needed(s,C)));
+    let YHI = Math.ceil(Math.log10(s2at(14)));
+    let YLO = lows.length ? Math.floor(Math.min.apply(null,lows))-2 : -24;
+    YLO = Math.min(YLO, Math.floor(Math.log10(s2at(0)))-2);
+    if(YHI-YLO > 44) YLO = YHI-44;
+
+    const W=700, H = N?300:350, PA=pads(), PL=PA[0], PR=PA[1], PT=16, PB=34;
+    const X = v => PL+(v-XLO)/(XHI-XLO)*(W-PL-PR);
+    const Y = v => PT+(YHI-v)/(YHI-YLO)*(H-PT-PB);
+    const cl = v => Math.max(YLO,Math.min(YHI,v));
+
+    let g='<svg viewBox="0 0 '+W+' '+H+'" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="pHと硫化物イオン濃度">';
+    for(let x=XLO;x<=XHI;x+=(N?2:1)){
+      g+=line(X(x),PT,X(x),H-PB);
+      g+=txt(X(x),H-PB+15,String(x),{anchor:"middle",size:N?9:9.5});
+    }
+    const ystep = Math.max(2,Math.round((YHI-YLO)/(N?5:9)/2)*2);
+    for(let e=Math.ceil(YLO/ystep)*ystep;e<=YHI;e+=ystep){
+      g+=line(PL,Y(e),W-PR,Y(e));
+      g+=txt(PL-6,Y(e)+3.5,"10"+supStr(e),{anchor:"end",size:N?9:9.5});
+    }
+    g+=line(PL,PT,PL,H-PB,{stroke:"var(--rule)"});
+    g+=line(PL,H-PB,W-PR,H-PB,{stroke:"var(--rule)"});
+    g+=txt(W-PR,H-PB+29,"pH",{anchor:"end",size:10,ls:".08em"});
+    g+=txt(PL-6,PT-4,"濃度 / mol·L⁻¹",{anchor:"start",size:10});
+
+    /* pH>8 の領域 */
+    g+='<rect x="'+X(8)+'" y="'+PT+'" width="'+(X(14)-X(8))+'" height="'+(H-PT-PB)+'" fill="var(--rule-soft)" opacity="0.55"/>';
+    if(!N) g+=txt(X(8)+5,PT+12,"HS⁻ が主要種",{size:9.5});
+
+    /* 必要 [S²⁻] の水準線 */
+    sel.forEach((s,i)=>{
+      const ly=Math.log10(needed(s,C));
+      const col=SERIES[i%6], colt=SERIEST[i%6];
+      if(ly<YLO){
+        g+=line(PL,Y(YLO)-1,W-PR,Y(YLO)-1,{stroke:col,w:1.2});
+        if(!N) g+=txt(W-PR+4,Y(YLO)+2,s.f+" ↓",{fill:colt,size:9.5,anchor:"start"});
+        return;
+      }
+      g+=line(PL,Y(ly),W-PR,Y(ly),{stroke:col,w:1.3});
+      if(!N) g+=txt(W-PR+4,Y(ly)+3.5,s.f,{fill:colt,size:9.5,anchor:"start"});
+      const sp=startPH(s,C);
+      if(sp>=XLO&&sp<=XHI){
+        g+=line(X(sp),Y(ly),X(sp),H-PB,{stroke:col,w:1,dash:"3 3"});
+        g+='<circle cx="'+X(sp)+'" cy="'+Y(ly)+'" r="3" fill="'+col+'"/>';
+      }
+    });
+
+    /* [S²⁻] 曲線 */
+    let d="";
+    for(let i=0;i<=280;i++){
+      const x=XLO+(XHI-XLO)*i/280;
+      const ly=Math.log10(s2at(x));
+      d+=(d?" L ":"M ")+X(x).toFixed(2)+" "+Y(cl(ly)).toFixed(2);
+    }
+    g+='<path d="'+d+'" fill="none" stroke="var(--ink)" stroke-width="2.2"/>';
+
+    /* カーソル */
+    g+=line(X(p),PT,X(p),H-PB,{stroke:"var(--ink)",w:1,dash:"2 3"});
+    const lyc=cl(Math.log10(s2at(p)));
+    g+='<circle cx="'+X(p)+'" cy="'+Y(lyc)+'" r="4" fill="var(--ink)" stroke="var(--surface)" stroke-width="1.4"/>';
+    g+=chip(X(p),PT+9,"pH "+p.toFixed(2)+" · [S²⁻] "+sciU(s2at(p),2), p>7?"end":"start");
+    g+="</svg>";
+    box.innerHTML=g;
+
+    /* 表 */
+    const s2=s2at(p);
+    let t="<tr><th>硫化物</th><th class='n'>Ksp</th><th class='n'>必要 [S²⁻]</th><th class='n'>Q/Ksp</th><th>状態</th>"+(N?"":"<th class='n'>沈殿開始 pH</th>")+"</tr>";
+    SULFIDES.filter(s=>on[s.id]).forEach(s=>{
+      const need=needed(s,C);
+      const Q=Math.pow(C,s.q)*s2;
+      const yes=Q>s.ksp;
+      const sp=startPH(s,C);
+      /* 沈殿後に残る金属イオン: [M]^q = Ksp/[S²⁻] */
+      const left=Math.pow(s.ksp/s2,1/s.q);
+      const state = yes
+        ? "沈殿する（残 "+sciU(Math.min(left,C),2)+"）"
+        : "溶けたまま";
+      t+="<tr"+(yes?" class='hi'":"")+"><td class='mono'>"+s.f+"</td><td class='n'>"+sciH(s.ksp,2)+"</td>"
+        +"<td class='n'>"+sciH(need,2)+"</td><td class='n'>"+sciH(Q/s.ksp,2)+"</td>"
+        +"<td class='state'>"+state+"</td>"
+        +(N?"":"<td class='n'>"+(sp<0?"0 未満":sp.toFixed(2))+"</td>")+"</tr>";
+    });
+    tbl.innerHTML=t;
+
+    /* バナー */
+    const prec=SULFIDES.filter(s=>on[s.id]&&Math.pow(C,s.q)*s2>s.ksp);
+    const stay=SULFIDES.filter(s=>on[s.id]&&Math.pow(C,s.q)*s2<=s.ksp);
+    let msg;
+    if(prec.length===0) msg="この pH ではどれも沈殿しない。";
+    else if(stay.length===0) msg="選んだ硫化物はすべて沈殿する。分離にはならない。";
+    else msg="pH "+p.toFixed(2)+" で "+prec.map(s=>s.ion).join("・")+" が沈殿し、"+stay.map(s=>s.ion).join("・")+" は溶液に残る。ろ過すれば分けられる。";
+    ban.innerHTML='<div class="banner">'+msg+"</div>";
+
+    /* 分離の限界 */
+    if(prec.length && stay.length){
+      const worst=prec.reduce((a,b)=>{
+        const la=Math.pow(a.ksp/s2,1/a.q), lb=Math.pow(b.ksp/s2,1/b.q);
+        return la>lb?a:b;
+      });
+      const leftover=Math.pow(worst.ksp/s2,1/worst.q);
+      note.innerHTML="<b>分離の完全さ。</b>沈殿する側で最も残りが多いのは "+worst.f+" で、ろ液に "
+        +sciH(leftover,2)+" mol/L の "+worst.ion+" が残る。初濃度の "+sciH(leftover/C*100,2)
+        +" % にあたる。定量分析では 0.1 % 以下に落ちれば分離できたとみなすのが目安。"
+        +(leftover/C<1e-3 ? "この条件は基準を満たしている。" : "この条件では基準に届かないので、pH をもう少し上げる必要がある。");
+    } else {
+      note.innerHTML="<b>分離の完全さ。</b>沈殿する組と残る組の両方があるとき、ろ液に残った量を表示する。";
+    }
+  }
+
+  conc.addEventListener("input",draw);
+  ph.addEventListener("input",draw);
+  window.addEventListener("resize",draw);
+  attachDrag(box, ph, XLO, XHI, pads, draw);
+  draw();
+})();
+
+/* ============================================================
+   モジュール 5: 両性水酸化物
+   ============================================================ */
+(function(){
+  const conc=document.getElementById("m5-conc");
+  const ph=document.getElementById("m5-ph");
+  const phv=document.getElementById("m5-phv");
+  const box=document.getElementById("m5-chart");
+  const pick=document.getElementById("m5-pick");
+  const tbl=document.getElementById("m5-table");
+  const ban=document.getElementById("m5-banner");
+
+  const on={};
+  HYDROXIDES.forEach(h=>{ on[h.id]=H_DEFAULT.indexOf(h.id)>=0; });
+  HYDROXIDES.forEach(h=>{
+    const b=document.createElement("button");
+    b.className="tog"; b.textContent=h.f; b.setAttribute("aria-pressed",on[h.id]?"true":"false");
+    b.addEventListener("click",()=>{on[h.id]=!on[h.id];b.setAttribute("aria-pressed",on[h.id]?"true":"false");draw();});
+    pick.appendChild(b);
+  });
+
+  const oh = pH => Math.pow(10, pH-14);
+  const S  = (h,pH) => {
+    const o=oh(pH);
+    return h.ksp/Math.pow(o,h.n) + (h.amph ? h.amph.K*Math.pow(o,h.amph.k) : 0);
+  };
+  const minPH = h => {
+    if(!h.amph) return null;
+    const o=Math.pow(h.n*h.ksp/(h.amph.k*h.amph.K), 1/(h.n+h.amph.k));
+    return {pH:14+Math.log10(o), S:h.ksp/Math.pow(o,h.n)+h.amph.K*Math.pow(o,h.amph.k)};
+  };
+  const startPH = (h,C) => 14+Math.log10(Math.pow(h.ksp/C, 1/h.n));
+  const backPH  = (h,C) => h.amph ? 14+Math.log10(Math.pow(C/h.amph.K, 1/h.amph.k)) : null;
+
+  const XLO=0, XHI=14, YLO=-14, YHI=1;
+  const pads = () => narrow() ? [42,12] : [50,66];
+
+  function draw(){
+    const C=Math.max(1e-12,+conc.value||0.010);
+    const p=+ph.value;
+    const N=narrow();
+    const sel=HYDROXIDES.filter(h=>on[h.id]);
+    phv.textContent="= "+p.toFixed(2);
+
+    const W=700,H=N?300:350,PA=pads(),PL=PA[0],PR=PA[1],PT=16,PB=34;
+    const X=v=>PL+(v-XLO)/(XHI-XLO)*(W-PL-PR);
+    const Y=v=>PT+(YHI-v)/(YHI-YLO)*(H-PT-PB);
+    const cl=v=>Math.max(YLO,Math.min(YHI,v));
+
+    let g='<svg viewBox="0 0 '+W+' '+H+'" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="pHと水酸化物の溶解度">';
+    for(let x=XLO;x<=XHI;x+=(N?2:1)){
+      g+=line(X(x),PT,X(x),H-PB);
+      g+=txt(X(x),H-PB+15,String(x),{anchor:"middle",size:N?9:9.5});
+    }
+    for(let e=YLO;e<=YHI;e+=(N?3:2)){
+      g+=line(PL,Y(e),W-PR,Y(e));
+      g+=txt(PL-6,Y(e)+3.5,"10"+supStr(e),{anchor:"end",size:N?9:9.5});
+    }
+    g+=line(PL,PT,PL,H-PB,{stroke:"var(--rule)"});
+    g+=line(PL,H-PB,W-PR,H-PB,{stroke:"var(--rule)"});
+    g+=txt(W-PR,H-PB+29,"pH",{anchor:"end",size:10,ls:".08em"});
+    g+=txt(PL-6,PT-4,"全溶解度 S / mol·L⁻¹",{anchor:"start",size:10});
+
+    /* 初濃度の水準 */
+    const lc=Math.log10(C);
+    if(lc<=YHI&&lc>=YLO){
+      g+=line(PL,Y(lc),W-PR,Y(lc),{stroke:"var(--rule)",w:1.4});
+      if(!N) g+=txt(W-PR+4,Y(lc)+3.5,"初濃度",{size:9.5,anchor:"start"});
+    }
+
+    /* 曲線 */
+    sel.forEach(h=>{
+      let d="", pen=false;
+      for(let i=0;i<=300;i++){
+        const x=XLO+(XHI-XLO)*i/300;
+        const ly=Math.log10(S(h,x));
+        if(ly<YLO||ly>YHI){ pen=false; continue; }
+        d+=(pen?" L ":" M ")+X(x).toFixed(2)+" "+Y(cl(ly)).toFixed(2);
+        pen=true;
+      }
+      g+='<path d="'+d.trim()+'" fill="none" stroke="'+h.c+'" stroke-width="2"/>';
+      const sp=startPH(h,C), bp=backPH(h,C);
+      if(sp>=XLO&&sp<=XHI){
+        g+=line(X(sp),Y(lc),X(sp),H-PB,{stroke:h.c,w:1,dash:"3 3"});
+        g+='<circle cx="'+X(sp)+'" cy="'+Y(lc)+'" r="3" fill="'+h.c+'"/>';
+      }
+      if(bp!==null&&bp>=XLO&&bp<=XHI){
+        g+=line(X(bp),Y(lc),X(bp),H-PB,{stroke:h.c,w:1,dash:"3 3"});
+        g+='<circle cx="'+X(bp)+'" cy="'+Y(lc)+'" r="3" fill="none" stroke="'+h.c+'" stroke-width="1.6"/>';
+      }
+      const mn=minPH(h);
+      if(mn&&!N&&Math.log10(mn.S)>YLO){
+        g+=txt(X(mn.pH),Y(cl(Math.log10(mn.S)))+13,h.f,{fill:h.ct,size:9.5,anchor:"middle"});
+      }
+      if(!N&&!h.amph){
+        /* 単調減少なので左端にラベル */
+        for(let x=XLO;x<=XHI;x+=0.1){
+          const ly=Math.log10(S(h,x));
+          if(ly<YHI-0.6){ g+=txt(X(x)+4,Y(cl(ly))-5,h.f,{fill:h.ct,size:9.5,anchor:"start"}); break; }
+        }
+      }
+    });
+
+    /* カーソル */
+    g+=line(X(p),PT,X(p),H-PB,{stroke:"var(--ink)",w:1,dash:"2 3"});
+    sel.forEach(h=>{
+      const ly=Math.log10(S(h,p));
+      if(ly<YLO||ly>YHI) return;
+      g+='<circle cx="'+X(p)+'" cy="'+Y(ly)+'" r="3.6" fill="'+h.c+'" stroke="var(--surface)" stroke-width="1.2"/>';
+    });
+    g+=chip(X(p),PT+9,"pH "+p.toFixed(2),p>7?"end":"start");
+    g+="</svg>";
+    box.innerHTML=g;
+
+    /* 表 */
+    let t="<tr><th>水酸化物</th><th class='n'>沈殿開始 pH</th><th class='n'>極小 pH</th><th class='n'>再溶解 pH</th><th class='n'>現在の S</th><th>状態</th></tr>";
+    sel.forEach(h=>{
+      const sp=startPH(h,C), bp=backPH(h,C), mn=minPH(h);
+      const s=S(h,p);
+      const solid = s < C;
+      const frac = solid ? (C-s)/C*100 : 0;
+      let st;
+      if(!solid) st="全部溶けている";
+      else if(frac>99.9) st="ほぼ完全に沈殿（"+frac.toFixed(3)+" %）";
+      else st="一部沈殿（"+frac.toFixed(1)+" %）";
+      t+="<tr"+(solid?" class='hi'":"")+"><td class='mono'>"+h.f+"</td>"
+        +"<td class='n'>"+(sp<0||sp>14?"—":sp.toFixed(2))+"</td>"
+        +"<td class='n'>"+(mn?mn.pH.toFixed(2):"なし")+"</td>"
+        +"<td class='n'>"+(bp===null?"溶けない":(bp>14?">14":bp.toFixed(2)))+"</td>"
+        +"<td class='n'>"+sciH(s,2)+"</td>"
+        +"<td class='state'>"+st+"</td></tr>";
+    });
+    tbl.innerHTML=t;
+
+    /* バナー */
+    const solid=sel.filter(h=>S(h,p)<C), liq=sel.filter(h=>S(h,p)>=C);
+    let msg;
+    if(!sel.length) msg="水酸化物を選ぶと計算が始まる。";
+    else if(!solid.length) msg="pH "+p.toFixed(2)+" ではどれも沈殿していない。";
+    else if(!liq.length) msg="pH "+p.toFixed(2)+" では選んだ水酸化物がすべて沈殿している。";
+    else msg="pH "+p.toFixed(2)+" で "+solid.map(h=>h.f).join("・")+" が沈殿し、"+liq.map(h=>h.ion).join("・")+" は溶液に残る。";
+    const amphSel=sel.filter(h=>h.amph);
+    if(amphSel.length){
+      const re=amphSel.filter(h=>{ const bp=backPH(h,C); return bp!==null&&p>=bp; });
+      if(re.length) msg+=" "+re.map(h=>h.amph.sp).join("・")+" として溶け直している。";
+    }
+    ban.innerHTML='<div class="banner">'+msg+"</div>";
+  }
+
+  conc.addEventListener("input",draw);
+  ph.addEventListener("input",draw);
+  window.addEventListener("resize",draw);
+  attachDrag(box, ph, XLO, XHI, pads, draw);
+  draw();
+})();
+</script>
+</body>
+</html>

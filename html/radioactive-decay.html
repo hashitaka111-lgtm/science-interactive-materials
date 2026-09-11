@@ -1,0 +1,2248 @@
+<!doctype html>
+<html lang="ja">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>放射性崩壊と半減期インタラクティブ</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500&family=IBM+Plex+Sans+JP:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+*{box-sizing:border-box}
+:root{
+  --ink:#16232B; --muted:#5E6E76; --paper:#EDF1EF; --surface:#FFFFFF;
+  --rule:#D6DDDA; --rule-soft:#E8EDEB;
+  --c0:#B87A16; --c0t:#8A5A0C;
+  --c1:#158A6D; --c1t:#0D6A53;
+  --c2:#2457A6; --c2t:#1B4380;
+  --c3:#6E3AA7; --c3t:#572D85;
+  --c4:#A82A6A; --c4t:#831F52;
+  --c5:#3B6E1E; --c5t:#2A5215;
+  --mono:"IBM Plex Mono",ui-monospace,SFMono-Regular,Menlo,monospace;
+}
+html,body{margin:0;padding:0}
+body{
+  background:var(--paper); color:var(--ink);
+  font-family:"IBM Plex Sans JP","Hiragino Sans","Yu Gothic UI",system-ui,sans-serif;
+  font-size:13.5px; line-height:1.75; -webkit-text-size-adjust:100%;
+}
+.mono{font-family:var(--mono);font-variant-numeric:tabular-nums}
+.wrap{max-width:820px;margin:0 auto;padding:20px 14px 72px}
+.card{background:var(--surface);border:1px solid var(--rule);border-radius:3px;padding:14px;margin-bottom:14px}
+.eyebrow{display:flex;align-items:center;gap:10px;font-family:var(--mono);font-size:11.5px;letter-spacing:.14em;color:var(--muted)}
+.eyebrow::after{content:"";flex:1;height:1px;background:var(--rule)}
+h1{font-size:22px;font-weight:600;letter-spacing:.01em;margin:8px 0 2px}
+h2{font-size:13.5px;font-weight:600;margin:14px 0 6px;letter-spacing:.01em}
+h2:first-child{margin-top:0}
+p{margin:0 0 8px}
+p:last-child{margin-bottom:0}
+.note{color:var(--muted);font-size:12px;line-height:1.7}
+.sub{color:var(--muted);font-size:11.5px;font-family:var(--mono);letter-spacing:.06em}
+hr{border:none;border-top:1px solid var(--rule-soft);margin:12px 0}
+
+.btn{font:inherit;font-size:12.5px;line-height:1.4;border:1px solid var(--rule);background:#fff;color:var(--ink);border-radius:2px;padding:6px 10px;cursor:pointer}
+.btn:hover{border-color:#B4C0BC}
+.btn.on{background:var(--ink);color:#fff;border-color:var(--ink)}
+.btn:focus-visible{outline:2px solid var(--c2);outline-offset:1px}
+.btn.sm{padding:4px 8px;font-size:11.5px}
+.btn.dim{color:var(--muted)}
+.btnrow{display:flex;flex-wrap:wrap;gap:6px}
+.ctl{display:flex;flex-wrap:wrap;align-items:center;gap:8px;margin-top:10px}
+.ctl .lab{font-family:var(--mono);font-size:11px;letter-spacing:.1em;color:var(--muted);white-space:nowrap}
+.ctl .val{font-family:var(--mono);font-variant-numeric:tabular-nums;font-size:12.5px;min-width:104px}
+
+.viewer{position:relative;border:1px solid var(--rule-soft);border-radius:3px;background:#FBFCFB;overflow:hidden;margin-top:10px}
+svg.stage{display:block;width:100%;height:auto;touch-action:none}
+svg.stage.grab{cursor:crosshair}
+
+.legend{display:flex;flex-wrap:wrap;gap:4px 14px;margin-top:9px;font-size:11.5px;color:var(--muted)}
+.sw{display:inline-block;width:10px;height:10px;border-radius:50%;margin-right:5px;vertical-align:-1px}
+.swl{display:inline-block;width:14px;height:0;border-top:2px solid;margin-right:5px;vertical-align:3px}
+.swb{display:inline-block;width:10px;height:10px;margin-right:5px;vertical-align:-1px;border-radius:1px}
+
+table{width:100%;border-collapse:collapse;font-size:12.5px}
+th{font-weight:500;color:var(--muted);text-align:left;border-bottom:1px solid var(--rule);padding:5px 6px;font-size:11px;letter-spacing:.06em;font-family:var(--mono)}
+td{border-bottom:1px solid var(--rule-soft);padding:5px 6px;vertical-align:top}
+.num{text-align:right;font-family:var(--mono);font-variant-numeric:tabular-nums}
+tr.hi td{background:#FAFBFA;font-weight:600}
+tr.cur td{background:#F2F6FA}
+tr.off td{color:#93A1A6}
+caption{caption-side:top;text-align:left;font-size:11.5px;color:var(--muted);padding:0 6px 6px}
+.scroll{overflow-x:auto;-webkit-overflow-scrolling:touch}
+
+.stats{display:grid;grid-template-columns:1fr 1fr;gap:0 18px}
+.stat{display:flex;justify-content:space-between;align-items:baseline;gap:10px;border-bottom:1px solid var(--rule-soft);padding:6px 0}
+.stat .k{font-size:12px;color:var(--muted);white-space:nowrap}
+.stat .v{font-family:var(--mono);font-variant-numeric:tabular-nums;font-size:13px;text-align:right}
+
+.grid2{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.grid3{display:grid;grid-template-columns:repeat(3,1fr);gap:10px}
+input[type=range]{width:100%;max-width:220px;accent-color:#16232B;height:22px}
+
+.step{border-left:2px solid var(--rule);padding:1px 0 1px 11px;margin-bottom:10px}
+.step:last-child{margin-bottom:0;border-left-color:var(--ink)}
+.step .lbl{font-family:var(--mono);font-size:10.5px;letter-spacing:.12em;color:var(--muted)}
+.step .eq{font-family:var(--mono);font-size:12.5px;line-height:1.95;word-break:break-word}
+.step .eq sup{font-size:.78em}
+
+.warn{color:var(--c4t);font-size:11.5px;line-height:1.7}
+ul.tight{margin:0;padding-left:1.1em}
+ul.tight li{margin-bottom:5px}
+
+.fx{font-family:var(--mono);font-size:16px;line-height:2.2;padding:4px 0 2px;letter-spacing:.01em}
+.fx.small{font-size:13px;line-height:2}
+.fx .sym{cursor:pointer;padding:2px 3px;border-radius:2px;border-bottom:1px dashed var(--rule);-webkit-tap-highlight-color:transparent;touch-action:manipulation}
+.fx .sym:hover{background:#F6EEDC}
+.fx .sym.on{background:#F6E3BC;border-bottom:1px solid var(--c0);font-weight:500}
+.symdesc{font-size:12px;color:var(--muted);border-left:2px solid var(--c0);padding:2px 0 2px 10px;margin-top:4px;min-height:3.4em;line-height:1.7}
+.symdesc b{color:var(--ink);font-weight:600}
+
+.frac{display:inline-flex;flex-direction:column;vertical-align:middle;text-align:center;margin:0 5px;line-height:1.42}
+.frac .n{padding:0 7px 2px}
+.frac .d{padding:2px 7px 0;border-top:1.4px solid var(--ink)}
+.cV{color:var(--c2t)} .cW{color:var(--c1t)} .cO{color:var(--c3t)} .cS{color:var(--c4t)} .cF{color:var(--c0t)}
+
+.tag{display:inline-block;font-family:var(--mono);font-size:10.5px;letter-spacing:.08em;border:1px solid var(--rule);border-radius:2px;padding:0 5px;color:var(--muted)}
+.tag.lit{border-color:var(--c0);background:#F6E3BC;color:var(--c0t)}
+.tag.bad{border-color:var(--c4);background:#F5DCE8;color:var(--c4t)}
+.tag.al{border-color:var(--c4);background:#F5DCE8;color:var(--c4t)}
+.tag.bm{border-color:var(--c2);background:#ECF1F8;color:var(--c2t)}
+.tag.bp{border-color:var(--c3);background:#EFE9F6;color:var(--c3t)}
+.tag.it{border-color:var(--c1);background:#EAF4F0;color:var(--c1t)}
+
+.qgrid{display:grid;grid-template-columns:repeat(4,1fr);gap:7px;margin-top:11px}
+.qc{border:1px solid var(--rule);border-radius:3px;padding:7px 8px 8px;background:#fff}
+.qc .qk{font-family:var(--mono);font-size:10px;letter-spacing:.09em;color:var(--muted);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.qc .qv{font-family:var(--mono);font-variant-numeric:tabular-nums;font-size:13.5px;line-height:1.4;margin-top:2px;word-break:break-all}
+.qc .qw{font-size:10.5px;line-height:1.55;color:var(--muted);margin-top:4px}
+.qc.up{background:#FAEDF3;border-color:#DFAFC8}
+.qc.up .qv{color:var(--c4t)}
+.qc.dn{background:#ECF1F8;border-color:#B2C5E0}
+.qc.dn .qv{color:var(--c2t)}
+.qc.flat{background:#F4F6F5}
+.qc.flat .qv{color:var(--muted)}
+.qc.ok{background:#EAF4F0;border-color:#A9CFC2}
+.qc.ok .qv{color:var(--c1t)}
+.qc.lock{background:#F6EEDC;border-color:#E0C68A}
+.qc.lock .qv{color:var(--c0t)}
+
+.chip{display:inline-flex;align-items:center;gap:5px}
+.chip .dot{width:9px;height:9px;border-radius:50%;display:inline-block}
+
+.bigrow{display:flex;align-items:baseline;flex-wrap:wrap;gap:6px 20px;border:1px solid var(--rule);border-radius:3px;background:#FAFBFA;padding:9px 12px;margin-top:10px}
+.bigrow .bk{font-family:var(--mono);font-size:10.5px;letter-spacing:.1em;color:var(--muted);display:block}
+.bigrow .bv{font-family:var(--mono);font-variant-numeric:tabular-nums;font-size:25px;line-height:1.25;display:block}
+.bigrow .bu{font-size:11px;color:var(--muted);display:block}
+
+.cmprow{margin-top:12px}
+.cmprow:first-of-type{margin-top:6px}
+.cmptitle{font-family:var(--mono);font-size:10.5px;letter-spacing:.12em;color:var(--muted);padding-bottom:5px;border-bottom:1px solid var(--rule);margin-bottom:8px}
+.cmp{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.cmp .col{border:1px solid var(--rule);border-radius:3px;padding:9px 11px 10px}
+.cmp .col.cl{background:#FAEDF3;border-color:#DFAFC8}
+.cmp .col.ob{background:#EAF4F0;border-color:#A9CFC2}
+.cmp .hd{font-family:var(--mono);font-size:10px;letter-spacing:.1em;margin-bottom:5px}
+.cmp .col.cl .hd{color:var(--c4t)}
+.cmp .col.ob .hd{color:var(--c1t)}
+.cmp .t{font-size:12.5px;font-weight:600;line-height:1.6}
+.cmp .d{font-size:11.5px;line-height:1.68;color:var(--muted);margin-top:3px}
+.cmp .n{font-family:var(--mono);font-variant-numeric:tabular-nums;font-size:14px;margin-top:6px}
+.cmp .col.cl .n{color:var(--c4t)}
+.cmp .col.ob .n{color:var(--c1t)}
+
+@media (max-width:430px){
+  body{font-size:13px}
+  .wrap{padding:14px 10px 56px}
+  .card{padding:11px}
+  h1{font-size:19px}
+  .grid2,.grid3,.stats,.cmp{grid-template-columns:1fr}
+  table{font-size:12px}
+  th,td{padding:4px 4px}
+  .btn{padding:6px 8px;font-size:12px}
+  .btn.sm{padding:4px 7px;font-size:11.5px}
+  input[type=range]{max-width:none;flex:1 1 100%}
+  .step .eq{font-size:11.5px}
+  .ctl .val{min-width:0}
+  .fx{font-size:14px;line-height:2.3}
+  .fx.small{font-size:11.5px}
+  .symdesc{min-height:5em}
+  .qgrid{grid-template-columns:repeat(2,1fr);gap:6px}
+  .qc .qv{font-size:13px}
+  .bigrow{gap:6px 14px}
+  .bigrow .bv{font-size:20px}
+  .cmp .col{padding:8px 9px}
+}
+</style>
+</head>
+<body>
+<div class="wrap">
+
+<header>
+  <div class="eyebrow">RADIOACTIVE DECAY</div>
+  <h1>放射性崩壊と半減期インタラクティブ</h1>
+  <p class="note">1個の原子核がいつ壊れるかは誰にも予言できない。それなのに1000個集めると、残存数は驚くほどきれいな指数曲線に乗る。このページでは実際に乱数を引いて1個ずつ崩壊させ、その一部始終を指数曲線と重ねて見る。個数を10個や50個に減らすと曲線から外れることも試せる。片対数にすると直線になり、その傾きがそのまま崩壊定数になること、&alpha;崩壊と&beta;崩壊が核図表の上でどちらへ動くか、ウラン238が14段階かかって鉛206にたどり着く道筋も追える。最後に、PET で使う &sup1;&#8312;F の半減期110分がなぜ院内サイクロトロンを要求するのかを数字で確かめる。</p>
+</header>
+
+<div class="card">
+  <div class="eyebrow">DECAY LAW</div>
+  <h2>原子核は歳を取らない</h2>
+  <p class="note">崩壊確率が経過時間によらない、という一点から指数関数が出てくる。記号をタップすると中身が出る。</p>
+  <div class="ctl"><span class="lab">核種</span><span class="btnrow" id="nucsel"></span></div>
+  <div class="fx" id="fx1"></div>
+  <div class="symdesc" id="fx1d">記号をタップすると説明が出る。</div>
+  <div id="lawsteps" style="margin-top:10px"></div>
+  <div class="grid2" style="margin-top:6px" id="lawsliders"></div>
+  <div class="viewer"><svg class="stage grab" id="sv-law" role="img" aria-label="残存率の指数曲線と半減期"><g id="law-g"></g></svg></div>
+  <div class="bigrow" id="lawbig"></div>
+  <div class="stats" id="lawstats" style="margin-top:10px"></div>
+  <p class="note" id="lawnote" style="margin-top:9px"></p>
+  <h2>半減期を何回ぶん過ぎたか</h2>
+  <div class="scroll" id="lawtab" style="margin-top:4px"></div>
+  <p class="note" id="lawtabnote" style="margin-top:9px"></p>
+</div>
+
+<div class="card">
+  <div class="eyebrow">SIMULATION</div>
+  <h2>乱数で1個ずつ崩壊させる</h2>
+  <p class="note">四角ひとつが原子核1個。崩壊した核は色が変わる。どの核がいつ壊れるかは乱数だけで決めていて、指数関数は一切使っていない。それでも右のグラフでは点が理論曲線の上に乗る。個数を減らすと外れはじめる。</p>
+  <div class="ctl"><span class="lab">核の個数 N&#8320;</span><span class="btnrow" id="nsel"></span></div>
+  <div class="ctl"><span class="lab">操作</span><span class="btnrow" id="simctl"></span></div>
+  <div class="grid2" style="margin-top:4px" id="simsliders"></div>
+  <div class="viewer"><svg class="stage" id="sv-grid" role="img" aria-label="原子核の格子と崩壊の進行"><g id="grid-g"></g></svg></div>
+  <div class="legend" id="gridleg"></div>
+  <div class="viewer"><svg class="stage grab" id="sv-plot" role="img" aria-label="残存数の時間変化と片対数表示"><g id="plot-g"></g></svg></div>
+  <div class="legend" id="plotleg"></div>
+  <div class="qgrid" id="simq"></div>
+  <p class="note" id="simnote" style="margin-top:10px"></p>
+  <h2>片対数の傾きから崩壊定数を取り出す</h2>
+  <p class="note">ln N = ln N&#8320; &minus; &lambda;t なので、片対数のグラフは直線になり傾きが &minus;&lambda; になる。ここでは2通りの求め方を並べてある。ひとつは片対数の点に最小二乗で直線を当てる方法、もうひとつは崩壊時刻の平均を取る方法。同じデータから同じ量を出しているのに、精度も偏りも違う。</p>
+  <div class="scroll" id="fittab" style="margin-top:4px"></div>
+  <p class="note" id="fitnote" style="margin-top:9px"></p>
+</div>
+
+<div class="card">
+  <div class="eyebrow">FLUCTUATION</div>
+  <h2>指数法則は期待値の式でしかない</h2>
+  <p class="note">時刻 t での残存数は二項分布 Bin(N&#8320;, p)、p = 2<sup>&minus;t/T</sup> に従う。指数関数はその期待値 N&#8320;p のことであって、1回の実験でぴたりと当たる式ではない。半減期の時点で相対ゆらぎは 1/&radic;N&#8320; になる。下は同じ実験を何度も繰り返して、半減期の時点の残存数がどうばらつくかを集めたもの。</p>
+  <div class="grid2" style="margin-top:4px" id="flusliders"></div>
+  <div class="viewer"><svg class="stage" id="sv-hist" role="img" aria-label="半減期時点の残存数の分布"><g id="hist-g"></g></svg></div>
+  <div class="legend" id="histleg"></div>
+  <div class="stats" id="flustats" style="margin-top:10px"></div>
+  <p class="note" id="flunote" style="margin-top:9px"></p>
+  <h2>推定した半減期そのものがばらつく</h2>
+  <p class="note">崩壊時刻の平均から T&#770; = ln2 &middot; t&#772; として半減期を推定すると、その推定値の分布はガンマ分布になる。N&#8320; が小さいうちは右に裾を引いていて、正規分布で近似すると形が合わない。</p>
+  <div class="viewer"><svg class="stage" id="sv-thist" role="img" aria-label="推定した半減期の分布"><g id="thist-g"></g></svg></div>
+  <div class="scroll" id="flutab" style="margin-top:10px"></div>
+  <p class="note" id="flutabnote" style="margin-top:9px"></p>
+</div>
+
+<div class="card">
+  <div class="eyebrow">NUCLIDES</div>
+  <h2>半減期は13桁にわたって散らばっている</h2>
+  <p class="note">下の帯は対数目盛。&sup1;&#8312;F の110分から &sup2;&sup3;&#8312;U の45億年まで、同じ物理法則に従っているのに時間の尺度がまるで違う。</p>
+  <div class="viewer"><svg class="stage grab" id="sv-tbar" role="img" aria-label="核種ごとの半減期の対数目盛"><g id="tbar-g"></g></svg></div>
+  <div class="scroll" id="nuctab" style="margin-top:10px"></div>
+  <p class="note" id="nucnote" style="margin-top:9px"></p>
+  <h2>Q 値は質量差、&alpha;線のエネルギーは運動量保存で決まる</h2>
+  <div class="fx small" id="fx2"></div>
+  <div class="scroll" id="qtab" style="margin-top:6px"></div>
+  <p class="note" id="qnote" style="margin-top:9px"></p>
+  <h2>&sup1;&#8308;C 年代測定</h2>
+  <p class="note">生きている間は大気と交換して &sup1;&#8308;C の割合が一定に保たれ、死ぬと供給が止まって減りはじめる。残存率がわかれば経過時間が出る。</p>
+  <div class="grid2" style="margin-top:4px" id="datesliders"></div>
+  <div class="viewer"><svg class="stage grab" id="sv-date" role="img" aria-label="炭素14の残存率と年代"><g id="date-g"></g></svg></div>
+  <div class="stats" id="datestats" style="margin-top:10px"></div>
+  <p class="note" id="datenote" style="margin-top:9px"></p>
+  <h2>半減期が20桁も違う理由</h2>
+  <p class="note">&alpha;崩壊は核内の &alpha;粒子がクーロン障壁を透過する現象で、透過確率が Q 値の平方根の逆数に対して指数的に効く。ウラン系列の &alpha;放出核8個について、log&#8321;&#8320;T を Z<sub>d</sub>/&radic;Q に対して打つと1本の直線に乗る。Q が 4.27 から 7.83 MeV へ 1.8 倍になるだけで、半減期は21桁縮む。</p>
+  <div class="viewer"><svg class="stage" id="sv-gn" role="img" aria-label="ガイガー・ヌッタルの法則"><g id="gn-g"></g></svg></div>
+  <div class="scroll" id="gntab" style="margin-top:10px"></div>
+  <p class="note" id="gnnote" style="margin-top:9px"></p>
+</div>
+
+<div class="card">
+  <div class="eyebrow">NUCLIDE CHART</div>
+  <h2>&alpha;崩壊と&beta;崩壊が核図表をどう動くか</h2>
+  <p class="note">横軸が中性子数 N、縦軸が陽子数 Z。&alpha;崩壊は左下へ斜めに2マス、&beta;<sup>&minus;</sup>崩壊は左上へ1マス。&sup2;&sup3;&#8312;U から出発して14段階たどると &sup2;&#8304;&#8310;Pb に着く。図の上をタップすると、その位置にいちばん近い段が選ばれる。</p>
+  <div class="ctl"><span class="lab">系列をたどる</span><span class="btnrow" id="chartctl"></span></div>
+  <div class="grid2" style="margin-top:4px" id="chartsliders"></div>
+  <div class="viewer"><svg class="stage grab" id="sv-chart" role="img" aria-label="核図表の上のウラン系列"><g id="chart-g"></g></svg></div>
+  <div class="legend" id="chartleg"></div>
+  <div class="bigrow" id="chartbig"></div>
+  <p class="note" id="chartnote" style="margin-top:10px"></p>
+  <h2>ウラン系列14段の一覧</h2>
+  <div class="scroll" id="sertab" style="margin-top:4px"></div>
+  <p class="note" id="sernote" style="margin-top:9px"></p>
+</div>
+
+<div class="card">
+  <div class="eyebrow">SECULAR EQUILIBRIUM</div>
+  <h2>親が桁違いに長寿命なら、娘の放射能は親と等しくなる</h2>
+  <p class="note">&sup2;&sup3;&#8312;U だけを含む鉱石を放っておくと、娘核種が順に育っていく。十分時間が経つと生成と崩壊が釣り合い、どの段の放射能も親と同じ値に落ち着く。横軸は対数目盛の時間で、縦軸は &sup2;&sup3;&#8312;U の放射能を1としたときの各段の放射能。ベイトマン方程式を係数の漸化式で組み立てて厳密に解いている。</p>
+  <div class="grid2" style="margin-top:4px" id="eqsliders"></div>
+  <div class="viewer"><svg class="stage grab" id="sv-eq" role="img" aria-label="ウラン系列の放射平衡への近づき方"><g id="eq-g"></g></svg></div>
+  <div class="legend" id="eqleg"></div>
+  <div class="scroll" id="eqtab" style="margin-top:10px"></div>
+  <p class="note" id="eqnote" style="margin-top:9px"></p>
+</div>
+
+<div class="card">
+  <div class="eyebrow">MEDICAL &middot; PET</div>
+  <h2>&sup1;&#8312;F の110分が院内サイクロトロンを要求する</h2>
+  <p class="note">FDG-PET で使う &sup1;&#8312;F は半減期109.77分。作り置きが物理的にできない。サイクロトロンで照射を終えた瞬間から時計が動きはじめ、合成と品質試験、輸送、そして検査枠ごとの分注を全部この時計の中でこなす必要がある。下は照射終了から患者に届くまでを実際に追ったもの。</p>
+  <div class="grid2" style="margin-top:4px" id="medsliders"></div>
+  <div class="viewer"><svg class="stage grab" id="sv-med" role="img" aria-label="フッ素18の放射能と検査枠"><g id="med-g"></g></svg></div>
+  <div class="legend" id="medleg"></div>
+  <div class="bigrow" id="medbig"></div>
+  <div class="stats" id="medstats" style="margin-top:10px"></div>
+  <p class="note" id="mednote" style="margin-top:9px"></p>
+  <h2>輸送時間を伸ばすといくら損をするか</h2>
+  <div class="scroll" id="medtab" style="margin-top:4px"></div>
+  <p class="note" id="medtabnote" style="margin-top:9px"></p>
+  <h2>&#8311;&#8311;Mo/&#8311;&#8311;&#7504;Tc ジェネレータとの構造の違い</h2>
+  <p class="note">&#8311;&#8311;&#7504;Tc も半減期6時間で短いが、親の &#8311;&#8311;Mo が66時間ある。原子炉で作った &#8311;&#8311;Mo をカラムに吸着させた容器ごと病院へ運び、毎朝生理食塩水を流して育った &#8311;&#8311;&#7504;Tc だけを取り出す。&sup1;&#8312;F にはこの「輸送できる親」が存在しない。</p>
+  <div class="viewer"><svg class="stage" id="sv-gen" role="img" aria-label="モリブデン99テクネチウム99mジェネレータ"><g id="gen-g"></g></svg></div>
+  <div class="stats" id="genstats" style="margin-top:10px"></div>
+  <p class="note" id="gennote" style="margin-top:9px"></p>
+  <h2>24時間置いたら何が残るか</h2>
+  <div class="scroll" id="cmptab" style="margin-top:4px"></div>
+  <p class="note" id="cmpnote" style="margin-top:9px"></p>
+</div>
+
+<div class="card">
+  <div class="eyebrow">NOTES</div>
+  <h2>どの近似がどこで効くか</h2>
+  <div class="scroll" id="apptable" style="margin-top:4px"></div>
+  <p class="note" id="appnote" style="margin-top:8px"></p>
+  <h2>使った定数</h2>
+  <div class="scroll" id="consttable" style="margin-top:4px"></div>
+  <p class="note" id="constnote" style="margin-top:8px"></p>
+  <h2>取り違えやすいところ</h2>
+  <ul class="tight note" id="misslist"></ul>
+</div>
+
+</div>
+<script>
+"use strict";
+const TAU=Math.PI*2, LN2=Math.LN2, LN10=Math.LN10;
+const INK='#16232B',MUT='#5E6E76',RULE='#D6DDDA',SOFT='#E8EDEB',PAPER='#EDF1EF';
+const CGOLD='#B87A16',CGRN='#158A6D',CBLU='#2457A6',CPUR='#6E3AA7',CCRM='#A82A6A',COLV='#3B6E1E';
+const CGOLDT='#8A5A0C',CGRNT='#0D6A53',CBLUT='#1B4380',CPURT='#572D85',CCRMT='#831F52',COLVT='#2A5215';
+
+/* ---------- 定数（データ駆動） ---------- */
+const NA=6.02214076e23;          /* アボガドロ定数 [1/mol] SI 定義値（2019 改定） */
+const U_MEV=931.49410242;        /* 統一原子質量単位のエネルギー換算 [MeV] CODATA 2018 */
+const ME_MEV=0.51099895000;      /* 電子の静止エネルギー [MeV] */
+const YEAR=3.15576e7;            /* ユリウス年 = 365.25 日 [s]。核データの「年」はこの定義 */
+const DAY=86400, HOUR=3600, MINU=60;
+const CI_BQ=3.7e10;              /* キュリー [Bq] 定義値。もとは 1 g の Ra-226 の放射能 */
+const T_UNITS={s:1,min:MINU,h:HOUR,d:DAY,y:YEAR};
+const T_LABEL={s:'秒',min:'分',h:'時間',d:'日',y:'年'};
+
+/* ---------- 核種（データ駆動）----------
+   T   : 半減期、Tu : その単位
+   Mp  : 親の原子質量 [u]、Md : 娘の原子質量 [u]
+   Q   : 評価済みの崩壊エネルギー [MeV]（質量から計算した値と突き合わせる）
+   mode: 'a' | 'b-' | 'b+' | 'IT'                                          */
+const NUCS=[
+ {id:'F18', sym:'¹⁸F', nm:'フッ素18', Z:9, A:18, mode:'b+',
+  T:109.77, Tu:'min', Mp:18.00093733, Md:17.99915961, dnm:'¹⁸O', dZ:8, dA:18,
+  Q:1.6555, Qb:0.6335, gam:0.511, br:'β⁺ 96.7% / EC 3.3%',
+  col:CPUR, colt:CPURT,
+  use:'FDG-PET。ブドウ糖に似せた ¹⁸F-FDG が糖代謝の盛んな組織に集まる。陽電子が電子と対消滅して出る 511 keV の光子2本を同時計数する',
+  note:'教科書は 110 分と丸めることが多い。評価値は 109.77 分で、24時間後の残存率で比べると 2.1% 食い違う。このページは 109.77 分を採用した'},
+ {id:'Tc99m', sym:'⁹⁹ᵐTc', nm:'テクネチウム99m', Z:43, A:99, mode:'IT',
+  T:6.0067, Tu:'h', Mp:98.90640400, Md:98.90625080, dnm:'⁹⁹Tc', dZ:43, dA:99,
+  Q:0.14268, Qb:0, gam:0.140511, br:'IT 100%',
+  col:CGRN, colt:CGRNT,
+  use:'SPECT の主力。骨シンチ、心筋シンチ、腎シンチ。140 keV は体を抜けやすく、かつ検出器で止めやすい',
+  note:'核異性体転移なので原子番号も質量数も変わらない。娘の ⁹⁹Tc も放射性（21万年）だが、放射能は最初の ⁹⁹ᵐTc の 3.2×10⁻⁹ 倍にしかならない'},
+ {id:'I131', sym:'¹³¹I', nm:'ヨウ素131', Z:53, A:131, mode:'b-',
+  T:8.0252, Tu:'d', Mp:130.90612630, Md:130.90508406, dnm:'¹³¹Xe', dZ:54, dA:131,
+  Q:0.9709, Qb:0.6063, gam:0.36449, br:'β⁻ 100%',
+  col:CBLU, colt:CBLUT,
+  use:'甲状腺の内用療法と検査。β⁻ 線が飛程 2 mm ほどで甲状腺組織を焼き、364 keV の γ 線で外から撮像できる',
+  note:'治療と診断を1つの核種でこなせる珍しい例。ただし γ 線が体外へ抜けるので、投与後しばらくは隔離が要る'},
+ {id:'C14', sym:'¹⁴C', nm:'炭素14', Z:6, A:14, mode:'b-',
+  T:5700, Tu:'y', Mp:14.00324199, Md:14.00307400, dnm:'¹⁴N', dZ:7, dA:14,
+  Q:0.156476, Qb:0.156476, gam:0, br:'β⁻ 100%',
+  col:COLV, colt:COLVT,
+  use:'年代測定。医学では ¹⁴C 尿素呼気試験があったが、現在は安定同位体の ¹³C に置き換わっている',
+  note:'半減期は3つの値が流通している。リビーの 5568 年、ケンブリッジの 5730 年、現行評価の 5700±30 年。年代測定の報告値は互換性のためリビー値で計算し、そのあと較正曲線で直す慣習が続いている'},
+ {id:'Ra226', sym:'²²⁶Ra', nm:'ラジウム226', Z:88, A:226, mode:'a',
+  T:1600, Tu:'y', Mp:226.02541030, Md:222.01757630, dnm:'²²²Rn', dZ:86, dA:222,
+  Q:4.87062, Qb:0, gam:0.18621, br:'α 100%',
+  col:CCRM, colt:CCRMT,
+  use:'かつての密封小線源治療。いまは ¹⁹²Ir などに置き換わった。娘の ²²²Rn が気体で、屋内被曝の主因になる',
+  note:'キュリーの単位はもともと 1 g の ²²⁶Ra の放射能として決めたもの。のちに半減期が精密に測られて実測は 3.66×10¹⁰ Bq だとわかったが、1 Ci = 3.7×10¹⁰ Bq は定義値として据え置かれた。1.1% ずれている'},
+ {id:'U238', sym:'²³⁸U', nm:'ウラン238', Z:92, A:238, mode:'a',
+  T:4.468e9, Tu:'y', Mp:238.05078840, Md:234.04360123, dnm:'²³⁴Th', dZ:90, dA:234,
+  Q:4.2699, Qb:0, gam:0, br:'α 100%（自発核分裂 5.5×10⁻⁵%）',
+  col:CGOLD, colt:CGOLDT,
+  use:'医療用途はない。ウラン鉛年代測定と、鉱石中の娘核種（²²⁶Ra、²²²Rn）の供給源として効いてくる',
+  note:'古い教科書は 4.51×10⁹ 年としている。現行評価は 4.468×10⁹ 年で 0.9% 短い。地球の年齢 45.4 億年とほぼ同じなので、地球ができたときの ²³⁸U はいま半分ちょっと残っている'}
+];
+
+/* ---------- ウラン系列（データ駆動、主要経路のみ） ---------- */
+const USER=[
+ {sym:'²³⁸U',  el:'U', Z:92,A:238,mode:'a', T:4.468e9,Tu:'y',  Q:4.2699},
+ {sym:'²³⁴Th', el:'Th',Z:90,A:234,mode:'b-',T:24.10,  Tu:'d',  Q:0.2727},
+ {sym:'²³⁴ᵐPa',el:'Pa',Z:91,A:234,mode:'b-',T:1.159,  Tu:'min',Q:2.1971},
+ {sym:'²³⁴U',  el:'U', Z:92,A:234,mode:'a', T:2.455e5,Tu:'y',  Q:4.8585},
+ {sym:'²³⁰Th', el:'Th',Z:90,A:230,mode:'a', T:7.54e4, Tu:'y',  Q:4.7700},
+ {sym:'²²⁶Ra', el:'Ra',Z:88,A:226,mode:'a', T:1600,   Tu:'y',  Q:4.8706},
+ {sym:'²²²Rn', el:'Rn',Z:86,A:222,mode:'a', T:3.8235, Tu:'d',  Q:5.5903},
+ {sym:'²¹⁸Po', el:'Po',Z:84,A:218,mode:'a', T:3.098,  Tu:'min',Q:6.1148},
+ {sym:'²¹⁴Pb', el:'Pb',Z:82,A:214,mode:'b-',T:26.8,   Tu:'min',Q:1.0240},
+ {sym:'²¹⁴Bi', el:'Bi',Z:83,A:214,mode:'b-',T:19.9,   Tu:'min',Q:3.2720},
+ {sym:'²¹⁴Po', el:'Po',Z:84,A:214,mode:'a', T:1.643e-4,Tu:'s', Q:7.8335},
+ {sym:'²¹⁰Pb', el:'Pb',Z:82,A:210,mode:'b-',T:22.20,  Tu:'y',  Q:0.0635},
+ {sym:'²¹⁰Bi', el:'Bi',Z:83,A:210,mode:'b-',T:5.012,  Tu:'d',  Q:1.1626},
+ {sym:'²¹⁰Po', el:'Po',Z:84,A:210,mode:'a', T:138.376,Tu:'d',  Q:5.4075},
+ {sym:'²⁰⁶Pb', el:'Pb',Z:82,A:206,mode:'st',T:Infinity,Tu:'y', Q:0}
+];
+
+/* 崩壊様式（データ駆動）。dN, dZ が核図表上の移動 */
+const MODES=[
+ {k:'a', nm:'α崩壊',  lbl:'α', dN:-2,dZ:-2,dA:-4, col:CCRM,colt:CCRMT, cls:'al',
+  desc:'⁴He 核をまるごと放出する。A が 4、Z が 2 減る'},
+ {k:'b-',nm:'β⁻崩壊', lbl:'β⁻',dN:-1,dZ:+1,dA:0,  col:CBLU,colt:CBLUT, cls:'bm',
+  desc:'中性子が陽子に変わり、電子と反ニュートリノが出る。A は不変、Z が 1 増える'},
+ {k:'b+',nm:'β⁺崩壊', lbl:'β⁺',dN:+1,dZ:-1,dA:0,  col:CPUR,colt:CPURT, cls:'bp',
+  desc:'陽子が中性子に変わり、陽電子とニュートリノが出る。A は不変、Z が 1 減る'},
+ {k:'IT',nm:'核異性体転移',lbl:'IT',dN:0,dZ:0,dA:0,col:CGRN,colt:CGRNT, cls:'it',
+  desc:'励起状態から基底状態へ落ちて γ 線だけ出す。A も Z も動かない'},
+ {k:'st',nm:'安定',   lbl:'—', dN:0, dZ:0, dA:0,  col:MUT, colt:MUT,    cls:'',
+  desc:'崩壊しない'}
+];
+
+/* 核の個数の選択肢。cols は格子の列数（広い画面用と 430px 以下用） */
+const NCHOICE=[
+ {n:10,   cols:10, colsN:10},
+ {n:50,   cols:25, colsN:25},
+ {n:100,  cols:25, colsN:25},
+ {n:1000, cols:50, colsN:40},
+ {n:5000, cols:100,colsN:80}
+];
+
+const CONSTS=[
+ ['アボガドロ定数 N<sub>A</sub>','6.02214076&times;10<sup>23</sup> mol<sup>&minus;1</sup>','SI 定義値（2019 改定）','比放射能 a = ln2&middot;N<sub>A</sub>/(T&middot;M) に使う'],
+ ['ln 2','0.69314718056','&mdash;','T = ln2/&lambda;。教科書が 0.69 と丸めると 0.045% ずれる'],
+ ['1 Bq','1 崩壊/秒','SI 組立単位','放射能の単位。核の個数ではなく、単位時間あたりの崩壊数'],
+ ['1 Ci','3.7&times;10<sup>10</sup> Bq','定義値','もとは 1 g の <sup>226</sup>Ra の放射能として決めたもの。実測は 3.66&times;10<sup>10</sup> Bq で 1.1% 低い。定義のほうを据え置いた'],
+ ['1 年','365.25 日 = 3.15576&times;10<sup>7</sup> s','ユリウス年','核データの「年」はこの定義。365 日で計算すると 0.068% ずれる。このページはユリウス年を採用'],
+ ['<sup>18</sup>F の半減期','109.77 分','評価値','教科書の 110 分との差は 0.21%。24 時間後の残存率では 2.1% に開く。このページは 109.77 分を採用'],
+ ['<sup>99m</sup>Tc の半減期','6.0067 時間','評価値','教科書の「6 時間」との差は 0.11%'],
+ ['<sup>131</sup>I の半減期','8.0252 日','評価値','教科書の「8 日」との差は 0.31%'],
+ ['<sup>14</sup>C の半減期','5700 &plusmn; 30 年','現行評価','リビー値 5568 年（年代測定の報告に今も使う慣習）、ケンブリッジ値 5730 年も流通している。このページは 5700 年を採用'],
+ ['<sup>226</sup>Ra の半減期','1600 年','評価値','古い教科書は 1620 年。0.7% の差'],
+ ['<sup>238</sup>U の半減期','4.468&times;10<sup>9</sup> 年','評価値','古い教科書は 4.51&times;10<sup>9</sup> 年。0.9% の差'],
+ ['u の エネルギー換算','931.49410 MeV','CODATA 2018','Q = &Delta;M &times; 931.494。質量欠損をエネルギーに直す係数'],
+ ['m<sub>e</sub>c&sup2;','0.51099895 MeV','CODATA 2018','&beta;<sup>+</sup> 崩壊の敷居 2m<sub>e</sub>c&sup2; = 1.02200 MeV。対消滅で出る光子もこのエネルギー'],
+ ['M(<sup>4</sup>He)','4.00260325413 u','AME2020','&alpha;崩壊の Q 値を質量差から出すときに引く']
+];
+
+const APPROX=[
+ ['N を連続量として扱う（dN/dt = &minus;&lambda;N と書く）','残存数のばらつき','実際の N は整数で、二項分布に従う。半減期の時点での相対ゆらぎは 1/&radic;N&#8320;。N&#8320;=1000 で 3.2%、100 で 10%、10 で 32%。微分方程式は期待値だけを追っている'],
+ ['&lambda; が時間にも環境にもよらない','ほぼ厳密','&alpha;崩壊と&beta;崩壊では、温度・圧力・化学結合による変化は測定限界以下。電子捕獲だけは軌道電子の密度に依存し、<sup>7</sup>Be を C<sub>60</sub> に閉じ込めると金属 Be より約 1% 速くなる'],
+ ['T = 0.693/&lambda; の 0.693','4桁目','ln2 = 0.6931472。0.69 と丸めると 0.045% ずれる。半減期10回ぶんでは 0.45% に増える'],
+ ['時間刻みで確率 &lambda;&Delta;t のコインを投げる','系統的に過小評価','n ステップ後の生存確率が (1&minus;&lambda;&Delta;t)<sup>n</sup> になり、正しい e<sup>&minus;&lambda;n&Delta;t</sup> より必ず小さい。&lambda;&Delta;t=0.1 で 1 半減期後に 4.7%、0.5 なら 21% ずれる。正しくは p = 1&minus;e<sup>&minus;&lambda;&Delta;t</sup>。このページは逆関数法で刻みを使わないので誤差ゼロ'],
+ ['二項分布を正規分布で近似','分布の形','N&#8320;p と N&#8320;(1&minus;p) がどちらも 10 を超えないと形が合わない。N&#8320;=10 では歪みが残る。図では厳密な二項分布も重ねてある'],
+ ['&lambda;&#770; = 1/t&#772; として崩壊定数を推定','上に偏る','E[&lambda;&#770;] = N&#8320;&lambda;/(N&#8320;&minus;1)。N&#8320;=10 で 11%、100 で 1.0% 過大。一方 T&#770; = ln2&middot;t&#772; のほうは不偏で、標準偏差はちょうど T/&radic;N&#8320;'],
+ ['片対数に重みなしの最小二乗を当てる','推定の効率','ln N の分散は N によって違う（残りが少ないほど大きい）ので、重みなしの最小二乗は本来正しくない。残存が少ない領域の点が過大に効く。崩壊時刻の平均を使う推定のほうがばらつきが小さい'],
+ ['&alpha;線が Q 値をまるごと持っていく','2%程度','運動量保存で娘核も反跳する。E<sub>&alpha;</sub> = Q&middot;M<sub>d</sub>/(M<sub>d</sub>+M<sub>&alpha;</sub>)。<sup>238</sup>U では Q = 4.270 MeV のうち 72 keV が娘核の反跳に回る'],
+ ['非相対論で運動量保存を解く','5桁目以降','補正の大きさは Q/(2Mc&sup2;) 程度。<sup>226</sup>Ra で 1.2&times;10<sup>&minus;5</sup>。&alpha;線のエネルギー 4.78 MeV に対して 60 eV'],
+ ['原子質量から Q を計算する','3桁目以降','7桁目で丸めた原子質量を使うと、Q に 1&ndash;2 keV（0.03% 程度）の食い違いが出る。表では計算値と評価値の両方を出した。&alpha;線のエネルギーは評価済みの Q から出している'],
+ ['&alpha;線が単一のエネルギーを持つ','線が複数','娘核の励起状態へ落ちる分岐があるので、実際には複数の線になる。<sup>226</sup>Ra は 4.784 MeV が 94.4%、4.601 MeV が 5.6% で、後者には 186 keV の &gamma; 線が伴う'],
+ ['系列を1本の矢印で書く','中間核種を無視','<sup>238</sup>U &rarr; <sup>206</sup>Pb は 14 段階。途中の <sup>222</sup>Rn は気体で外へ逃げるので、閉じていない試料では平衡が崩れる。屋内ラドン問題はここから来る'],
+ ['永年平衡が成り立つ','親が桁違いに長寿命なときだけ','<sup>238</sup>U/<sup>226</sup>Ra は比が 2.8&times;10<sup>6</sup> あるので厳密に近い。<sup>99</sup>Mo/<sup>99m</sup>Tc は比が 11 しかない過渡平衡で、放射能比は 1 ではなく &lambda;&#8322;/(&lambda;&#8322;&minus;&lambda;&#8321;)&times;0.875 = 0.963 に落ち着く'],
+ ['ベイトマン方程式の係数計算','桁落ち','半減期が 164 &micro;s から 45 億年まで 21 桁にわたるので、素朴に組むと桁落ちする。ここでは係数の漸化式 c<sub>n,i</sub> = &lambda;<sub>n&minus;1</sub>c<sub>n&minus;1,i</sub>/(&lambda;<sub>n</sub>&minus;&lambda;<sub>i</sub>) で下から積み上げている']
+];
+
+const MISS=[
+ '半減期は「寿命の半分」ではない。平均寿命 &tau; = 1/&lambda; のほうが T より 1/ln2 = 1.443 倍長い。指数分布が右に長い裾を引くので、平均が中央値より大きくなる。',
+ '半減期を2回過ぎても全部なくなるわけではない。1/2 の 2 乗で 1/4 が残る。10 回で 1/1024、20 回で 100 万分の1。ゼロにはならない。',
+ '半減期は「その核が半分になるまで待った」記録ではなく、1個1個の崩壊確率のこと。すでに半減期ぶん経った核も、残っている限り次の半減期で半分になる確率は同じ。',
+ '放射能 A [Bq] と放射線の強さは別物。同じ 1 MBq でも、&alpha;、&beta;、&gamma; で体への影響はまるで違う。吸収線量 [Gy] と等価線量 [Sv] はさらに別の量。',
+ '&beta;線のエネルギーは一定ではない。反ニュートリノと分け合う3体崩壊なので 0 から Q までの連続スペクトルになり、平均はおよそ Q/3。&alpha;線が線スペクトルなのと対照的。',
+ '&beta;<sup>&minus;</sup>崩壊で出る電子は、もともと核の外にあった軌道電子ではない。崩壊の瞬間に核内で作られる。',
+ '&alpha;崩壊で Z が 2 減るので、娘は周期表で2つ左の元素になる。核図表では左下へ2マス。左へ2マスだけではない（中性子数も 2 減る）。',
+ '核異性体転移は「崩壊」だが元素は変わらない。<sup>99m</sup>Tc &rarr; <sup>99</sup>Tc はどちらもテクネチウム。',
+ '崩壊系列は A を 4 で割った余りで分類される。&alpha; が A を 4 ずつ減らし &beta; は変えないから。天然には 4n、4n+2、4n+3 の 3 本しかなく、4n+1（ネプツニウム系列）は親の <sup>237</sup>Np の半減期 214 万年が地球の年齢に対して短すぎて消えている。',
+ '放射平衡が成り立つのは親のほうが長寿命なときだけ。逆だと親が先になくなって、娘は自分の半減期で減る。',
+ '「半減期が短い＝危険」でも「長い＝危険」でもない。半減期が短ければ放射能は強いがすぐ消え、長ければ弱いがいつまでも残る。<sup>238</sup>U の比放射能は 12.4 kBq/g、<sup>18</sup>F は 3.5&times;10<sup>18</sup> Bq/g で 14 桁違う。',
+ '医療で短半減期核種を使うのは、検査が終わったあと患者の体内に残らないようにするため。<sup>18</sup>F なら翌朝には 1 万分の 1 以下になっている。',
+ '片対数グラフの傾きは、常用対数を使うなら &minus;&lambda; ではなく &minus;&lambda;/ln10 = &minus;&lambda;/2.303。自然対数なら &minus;&lambda; そのもの。読み違えやすい。',
+ '「1000 個の核を用意して 1 半減期待ったら 500 個」ではなく「500 個前後」。標準偏差は &radic;1000/2 = 15.8 個。480 個でも 520 個でも普通に起きる。'
+];
+
+/* ---------- 小道具 ---------- */
+const clamp=(v,a,b)=>v<a?a:(v>b?b:v);
+const f1=v=>(Math.round(v*100)/100).toString();
+function fmtCore(v,sig,inf,exa,exb){
+  sig=sig||4;
+  if(!isFinite(v)) return inf;
+  if(v===0) return '0';
+  const av=Math.abs(v);
+  if(av>=1e-3&&av<1e6){
+    const dec=clamp(sig-1-Math.floor(Math.log10(av)),0,17);
+    let s=v.toFixed(dec);
+    if(s.indexOf('.')>=0) s=s.replace(/0+$/,'').replace(/\.$/,'');
+    return s.replace('-','\u2212');
+  }
+  let e=Math.floor(Math.log10(av));
+  let m=v/Math.pow(10,e);
+  if(Math.abs(+m.toFixed(sig-1))>=10){ m/=10; e++; }
+  return m.toFixed(sig-1).replace('-','\u2212')+exa+String(e).replace('-','\u2212')+exb;
+}
+function fmt(v,sig){ return fmtCore(v,sig,'&infin;','&times;10<sup>','</sup>'); }
+function fmtP(v,sig){ return fmtCore(v,sig,'\u221E','\u00D710^',''); }
+function expo(v,d){
+  if(v===0) return '0';
+  if(!isFinite(v)) return '&infin;';
+  const parts=v.toExponential(d===undefined?2:d).split('e');
+  return parts[0].replace('-','\u2212')+'&times;10<sup>'+String(parseInt(parts[1],10)).replace('-','\u2212')+'</sup>';
+}
+function mn(v){ return String(v).replace(/-/g,'\u2212'); }
+const PFX=[[1e-15,'f'],[1e-12,'p'],[1e-9,'n'],[1e-6,'\u00B5'],[1e-3,'m'],[1,''],[1e3,'k'],[1e6,'M'],[1e9,'G'],[1e12,'T'],[1e15,'P'],[1e18,'E']];
+function fmtU(v,u,sig){
+  if(!isFinite(v)) return '&infin;';
+  if(v===0) return '0 '+u;
+  const a=Math.abs(v);
+  let best=PFX[0];
+  for(const p of PFX) if(a>=p[0]*0.9999) best=p;
+  return fmt(v/best[0],sig||4)+' '+best[1]+u;
+}
+function niceCeil(v){
+  if(v<=0) return 1;
+  const e=Math.floor(Math.log10(v)), m=v/Math.pow(10,e);
+  const lad=[1,1.2,1.5,2,2.5,3,4,5,6,8,10];
+  for(const q of lad) if(m<=q+1e-12) return q*Math.pow(10,e);
+  return 10*Math.pow(10,e);
+}
+function roundSig(v,k){
+  if(v===0||!isFinite(v)) return v;
+  const e=Math.floor(Math.log10(Math.abs(v)));
+  const p=Math.pow(10,k-1-e);
+  return Math.round(v*p)/p;
+}
+/* 秒を人が読める単位に直す */
+function secStr(s,sig){
+  if(!isFinite(s)) return '&infin;';
+  const a=Math.abs(s);
+  if(a<1e-3) return fmt(s*1e6,sig||3)+' &micro;s';
+  if(a<1) return fmt(s*1e3,sig||3)+' ms';
+  if(a<120) return fmt(s,sig||3)+' s';
+  if(a<7200) return fmt(s/60,sig||3)+' 分';
+  if(a<3*DAY) return fmt(s/3600,sig||3)+' 時間';
+  if(a<400*DAY) return fmt(s/DAY,sig||3)+' 日';
+  return fmt(s/YEAR,sig||3)+' 年';
+}
+/* 対数ガンマ（ランチョス近似）。二項分布とガンマ分布を厳密に出すのに使う */
+const LGC=[676.5203681218851,-1259.1392167224028,771.32342877765313,-176.61502916214059,
+           12.507343278686905,-0.13857109526572012,9.9843695780195716e-6,1.5056327351493116e-7];
+function lgamma(x){
+  if(x<0.5) return Math.log(Math.PI/Math.sin(Math.PI*x))-lgamma(1-x);
+  x-=1;
+  let a=0.99999999999980993, t=x+7.5;
+  for(let i=0;i<8;i++) a+=LGC[i]/(x+i+1);
+  return 0.5*Math.log(2*Math.PI)+(x+0.5)*Math.log(t)-t+Math.log(a);
+}
+function binomPMF(n,k,p){
+  if(k<0||k>n) return 0;
+  if(p<=0) return k===0?1:0;
+  if(p>=1) return k===n?1:0;
+  const lp=lgamma(n+1)-lgamma(k+1)-lgamma(n-k+1)+k*Math.log(p)+(n-k)*Math.log(1-p);
+  return Math.exp(lp);
+}
+function normPDF(x,mu,sd){ const z=(x-mu)/sd; return Math.exp(-0.5*z*z)/(sd*Math.sqrt(TAU)); }
+/* 疑似乱数（mulberry32）。種を固定すれば同じ実験を再現できる */
+function mulberry32(a){
+  return function(){
+    a|=0; a=(a+0x6D2B79F5)|0;
+    let t=Math.imul(a^(a>>>15),1|a);
+    t=(t+Math.imul(t^(t>>>7),61|t))^t;
+    return ((t^(t>>>14))>>>0)/4294967296;
+  };
+}
+
+/* ---------- SVG 組み立て ---------- */
+function LN(x1,y1,x2,y2,c,w,dash,op){
+  return '<line x1="'+f1(x1)+'" y1="'+f1(y1)+'" x2="'+f1(x2)+'" y2="'+f1(y2)+'" stroke="'+c+'" stroke-width="'+(w||1)+'"'+
+    (dash?' stroke-dasharray="'+dash+'"':'')+(op!==undefined?' opacity="'+op+'"':'')+' stroke-linecap="round"/>';
+}
+function svgTxt(s){
+  return String(s).replace(/<sup>/g,'^').replace(/<\/sup>/g,'').replace(/<sub>/g,'_').replace(/<\/sub>/g,'')
+                  .replace(/<[^>]*>/g,'').replace(/&minus;/g,'\u2212').replace(/&times;/g,'\u00D7')
+                  .replace(/&infin;/g,'\u221E').replace(/&micro;/g,'\u00B5').replace(/&amp;/g,'&');
+}
+function TX(x,y,s,c,size,anchor,weight,op){
+  s=svgTxt(s);
+  return '<text x="'+f1(x)+'" y="'+f1(y)+'" fill="'+c+'" font-family="IBM Plex Mono, monospace" font-size="'+(size||10)+'"'+
+    (anchor?' text-anchor="'+anchor+'"':'')+(weight?' font-weight="'+weight+'"':'')+(op!==undefined?' opacity="'+op+'"':'')+'>'+s+'</text>';
+}
+function TXJ(x,y,s,c,size,anchor,weight,op){
+  s=svgTxt(s);
+  return '<text x="'+f1(x)+'" y="'+f1(y)+'" fill="'+c+'" font-family="IBM Plex Sans JP, sans-serif" font-size="'+(size||10)+'"'+
+    (anchor?' text-anchor="'+anchor+'"':'')+(weight?' font-weight="'+weight+'"':'')+(op!==undefined?' opacity="'+op+'"':'')+'>'+s+'</text>';
+}
+function PL(pts,c,w,dash,op){
+  if(pts.length<2) return '';
+  let d='M'+f1(pts[0][0])+' '+f1(pts[0][1]);
+  for(let i=1;i<pts.length;i++) d+='L'+f1(pts[i][0])+' '+f1(pts[i][1]);
+  return '<path d="'+d+'" fill="none" stroke="'+c+'" stroke-width="'+(w||1.6)+'"'+
+    (dash?' stroke-dasharray="'+dash+'"':'')+(op!==undefined?' opacity="'+op+'"':'')+' stroke-linejoin="round" stroke-linecap="round"/>';
+}
+function PLF(pts,fill,op){
+  if(pts.length<3) return '';
+  let d='M'+f1(pts[0][0])+' '+f1(pts[0][1]);
+  for(let i=1;i<pts.length;i++) d+='L'+f1(pts[i][0])+' '+f1(pts[i][1]);
+  return '<path d="'+d+'Z" fill="'+fill+'" stroke="none"'+(op!==undefined?' opacity="'+op+'"':'')+'/>';
+}
+function AR(x1,y1,x2,y2,c,w,hs,op){
+  const dx=x2-x1, dy=y2-y1, len=Math.hypot(dx,dy);
+  if(len<0.6) return '';
+  hs=hs||6;
+  const ux=dx/len, uy=dy/len, px=-uy, py=ux;
+  const bx=x2-ux*hs, by=y2-uy*hs;
+  return LN(x1,y1,bx,by,c,w||1.6,null,op)+
+    '<polygon points="'+f1(x2)+','+f1(y2)+' '+f1(bx+px*hs*0.42)+','+f1(by+py*hs*0.42)+' '+f1(bx-px*hs*0.42)+','+f1(by-py*hs*0.42)+'" fill="'+c+'"'+(op!==undefined?' opacity="'+op+'"':'')+'/>';
+}
+function CIRC(x,y,r,fill,stroke,sw,dash,op){
+  return '<circle cx="'+f1(x)+'" cy="'+f1(y)+'" r="'+f1(r)+'" fill="'+(fill||'none')+'"'+
+    (stroke?' stroke="'+stroke+'" stroke-width="'+(sw||1)+'"':'')+(dash?' stroke-dasharray="'+dash+'"':'')+(op!==undefined?' opacity="'+op+'"':'')+'/>';
+}
+function RECT(x,y,w,h,fill,stroke,sw,dash,op,rx){
+  return '<rect x="'+f1(x)+'" y="'+f1(y)+'" width="'+f1(Math.max(0,w))+'" height="'+f1(Math.max(0,h))+'" fill="'+(fill||'none')+'"'+
+    (stroke?' stroke="'+stroke+'" stroke-width="'+(sw||1)+'"':'')+(dash?' stroke-dasharray="'+dash+'"':'')+
+    (op!==undefined?' opacity="'+op+'"':'')+(rx?' rx="'+rx+'"':'')+'/>';
+}
+function PATH(d,fill,stroke,sw,op){
+  if(!d) return '';
+  return '<path d="'+d+'" fill="'+(fill||'none')+'"'+(stroke?' stroke="'+stroke+'" stroke-width="'+(sw||1)+'"':'')+
+    (op!==undefined?' opacity="'+op+'"':'')+'/>';
+}
+function setVB(id,w,h){ const s=document.getElementById(id); if(s) s.setAttribute('viewBox','0 0 '+w+' '+h); }
+function put(id,s){ const e=document.getElementById(id); if(e) e.innerHTML=s; }
+function stt(k,v){ return '<div class="stat"><span class="k">'+k+'</span><span class="v">'+v+'</span></div>'; }
+function qc(k,v,w,cls){ return '<div class="qc'+(cls?' '+cls:'')+'"><div class="qk">'+k+'</div><div class="qv">'+v+'</div>'+(w?'<div class="qw">'+w+'</div>':'')+'</div>'; }
+function big(k,v,u){ return '<div><span class="bk">'+k+'</span><span class="bv">'+v+'</span>'+(u?'<span class="bu">'+u+'</span>':'')+'</div>'; }
+function swl(c,t){ return '<span><span class="swl" style="border-color:'+c+'"></span>'+t+'</span>'; }
+function swb(c,t){ return '<span><span class="swb" style="background:'+c+'"></span>'+t+'</span>'; }
+function swd(c,t){ return '<span><span class="sw" style="background:'+c+'"></span>'+t+'</span>'; }
+
+/* 軸まわり。目盛は {v, lab, mj} の配列で渡す */
+function axes(x,y,w,h,xt,yt,X,Y,xlab,ylab){
+  let s=RECT(x,y,w,h,'#fff',SOFT,1);
+  for(const t of xt){
+    const xx=X(t.v); if(xx<x-0.5||xx>x+w+0.5) continue;
+    s+=LN(xx,y,xx,y+h,t.mj?RULE:SOFT,1);
+    if(t.lab!==undefined&&t.lab!=='') s+=TX(xx,y+h+12,t.lab,MUT,9,'middle');
+  }
+  for(const t of yt){
+    const yy=Y(t.v); if(yy<y-0.5||yy>y+h+0.5) continue;
+    s+=LN(x,yy,x+w,yy,t.mj?RULE:SOFT,1);
+    if(t.lab!==undefined&&t.lab!=='') s+=TX(x-5,yy+3,t.lab,MUT,9,'end');
+  }
+  s+=LN(x,y,x,y+h,RULE,1.2)+LN(x,y+h,x+w,y+h,RULE,1.2);
+  if(xlab) s+=TX(x+w,y+h+24,xlab,MUT,9.5,'end');
+  if(ylab) s+=TX(x,y-7,ylab,MUT,9.5,'start');
+  return s;
+}
+function ticks(a,b,n){
+  const stp=niceCeil((b-a)/n), out=[];
+  const st=Math.ceil(a/stp-1e-9)*stp;
+  for(let v=st;v<=b+1e-9;v+=stp) out.push({v:Math.abs(v)<stp*1e-9?0:v,lab:f1(Math.abs(v)<stp*1e-9?0:v),mj:1});
+  return out;
+}
+/* 対数軸の目盛。lo, hi は 10 の指数 */
+function logTicks(lo,hi,labFn){
+  const out=[];
+  for(let e=Math.ceil(lo-1e-9);e<=Math.floor(hi+1e-9);e++){
+    out.push({v:e,lab:labFn?labFn(e):('10^'+e),mj:1});
+    for(let m=2;m<=9;m++){
+      const v=e+Math.log10(m);
+      if(v>lo&&v<hi) out.push({v:v,lab:'',mj:0});
+    }
+  }
+  return out;
+}
+
+let narrow=window.innerWidth<=430;
+
+/* ---------- スライダー登録 ---------- */
+const SLREG=[];
+function addSlider(host,id,lab,min,max,step,getv,setv,fmtf,unit,cb,dispf){
+  const h=document.getElementById(host); if(!h) return;
+  const row=document.createElement('div'); row.className='ctl';
+  row.innerHTML='<span class="lab">'+lab+'</span><input type="range" id="sl-'+id+'" min="'+min+'" max="'+max+'" step="'+step+'"><span class="val mono" id="vv-'+id+'"></span>';
+  h.appendChild(row);
+  const el=row.querySelector('input');
+  el.addEventListener('input',function(){ setv(+el.value); (cb||onParam)(); });
+  SLREG.push({id:id,getv:getv,fmtf:fmtf,unit:unit,el:el,row:row,dispf:dispf});
+}
+function syncOne(r){
+  const raw=clamp(Math.round(r.getv()),+r.el.min,+r.el.max);
+  if(+r.el.value!==raw) r.el.value=raw;
+  const box=document.getElementById('vv-'+r.id);
+  if(box) box.innerHTML=(r.dispf?r.dispf():r.fmtf(raw))+(r.unit?' '+r.unit:'');
+}
+function syncSliders(){ for(const r of SLREG) syncOne(r); }
+function syncSlider(id){ for(const r of SLREG) if(r.id===id) syncOne(r); }
+function mkBtnRow(host,items,isOn,onPick){
+  const box=document.getElementById(host); if(!box) return;
+  box.innerHTML='';
+  for(const it of items){
+    const b=document.createElement('button');
+    b.className='btn sm'+(isOn(it)?' on':'')+(it.cls?' '+it.cls:''); b.innerHTML=it.nm;
+    b.addEventListener('click',function(){ onPick(it); });
+    box.appendChild(b);
+  }
+}
+
+/* ---------- 状態 ---------- */
+const ST={
+  nuc:'F18',
+  tT:1.0,        /* 減衰曲線カードの経過時間（半減期単位） */
+  tmaxLaw:8,     /* 同グラフの横軸の上限 */
+  N0:1000,
+  tsim:0,        /* シミュレーションの現在時刻（半減期単位） */
+  run:0,
+  spd:0.5,       /* 半減期/秒 */
+  seed:161,
+  fluN:100,      /* ゆらぎカードの N0 */
+  trials:200,
+  step:0,        /* ウラン系列の現在段 */
+  chartPlay:0,
+  eqT:2.0,       /* 永年平衡カードの log10(t/年) */
+  eqDepth:8,     /* 表示する段数 */
+  dateF:50.0,    /* 年代測定の残存率 [%] */
+  A0:60,         /* 照射終了時の 18F 放射能 [GBq] */
+  tsyn:50,       /* 合成と品質試験 [分] */
+  tdel:30,       /* 輸送 [分] */
+  dose:250,      /* 1人あたりの投与量 [MBq] */
+  slot:30        /* 検査枠の間隔 [分] */
+};
+
+/* ---------- 物理量 ---------- */
+function nuc(){ for(const n of NUCS) if(n.id===ST.nuc) return n; return NUCS[0]; }
+function modeOf(k){ for(const m of MODES) if(m.k===k) return m; return MODES[4]; }
+function Tsec(o){ return o.T*T_UNITS[o.Tu]; }                 /* 半減期 [s] */
+function lamOf(o){ return LN2/Tsec(o); }                      /* 崩壊定数 [1/s] */
+function tauOf(o){ return 1/lamOf(o); }                       /* 平均寿命 [s] */
+function survive(x){ return Math.pow(2,-x); }                 /* x は半減期単位 */
+/* 比放射能 [Bq/g]。a = ln2·N_A/(T·M) */
+function specAct(o){ return LN2*NA/(Tsec(o)*o.Mp); }
+/* 質量差から出した Q 値 [MeV] */
+const M_HE4=4.00260325413;
+function Qmass(o){
+  if(o.mode==='a') return (o.Mp-o.Md-M_HE4)*U_MEV;
+  /* β⁻ も β⁺ も原子質量の差がそのまま全崩壊エネルギー（β⁺ では電子捕獲の Q_EC にあたる）。
+     β⁺ 粒子が持てる最大値はここから 2m_e c² = 1.022 MeV を引いた残り。IT は励起エネルギー */
+  return (o.Mp-o.Md)*U_MEV;
+}
+function Qbeta(o){   /* β⁺ の最大エネルギー */
+  return Qmass(o)-2*ME_MEV;
+}
+/* α線のエネルギー（運動量保存、非相対論） */
+function Ealpha(Q,Md){ return Q*Md/(Md+M_HE4); }
+function nucTLabel(o){ return fmt(o.T,5)+' '+T_LABEL[o.Tu]; }
+
+/* ---------- 崩壊シミュレーション ----------
+   刻みを使わない。一様乱数 u から t = -log2(u) を作れば、半減期を単位にした
+   崩壊時刻がちょうど指数分布に従う（逆関数法）。刻み由来の系統誤差はゼロ。   */
+const SIM={N0:0,seed:0,raw:null,srt:null,tmax:1,mean:0};
+function regen(){
+  const n=ST.N0, r=mulberry32(ST.seed|0);
+  const raw=new Float64Array(n);
+  let sum=0;
+  for(let i=0;i<n;i++){
+    const u=r()*(1-1e-12)+1e-12;
+    const t=-Math.log2(u);
+    raw[i]=t; sum+=t;
+  }
+  const srt=Float64Array.from(raw); srt.sort();
+  SIM.N0=n; SIM.seed=ST.seed; SIM.raw=raw; SIM.srt=srt;
+  SIM.mean=sum/n;
+  SIM.tmax=Math.max(1.5,srt[n-1]);
+}
+/* 時刻 x で残っている個数。ソート済み配列を二分探索するだけ */
+function alive(x){
+  const a=SIM.srt, n=SIM.N0;
+  let lo=0, hi=n;
+  while(lo<hi){ const m=(lo+hi)>>1; if(a[m]<=x) lo=m+1; else hi=m; }
+  return n-lo;
+}
+function nextEvent(x){
+  const a=SIM.srt, n=SIM.N0;
+  for(let i=0;i<n;i++) if(a[i]>x) return a[i];
+  return null;
+}
+function simTmax(){ return Math.min(16,Math.max(3,Math.ceil(SIM.tmax*1.02))); }
+
+/* 片対数に重みなしの最小二乗を当てて λ を推定する（学生がやる方法） */
+function fitSlope(){
+  const tm=Math.min(simTmax(),SIM.tmax);
+  const K=Math.min(40,Math.max(6,ST.N0));
+  let sx=0,sy=0,sxx=0,sxy=0,m=0;
+  for(let k=0;k<=K;k++){
+    const t=tm*k/K, N=alive(t);
+    if(N<1) break;
+    const y=Math.log(N);
+    sx+=t; sy+=y; sxx+=t*t; sxy+=t*y; m++;
+  }
+  if(m<3) return null;
+  const den=m*sxx-sx*sx;
+  if(Math.abs(den)<1e-12) return null;
+  const b=(m*sxy-sx*sy)/den, a=(sy-b*sx)/m;
+  return {slope:b,inter:a,n:m,That:-LN2/b};   /* 傾き b = -λ（半減期単位なので λ=ln2） */
+}
+
+/* ---------- ゆらぎ実験 ----------
+   同じ乱数列から2つの統計量を同時に取る。u < 1/2 は t = -log2(u) > 1、
+   つまり半減期の時点で生き残っている核にあたる。                         */
+const FLU={N:0,tr:0,cnt:null,That:null,ready:0};
+function runTrials(){
+  const n=ST.fluN, tr=ST.trials;
+  const r=mulberry32((ST.seed*7919+13)|0);
+  const cnt=new Int32Array(tr), That=new Float64Array(tr);
+  for(let j=0;j<tr;j++){
+    let c=0,s=0;
+    for(let i=0;i<n;i++){
+      const u=r()*(1-1e-12)+1e-12;
+      if(u<0.5) c++;
+      s+=-Math.log2(u);
+    }
+    cnt[j]=c; That[j]=LN2*(s/n);   /* 半減期単位では t̄ の期待値が 1/ln2。ln2 を掛けると T̂/T になる */
+  }
+  FLU.N=n; FLU.tr=tr; FLU.cnt=cnt; FLU.That=That; FLU.ready=1;
+}
+/* ガンマ分布の密度。T̂/T = t̄ は Gamma(N, 1/(N·ln2)) に従う */
+function gammaPDF(x,k,theta){
+  if(x<=0) return 0;
+  return Math.exp((k-1)*Math.log(x)-x/theta-lgamma(k)-k*Math.log(theta));
+}
+
+/* ---------- ベイトマン方程式 ----------
+   f_n(t) = Σ_i c[n][i]·exp(-λ_i t)、係数は下から漸化式で積み上げる。
+   c[n][i] = λ_{n-1}·c[n-1][i]/(λ_n - λ_i)、c[n][n] = -Σ_{i<n} c[n][i]      */
+const CHAIN={lam:[],co:[],n:0};
+function buildChain(){
+  const lam=[], nn=USER.length-1;   /* 最後の Pb-206 は安定なので除く */
+  for(let i=0;i<nn;i++) lam.push(LN2/(USER[i].T*T_UNITS[USER[i].Tu]/YEAR));  /* [1/年] */
+  const co=[];
+  co.push([1]);
+  for(let n=1;n<nn;n++){
+    const row=new Array(n+1).fill(0);
+    let s=0;
+    for(let i=0;i<n;i++){
+      const d=lam[n]-lam[i];
+      const v=(Math.abs(d)>0)?lam[n-1]*co[n-1][i]/d:0;
+      row[i]=isFinite(v)?v:0; s+=row[i];
+    }
+    row[n]=-s;
+    co.push(row);
+  }
+  CHAIN.lam=lam; CHAIN.co=co; CHAIN.n=nn;
+}
+function chainN(n,t){    /* N_n(t)/N_1(0)、n は 0 起点 */
+  const row=CHAIN.co[n], lam=CHAIN.lam;
+  let s=0;
+  for(let i=0;i<=n;i++){
+    const e=Math.exp(-lam[i]*t);
+    if(e>0) s+=row[i]*e;
+  }
+  return s;
+}
+function chainA(n,t){ return CHAIN.lam[n]*chainN(n,t); }   /* 放射能／N_1(0)。親で割れば比になる */
+
+/* ---------- 減衰の式 ---------- */
+const FX1=[
+ {k:'lam',t:'<b>崩壊定数 &lambda;</b>　1個の核が単位時間に崩壊する確率。核種ごとに決まった定数で、温度も圧力も化学結合も効かない。単位は 1/秒'},
+ {k:'N',  t:'<b>残っている核の個数</b>　崩壊した核はもう別の元素なので、この数から抜ける。整数だが、個数が多いときは連続量として扱う'},
+ {k:'dN', t:'<b>微小時間の崩壊数</b>　&minus;dN/dt が単位時間あたりの崩壊数、つまり放射能そのもの'},
+ {k:'N0', t:'<b>t = 0 での個数</b>　どこを 0 と決めるかは自由。測定を始めた瞬間でも、核種を作った瞬間でもいい'},
+ {k:'T',  t:'<b>半減期</b>　N が半分になるまでの時間。&lambda;T = ln2 から T = 0.6931/&lambda;。「寿命の半分」ではないので注意'},
+ {k:'tau',t:'<b>平均寿命 &tau;</b>　&tau; = 1/&lambda; = T/ln2 で、半減期の 1.443 倍。指数分布が右に長い裾を引くので平均のほうが長くなる'},
+ {k:'A',  t:'<b>放射能 A</b>　単位時間あたりの崩壊数。A = &lambda;N なので N と同じ指数で減る。単位は Bq（1 崩壊/秒）'},
+ {k:'t',  t:'<b>経過時間</b>　半減期を単位に取り直すと、どの核種でも同じ曲線になる。このページのグラフは基本的にこの単位'}
+];
+function buildFx(){
+  put('fx1','<span class="sym" data-k="dN">dN/dt</span> = &minus;<span class="sym" data-k="lam">&lambda;</span><span class="sym" data-k="N">N</span>'+
+    '　&rarr;　N(<span class="sym" data-k="t">t</span>) = <span class="sym" data-k="N0">N<sub>0</sub></span>e<sup>&minus;&lambda;t</sup> = N<sub>0</sub>&middot;2<sup>&minus;t/<span class="sym" data-k="T">T</span></sup>');
+  const box=document.getElementById('fx1');
+  if(box) box.addEventListener('click',function(e){
+    const t=e.target.closest?e.target.closest('.sym'):null; if(!t) return;
+    const all=box.querySelectorAll('.sym');
+    for(let i=0;i<all.length;i++) all[i].classList.remove('on');
+    t.classList.add('on');
+    const k=t.getAttribute('data-k');
+    const d=FX1.filter(x=>x.k===k)[0];
+    put('fx1d',d?d.t:'');
+  });
+  put('fx2','Q = (M<sub>親</sub> &minus; M<sub>娘</sub> &minus; M<sub>He</sub>) &times; 931.494 MeV/u　　'+
+    'E<sub>&alpha;</sub> = Q &middot; <span class="frac"><span class="n">M<sub>娘</sub></span><span class="d">M<sub>娘</sub> + M<sub>&alpha;</sub></span></span>'+
+    '　&asymp; Q &middot; <span class="frac"><span class="n">A &minus; 4</span><span class="d">A</span></span>'+
+    '<br>&beta;<sup>&minus;</sup>：Q = (M<sub>親</sub> &minus; M<sub>娘</sub>)c&sup2;　　&beta;<sup>+</sup>：Q = (M<sub>親</sub> &minus; M<sub>娘</sub>)c&sup2; &minus; 2m<sub>e</sub>c&sup2;　（2m<sub>e</sub>c&sup2; = 1.02200 MeV）');
+}
+function buildLawSteps(){
+  const o=nuc(), T=Tsec(o), lam=lamOf(o);
+  const st=[
+   ['1. 仮定','1個の核が dt のあいだに崩壊する確率は &lambda;dt。<br>その核が何秒生きてきたかにはよらない（無記憶性）'],
+   ['2. 個数の変化','N 個あれば dt での崩壊期待数は N&lambda;dt。<br>dN/dt = &minus;&lambda;N'],
+   ['3. 変数分離','dN/N = &minus;&lambda;dt　&rarr;　ln N = &minus;&lambda;t + C<br>t=0 で N=N<sub>0</sub> だから　N = N<sub>0</sub>e<sup>&minus;&lambda;t</sup>'],
+   ['4. 半減期','N<sub>0</sub>/2 = N<sub>0</sub>e<sup>&minus;&lambda;T</sup>　&rarr;　&lambda;T = ln2<br>T = ln2/&lambda; = '+fmt(LN2,7)+'/&lambda;'],
+   ['5. 底を 2 に','N = N<sub>0</sub>&middot;2<sup>&minus;t/T</sup>　半減期を単位にすれば核種によらず同じ曲線'],
+   ['6. '+o.sym+' の数値','T = '+nucTLabel(o)+' = '+fmt(T,6)+' s<br>&lambda; = ln2/T = '+expo(lam,4)+' s<sup>&minus;1</sup>　&tau; = 1/&lambda; = '+secStr(1/lam,5)]
+  ];
+  let s='';
+  for(const [a,b] of st) s+='<div class="step"><div class="lbl">'+a+'</div><div class="eq">'+b+'</div></div>';
+  put('lawsteps',s);
+}
+const LAWP={x0:0,x1:0,tm:8};
+function drawLaw(){
+  const W=narrow?360:740, H=narrow?250:262;
+  setVB('sv-law',W,H);
+  const o=nuc(), T=Tsec(o);
+  const px=narrow?40:56, py=26, pw=W-px-(narrow?14:22), ph=H-py-(narrow?52:56);
+  const tm=ST.tmaxLaw;
+  const X=v=>px+v/tm*pw, Y=v=>py+ph-v*ph;
+  LAWP.x0=px; LAWP.x1=px+pw; LAWP.tm=tm;
+  const xt=[], step=tm<=6?1:(tm<=12?2:4);
+  for(let k=0;k<=tm;k+=step) xt.push({v:k,lab:String(k),mj:1});
+  const yt=[];
+  for(let k=0;k<=10;k+=2) yt.push({v:k/10,lab:(k/10).toFixed(1),mj:1});
+  let s=axes(px,py,pw,ph,xt,yt,X,Y,'t / T（半減期を単位にした経過時間）','N / N\u2080');
+  /* 半減期ごとの水平線 */
+  for(let k=1;k<=Math.min(6,tm);k++){
+    const v=Math.pow(2,-k);
+    if(v<0.012) break;
+    s+=LN(px,Y(v),X(k),Y(v),CGOLD,1,'3 3',0.55);
+    s+=LN(X(k),Y(v),X(k),py+ph,CGOLD,1,'3 3',0.55);
+    s+=TX(px+3,Y(v)-3,'1/'+Math.pow(2,k),CGOLDT,8.5,'start');
+  }
+  /* 理論曲線 */
+  const pts=[];
+  for(let i=0;i<=300;i++){ const t=tm*i/300; pts.push([X(t),Y(survive(t))]); }
+  s+=PLF(pts.concat([[X(tm),Y(0)],[X(0),Y(0)]]),o.col,0.09);
+  s+=PL(pts,o.col,2.2);
+  /* 現在時刻 */
+  const t0=clamp(ST.tT,0,tm), v0=survive(t0);
+  s+=LN(X(t0),py,X(t0),py+ph,INK,1.4,'4 3',0.8);
+  s+=CIRC(X(t0),Y(v0),4.2,o.col,'#fff',1.6);
+  s+=TX(X(t0)+(t0>tm*0.75?-6:6),Y(v0)-9,fmt(v0*100,4)+'%',o.colt,narrow?10:11,t0>tm*0.75?'end':'start','600');
+  /* 実時間の軸 */
+  s+=TXJ(px,H-(narrow?8:10),'実時間では '+secStr(t0*T,4)+'（'+o.sym+'）',MUT,narrow?9.5:10.5,'start');
+  s+=TXJ(px+pw,H-(narrow?8:10),'横軸いっぱいで '+secStr(tm*T,4),MUT,narrow?9.5:10.5,'end');
+  put('law-g',s);
+
+  const lam=lamOf(o), sa=specAct(o);
+  put('lawbig',
+    big('半減期 T',fmt(o.T,5),T_LABEL[o.Tu]+'（'+fmt(T,5)+' s）')+
+    big('崩壊定数 \u03BB',expo(lam,4),'s\u207B\u00B9')+
+    big('平均寿命 \u03C4 = 1/\u03BB',secStr(1/lam,5),'T \u00D7 1/ln2 = T \u00D7 1.4427'));
+  const N1g=NA/o.Mp;
+  put('lawstats',
+    stt('経過時間 t / T',fmt(t0,4))+
+    stt('残存率 2<sup>\u2212t/T</sup>',fmt(v0*100,5)+' %')+
+    stt('崩壊した割合',fmt((1-v0)*100,5)+' %')+
+    stt('1 g 中の核の数',expo(N1g,4)+' 個')+
+    stt('比放射能 a = ln2\u00B7N<sub>A</sub>/(T\u00B7M)',fmtU(sa,'Bq',4)+'/g')+
+    stt('t 後の比放射能',fmtU(sa*v0,'Bq',4)+'/g'));
+  put('lawnote',
+    '横軸は半減期を単位にしてある。この目盛で見ると6つの核種の曲線は完全に重なる。'+
+    o.sym+' の半減期 '+nucTLabel(o)+' を実時間に読み替えると、いま選んでいる t = '+fmt(t0,3)+'T は '+secStr(t0*T,4)+'。'+
+    '比放射能は 1 g あたりの放射能で、半減期に反比例する。'+o.sym+' は '+fmtU(sa,'Bq',3)+'/g で、'+
+    (sa>1e15?'極端に強い。だから微量で検査ができるし、微量しか作らなくて済む。'
+            :(sa<1e6?'かなり弱い。同じ放射能を出すのに大量の物質がいる。':'中くらい。'))+
+    ' 1 Ci = 3.7&times;10<sup>10</sup> Bq はもともと 1 g の <sup>226</sup>Ra の放射能として決めた単位で、'+
+    'このページの計算では '+fmtU(specAct(NUCS[4]),'Bq',4)+'/g になる。定義値より 1.1% 低い。'+
+    '半減期の測定が精密になったあとも定義のほうを据え置いたので、いまも 1.1% ずれたままになっている。');
+}
+function drawLawTab(){
+  const o=nuc(), T=Tsec(o);
+  let tb='<table><caption>半減期を n 回ぶん過ぎたときの残り（'+o.sym+'）</caption>'+
+    '<thead><tr><th>n = t/T</th><th>残存率</th><th>1000 個中</th><th>10<sup>6</sup> 個中</th><th>実時間</th><th>比放射能 [Bq/g]</th></tr></thead><tbody>';
+  const rows=[0,1,2,3,4,5,7,10,15,20,30];
+  const sa=specAct(o);
+  for(const n of rows){
+    const v=Math.pow(2,-n);
+    const cur=Math.abs(n-ST.tT)<0.5?' class="cur"':'';
+    tb+='<tr'+cur+'><td class="num">'+n+'</td><td class="num">'+
+      (v>=1e-4?fmt(v*100,4)+' %':expo(v*100,2)+' %')+'</td><td class="num">'+
+      (1000*v>=0.01?fmt(1000*v,4):expo(1000*v,2))+'</td><td class="num">'+
+      (1e6*v>=0.01?fmt(1e6*v,4):expo(1e6*v,2))+'</td><td class="num">'+secStr(n*T,4)+'</td><td class="num">'+
+      fmtU(sa*v,'Bq',3)+'</td></tr>';
+  }
+  tb+='</tbody></table>';
+  put('lawtab',tb);
+  put('lawtabnote',
+    '半減期を10回過ぎると 1/1024、20回で約100万分の1になる。ゼロになる時刻は原理的に存在しない。'+
+    '医療で「体内からいつ消えるか」を語るときは、この表の10回ぶん（'+secStr(10*T,3)+'）くらいを目安にする。'+
+    '検出限界を下回るのがいつか、という話であって、消滅するわけではない。');
+}
+
+/* ---------- 核の格子 ----------
+   5000 個ぶんの矩形を毎フレーム innerHTML で書き直すと重いので、
+   背景（全部の核）を一度だけ組み立てておき、生き残りだけを 1 本の path の
+   d 属性の差し替えで更新する。                                            */
+function nchoice(){ for(const c of NCHOICE) if(c.n===ST.N0) return c; return NCHOICE[3]; }
+const GRIDL={N0:-1,nw:null,nuc:null,cols:0,cw:0,gap:0,padx:0,top:0,W:0,H:0};
+function cellPath(i,cols,cw,gap,padx,top){
+  const c=i%cols, r=(i/cols)|0;
+  return 'M'+f1(padx+c*(cw+gap))+' '+f1(top+r*(cw+gap))+'h'+f1(cw)+'v'+f1(cw)+'h'+f1(-cw)+'z';
+}
+function layoutGrid(){
+  const W=narrow?360:740;
+  const ch=nchoice(), cols=narrow?ch.colsN:ch.cols;
+  const rows=Math.ceil(ST.N0/cols);
+  const padx=narrow?10:14, top=22;
+  const gap=cols>60?0.6:(cols>30?1:2);
+  const cw=(W-padx*2-(cols-1)*gap)/cols;
+  const H=Math.round(top+rows*(cw+gap)+(narrow?26:28));
+  setVB('sv-grid',W,H);
+  let d='';
+  for(let i=0;i<ST.N0;i++) d+=cellPath(i,cols,cw,gap,padx,top);
+  put('grid-g','<path id="gbg" d="'+d+'" fill="#DDE3E0"/><path id="gfg" d="" fill="'+nuc().col+'"/><g id="gtx"></g>');
+  GRIDL.N0=ST.N0; GRIDL.nw=narrow; GRIDL.nuc=ST.nuc;
+  GRIDL.cols=cols; GRIDL.cw=cw; GRIDL.gap=gap; GRIDL.padx=padx; GRIDL.top=top; GRIDL.W=W; GRIDL.H=H;
+}
+function drawGrid(){
+  if(GRIDL.N0!==ST.N0||GRIDL.nw!==narrow||GRIDL.nuc!==ST.nuc) layoutGrid();
+  const cols=GRIDL.cols, cw=GRIDL.cw, gap=GRIDL.gap, padx=GRIDL.padx, top=GRIDL.top, W=GRIDL.W, H=GRIDL.H;
+  const o=nuc(), t=ST.tsim, raw=SIM.raw;
+  let d='';
+  for(let i=0;i<ST.N0;i++) if(raw[i]>t) d+=cellPath(i,cols,cw,gap,padx,top);
+  const fg=document.getElementById('gfg');
+  if(fg&&fg.setAttribute) fg.setAttribute('d',d);
+  const nA=alive(t);
+  let s='';
+  s+=TXJ(padx,14,'残っている核',o.colt,narrow?10:11,'start','600');
+  s+=TX(padx+(narrow?74:82),14,String(nA)+' / '+String(ST.N0),INK,narrow?10:11,'start','600');
+  s+=TXJ(W-padx,14,'崩壊した核 '+String(ST.N0-nA)+' 個',MUT,narrow?9.5:10.5,'end');
+  s+=TXJ(padx,H-(narrow?10:11),'t = '+fmt(t,4)+' T　＝　'+secStr(t*Tsec(o),4)+'（'+o.sym+'）',MUT,narrow?9.5:10.5,'start');
+  s+=TXJ(W-padx,H-(narrow?10:11),'理論値 '+fmt(ST.N0*survive(t),5)+' 個',MUT,narrow?9.5:10.5,'end');
+  put('gtx',s);
+  put('gridleg',swb(o.col,'まだ崩壊していない '+o.sym)+swb('#DDE3E0','崩壊済み（'+o.dnm+' になった）'));
+}
+
+/* ---------- 残存数のグラフと片対数 ---------- */
+const PLOTP={p1:null,p2:null};
+function drawPlot(){
+  const W=narrow?360:740;
+  const stack=narrow;
+  const ml=narrow?40:44;
+  const pw=stack?(W-ml-14):((W-ml-40-ml-16)/2);
+  const ph=stack?150:186;
+  const H=stack?(26+ph+38+30+ph+40):(26+ph+42);
+  setVB('sv-plot',W,H);
+  const o=nuc(), N0=ST.N0, t=ST.tsim;
+  const tm=simTmax();
+  const x1=ml, y1=26;
+  const y2=stack?(26+ph+38+30):26;
+  const X2=stack?ml:(ml+pw+ml+16);
+  const xt=[], step=tm<=6?1:(tm<=12?2:4);
+  for(let k=0;k<=tm;k+=step) xt.push({v:k,lab:String(k),mj:1});
+
+  /* --- 左（または上）: 線形 --- */
+  const XA=v=>x1+v/tm*pw, YA=v=>y1+ph-v/N0*ph;
+  const ytA=ticks(0,N0,4);
+  let s=axes(x1,y1,pw,ph,xt,ytA,XA,YA,'t / T','N（残存数）');
+  const th=[];
+  for(let i=0;i<=280;i++){ const tt=tm*i/280; th.push([XA(tt),YA(N0*survive(tt))]); }
+  s+=PL(th,MUT,1.6,'5 3',0.9);
+  s+=obsPath(XA,YA,tm,t,false,N0);
+  s+=markers(XA,YA,tm,t,N0,false);
+  s+=LN(XA(Math.min(t,tm)),y1,XA(Math.min(t,tm)),y1+ph,INK,1.3,'4 3',0.75);
+  s+=TXJ(x1+pw,y1-8,'線形目盛',MUT,9.5,'end');
+
+  /* --- 右（または下）: 片対数 --- */
+  const lhi=Math.log10(N0)+0.05, llo=-0.08;
+  const XB=v=>X2+v/tm*pw, YB=v=>y2+ph-(v-llo)/(lhi-llo)*ph;
+  const ytB=logTicks(llo,lhi,e=>e===0?'1':('10^'+e));
+  s+=axes(X2,y2,pw,ph,xt,ytB,XB,YB,'t / T','N（対数目盛）');
+  const th2=[];
+  for(let i=0;i<=280;i++){
+    const tt=tm*i/280, v=N0*survive(tt);
+    if(v<Math.pow(10,llo)) break;
+    th2.push([XB(tt),YB(Math.log10(v))]);
+  }
+  s+=PL(th2,MUT,1.6,'5 3',0.9);
+  s+=obsPath(XB,YB,tm,t,true,N0);
+  s+=markers(XB,YB,tm,t,N0,true);
+  /* 最小二乗の当てはめ直線 */
+  const fit=fitSlope();
+  if(fit){
+    const p=[];
+    for(let k=0;k<=1;k++){
+      const tt=k*tm;
+      p.push([XB(tt),YB((fit.inter+fit.slope*tt)/LN10)]);
+    }
+    s+=PL(p,CGOLD,1.5,'2 3',0.95);
+    s+=TX(XB(tm)-4,YB(lhi)+12,'最小二乗の直線',CGOLDT,9,'end');
+  }
+  s+=LN(XB(Math.min(t,tm)),y2,XB(Math.min(t,tm)),y2+ph,INK,1.3,'4 3',0.75);
+  s+=TXJ(X2+pw,y2-8,'片対数',MUT,9.5,'end');
+  put('plot-g',s);
+  PLOTP.p1={x:x1,w:pw}; PLOTP.p2={x:X2,w:pw}; PLOTP.tm=tm;
+  put('plotleg',
+    swl(MUT,'理論曲線 N\u2080\u00B72^(\u2212t/T)')+
+    swl(o.col,'シミュレーション（乱数だけで動かした結果）')+
+    swd(o.col,'整数の半減期ごとの実測点と \u00B11\u03C3')+
+    swl(CGOLD,'片対数への最小二乗'));
+}
+/* シミュレーションの残存数。個数が少ないうちは階段のまま描く */
+function obsPath(X,Y,tm,tnow,isLog,N0){
+  const o=nuc();
+  const tv=Math.min(tnow,tm);
+  const pts=[];
+  const yv=v=>isLog?(v>=1?Math.log10(v):null):v;
+  if(N0<=200){
+    const a=SIM.srt;
+    let n=N0;
+    let y=yv(n); if(y===null) return '';
+    pts.push([X(0),Y(y)]);
+    for(let i=0;i<N0;i++){
+      if(a[i]>tv) break;
+      const yb=yv(n); if(yb===null) break;
+      pts.push([X(a[i]),Y(yb)]);
+      n--;
+      const yc=yv(n);
+      if(yc===null){ break; }
+      pts.push([X(a[i]),Y(yc)]);
+    }
+    const yl=yv(alive(tv));
+    if(yl!==null) pts.push([X(tv),Y(yl)]);
+  } else {
+    const K=280;
+    for(let i=0;i<=K;i++){
+      const tt=tv*i/K, v=alive(tt), y=yv(v);
+      if(y===null) break;
+      pts.push([X(tt),Y(y)]);
+    }
+  }
+  return PL(pts,o.col,2,null,0.95);
+}
+/* 整数の半減期ごとに点を打ち、二項分布の \u00B11\u03C3 を誤差棒で添える */
+function markers(X,Y,tm,tnow,N0,isLog){
+  const o=nuc();
+  let s='';
+  for(let k=0;k<=tm;k++){
+    if(k>tnow+1e-9) break;
+    const p=survive(k), mu=N0*p, sd=Math.sqrt(N0*p*(1-p));
+    const n=alive(k);
+    const yv=v=>isLog?(v>=1?Math.log10(v):null):v;
+    const lo=yv(Math.max(isLog?1:0,mu-sd)), hi=yv(mu+sd);
+    if(lo!==null&&hi!==null&&sd>0.4){
+      s+=LN(X(k),Y(lo),X(k),Y(hi),MUT,1.4,null,0.7);
+      s+=LN(X(k)-3,Y(hi),X(k)+3,Y(hi),MUT,1.2,null,0.7);
+      s+=LN(X(k)-3,Y(lo),X(k)+3,Y(lo),MUT,1.2,null,0.7);
+    }
+    const y=yv(n);
+    if(y!==null) s+=CIRC(X(k),Y(y),3.3,o.col,'#fff',1.3);
+  }
+  return s;
+}
+function drawSimQ(){
+  const o=nuc(), N0=ST.N0, t=ST.tsim;
+  const p=survive(t), mu=N0*p, sd=Math.sqrt(N0*p*(1-p));
+  const n=alive(t), d=n-mu;
+  const z=sd>0?d/sd:0;
+  const relS=N0>0?1/Math.sqrt(N0):0;
+  let cls='ok';
+  if(Math.abs(z)>2) cls='up'; else if(Math.abs(z)>1) cls='lock';
+  put('simq',
+    qc('残存数（実測）',String(n),'乱数を引いた結果',n<mu?'dn':'up')+
+    qc('期待値 N\u2080\u00B72^(\u2212t/T)',fmt(mu,5),'指数法則が言う値','flat')+
+    qc('差',(d>=0?'+':'\u2212')+fmt(Math.abs(d),4),'標準偏差 \u03C3 = '+fmt(sd,3)+' 個',cls)+
+    qc('ずれ / \u03C3',(z>=0?'+':'\u2212')+fmt(Math.abs(z),3),'\u00B12\u03C3 に収まるのが 95%',cls)+
+    qc('半減期時点の相対ゆらぎ',fmt(relS*100,3)+' %','1/\u221AN\u2080','flat')+
+    qc('いま残っている核でのゆらぎ',n>0?fmt(100/Math.sqrt(n),3)+' %':'\u2014','\u221AN(t)/N(t)','flat')+
+    qc('崩壊した核の数',String(N0-n),o.sym+' \u2192 '+o.dnm,'flat')+
+    qc('実時間',secStr(t*Tsec(o),4),o.sym+' の半減期 '+nucTLabel(o),'flat'));
+  put('simnote',
+    'グレーの破線が理論曲線、色つきの線が乱数を引いた結果。'+
+    'いまの時点で実測は期待値から '+fmt(Math.abs(z),3)+'\u03C3 離れている。'+
+    (N0>=1000
+      ? 'N\u2080 = '+N0+' もあると相対ゆらぎが '+fmt(relS*100,3)+'% しかないので、線が理論曲線にほぼ貼りついて見える。'
+      : 'N\u2080 = '+N0+' だと相対ゆらぎが '+fmt(relS*100,3)+'% あり、階段の1段1段が目に見える。指数法則が「期待値の式でしかない」ことがはっきり出る。')+
+    ' 個数を10個に落として何度か再実行してみてほしい。半分になる時刻が実行ごとに大きく動く。'+
+    ' 片対数のほうを見ると、終盤で点が理論の直線から外れて散らばりはじめる。残りが少ないところは \u221AN のゆらぎが効くからで、'+
+    '測定の失敗ではなく統計そのもの。この領域の点に重みなしの最小二乗を当てると推定が歪む。');
+}
+function drawFitTab(){
+  const o=nuc(), T=Tsec(o), fit=fitSlope();
+  const N0=ST.N0;
+  const Tmle=LN2*SIM.mean;                 /* T̂/T。t̄ の期待値は 1/ln2 */
+  const sdMle=1/Math.sqrt(N0);
+  const lamHatBias=1/(LN2*SIM.mean);       /* λ̂/λ */
+  let tb='<table><caption>同じデータから半減期を推定する2通りのやり方（N\u2080 = '+N0+'、真の T を 1 とした比で表示）</caption>'+
+    '<thead><tr><th>やり方</th><th>推定値 T&#770;/T</th><th>真値からのずれ</th><th>理論的な標準偏差</th><th>偏り</th></tr></thead><tbody>';
+  if(fit){
+    tb+='<tr><td>片対数に重みなし最小二乗<br><span class="sub">傾き '+fmt(fit.slope,5)+'（真値 \u2212ln2 = \u2212'+fmt(LN2,5)+'）</span></td>'+
+      '<td class="num">'+fmt(fit.That,5)+'</td><td class="num">'+((fit.That-1>=0?'+':'\u2212')+fmt(Math.abs(fit.That-1)*100,3))+' %</td>'+
+      '<td class="num">\u2014</td><td>終盤の点が過大に効くので歪む</td></tr>';
+  }
+  tb+='<tr class="hi"><td>崩壊時刻の平均から<br><span class="sub">T&#770; = ln2 \u00B7 t&#772;</span></td>'+
+    '<td class="num">'+fmt(Tmle,5)+'</td><td class="num">'+((Tmle-1>=0?'+':'\u2212')+fmt(Math.abs(Tmle-1)*100,3))+' %</td>'+
+    '<td class="num">1/\u221AN\u2080 = '+fmt(sdMle*100,3)+' %</td><td>不偏</td></tr>';
+  tb+='<tr><td>崩壊定数から逆算<br><span class="sub">\u03BB&#770; = 1/t&#772;、T&#770; = ln2/\u03BB&#770;</span></td>'+
+    '<td class="num">'+fmt(1/lamHatBias,5)+'</td><td class="num">\u2014</td><td class="num">\u2014</td>'+
+    '<td>\u03BB&#770; は E[\u03BB&#770;] = N\u2080\u03BB/(N\u2080\u22121) と上に偏る（+'+fmt(100/(N0-1),3)+' %）</td></tr>';
+  tb+='</tbody></table>';
+  put('fittab',tb);
+  put('fitnote',
+    '実時間に直すと、崩壊時刻の平均から出した半減期は '+secStr(Tmle*T,5)+'。'+o.sym+' の真値 '+nucTLabel(o)+' に対して '+
+    ((Tmle-1>=0?'+':'\u2212')+fmt(Math.abs(Tmle-1)*100,3))+'% ずれている。'+
+    '理論的な標準偏差は T/\u221AN\u2080 = '+fmt(sdMle*100,3)+'% なので、'+
+    (Math.abs(Tmle-1)<sdMle?'ちょうど1\u03C3 の内側に収まっている。':'今回は1\u03C3 の外に出た。20% くらいの確率で起きる。')+
+    ' 崩壊定数を先に推定してから逆数を取ると上に偏るのは、1/x が凸関数だから（イェンセンの不等式）。'+
+    'N\u2080 が小さいほど効き、N\u2080 = 10 で +11%、100 で +1.0%、1000 で +0.1%。'+
+    '同じデータから同じ量を出しているのに、順序を変えるだけで系統誤差が生まれる。');
+}
+
+/* ---------- ゆらぎ ---------- */
+function drawHist(){
+  const W=narrow?360:740, H=narrow?230:250;
+  setVB('sv-hist',W,H);
+  const n=FLU.N, tr=FLU.tr, cnt=FLU.cnt;
+  const mu=n/2, sd=Math.sqrt(n)/4>0?Math.sqrt(n*0.25):1;
+  const ml=narrow?38:46, px=ml, py=24, pw=W-ml-(narrow?12:20), ph=H-py-(narrow?46:48);
+  /* ビンを決める */
+  let klo,khi,bw;
+  if(n<=60){ klo=Math.max(0,Math.round(mu-4.5*sd)); khi=Math.min(n,Math.round(mu+4.5*sd)); bw=1; }
+  else { const half=Math.ceil(4.5*sd); klo=Math.max(0,Math.round(mu-half)); khi=Math.min(n,Math.round(mu+half)); bw=Math.max(1,Math.round((khi-klo)/38)); }
+  const nb=Math.max(1,Math.ceil((khi-klo+1)/bw));
+  const hist=new Array(nb).fill(0);
+  for(let j=0;j<tr;j++){
+    const b=Math.floor((cnt[j]-klo)/bw);
+    if(b>=0&&b<nb) hist[b]++;
+  }
+  /* 厳密な二項分布と正規近似（同じビン幅に揃える） */
+  const bino=new Array(nb).fill(0), nrm=new Array(nb).fill(0);
+  for(let b=0;b<nb;b++){
+    let sB=0;
+    for(let k=klo+b*bw;k<klo+(b+1)*bw;k++) sB+=binomPMF(n,k,0.5);
+    bino[b]=sB*tr;
+    const c=klo+b*bw+(bw-1)/2;
+    nrm[b]=normPDF(c,mu,sd)*bw*tr;
+  }
+  let ymax=0;
+  for(let b=0;b<nb;b++) ymax=Math.max(ymax,hist[b],bino[b],nrm[b]);
+  ymax=niceCeil(ymax*1.12);
+  const X=v=>px+(v-klo)/Math.max(1,(khi-klo+1))*pw, Y=v=>py+ph-v/ymax*ph;
+  const xt=[], nx=narrow?4:7;
+  const stp=niceCeil((khi-klo)/nx);
+  for(let v=Math.ceil(klo/stp)*stp;v<=khi;v+=stp) xt.push({v:v,lab:String(v),mj:1});
+  const yt=ticks(0,ymax,4);
+  let s=axes(px,py,pw,ph,xt,yt,X,Y,'半減期の時点で残っていた核の個数','回数（'+tr+' 回の実験）');
+  const cwid=pw/Math.max(1,(khi-klo+1))*bw;
+  const o=nuc();
+  for(let b=0;b<nb;b++){
+    if(hist[b]<=0) continue;
+    const x=X(klo+b*bw);
+    s+=RECT(x,Y(hist[b]),Math.max(0.8,cwid-0.8),py+ph-Y(hist[b]),o.col,null,0,null,0.42);
+  }
+  const pb=[],pn=[];
+  for(let b=0;b<nb;b++){
+    const x=X(klo+b*bw+bw/2);
+    pb.push([x,Y(bino[b])]); pn.push([x,Y(nrm[b])]);
+  }
+  s+=PL(pn,CGOLD,1.6,'4 3',0.95);
+  s+=PL(pb,INK,1.9);
+  /* 平均と ±σ */
+  s+=LN(X(mu),py,X(mu),py+ph,CCRM,1.3,'4 3',0.85);
+  s+=TX(X(mu),py-6,'N\u2080/2 = '+fmt(mu,5),CCRMT,9.5,'middle');
+  s+=LN(X(mu-sd),py+ph*0.06,X(mu+sd),py+ph*0.06,CCRM,1.4,null,0.75);
+  s+=LN(X(mu-sd),py+ph*0.03,X(mu-sd),py+ph*0.09,CCRM,1.4,null,0.75);
+  s+=LN(X(mu+sd),py+ph*0.03,X(mu+sd),py+ph*0.09,CCRM,1.4,null,0.75);
+  s+=TX(X(mu+sd)+5,py+ph*0.09,'\u00B11\u03C3 = \u00B1'+fmt(sd,4),CCRMT,9,'start');
+  put('hist-g',s);
+  put('histleg',
+    swb(o.col,'乱数で実際に出た回数')+
+    swl(INK,'二項分布 Bin(N\u2080, 1/2) の厳密値')+
+    swl(CGOLD,'正規近似 N(N\u2080/2, N\u2080/4)'));
+
+  /* 統計 */
+  let sm=0,ss=0;
+  for(let j=0;j<tr;j++) sm+=cnt[j];
+  const emp=sm/tr;
+  for(let j=0;j<tr;j++) ss+=(cnt[j]-emp)*(cnt[j]-emp);
+  const esd=Math.sqrt(ss/Math.max(1,tr-1));
+  let maxdiff=0,argk=klo;
+  for(let k=klo;k<=khi;k++){
+    const d=Math.abs(binomPMF(n,k,0.5)-normPDF(k,mu,sd));
+    if(d>maxdiff){ maxdiff=d; argk=k; }
+  }
+  put('flustats',
+    stt('N\u2080',String(n))+
+    stt('繰り返した回数',String(tr))+
+    stt('理論の期待値 N\u2080/2',fmt(mu,5))+
+    stt('実験の平均',fmt(emp,5))+
+    stt('理論の \u03C3 = \u221A(N\u2080/4)',fmt(sd,4))+
+    stt('実験の標準偏差',fmt(esd,4))+
+    stt('相対ゆらぎ 1/\u221AN\u2080',fmt(100/Math.sqrt(n),4)+' %')+
+    stt('正規近似の最大ずれ',fmt(maxdiff,3)+'（k = '+argk+'）'));
+  put('flunote',
+    'N\u2080 = '+n+' で半減期の時点まで待つと、残る個数は '+fmt(mu,4)+' \u00B1 '+fmt(sd,3)+' 個。'+
+    '相対ゆらぎは 1/\u221AN\u2080 = '+fmt(100/Math.sqrt(n),3)+'%。'+
+    (n<=50
+      ? 'この個数だと分布の幅が広く、山も左右に歪んでいる。正規近似（金色の破線）と厳密な二項分布（黒線）のずれが目で見える。'
+      : '個数が多いと二項分布と正規近似がほぼ重なる。N\u2080p と N\u2080(1\u2212p) がどちらも 10 を超えると近似が使えるようになる、という目安どおり。')+
+    ' 実験の標準偏差 '+fmt(esd,3)+' が理論の '+fmt(sd,3)+' に近いことも確かめてほしい。'+
+    'これは「測定がうまくいっていない」のではなく、そもそも自然がこの幅でばらついている。');
+}
+function drawTHist(){
+  const W=narrow?360:740, H=narrow?210:230;
+  setVB('sv-thist',W,H);
+  const n=FLU.N, tr=FLU.tr, arr=FLU.That;
+  const ml=narrow?38:46, px=ml, py=24, pw=W-ml-(narrow?12:20), ph=H-py-(narrow?44:46);
+  const sd=1/Math.sqrt(n);
+  const lo=Math.max(0.02,1-4.6*sd), hi=1+5.4*sd;
+  const nb=narrow?26:40, bw=(hi-lo)/nb;
+  const hist=new Array(nb).fill(0);
+  for(let j=0;j<tr;j++){
+    const b=Math.floor((arr[j]-lo)/bw);
+    if(b>=0&&b<nb) hist[b]++;
+  }
+  const gam=new Array(nb).fill(0), nrm=new Array(nb).fill(0);
+  for(let b=0;b<nb;b++){
+    const c=lo+(b+0.5)*bw;
+    gam[b]=gammaPDF(c,n,1/n)*bw*tr;
+    nrm[b]=normPDF(c,1,sd)*bw*tr;
+  }
+  let ymax=0;
+  for(let b=0;b<nb;b++) ymax=Math.max(ymax,hist[b],gam[b],nrm[b]);
+  ymax=niceCeil(ymax*1.12);
+  const X=v=>px+(v-lo)/(hi-lo)*pw, Y=v=>py+ph-v/ymax*ph;
+  const xt=ticks(lo,hi,narrow?4:6);
+  const yt=ticks(0,ymax,4);
+  let s=axes(px,py,pw,ph,xt,yt,X,Y,'推定した半減期 T&#770; / T（真値が 1）','回数');
+  const o=nuc();
+  for(let b=0;b<nb;b++){
+    if(hist[b]<=0) continue;
+    s+=RECT(X(lo+b*bw),Y(hist[b]),Math.max(0.8,pw/nb-0.8),py+ph-Y(hist[b]),o.col,null,0,null,0.42);
+  }
+  const pg=[],pn=[];
+  for(let b=0;b<nb;b++){ const x=X(lo+(b+0.5)*bw); pg.push([x,Y(gam[b])]); pn.push([x,Y(nrm[b])]); }
+  s+=PL(pn,CGOLD,1.6,'4 3',0.95);
+  s+=PL(pg,INK,1.9);
+  s+=LN(X(1),py,X(1),py+ph,CCRM,1.3,'4 3',0.85);
+  s+=TX(X(1),py-6,'真値 T',CCRMT,9.5,'middle');
+  put('thist-g',s);
+
+  let sm=0;
+  for(let j=0;j<tr;j++) sm+=arr[j];
+  const emp=sm/tr;
+  let ss=0;
+  for(let j=0;j<tr;j++) ss+=(arr[j]-emp)*(arr[j]-emp);
+  const esd=Math.sqrt(ss/Math.max(1,tr-1));
+  /* 歪度（ガンマ分布は 2/√n） */
+  let s3=0;
+  for(let j=0;j<tr;j++) s3+=Math.pow(arr[j]-emp,3);
+  const skew=(s3/tr)/Math.pow(esd,3);
+  let tb='<table><caption>個数を変えるとゆらぎがどう変わるか（理論値）</caption>'+
+    '<thead><tr><th>N&#8320;</th><th>半減期時点の \u03C3</th><th>相対ゆらぎ 1/\u221AN&#8320;</th><th>T&#770; の標準偏差</th><th>T&#770; 分布の歪度 2/\u221AN&#8320;</th><th>\u03BB&#770;=1/t&#772; の偏り</th></tr></thead><tbody>';
+  for(const N of [10,50,100,1000,10000,1000000]){
+    const cur=(N===n)?' class="cur"':'';
+    tb+='<tr'+cur+'><td class="num">'+(N>=10000?expo(N,0):N)+'</td>'+
+      '<td class="num">'+fmt(Math.sqrt(N)/2,4)+' 個</td>'+
+      '<td class="num">'+fmt(100/Math.sqrt(N),3)+' %</td>'+
+      '<td class="num">'+fmt(100/Math.sqrt(N),3)+' % of T</td>'+
+      '<td class="num">'+fmt(2/Math.sqrt(N),3)+'</td>'+
+      '<td class="num">+'+fmt(100/(N-1),3)+' %</td></tr>';
+  }
+  tb+='</tbody></table>';
+  put('flutab',tb);
+  put('flutabnote',
+    'いまの N\u2080 = '+n+' では、'+tr+' 回の実験で T&#770;/T の平均が '+fmt(emp,5)+'、標準偏差が '+fmt(esd,4)+'。'+
+    '理論値は平均 1、標準偏差 1/\u221AN\u2080 = '+fmt(sd,4)+'。'+
+    '実験の歪度 '+fmt(skew,3)+' も理論の 2/\u221AN\u2080 = '+fmt(2/Math.sqrt(n),3)+' に近い。'+
+    'ガンマ分布は右に裾を引くので、半減期を過大評価する側の外れ値のほうが起きやすい。'+
+    'N\u2080 を 10 にすると歪みがはっきり出て、正規近似（金色の破線）が左側で山を外す。'+
+    ' 逆に N\u2080 が 10\u2076 もあれば相対ゆらぎは 0.1% で、指数法則が「決定論的な法則」に見えてくる。'+
+    '実際の測定で半減期の相対不確かさが 10\u207B\u2074 級に達している核種があるのは、計数が桁違いに多いから。');
+}
+
+/* ---------- 核種の一覧 ---------- */
+const TBAR={x0:0,x1:0,lo:0,hi:0,rows:[]};
+function drawTbar(){
+  const W=narrow?360:740;
+  const rows=NUCS.slice().sort((a,b)=>Tsec(a)-Tsec(b));
+  const rh=narrow?30:28;
+  const H=Math.round(34+rows.length*rh+(narrow?30:26));
+  setVB('sv-tbar',W,H);
+  const lo=2, hi=18;   /* log10(秒) */
+  const px=narrow?46:70, pw=W-px-(narrow?14:24), py=30;
+  const X=v=>px+(v-lo)/(hi-lo)*pw;
+  TBAR.x0=px; TBAR.x1=px+pw; TBAR.lo=lo; TBAR.hi=hi; TBAR.rows=[];
+  let s=RECT(px,py-6,pw,rows.length*rh+2,'#fff',SOFT,1);
+  for(let e=lo;e<=hi;e+=2){
+    s+=LN(X(e),py-6,X(e),py+rows.length*rh-4,SOFT,1);
+    s+=TX(X(e),py-11,'10^'+e,MUT,8.5,'middle');
+  }
+  /* 目印になる時間 */
+  const marks=[[MINU,'1分'],[HOUR,'1時間'],[DAY,'1日'],[YEAR,'1年'],[1000*YEAR,'1000年'],[1e9*YEAR,'10億年']];
+  for(const [sec,lab] of marks){
+    const e=Math.log10(sec); if(e<lo||e>hi) continue;
+    s+=LN(X(e),py-6,X(e),py+rows.length*rh-4,CGOLD,1,'2 3',0.5);
+    s+=TXJ(X(e),H-(narrow?16:12),lab,CGOLDT,narrow?8.5:9,'middle');
+  }
+  for(let i=0;i<rows.length;i++){
+    const o=rows[i], y=py+i*rh+rh/2-4, e=Math.log10(Tsec(o));
+    const on=(o.id===ST.nuc);
+    TBAR.rows.push({id:o.id,y:y});
+    s+=LN(px,y+3,X(e),y+3,o.col,on?3.4:2.2,null,on?1:0.55);
+    s+=CIRC(X(e),y+3,on?5.4:4,o.col,'#fff',1.5);
+    s+=TX(px-5,y+6.5,o.sym,on?INK:MUT,narrow?10.5:11.5,'end',on?'600':null);
+    const lab=nucTLabel(o);
+    const rightSide=(X(e)<px+pw*0.72);
+    s+=TX(X(e)+(rightSide?9:-9),y+6.5,lab,on?o.colt:MUT,narrow?9:10,rightSide?'start':'end',on?'600':null);
+  }
+  put('tbar-g',s);
+}
+function drawNucTab(){
+  let tb='<table><caption>核種データ（半減期の短い順）。比放射能は a = ln2&middot;N<sub>A</sub>/(T&middot;M) から計算した</caption>'+
+    '<thead><tr><th>核種</th><th>半減期</th><th>崩壊</th><th>娘核</th><th>Q [MeV]</th><th>主な放出</th><th>比放射能 [Bq/g]</th><th>1 MBq の質量</th></tr></thead><tbody>';
+  const rows=NUCS.slice().sort((a,b)=>Tsec(a)-Tsec(b));
+  for(const o of rows){
+    const m=modeOf(o.mode), sa=specAct(o), cur=(o.id===ST.nuc)?' class="cur"':'';
+    let emit='';
+    if(o.mode==='a') emit='&alpha; '+fmt(Ealpha(o.Q,o.Md),5)+' MeV';
+    else if(o.mode==='b-') emit='&beta;<sup>&minus;</sup> 最大 '+fmt(o.Qb,4)+' MeV'+(o.gam>0?' / &gamma; '+fmt(o.gam*1000,4)+' keV':'');
+    else if(o.mode==='b+') emit='&beta;<sup>+</sup> 最大 '+fmt(o.Qb,4)+' MeV / 消滅 511 keV';
+    else emit='&gamma; '+fmt(o.gam*1000,5)+' keV';
+    tb+='<tr'+cur+'><td><b>'+o.sym+'</b><br><span class="sub">'+o.nm+'</span></td>'+
+      '<td class="num">'+nucTLabel(o)+'</td>'+
+      '<td><span class="tag '+m.cls+'">'+m.lbl+'</span></td>'+
+      '<td>'+o.dnm+'</td><td class="num">'+fmt(o.Q,5)+'</td><td>'+emit+'</td>'+
+      '<td class="num">'+fmtU(sa,'',4)+'</td>'+
+      '<td class="num">'+fmtU(1e6/sa,'g',3)+'</td></tr>';
+  }
+  tb+='</tbody></table>';
+  put('nuctab',tb);
+  const o=nuc();
+  put('nucnote',
+    '比放射能は半減期に反比例する。'+
+    '&sup1;&#8312;F は 1 g で 3.5&times;10<sup>18</sup> Bq、&sup2;&sup3;&#8312;U は 1 g で 12.4 kBq。14 桁違う。'+
+    '検査1回ぶんの 250 MBq を &sup1;&#8312;F でまかなうのに必要な質量は 71 ピコグラムしかない。'+
+    'FDG として投与されるフッ素のうち放射性のものはこれだけで、残りは安定な &sup1;&#8309;F と担体。'+
+    'いま選んでいる '+o.sym+' は '+o.use+'。'+
+    ' 注記：'+o.note);
+}
+function drawQTab(){
+  let tb='<table><caption>質量から出した Q 値と、評価済みの Q 値の突き合わせ</caption>'+
+    '<thead><tr><th>核種</th><th>崩壊</th><th>M<sub>親</sub> [u]</th><th>M<sub>娘</sub> [u]</th><th>質量から Q</th><th>評価値 Q</th><th>差</th><th>放出粒子のエネルギー</th></tr></thead><tbody>';
+  const rows=NUCS.slice().sort((a,b)=>b.Q-a.Q);
+  for(const o of rows){
+    const qm=Qmass(o), d=qm-o.Q, cur=(o.id===ST.nuc)?' class="cur"':'';
+    const m=modeOf(o.mode);
+    let e='';
+    if(o.mode==='a'){
+      const Ea=Ealpha(o.Q,o.Md), rec=o.Q-Ea;
+      e='&alpha; '+fmt(Ea,6)+' MeV<br><span class="sub">娘核の反跳 '+fmt(rec*1000,4)+' keV</span>';
+    } else if(o.mode==='b+'){
+      e='&beta;<sup>+</sup> 最大 '+fmt(o.Qb,5)+' MeV<br><span class="sub">Q<sub>EC</sub> &minus; 1.02200 = '+fmt(Qbeta(o),5)+' MeV／平均は約 '+fmt(o.Qb/3,3)+' MeV</span>';
+    } else if(o.mode==='b-'){
+      e='&beta;<sup>&minus;</sup> 最大 '+fmt(o.Qb,5)+' MeV<br><span class="sub">平均は約 '+fmt(o.Qb/3,3)+' MeV</span>';
+    } else {
+      e='&gamma; '+fmt(o.gam*1000,6)+' keV<br><span class="sub">内部転換で電子が出る分岐もある</span>';
+    }
+    tb+='<tr'+cur+'><td><b>'+o.sym+'</b></td><td><span class="tag '+m.cls+'">'+m.lbl+'</span></td>'+
+      '<td class="num">'+o.Mp.toFixed(8)+'</td><td class="num">'+o.Md.toFixed(8)+'</td>'+
+      '<td class="num">'+fmt(qm,6)+'</td><td class="num">'+fmt(o.Q,6)+(o.mode==='b+'?'<br><span class="sub">Q<sub>EC</sub></span>':'')+'</td>'+
+      '<td class="num">'+(d>=0?'+':'\u2212')+fmt(Math.abs(d)*1000,3)+' keV</td><td>'+e+'</td></tr>';
+  }
+  tb+='</tbody></table>';
+  put('qtab',tb);
+  put('qnote',
+    '質量差から出した Q は評価値と 1&ndash;2 keV ずれる。原子質量を 8 桁で丸めているせいで、'+
+    '4.87 MeV に対して 0.03% ほど。以下の計算は評価済みの Q を採用した。'+
+    ' &alpha;崩壊では娘核も反跳するので、&alpha;粒子が Q を全部持っていくわけではない。'+
+    '&sup2;&sup3;&#8312;U では Q = 4.2699 MeV のうち 71.8 keV が娘核に回る。'+
+    'この反跳エネルギーは化学結合の数 eV より4桁大きいので、&alpha;崩壊が起きた瞬間に娘原子は結晶格子から確実にはじき飛ばされる。'+
+    ' &beta;線が線スペクトルにならないのは、反ニュートリノがエネルギーを分け合う3体崩壊だから。'+
+    '0 から Q までの連続分布になり、平均はおよそ Q/3。'+
+    'この連続スペクトルはエネルギー保存則が破れているようにしか見えず、その説明のためにパウリが1930年にニュートリノを持ち出した。'+
+    ' &beta;<sup>+</sup>崩壊だけ質量差から 2m<sub>e</sub>c&sup2; = 1.022 MeV を引くのは、'+
+    '原子質量が電子込みの値だから。娘の原子番号が1減るぶん電子が1個余り、さらに陽電子を1個作るので、合わせて電子2個ぶん。'+
+    'この敷居に届かない核種は &beta;<sup>+</sup> を出せず、電子捕獲だけになる。');
+}
+/* ---------- 年代測定 ---------- */
+const DATEP={x0:0,x1:0,tm:0};
+function drawDate(){
+  const W=narrow?360:740, H=narrow?230:238;
+  setVB('sv-date',W,H);
+  const c14=NUCS.filter(x=>x.id==='C14')[0];
+  const T=c14.T;                       /* 年 */
+  const TL=5568, TC=5730;              /* リビー値とケンブリッジ値 */
+  const px=narrow?44:58, py=24, pw=W-px-(narrow?14:22), ph=H-py-(narrow?50:52);
+  const tm=60000;                      /* 年 */
+  const X=v=>px+v/tm*pw, Y=v=>py+ph-Math.max(0,v)/100*ph;
+  DATEP.x0=px; DATEP.x1=px+pw; DATEP.tm=tm;
+  const xt=[];
+  for(let v=0;v<=tm;v+=10000) xt.push({v:v,lab:(v/1000)+'k',mj:1});
+  const yt=[];
+  for(let v=0;v<=100;v+=20) yt.push({v:v,lab:String(v),mj:1});
+  let s=axes(px,py,pw,ph,xt,yt,X,Y,'経過年数 [年]','残存率 [%]');
+  for(const [Th,col,lab,dash] of [[T,c14.col,'5700 年（現行評価）',null],[TL,CGOLD,'5568 年（リビー値）','4 3'],[TC,CBLU,'5730 年（ケンブリッジ値）','2 3']]){
+    const p=[];
+    for(let i=0;i<=280;i++){ const t=tm*i/280; p.push([X(t),Y(100*Math.pow(2,-t/Th))]); }
+    s+=PL(p,col,Th===T?2.2:1.4,dash,Th===T?1:0.85);
+  }
+  /* 検出限界のあたり */
+  s+=RECT(X(50000),py,X(tm)-X(50000),ph,'#F2F4F3',null,0,null,0.9);
+  s+=TXJ(X(50000)+5,py+13,'この先は残存率が低すぎて測れない',MUT,narrow?8.5:9.5,'start');
+  /* 現在の残存率 */
+  const f=ST.dateF/100;
+  const age=T/LN2*Math.log(1/f);
+  s+=LN(px,Y(ST.dateF),X(Math.min(age,tm)),Y(ST.dateF),INK,1.2,'4 3',0.8);
+  s+=LN(X(Math.min(age,tm)),Y(ST.dateF),X(Math.min(age,tm)),py+ph,INK,1.2,'4 3',0.8);
+  s+=CIRC(X(Math.min(age,tm)),Y(ST.dateF),4.4,c14.col,'#fff',1.6);
+  s+=TX(X(Math.min(age,tm))+7,Y(ST.dateF)-7,fmt(age,4)+' 年前',c14.colt,narrow?10:11,'start','600');
+  put('date-g',s);
+  const ageL=TL/LN2*Math.log(1/f), ageC=TC/LN2*Math.log(1/f);
+  put('datestats',
+    stt('残存率 A/A<sub>0</sub>',fmt(ST.dateF,4)+' %')+
+    stt('半減期を何回ぶん',fmt(Math.log2(1/f),4)+' 回')+
+    stt('年代（T = 5700 年）',fmt(age,5)+' 年前')+
+    stt('年代（リビー値 5568 年）',fmt(ageL,5)+' 年前')+
+    stt('差',mn((ageL-age).toFixed(0))+' 年（'+fmt((ageL/age-1)*100,3)+' %）')+
+    stt('年代（ケンブリッジ値 5730 年）',fmt(ageC,5)+' 年前'));
+  put('datenote',
+    't = (T/ln2)&middot;ln(A<sub>0</sub>/A) で年代が出る。'+
+    '半減期を1つ変えると年代がそのまま比例して動くので、どの値を使ったかを明記しないと数字が比較できない。'+
+    'リビーが1949年に決めた 5568 年は現行評価の 5700 年より 2.3% 短く、'+
+    '同じ残存率 '+fmt(ST.dateF,3)+'% でも '+fmt(age,4)+' 年前が '+fmt(ageL,4)+' 年前になる。'+
+    'それでも年代測定の報告では今もリビー値で計算した「慣用放射性炭素年代」を出す慣習が残っている。'+
+    '過去の測定値との互換性を保つためで、実際の暦年代に直すときは較正曲線（IntCal）を通す。'+
+    'この較正は半減期の違いだけでなく、大気中の &sup1;&#8308;C 濃度が時代によって変動したぶんも一緒に補正する。'+
+    ' 測定の限界は 5 万年あたり。半減期8.8回ぶんで残存率が 0.2% を切り、バックグラウンドに埋もれる。'+
+    'このページは 5700 年を採用した。');
+}
+
+/* ---------- ガイガー・ヌッタルの法則 ---------- */
+function gnData(){
+  const out=[];
+  for(const u of USER){
+    if(u.mode!=='a') continue;
+    const Ts=u.T*T_UNITS[u.Tu];
+    out.push({sym:u.sym,Zd:u.Z-2,Q:u.Q,x:(u.Z-2)/Math.sqrt(u.Q),y:Math.log10(Ts),Ts:Ts,
+              col:(u.el==='Po')?CCRM:(u.el==='U'?CGOLD:(u.el==='Th'?CGRN:(u.el==='Ra'?CPUR:CBLU)))});
+  }
+  let sx=0,sy=0,sxx=0,sxy=0,n=out.length;
+  for(const p of out){ sx+=p.x; sy+=p.y; sxx+=p.x*p.x; sxy+=p.x*p.y; }
+  const b=(n*sxy-sx*sy)/(n*sxx-sx*sx), a=(sy-b*sx)/n;
+  let ss=0,st=0; const ybar=sy/n;
+  for(const p of out){ const r=p.y-(a+b*p.x); p.res=r; ss+=r*r; st+=(p.y-ybar)*(p.y-ybar); }
+  return {pts:out,a:a,b:b,r2:1-ss/st,rmse:Math.sqrt(ss/n)};
+}
+let GN=null;
+function drawGN(){
+  if(!GN) GN=gnData();
+  const W=narrow?360:740, H=narrow?250:262;
+  setVB('sv-gn',W,H);
+  const px=narrow?42:56, py=24, pw=W-px-(narrow?16:26), ph=H-py-(narrow?48:50);
+  let xlo=1e9,xhi=-1e9,ylo=1e9,yhi=-1e9;
+  for(const p of GN.pts){ xlo=Math.min(xlo,p.x); xhi=Math.max(xhi,p.x); ylo=Math.min(ylo,p.y); yhi=Math.max(yhi,p.y); }
+  xlo-=1.4; xhi+=1.4; ylo-=1.8; yhi+=1.8;
+  const X=v=>px+(v-xlo)/(xhi-xlo)*pw, Y=v=>py+ph-(v-ylo)/(yhi-ylo)*ph;
+  const xt=ticks(xlo,xhi,narrow?4:6);
+  const yt=[];
+  for(let e=Math.ceil(ylo/5)*5;e<=yhi;e+=5) yt.push({v:e,lab:'10^'+e,mj:1});
+  let s=axes(px,py,pw,ph,xt,yt,X,Y,'Z\u2091 / \u221AQ　（娘核の原子番号 \u00F7 \u221A崩壊エネルギー）','半減期 [s]');
+  s+=PL([[X(xlo),Y(GN.a+GN.b*xlo)],[X(xhi),Y(GN.a+GN.b*xhi)]],INK,1.6,'4 3',0.9);
+  for(const p of GN.pts){
+    s+=CIRC(X(p.x),Y(p.y),4.6,p.col,'#fff',1.5);
+    s+=TX(X(p.x)+(p.x>(xlo+xhi)/2?-8:8),Y(p.y)+3.5,p.sym,p.colt||MUT,narrow?9:10,p.x>(xlo+xhi)/2?'end':'start');
+  }
+  s+=TXJ(px+6,py+14,'log\u2081\u2080T = '+fmt(GN.b,5)+' \u00B7 Z\u2091/\u221AQ '+(GN.a>=0?'+ ':'\u2212 ')+fmt(Math.abs(GN.a),5),INK,narrow?9.5:10.5,'start','600');
+  s+=TXJ(px+6,py+28,'決定係数 R\u00B2 = '+fmt(GN.r2,5),MUT,narrow?9:10,'start');
+  put('gn-g',s);
+  let tb='<table><caption>ウラン系列の &alpha;放出核8個。Q が 1.8 倍になるだけで半減期が21桁縮む</caption>'+
+    '<thead><tr><th>核種</th><th>Q [MeV]</th><th>&alpha;線 [MeV]</th><th>半減期</th><th>Z\u2091/\u221AQ</th><th>log\u2081\u2080T</th><th>直線からのずれ</th></tr></thead><tbody>';
+  const srt=GN.pts.slice().sort((a,b)=>a.y-b.y);
+  for(const p of srt){
+    const u=USER.filter(z=>z.sym===p.sym)[0];
+    tb+='<tr><td><b>'+p.sym+'</b></td><td class="num">'+fmt(p.Q,5)+'</td>'+
+      '<td class="num">'+fmt(p.Q*(u.A-4)/u.A,5)+'</td>'+
+      '<td class="num">'+secStr(p.Ts,4)+'</td>'+
+      '<td class="num">'+fmt(p.x,5)+'</td><td class="num">'+(p.y>=0?'+':'\u2212')+fmt(Math.abs(p.y),4)+'</td>'+
+      '<td class="num">'+(p.res>=0?'+':'\u2212')+fmt(Math.abs(p.res),3)+'</td></tr>';
+  }
+  tb+='</tbody></table>';
+  put('gntab',tb);
+  put('gnnote',
+    'Q が 4.27 MeV（&sup2;&sup3;&#8312;U）から 7.83 MeV（&sup2;&sup1;&#8308;Po）へ 1.8 倍になるだけで、'+
+    '半減期が 45 億年から 164 &micro;s へ、21 桁縮む。'+
+    '半減期そのものではなく log&#8321;&#8320;T を Z\u2091/\u221AQ に対して打つと、ばらつきが '+fmt(GN.rmse,3)+' 桁（およそ '+fmt(Math.pow(10,GN.rmse),3)+' 倍）に収まる。'+
+    '21 桁の広がりが、たった2つの量でここまで説明できる。'+
+    ' 中身はトンネル効果。&alpha;粒子は核の中でクーロン障壁に閉じ込められていて、'+
+    '透過確率が障壁の高さと幅に対して指数的に効く。Q が大きいほど障壁の薄いところを抜けられるので、'+
+    'わずかなエネルギー差が指数関数で増幅される。ガモフが1928年に量子力学で説明した最初の原子核現象がこれ。'+
+    ' 高校範囲を超えるが、「なぜ核種によって半減期がこんなに違うのか」という問いには、これ以外に答えようがない。');
+}
+
+/* ---------- 核図表 ---------- */
+const CHART={cells:[],cw:0,x0:0,y0:0,Nlo:0,Zhi:0};
+function drawChart(){
+  const W=narrow?360:740;
+  const Nlo=123,Nhi=147,Zlo=81,Zhi=93;
+  const ncol=Nhi-Nlo+1, nrow=Zhi-Zlo+1;
+  const padl=narrow?26:34, padr=narrow?10:16, padt=18, padb=narrow?30:32;
+  const cw=Math.min((W-padl-padr)/ncol,(narrow?18:26));
+  const gw=cw*ncol, gh=cw*nrow;
+  const H=Math.round(padt+gh+padb);
+  setVB('sv-chart',W,H);
+  const x0=padl+(W-padl-padr-gw)/2, y0=padt;
+  const CX=n=>x0+(n-Nlo+0.5)*cw, CY=z=>y0+(Zhi-z+0.5)*cw;
+  CHART.cw=cw; CHART.x0=x0; CHART.y0=y0; CHART.Nlo=Nlo; CHART.Zhi=Zhi;
+  let s='';
+  /* 格子 */
+  s+=RECT(x0,y0,gw,gh,'#fff',SOFT,1);
+  for(let i=0;i<=ncol;i++) s+=LN(x0+i*cw,y0,x0+i*cw,y0+gh,SOFT,i%5===0?1:0.6,null,i%5===0?0.9:0.5);
+  for(let j=0;j<=nrow;j++) s+=LN(x0,y0+j*cw,x0+gw,y0+j*cw,SOFT,1,null,0.5);
+  /* 軸ラベル */
+  for(let z=Zlo;z<=Zhi;z++){
+    if(z%2!==0&&z!==Zhi) continue;
+    s+=TX(x0-4,CY(z)+3.5,String(z),MUT,narrow?8:9,'end');
+  }
+  for(let n=Nlo;n<=Nhi;n++){
+    if(n%5!==0) continue;
+    s+=TX(CX(n),y0+gh+12,String(n),MUT,narrow?8:9,'middle');
+  }
+  s+=TXJ(x0-4,y0-6,'Z',MUT,9.5,'end');
+  s+=TXJ(x0+gw,y0+gh+24,'中性子数 N',MUT,9.5,'end');
+  /* 系列のマス */
+  const st=ST.step;
+  for(let i=0;i<USER.length;i++){
+    const u=USER[i], n=u.A-u.Z;
+    const on=(i===st), nxt=(i===st+1);
+    const m=modeOf(u.mode);
+    const fill=(u.mode==='st')?'#DDE3E0':m.col;
+    s+=RECT(CX(n)-cw/2+0.8,CY(u.Z)-cw/2+0.8,cw-1.6,cw-1.6,fill,on?INK:'#fff',on?2:0.8,null,on?1:(nxt?0.72:0.42),1);
+    if(cw>=16&&(on||nxt||u.mode==='st'||i===0)){
+      s+=TX(CX(n),CY(u.Z)+3.4,u.el,'#fff',cw*0.42,'middle','600');
+    }
+  }
+  /* マスが小さくて中に字が入らないときは、いまの段だけ吹き出しで出す */
+  if(cw<16){
+    const u=USER[st], n=u.A-u.Z;
+    const up=(u.Z<Zhi-2);
+    s+=TX(CX(n),CY(u.Z)+(up?-cw*0.75:cw*1.35),u.sym,INK,11.5,'middle','600');
+    s+=LN(CX(n),CY(u.Z)+(up?-cw*0.6:cw*0.6),CX(n),CY(u.Z)+(up?-cw*0.35:cw*0.35),INK,1,null,0.6);
+  }
+  /* 矢印 */
+  for(let i=0;i<USER.length-1;i++){
+    const a=USER[i], b=USER[i+1];
+    const na=a.A-a.Z, nb=b.A-b.Z;
+    const m=modeOf(a.mode);
+    const on=(i===st);
+    const x1=CX(na),y1=CY(a.Z),x2=CX(nb),y2=CY(b.Z);
+    const dx=x2-x1,dy=y2-y1,L=Math.hypot(dx,dy);
+    const ux=dx/L,uy=dy/L, off=cw*0.42;
+    s+=AR(x1+ux*off,y1+uy*off,x2-ux*off,y2-uy*off,on?INK:m.col,on?2.4:1.4,on?8:6,on?1:0.55);
+  }
+  /* 現在の段の説明 */
+  const cur=USER[st], m=modeOf(cur.mode);
+  const nn=cur.A-cur.Z;
+  if(cur.mode!=='st'){
+    const nb=USER[st+1];
+    s+=TXJ(x0,y0+gh+(narrow?26:26),cur.sym+' → '+m.lbl+' → '+nb.sym+'　（ΔA = '+m.dA+'、ΔZ = '+(m.dZ>0?'+':'')+m.dZ+'、ΔN = '+(m.dN>0?'+':'')+m.dN+'）',m.colt,narrow?9.5:11,'start','600');
+  } else {
+    s+=TXJ(x0,y0+gh+(narrow?26:26),cur.sym+' は安定。ここで系列が終わる',MUT,narrow?9.5:11,'start','600');
+  }
+  put('chart-g',s);
+  let leg='';
+  for(const md of MODES){
+    if(md.k==='st') continue;
+    leg+=swb(md.col,md.nm+'（ΔZ '+(md.dZ>0?'+':'')+md.dZ+'、ΔN '+(md.dN>0?'+':'')+md.dN+'）');
+  }
+  leg+=swb('#DDE3E0','安定核');
+  put('chartleg',leg);
+
+  const Ts=cur.mode==='st'?Infinity:cur.T*T_UNITS[cur.Tu];
+  let na=0,nb=0;
+  for(let i=0;i<st;i++){ if(USER[i].mode==='a') na++; else if(USER[i].mode==='b-') nb++; }
+  put('chartbig',
+    big('第 '+(st+1)+' 段',cur.sym,cur.mode==='st'?'安定':(m.nm+'　半減期 '+fmt(cur.T,4)+' '+T_LABEL[cur.Tu]))+
+    big('ここまでの \u03B1 / \u03B2',na+' / '+nb,'A = '+cur.A+'、Z = '+cur.Z+'、N = '+nn)+
+    big('残りの段数',String(USER.length-1-st),'\u00B2\u2070\u2076Pb まで'));
+  put('chartnote',
+    '&alpha;崩壊は左下へ2マス、&beta;<sup>&minus;</sup>崩壊は左上へ1マス動く。'+
+    'A が変わるのは &alpha; のときだけで、しかも必ず4ずつ。だから A を4で割った余りは系列を通して保存される。'+
+    '&sup2;&sup3;&#8312;U も &sup2;&#8304;&#8310;Pb も4で割ると2余る（A = 4n+2 の系列）。'+
+    '天然の崩壊系列が3本しかないのはこれが理由で、4n（トリウム系列）、4n+2（ウラン系列）、4n+3（アクチニウム系列）が残っている。'+
+    '4n+1 のネプツニウム系列は、親の &sup2;&sup3;&#8311;Np の半減期が214万年しかなく、地球の年齢45億年に対して短すぎて消えてしまった。'+
+    ' 図の上をタップすると、その位置にいちばん近い段が選ばれる。');
+}
+function drawSerTab(){
+  let tb='<table><caption>ウラン系列（主要経路）。&sup2;&sup3;&#8312;U から &sup2;&#8304;&#8310;Pb まで &alpha; 8回、&beta;<sup>&minus;</sup> 6回</caption>'+
+    '<thead><tr><th>段</th><th>核種</th><th>Z</th><th>N</th><th>A</th><th>A mod 4</th><th>崩壊</th><th>半減期</th><th>Q [MeV]</th><th>平衡時の存在比</th></tr></thead><tbody>';
+  const T1=USER[0].T*T_UNITS[USER[0].Tu];
+  for(let i=0;i<USER.length;i++){
+    const u=USER[i], m=modeOf(u.mode), cur=(i===ST.step)?' class="cur"':'';
+    const Ts=u.mode==='st'?Infinity:u.T*T_UNITS[u.Tu];
+    const ratio=u.mode==='st'?'\u2014':expo(Ts/T1,2);
+    tb+='<tr'+cur+'><td class="num">'+(i+1)+'</td><td><b>'+u.sym+'</b></td>'+
+      '<td class="num">'+u.Z+'</td><td class="num">'+(u.A-u.Z)+'</td><td class="num">'+u.A+'</td>'+
+      '<td class="num">'+(u.A%4)+'</td>'+
+      '<td><span class="tag '+m.cls+'">'+m.lbl+'</span></td>'+
+      '<td class="num">'+(u.mode==='st'?'安定':(fmt(u.T,5)+' '+T_LABEL[u.Tu]))+'</td>'+
+      '<td class="num">'+(u.Q?fmt(u.Q,5):'\u2014')+'</td>'+
+      '<td class="num">'+ratio+'</td></tr>';
+  }
+  tb+='</tbody></table>';
+  put('sertab',tb);
+  put('sernote',
+    'A の変化を足すと 8&times;(&minus;4) = &minus;32 で 238 &minus; 32 = 206、'+
+    'Z は 8&times;(&minus;2) + 6&times;(+1) = &minus;10 で 92 &minus; 10 = 82。ちゃんと鉛206に着く。'+
+    ' 表の一番右は永年平衡での存在比 N&#7522;/N&#8321; = T&#7522;/T&#8321;。'+
+    '&sup2;&sup2;&#8310;Ra は &sup2;&sup3;&#8312;U の 3.58&times;10<sup>&minus;7</sup> しかない。'+
+    'ウラン1 kg の中にラジウムは 0.34 mg。キュリー夫妻が数トンのピッチブレンド残渣から 0.1 g の塩化ラジウムしか取れなかったのは、この比が効いている。'+
+    ' &sup2;&sup1;&#8308;Po に至っては 3.7&times;10<sup>&minus;21</sup>。ウラン1 kg 中に数千個しか存在しない計算になるが、'+
+    '半減期が 164 &micro;s と短いので放射能としては親と同じだけある。'+
+    ' なお分岐がいくつか省いてある。&sup2;&sup1;&#8308;Bi は 0.021% が &alpha; で &sup2;&sup1;&#8304;Tl へ、'+
+    '&sup2;&sup1;&#8312;Po は 0.02% が &beta;<sup>&minus;</sup> で &sup2;&sup1;&#8312;At へ抜ける。合流するので終点は変わらない。');
+}
+
+/* ---------- 永年平衡 ---------- */
+const EQP={x0:0,x1:0,lo:-7,hi:7};
+function drawEq(){
+  const W=narrow?360:740, H=narrow?270:280;
+  setVB('sv-eq',W,H);
+  const px=narrow?42:56, py=24, pw=W-px-(narrow?14:22), ph=H-py-(narrow?52:54);
+  const lo=EQP.lo, hi=EQP.hi;
+  const X=v=>px+(v-lo)/(hi-lo)*pw, Y=v=>py+ph-clamp(v,0,1.15)/1.15*ph;
+  EQP.x0=px; EQP.x1=px+pw;
+  const xt=logTicks(lo,hi,e=>'10^'+e);
+  const yt=[];
+  for(let v=0;v<=1;v+=0.25) yt.push({v:v,lab:v.toFixed(2),mj:1});
+  let s=axes(px,py,pw,ph,xt,yt,X,Y,'経過時間 [年、対数目盛]','放射能比 A\u2099 / A(\u00B2\u00B3\u2078U)');
+  s+=LN(px,Y(1),px+pw,Y(1),CGOLD,1.3,'4 3',0.8);
+  s+=TX(px+pw-4,Y(1)-5,'永年平衡（比 = 1）',CGOLDT,9,'end');
+  const cols=[CCRM,CBLU,CGRN,CPUR,CGOLD,COLV];
+  const dep=clamp(ST.eqDepth,2,CHAIN.n);
+  const K=narrow?120:180;
+  for(let n=1;n<dep;n++){
+    const p=[];
+    for(let i=0;i<=K;i++){
+      const e=lo+(hi-lo)*i/K, t=Math.pow(10,e);
+      const r=chainA(n,t)/Math.max(1e-300,chainA(0,t));
+      p.push([X(e),Y(r)]);
+    }
+    s+=PL(p,cols[(n-1)%6],1.8,null,0.92);
+  }
+  /* 現在時刻 */
+  const te=clamp(ST.eqT,lo,hi), tt=Math.pow(10,te);
+  s+=LN(X(te),py,X(te),py+ph,INK,1.3,'4 3',0.8);
+  s+=TXJ(X(te),py-6,secStr(tt*YEAR,3)+' 後',INK,narrow?9.5:10.5,X(te)>px+pw*0.7?'end':'start','600');
+  for(let n=1;n<dep;n++){
+    const r=chainA(n,tt)/Math.max(1e-300,chainA(0,tt));
+    if(r>0.004) s+=CIRC(X(te),Y(r),3.4,cols[(n-1)%6],'#fff',1.2);
+  }
+  put('eq-g',s);
+  let leg='';
+  for(let n=1;n<dep;n++) leg+=swl(cols[(n-1)%6],USER[n].sym);
+  put('eqleg',leg);
+
+  const T1=USER[0].T*T_UNITS[USER[0].Tu];
+  let tb='<table><caption>経過時間 '+secStr(tt*YEAR,4)+' の時点での各段の状態（&sup2;&sup3;&#8312;U だけの試料から出発）</caption>'+
+    '<thead><tr><th>段</th><th>核種</th><th>半減期</th><th>N\u2099/N\u2081</th><th>永年平衡での N\u2099/N\u2081</th><th>A\u2099/A\u2081</th><th>平衡への到達</th></tr></thead><tbody>';
+  for(let n=0;n<dep;n++){
+    const u=USER[n], Ts=u.T*T_UNITS[u.Tu];
+    const Nn=chainN(n,tt), N1=chainN(0,tt);
+    const eqR=Ts/T1;
+    const aR=chainA(n,tt)/Math.max(1e-300,chainA(0,tt));
+    tb+='<tr'+(n===0?' class="hi"':'')+'><td class="num">'+(n+1)+'</td><td><b>'+u.sym+'</b></td>'+
+      '<td class="num">'+fmt(u.T,4)+' '+T_LABEL[u.Tu]+'</td>'+
+      '<td class="num">'+(n===0?'1':expo(Nn/N1,2))+'</td>'+
+      '<td class="num">'+(n===0?'1':expo(eqR,2))+'</td>'+
+      '<td class="num">'+fmt(aR,4)+'</td>'+
+      '<td class="num">'+(n===0?'\u2014':fmt(aR*100,4)+' %')+'</td></tr>';
+  }
+  tb+='</tbody></table>';
+  put('eqtab',tb);
+  put('eqnote',
+    '娘核種は「生まれる速さ = 壊れる速さ」になったところで頭打ちになる。'+
+    '&lambda;\u2081N\u2081 = &lambda;\u2099N\u2099 なので N\u2099/N\u2081 = T\u2099/T\u2081、放射能で見れば比が 1。'+
+    '親のほうが桁違いに長寿命なときにだけ成り立つ関係で、これを永年平衡と呼ぶ。'+
+    ' 平衡に達するまでの時間はその段より上流でいちばん長寿命な核種が決める。'+
+    '&sup2;&sup3;&#8308;Th（24日）は数か月で追いつくが、&sup2;&sup2;&#8310;Ra は上流の &sup2;&sup3;&#8304;Th（7.5万年）が律速になるので、平衡には数十万年かかる。'+
+    ' 地質学的な時間が経った鉱石ではどの段も平衡に達しているので、ウラン鉱石の放射能は &sup2;&sup3;&#8312;U 単独の14倍近くになる。'+
+    'ただし &sup2;&sup2;&sup2;Rn は気体なので、鉱石が砕けていたり土壌に含まれていたりすると外へ逃げてこの平衡が崩れる。'+
+    '屋内ラドンによる被曝はここから来ていて、日本の平均で年間 0.5 mSv 程度、地域によっては数倍になる。');
+}
+
+/* ---------- PET と院内サイクロトロン ---------- */
+const T_F18=109.77;   /* 分 */
+function fdec(m){ return Math.pow(2,-m/T_F18); }
+function fdgRun(tdel){
+  if(tdel===undefined) tdel=ST.tdel;
+  const A0=ST.A0*1000;                  /* MBq */
+  const tPre=ST.tsyn+tdel;
+  let A=A0*fdec(tPre);
+  const del=A;
+  const doses=[];
+  let t=tPre, k=0;
+  while(A>=ST.dose&&k<60){
+    doses.push({t:t,A0:A,A1:A-ST.dose});
+    A=(A-ST.dose)*fdec(ST.slot);
+    t+=ST.slot; k++;
+  }
+  return {A0:A0,del:del,n:k,doses:doses,tPre:tPre,tEnd:t,left:A};
+}
+function needA0(P,tdel){
+  const r=fdec(ST.slot), D=ST.dose;
+  if(r>=1) return NaN;
+  const C=D*r/(1-r);
+  const Adel=(D+C)/Math.pow(r,P-1)-C;
+  return Adel/fdec(ST.tsyn+tdel)/1000;   /* GBq */
+}
+const MEDP={x0:0,x1:0,tm:0};
+function drawMed(){
+  const W=narrow?360:740, H=narrow?260:272;
+  setVB('sv-med',W,H);
+  const run=fdgRun();
+  const px=narrow?46:60, py=24, pw=W-px-(narrow?14:22), ph=H-py-(narrow?52:54);
+  const tm=Math.max(240,Math.ceil((run.tEnd+30)/60)*60);
+  const amax=niceCeil(run.A0/1000*1.05);
+  const X=v=>px+v/tm*pw, Y=v=>py+ph-clamp(v,0,amax)/amax*ph;
+  MEDP.x0=px; MEDP.x1=px+pw; MEDP.tm=tm;
+  const xt=[];
+  for(let m=0;m<=tm;m+=60) xt.push({v:m,lab:(m/60)+'h',mj:1});
+  const yt=ticks(0,amax,4);
+  let s=axes(px,py,pw,ph,xt,yt,X,Y,'照射終了からの時間','放射能 [GBq]');
+  /* 工程の帯 */
+  s+=RECT(X(0),py,X(ST.tsyn)-X(0),ph,'#F6EEDC',null,0,null,0.75);
+  s+=RECT(X(ST.tsyn),py,X(ST.tsyn+ST.tdel)-X(ST.tsyn),ph,'#ECF1F8',null,0,null,0.75);
+  s+=TXJ(X(ST.tsyn/2),py+12,'合成+QC',CGOLDT,narrow?8.5:9.5,'middle');
+  if(ST.tdel>10) s+=TXJ(X(ST.tsyn+ST.tdel/2),py+12,'輸送',CBLUT,narrow?8.5:9.5,'middle');
+  /* 減衰と分注 */
+  const seg=[];
+  for(let i=0;i<=120;i++){ const m=run.tPre*i/120; seg.push([X(m),Y(run.A0*fdec(m)/1000)]); }
+  s+=PL(seg,MUT,1.8,'4 3',0.9);
+  /* バイアルの中身。分注のたびに段差が入り、そのあとまた減衰する */
+  const line=[[X(run.tPre),Y(run.del/1000)]];
+  for(const d of run.doses){
+    line.push([X(d.t),Y(d.A0/1000)]);
+    line.push([X(d.t),Y(d.A1/1000)]);
+    for(let i=1;i<=16;i++){ const m=d.t+ST.slot*i/16; line.push([X(m),Y(d.A1*fdec(ST.slot*i/16)/1000)]); }
+  }
+  s+=PL(line,CPUR,2.1);
+  for(const d of run.doses){
+    s+=CIRC(X(d.t),Y(d.A0/1000),2.8,CPUR,'#fff',1);
+  }
+  /* 参考：理想的に減衰だけした場合 */
+  const ideal=[];
+  for(let i=0;i<=200;i++){ const m=tm*i/200; ideal.push([X(m),Y(run.A0*fdec(m)/1000)]); }
+  s+=PL(ideal,MUT,1.2,'2 3',0.5);
+  s+=TXJ(X(run.tPre),Y(run.del/1000)-9,'届いた時点 '+fmt(run.del/1000,4)+' GBq',CPURT,narrow?9.5:10.5,'start','600');
+  s+=TXJ(px+pw,py+14,String(run.n)+' 人ぶん',CPURT,narrow?11:13,'end','600');
+  put('med-g',s);
+  put('medleg',
+    swl(MUT,'減衰だけ（分注しない場合）')+
+    swl(CPUR,'バイアルに残っている放射能')+
+    swd(CPUR,'1人ぶんの分注'));
+
+  const eff=run.n*ST.dose/run.A0;
+  put('medbig',
+    big('届いた時点の残存率',fmt(run.del/run.A0*100,4)+' %','照射終了から '+run.tPre+' 分')+
+    big('検査できる人数',String(run.n),'1人 '+ST.dose+' MBq、'+ST.slot+' 分間隔')+
+    big('投与に回った割合',fmt(eff*100,4)+' %','残りは全部崩壊で消える'));
+  put('medstats',
+    stt('照射終了時（EOB）',fmt(ST.A0,4)+' GBq')+
+    stt('合成+QC 後',fmt(ST.A0*fdec(ST.tsyn),4)+' GBq（'+fmt(fdec(ST.tsyn)*100,3)+' %）')+
+    stt('輸送後（施設に到着）',fmt(run.del/1000,4)+' GBq（'+fmt(run.del/run.A0*100,3)+' %）')+
+    stt('最後の患者の時刻',secStr(run.tEnd*60,4)+'（EOB から）')+
+    stt('使い切れずに残った量',fmt(run.left,4)+' MBq')+
+    stt('15 人ぶんに要る EOB 放射能',fmt(needA0(15,ST.tdel),4)+' GBq'));
+  put('mednote',
+    '&sup1;&#8312;F の半減期は109.77分。1時間で 68.5%、2時間で 46.9%、6時間で 10.3%、24時間で 0.011% になる。'+
+    '作り置きが物理的に不可能で、朝作ったものを翌日回すこともできない。'+
+    ' いまの設定だと、照射を終えてから患者に届くまでの '+run.tPre+' 分で残存率が '+fmt(run.del/run.A0*100,3)+'% まで落ちる。'+
+    '検査枠を '+ST.slot+' 分間隔で回して '+run.n+' 人。製造した '+fmt(ST.A0,3)+' GBq のうち実際に投与されたのは '+fmt(eff*100,3)+'% だけで、'+
+    '残りはバイアルの中で崩壊して消えた。'+
+    ' 輸送時間のスライダーを動かすと、必要な製造量が指数関数で膨らむのが見える。'+
+    '1時間遠くなるごとに 2<sup>60/109.77</sup> = 1.47 倍の製造が要る。'+
+    '3時間なら 3.2 倍、6時間なら 10 倍。'+
+    'サイクロトロンの出力は簡単には上げられないので、「遠さ」がそのまま検査できる人数の上限になる。'+
+    ' 現実の解は2つ。院内にサイクロトロンを置くか、2時間圏内のデリバリー網を組むか。'+
+    '3時間を超える地域には &sup1;&#8312;F を届ける方法が物理的に残っていない。'+
+    ' ちなみに &sup1;&#8312;F は &sup1;&#8312;O(p,n)&sup1;&#8312;F で作る。&sup1;&#8312;O を濃縮した水に 11&ndash;18 MeV の陽子を当てる。'+
+    '加速器が要るのはここで、原子炉で作れる核種とは供給の形がまるで違う。');
+}
+function drawMedTab(){
+  let tb='<table><caption>輸送時間だけを変えたときの影響（合成+QC '+ST.tsyn+' 分、1人 '+ST.dose+' MBq、'+ST.slot+' 分間隔、EOB '+ST.A0+' GBq）</caption>'+
+    '<thead><tr><th>輸送時間</th><th>目安の距離</th><th>EOB からの合計</th><th>届いた時点の残存率</th><th>届いた放射能</th><th>検査人数</th><th>15人に要る EOB</th></tr></thead><tbody>';
+  for(const td of [0,15,30,60,90,120,180,240,360]){
+    const r=fdgRun(td), cur=(td===ST.tdel)?' class="cur"':'';
+    tb+='<tr'+cur+'><td class="num">'+td+' 分</td>'+
+      '<td class="num">'+(td===0?'院内':fmt(td*0.9,2)+' km')+'</td>'+
+      '<td class="num">'+(ST.tsyn+td)+' 分</td>'+
+      '<td class="num">'+fmt(r.del/r.A0*100,4)+' %</td>'+
+      '<td class="num">'+fmt(r.del/1000,4)+' GBq</td>'+
+      '<td class="num">'+r.n+' 人</td>'+
+      '<td class="num">'+fmt(needA0(15,td),4)+' GBq</td></tr>';
+  }
+  tb+='</tbody></table>';
+  put('medtab',tb);
+  put('medtabnote',
+    '距離は平均時速54 km での換算。渋滞も積み下ろしも数えていないので、実際はもっと厳しい。'+
+    ' 表を縦に見ると、輸送時間が1時間伸びるごとに必要な製造量が 1.47 倍ずつ積み上がる。'+
+    '足し算ではなく掛け算で効くのが半減期の怖いところで、3時間で 3.2 倍、6時間で 10 倍。'+
+    'サイクロトロンのビーム電流と照射時間には上限があるので、ある距離から先は「製造量を増やせば届く」という解が消える。');
+}
+
+/* ---------- ⁹⁹Mo / ⁹⁹ᵐTc ジェネレータ ---------- */
+const GEN={T1:65.98,T2:6.0067,br:0.875,milk:24,span:96};   /* 時間 */
+function drawGen(){
+  const W=narrow?360:740, H=narrow?230:242;
+  setVB('sv-gen',W,H);
+  const l1=LN2/GEN.T1, l2=LN2/GEN.T2;
+  const px=narrow?42:56, py=24, pw=W-px-(narrow?14:22), ph=H-py-(narrow?48:50);
+  const tm=GEN.span;
+  const X=v=>px+v/tm*pw, Y=v=>py+ph-clamp(v,0,1.05)/1.05*ph;
+  const xt=[];
+  for(let h=0;h<=tm;h+=12) xt.push({v:h,lab:String(h),mj:1});
+  const yt=[];
+  for(let v=0;v<=1;v+=0.25) yt.push({v:v,lab:v.toFixed(2),mj:1});
+  let s=axes(px,py,pw,ph,xt,yt,X,Y,'時間 [h]','放射能 / A(\u2079\u2079Mo) の初期値');
+  /* 親 */
+  const p1=[];
+  for(let i=0;i<=200;i++){ const t=tm*i/200; p1.push([X(t),Y(Math.exp(-l1*t))]); }
+  s+=PL(p1,CGOLD,1.9);
+  /* 娘（ミルキングごとにリセット） */
+  const eqR=GEN.br*l2/(l2-l1);
+  const p2=[];
+  for(let i=0;i<=400;i++){
+    const t=tm*i/400;
+    const tm0=Math.floor(t/GEN.milk)*GEN.milk, sdt=t-tm0;
+    const N1m=Math.exp(-l1*tm0);
+    const A2=GEN.br*N1m*l2*l1/(l2-l1)*(Math.exp(-l1*sdt)-Math.exp(-l2*sdt));
+    p2.push([X(t),Y(A2/l1)]);
+  }
+  s+=PL(p2,CGRN,2.1);
+  for(let k=1;k*GEN.milk<tm;k++) s+=LN(X(k*GEN.milk),py,X(k*GEN.milk),py+ph,INK,1.1,'3 3',0.55);
+  const smax=Math.log(l2/l1)/(l2-l1);
+  s+=LN(X(smax),py+ph*0.02,X(smax),py+ph,CGRN,1.1,'2 3',0.6);
+  s+=TXJ(X(smax)+4,py+16,'最大は '+fmt(smax,4)+' h 後',CGRNT,narrow?9:10,'start');
+  s+=TXJ(px+6,py+14,'点線がミルキング（'+GEN.milk+' 時間ごと）',MUT,narrow?9:10,'start');
+  put('gen-g',s);
+  put('genstats',
+    stt('\u2079\u2079Mo の半減期',fmt(GEN.T1,5)+' 時間')+
+    stt('\u2079\u2079\u1D50Tc の半減期',fmt(GEN.T2,5)+' 時間')+
+    stt('親娘の半減期比',fmt(GEN.T1/GEN.T2,4))+
+    stt('過渡平衡の放射能比',fmt(eqR,5))+
+    stt('ミルキング後に最大になる時刻',fmt(smax,5)+' 時間')+
+    stt('1週間後の \u2079\u2079Mo',fmt(Math.exp(-l1*168)*100,4)+' %'));
+  put('gennote',
+    '&#8311;&#8311;Mo（66時間）から &#8311;&#8311;&#7504;Tc（6時間）が生まれ、生成と崩壊が釣り合ったところで比が一定になる。'+
+    '親のほうが長寿命だが桁違いではないので、比は 1 ではなく &lambda;&#8322;/(&lambda;&#8322;&minus;&lambda;&#8321;) = '+fmt(l2/(l2-l1),5)+'。'+
+    '&#8311;&#8311;Mo の崩壊のうち 87.5% だけが &#8311;&#8311;&#7504;Tc へ行くので、実際の放射能比は '+fmt(eqR,5)+' に落ち着く。これを過渡平衡と呼ぶ。'+
+    ' ミルキングすると &#8311;&#8311;&#7504;Tc がゼロに戻り、約23時間かけてまた最大まで育つ。だから毎朝1回取り出す運用になる。'+
+    '&#8311;&#8311;Mo が1週間で '+fmt(Math.exp(-l1*168)*100,3)+'% まで減るので、ジェネレータの寿命はおよそ1週間。'+
+    ' これが &sup1;&#8312;F との構造的な違い。&#8311;&#8311;&#7504;Tc は半減期6時間でも、'+
+    '「輸送できる親」を運んでしまえば現場で毎日作れる。&sup1;&#8312;F にはそういう親が存在しないので、'+
+    '短寿命の &sup1;&#8312;F そのものを運ぶしかない。&#8310;&#8312;Ge（271日）から &#8310;&#8312;Ga（68分）を得るジェネレータは同じ発想の例外で、'+
+    'PET 用核種でもジェネレータ供給が成り立つ数少ないケース。');
+}
+function drawCmpTab(){
+  let tb='<table><caption>同じ 1000 MBq を用意して放置したときに残る放射能 [MBq]</caption>'+
+    '<thead><tr><th>核種</th><th>半減期</th><th>1 時間後</th><th>6 時間後</th><th>24 時間後</th><th>1 週間後</th><th>実質的に使える時間</th></tr></thead><tbody>';
+  const rows=NUCS.slice().sort((a,b)=>Tsec(a)-Tsec(b));
+  for(const o of rows){
+    const T=Tsec(o), cur=(o.id===ST.nuc)?' class="cur"':'';
+    const f=s=>Math.pow(2,-s/T)*1000;
+    const usable=T*3;   /* 半減期3回ぶん = 12.5% を目安にする */
+    tb+='<tr'+cur+'><td><b>'+o.sym+'</b></td><td class="num">'+nucTLabel(o)+'</td>'+
+      '<td class="num">'+(f(3600)>=0.01?fmt(f(3600),4):expo(f(3600),2))+'</td>'+
+      '<td class="num">'+(f(6*3600)>=0.01?fmt(f(6*3600),4):expo(f(6*3600),2))+'</td>'+
+      '<td class="num">'+(f(DAY)>=0.01?fmt(f(DAY),4):expo(f(DAY),2))+'</td>'+
+      '<td class="num">'+(f(7*DAY)>=0.01?fmt(f(7*DAY),4):expo(f(7*DAY),2))+'</td>'+
+      '<td class="num">'+secStr(usable,3)+'</td></tr>';
+  }
+  tb+='</tbody></table>';
+  put('cmptab',tb);
+  put('cmpnote',
+    '&sup1;&#8312;F は24時間後に 0.011%、1週間後には 10<sup>&minus;28</sup> % 台になる。数字としてはゼロと変わらない。'+
+    '&#8311;&#8311;&#7504;Tc でも24時間で 6.3% まで落ちるので、朝ミルキングしたぶんはその日のうちに使い切る。'+
+    '&sup1;&sup3;&sup1;I は8日あるので、輸入して在庫を持つ運用ができる。'+
+    ' 医療で短半減期核種を選ぶ理由は2つある。'+
+    'ひとつは検査が終わったあと患者の体内に残らないこと。&sup1;&#8312;F なら翌朝には1万分の1以下になっている。'+
+    'もうひとつは比放射能が高いので、ごく微量の物質で十分な信号が得られること。'+
+    'FDG の投与量 250 MBq に含まれる &sup1;&#8312;F は 71 ピコグラム。薬理作用がまったく問題にならない量で、'+
+    'だから「トレーサー」として体の働きを乱さずに測れる。');
+}
+
+/* ---------- NOTES ---------- */
+function buildNotes(){
+  let h='<table><thead><tr><th>近似</th><th>効く場所</th><th>ずれの中身</th></tr></thead><tbody>';
+  for(const a of APPROX) h+='<tr><td>'+a[0]+'</td><td>'+a[1]+'</td><td>'+a[2]+'</td></tr>';
+  h+='</tbody></table>';
+  put('apptable',h);
+  put('appnote',
+    'このページで数値解に頼っているのは、崩壊シミュレーション（逆関数法で刻み誤差ゼロ）、'+
+    '二項分布とガンマ分布の厳密値（対数ガンマ関数）、'+
+    '片対数への最小二乗、ガイガー・ヌッタルの回帰、ベイトマン方程式の係数漸化式の5か所。'+
+    'いずれも高校範囲では近似で済ませるところだが、近似がどこでどれだけ効くかを表に出した。');
+  let c='<table><thead><tr><th>定数</th><th>採用値</th><th>出どころ</th><th>注記</th></tr></thead><tbody>';
+  for(const a of CONSTS) c+='<tr><td>'+a[0]+'</td><td class="num">'+a[1]+'</td><td>'+a[2]+'</td><td>'+a[3]+'</td></tr>';
+  c+='</tbody></table>';
+  put('consttable',c);
+  put('constnote',
+    '半減期は評価機関によって値が違うことがある。'+
+    'とくに &sup1;&#8308;C はリビー値 5568 年、ケンブリッジ値 5730 年、現行評価 5700 年の3つが同時に流通していて、'+
+    '年代測定の報告値は互換性のためリビー値で計算する慣習が続いている。このページは 5700 年を採用した。'+
+    ' キュリーの定義値 3.7&times;10<sup>10</sup> Bq と、1 g の &sup2;&sup2;&#8310;Ra の実測 3.66&times;10<sup>10</sup> Bq が 1.1% 食い違っているのは、'+
+    '単位を決めたあとで半減期の測定精度が上がったのに、単位のほうを据え置いたから。'+
+    ' 「年」はユリウス年（365.25日）で統一した。365日で計算すると 0.068% ずれる。');
+  let m='';
+  for(const t of MISS) m+='<li>'+t+'</li>';
+  put('misslist',m);
+}
+
+/* ---------- ボタン列 ---------- */
+function buildNucSel(){
+  mkBtnRow('nucsel',NUCS.map(o=>({nm:o.sym,id:o.id})),it=>it.id===ST.nuc,
+    it=>{ ST.nuc=it.id; buildNucSel(); buildLawSteps(); refresh(); });
+}
+function buildNSel(){
+  mkBtnRow('nsel',NCHOICE.map(c=>({nm:String(c.n),n:c.n})),it=>it.n===ST.N0,
+    it=>{ ST.N0=it.n; regen(); ST.tsim=0; ST.run=0; buildNSel(); buildSimCtl(); refresh(); });
+}
+function buildSimCtl(){
+  const items=[
+    {nm:ST.run?'停止':'再生',k:'play'},
+    {nm:'1個ずつ',k:'step'},
+    {nm:'最後まで',k:'end'},
+    {nm:'最初から',k:'zero'},
+    {nm:'乱数を引き直す',k:'seed'}
+  ];
+  mkBtnRow('simctl',items,it=>it.k==='play'&&ST.run,it=>{
+    if(it.k==='play') ST.run=ST.run?0:1;
+    else if(it.k==='step'){ ST.run=0; const nx=nextEvent(ST.tsim); ST.tsim=(nx===null)?simTmax():nx+1e-9; }
+    else if(it.k==='end'){ ST.run=0; ST.tsim=simTmax(); }
+    else if(it.k==='zero'){ ST.run=0; ST.tsim=0; }
+    else if(it.k==='seed'){ ST.run=0; ST.tsim=0; ST.seed=(ST.seed*1103515245+12345)&0x7fffffff; regen(); runTrials(); }
+    buildSimCtl(); refresh();
+  });
+}
+function buildChartCtl(){
+  const items=[
+    {nm:'← 前へ',k:'prev'},
+    {nm:'次へ →',k:'next'},
+    {nm:ST.chartPlay?'停止':'自動でたどる',k:'play'},
+    {nm:'最初から',k:'zero'}
+  ];
+  mkBtnRow('chartctl',items,it=>it.k==='play'&&ST.chartPlay,it=>{
+    if(it.k==='prev'){ ST.chartPlay=0; ST.step=Math.max(0,ST.step-1); }
+    else if(it.k==='next'){ ST.chartPlay=0; ST.step=Math.min(USER.length-1,ST.step+1); }
+    else if(it.k==='play'){ ST.chartPlay=ST.chartPlay?0:1; if(ST.chartPlay&&ST.step>=USER.length-1) ST.step=0; }
+    else { ST.chartPlay=0; ST.step=0; }
+    buildChartCtl(); drawChart(); drawSerTab(); syncSliders();
+  });
+}
+
+/* ---------- スライダー ---------- */
+const FLUNS=[10,20,50,100,200,500,1000,2000];
+function buildSliders(){
+  addSlider('lawsliders','tT','経過時間 t',0,1600,1,
+    ()=>ST.tT*100,v=>{ST.tT=v/100;},null,'',onLaw,()=>fmt(ST.tT,4)+' T');
+  addSlider('lawsliders','tmaxLaw','横軸の上限',4,16,1,
+    ()=>ST.tmaxLaw,v=>{ST.tmaxLaw=v;},v=>String(v),'T',onLaw);
+
+  addSlider('simsliders','tsim','現在時刻',0,1600,1,
+    ()=>ST.tsim*100,v=>{ST.tsim=v/100;ST.run=0;buildSimCtl();},null,'',onSim,()=>fmt(ST.tsim,4)+' T');
+  addSlider('simsliders','spd','再生の速さ',1,60,1,
+    ()=>ST.spd*20,v=>{ST.spd=v/20;},null,'',onSpd,()=>fmt(ST.spd,3)+' T/秒');
+
+  addSlider('flusliders','fluN','核の個数 N₀',0,FLUNS.length-1,1,
+    ()=>FLUNS.indexOf(ST.fluN),v=>{ST.fluN=FLUNS[v];},null,'',onFlu,()=>String(ST.fluN)+' 個');
+  addSlider('flusliders','trials','実験の繰り返し',50,500,25,
+    ()=>ST.trials,v=>{ST.trials=v;},v=>String(v),'回',onFlu);
+
+  addSlider('datesliders','dateF','残存率',0,1000,1,
+    ()=>1000*(1-Math.log10(100/ST.dateF)/3),
+    v=>{ST.dateF=100*Math.pow(10,-3*(1000-v)/1000);},null,'',onDate,
+    ()=>fmt(ST.dateF,4)+' %');
+
+  addSlider('chartsliders','step','系列の段',0,USER.length-1,1,
+    ()=>ST.step,v=>{ST.step=v;ST.chartPlay=0;buildChartCtl();},null,'',onChart,
+    ()=>'第'+(ST.step+1)+'段　'+svgTxt(USER[ST.step].sym));
+
+  addSlider('eqsliders','eqT','経過時間',-70,70,1,
+    ()=>ST.eqT*10,v=>{ST.eqT=v/10;},null,'',onEq,()=>secStr(Math.pow(10,ST.eqT)*YEAR,4));
+  addSlider('eqsliders','eqDepth','表示する段数',2,14,1,
+    ()=>ST.eqDepth,v=>{ST.eqDepth=v;},v=>String(v),'段',onEq);
+
+  addSlider('medsliders','A0','照射終了時の放射能',10,200,5,
+    ()=>ST.A0,v=>{ST.A0=v;},v=>String(v),'GBq',onMed);
+  addSlider('medsliders','tsyn','合成 + 品質試験',20,90,5,
+    ()=>ST.tsyn,v=>{ST.tsyn=v;},v=>String(v),'分',onMed);
+  addSlider('medsliders','tdel','輸送時間',0,360,5,
+    ()=>ST.tdel,v=>{ST.tdel=v;},v=>String(v),'分',onMed);
+  addSlider('medsliders','dose','1人あたりの投与量',100,500,10,
+    ()=>ST.dose,v=>{ST.dose=v;},v=>String(v),'MBq',onMed);
+  addSlider('medsliders','slot','検査枠の間隔',15,60,5,
+    ()=>ST.slot,v=>{ST.slot=v;},v=>String(v),'分',onMed);
+}
+
+/* ---------- ドラッグ ---------- */
+function bindDrag(id,fn){
+  const el=document.getElementById(id); if(!el) return;
+  let on=false;
+  function loc(e){
+    const r=el.getBoundingClientRect();
+    const vb=el.viewBox&&el.viewBox.baseVal?el.viewBox.baseVal:null;
+    const sx=(vb&&vb.width>0&&r.width>0)?vb.width/r.width:1;
+    const sy=(vb&&vb.height>0&&r.height>0)?vb.height/r.height:1;
+    return {x:(e.clientX-r.left)*sx,y:(e.clientY-r.top)*sy};
+  }
+  function go(e){ const p=loc(e); fn(p.x,p.y); }
+  el.addEventListener('pointerdown',function(e){
+    on=true;
+    if(el.setPointerCapture) try{ el.setPointerCapture(e.pointerId); }catch(err){}
+    go(e); e.preventDefault();
+  });
+  el.addEventListener('pointermove',function(e){ if(!on) return; go(e); e.preventDefault(); });
+  const up=function(){ on=false; };
+  el.addEventListener('pointerup',up);
+  el.addEventListener('pointercancel',up);
+  el.addEventListener('pointerleave',up);
+}
+function bindAll(){
+  bindDrag('sv-law',function(x){
+    const f=(x-LAWP.x0)/Math.max(1,LAWP.x1-LAWP.x0);
+    ST.tT=clamp(f*LAWP.tm,0,16);
+    onLaw();
+  });
+  bindDrag('sv-plot',function(x){
+    if(!PLOTP.p1) return;
+    const p=(!narrow&&x>PLOTP.p2.x-20)?PLOTP.p2:PLOTP.p1;
+    const f=(x-p.x)/Math.max(1,p.w);
+    ST.run=0; buildSimCtl();
+    ST.tsim=clamp(f*PLOTP.tm,0,simTmax());
+    onSim();
+  });
+  bindDrag('sv-tbar',function(x,y){
+    let best=null,bd=1e9;
+    for(const r of TBAR.rows){ const d=Math.abs(r.y-y); if(d<bd){ bd=d; best=r; } }
+    if(best&&best.id!==ST.nuc){ ST.nuc=best.id; buildNucSel(); buildLawSteps(); refresh(); }
+  });
+  bindDrag('sv-date',function(x){
+    const f=clamp((x-DATEP.x0)/Math.max(1,DATEP.x1-DATEP.x0),0,1);
+    const age=f*DATEP.tm;
+    const T=NUCS.filter(o=>o.id==='C14')[0].T;
+    ST.dateF=clamp(100*Math.pow(2,-age/T),0.1,100);
+    onDate();
+  });
+  bindDrag('sv-chart',function(x,y){
+    const cw=CHART.cw; if(!cw) return;
+    let best=-1,bd=1e9;
+    for(let i=0;i<USER.length;i++){
+      const u=USER[i], n=u.A-u.Z;
+      const cx=CHART.x0+(n-CHART.Nlo+0.5)*cw, cy=CHART.y0+(CHART.Zhi-u.Z+0.5)*cw;
+      const d=Math.hypot(cx-x,cy-y);
+      if(d<bd){ bd=d; best=i; }
+    }
+    if(best>=0&&bd<cw*2.2&&best!==ST.step){ ST.chartPlay=0; ST.step=best; buildChartCtl(); onChart(); }
+  });
+  bindDrag('sv-eq',function(x){
+    const f=clamp((x-EQP.x0)/Math.max(1,EQP.x1-EQP.x0),0,1);
+    ST.eqT=EQP.lo+f*(EQP.hi-EQP.lo);
+    onEq();
+  });
+  bindDrag('sv-med',function(x){
+    if(!MEDP.tm) return;
+    const f=clamp((x-MEDP.x0)/Math.max(1,MEDP.x1-MEDP.x0),0,1);
+    const m=f*MEDP.tm;
+    ST.tdel=clamp(Math.round((m-ST.tsyn)/5)*5,0,360);
+    onMed();
+  });
+}
+
+/* ---------- 更新 ---------- */
+let heavyT=null;
+function scheduleHeavy(fn){
+  if(heavyT) clearTimeout(heavyT);
+  heavyT=setTimeout(function(){ heavyT=null; fn(); },180);
+}
+function onLaw(){ drawLaw(); drawLawTab(); syncSliders(); }
+function onSim(){ drawGrid(); drawPlot(); drawSimQ(); drawFitTab(); syncSliders(); }
+function onSpd(){ syncSliders(); }
+function onFlu(){
+  syncSliders();
+  scheduleHeavy(function(){ runTrials(); drawHist(); drawTHist(); });
+}
+function onDate(){ drawDate(); syncSliders(); }
+function onChart(){ drawChart(); drawSerTab(); syncSliders(); }
+function onEq(){ drawEq(); syncSliders(); }
+function onMed(){ drawMed(); drawMedTab(); syncSliders(); }
+function onParam(){ refresh(); }
+function refresh(){
+  drawLaw(); drawLawTab();
+  drawGrid(); drawPlot(); drawSimQ(); drawFitTab();
+  drawHist(); drawTHist();
+  drawTbar(); drawNucTab(); drawQTab(); drawDate(); drawGN();
+  drawChart(); drawSerTab();
+  drawEq();
+  drawMed(); drawMedTab(); drawGen(); drawCmpTab();
+  syncSliders();
+}
+
+/* ---------- アニメーション ---------- */
+let lastTS=0, accSim=0, accChart=0;
+function tick(ts){
+  requestAnimationFrame(tick);
+  if(!lastTS){ lastTS=ts; return; }
+  const dt=Math.min(0.08,(ts-lastTS)/1000); lastTS=ts;
+  if(ST.run){
+    ST.tsim+=dt*ST.spd;
+    const tmax=simTmax();
+    if(ST.tsim>=tmax){ ST.tsim=tmax; ST.run=0; buildSimCtl(); }
+    accSim+=dt;
+    if(accSim>(ST.N0>=5000?0.075:0.04)||!ST.run){
+      accSim=0;
+      drawGrid(); drawPlot(); drawSimQ(); syncSlider('tsim');
+    }
+  }
+  if(ST.chartPlay){
+    accChart+=dt;
+    if(accChart>0.85){
+      accChart=0;
+      ST.step++;
+      if(ST.step>=USER.length-1){ ST.step=USER.length-1; ST.chartPlay=0; buildChartCtl(); }
+      drawChart(); drawSerTab(); syncSlider('step');
+    }
+  }
+}
+
+/* ---------- 起動 ---------- */
+let rzT=null;
+window.addEventListener('resize',function(){
+  if(rzT) clearTimeout(rzT);
+  rzT=setTimeout(function(){
+    rzT=null;
+    const nw=window.innerWidth<=430;
+    if(nw!==narrow){ narrow=nw; refresh(); }
+    else refresh();
+  },160);
+});
+buildChain();
+regen();
+runTrials();
+buildFx();
+buildLawSteps();
+buildNucSel();
+buildNSel();
+buildSimCtl();
+buildChartCtl();
+buildSliders();
+buildNotes();
+refresh();
+bindAll();
+requestAnimationFrame(tick);
+</script>
+</body>
+</html>

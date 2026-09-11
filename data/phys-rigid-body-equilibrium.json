@@ -1,0 +1,20 @@
+{
+  "constants": {
+    "gravity": {
+      "value": 9.8,
+      "unit": "m/s^2",
+      "note": "高校物理の教科書における慣用値(有効数字2桁)。啓林館『物理基礎』ほか主要教科書で共通して採用されている値",
+      "source": "高校物理教科書(啓林館『物理基礎』等)の慣用値"
+    }
+  },
+  "rodLength": {
+    "value": 2,
+    "unit": "m",
+    "note": "固定値(変数化しない)"
+  },
+  "mass": { "min": 1, "max": 10, "step": 1, "default": 4, "unit": "kg" },
+  "ropeAngle": { "min": 10, "max": 90, "step": 1, "default": 60, "unit": "deg", "note": "棒とロープのなす角" },
+  "forcePosition": { "min": 0, "max": 2, "step": 0.1, "default": 1.0, "unit": "m", "note": "外力の作用位置。ヒンジからの距離" },
+  "forceMagnitude": { "min": 0, "max": 50, "step": 1, "default": 20, "unit": "N" },
+  "forceAngle": { "min": 0, "max": 180, "step": 1, "default": 90, "unit": "deg", "note": "棒に沿ってロープ側を向く向きを0°、そこから棒の上側へ回転させた角度。90°で棒に垂直" }
+}

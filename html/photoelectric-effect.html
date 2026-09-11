@@ -1,0 +1,1735 @@
+<!doctype html>
+<html lang="ja">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>光電効果インタラクティブ</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500&family=IBM+Plex+Sans+JP:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+*{box-sizing:border-box}
+:root{
+  --ink:#16232B; --muted:#5E6E76; --paper:#EDF1EF; --surface:#FFFFFF;
+  --rule:#D6DDDA; --rule-soft:#E8EDEB;
+  --c0:#B87A16; --c0t:#8A5A0C;
+  --c1:#158A6D; --c1t:#0D6A53;
+  --c2:#2457A6; --c2t:#1B4380;
+  --c3:#6E3AA7; --c3t:#572D85;
+  --c4:#A82A6A; --c4t:#831F52;
+  --c5:#3B6E1E; --c5t:#2A5215;
+  --mono:"IBM Plex Mono",ui-monospace,SFMono-Regular,Menlo,monospace;
+}
+html,body{margin:0;padding:0}
+body{
+  background:var(--paper); color:var(--ink);
+  font-family:"IBM Plex Sans JP","Hiragino Sans","Yu Gothic UI",system-ui,sans-serif;
+  font-size:13.5px; line-height:1.75; -webkit-text-size-adjust:100%;
+}
+.mono{font-family:var(--mono);font-variant-numeric:tabular-nums}
+.wrap{max-width:820px;margin:0 auto;padding:20px 14px 72px}
+.card{background:var(--surface);border:1px solid var(--rule);border-radius:3px;padding:14px;margin-bottom:14px}
+.eyebrow{display:flex;align-items:center;gap:10px;font-family:var(--mono);font-size:11.5px;letter-spacing:.14em;color:var(--muted)}
+.eyebrow::after{content:"";flex:1;height:1px;background:var(--rule)}
+h1{font-size:22px;font-weight:600;letter-spacing:.01em;margin:8px 0 2px}
+h2{font-size:13.5px;font-weight:600;margin:14px 0 6px;letter-spacing:.01em}
+h2:first-child{margin-top:0}
+p{margin:0 0 8px}
+p:last-child{margin-bottom:0}
+.note{color:var(--muted);font-size:12px;line-height:1.7}
+.sub{color:var(--muted);font-size:11.5px;font-family:var(--mono);letter-spacing:.06em}
+hr{border:none;border-top:1px solid var(--rule-soft);margin:12px 0}
+
+.btn{font:inherit;font-size:12.5px;line-height:1.4;border:1px solid var(--rule);background:#fff;color:var(--ink);border-radius:2px;padding:6px 10px;cursor:pointer}
+.btn:hover{border-color:#B4C0BC}
+.btn.on{background:var(--ink);color:#fff;border-color:var(--ink)}
+.btn:focus-visible{outline:2px solid var(--c2);outline-offset:1px}
+.btn.sm{padding:4px 8px;font-size:11.5px}
+.btn.dim{color:var(--muted)}
+.btnrow{display:flex;flex-wrap:wrap;gap:6px}
+.ctl{display:flex;flex-wrap:wrap;align-items:center;gap:8px;margin-top:10px}
+.ctl .lab{font-family:var(--mono);font-size:11px;letter-spacing:.1em;color:var(--muted);white-space:nowrap}
+.ctl .val{font-family:var(--mono);font-variant-numeric:tabular-nums;font-size:12.5px;min-width:96px}
+
+.viewer{position:relative;border:1px solid var(--rule-soft);border-radius:3px;background:#FBFCFB;overflow:hidden;margin-top:10px}
+svg.stage{display:block;width:100%;height:auto;touch-action:none}
+svg.stage.grab{cursor:crosshair}
+
+.legend{display:flex;flex-wrap:wrap;gap:4px 14px;margin-top:9px;font-size:11.5px;color:var(--muted)}
+.sw{display:inline-block;width:10px;height:10px;border-radius:50%;margin-right:5px;vertical-align:-1px}
+.swl{display:inline-block;width:14px;height:0;border-top:2px solid;margin-right:5px;vertical-align:3px}
+
+table{width:100%;border-collapse:collapse;font-size:12.5px}
+th{font-weight:500;color:var(--muted);text-align:left;border-bottom:1px solid var(--rule);padding:5px 6px;font-size:11px;letter-spacing:.06em;font-family:var(--mono)}
+td{border-bottom:1px solid var(--rule-soft);padding:5px 6px;vertical-align:top}
+.num{text-align:right;font-family:var(--mono);font-variant-numeric:tabular-nums}
+tr.hi td{background:#FAFBFA;font-weight:600}
+tr.cur td{background:#F2F6FA}
+tr.off td{color:#93A1A6}
+caption{caption-side:top;text-align:left;font-size:11.5px;color:var(--muted);padding:0 6px 6px}
+
+.stats{display:grid;grid-template-columns:1fr 1fr;gap:0 18px}
+.stat{display:flex;justify-content:space-between;align-items:baseline;gap:10px;border-bottom:1px solid var(--rule-soft);padding:6px 0}
+.stat .k{font-size:12px;color:var(--muted);white-space:nowrap}
+.stat .v{font-family:var(--mono);font-variant-numeric:tabular-nums;font-size:13px;text-align:right}
+
+.grid2{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.grid3{display:grid;grid-template-columns:repeat(3,1fr);gap:10px}
+input[type=range]{width:100%;max-width:220px;accent-color:#16232B;height:22px}
+
+.step{border-left:2px solid var(--rule);padding:1px 0 1px 11px;margin-bottom:10px}
+.step:last-child{margin-bottom:0;border-left-color:var(--ink)}
+.step .lbl{font-family:var(--mono);font-size:10.5px;letter-spacing:.12em;color:var(--muted)}
+.step .eq{font-family:var(--mono);font-size:12.5px;line-height:1.95;word-break:break-word}
+.step .eq sup{font-size:.78em}
+
+.warn{color:var(--c4t);font-size:11.5px;line-height:1.7}
+ul.tight{margin:0;padding-left:1.1em}
+ul.tight li{margin-bottom:5px}
+
+.fx{font-family:var(--mono);font-size:16px;line-height:2.2;padding:4px 0 2px;letter-spacing:.01em}
+.fx.small{font-size:13px;line-height:2}
+.fx .sym{cursor:pointer;padding:2px 3px;border-radius:2px;border-bottom:1px dashed var(--rule);-webkit-tap-highlight-color:transparent;touch-action:manipulation}
+.fx .sym:hover{background:#F6EEDC}
+.fx .sym.on{background:#F6E3BC;border-bottom:1px solid var(--c0);font-weight:500}
+.symdesc{font-size:12px;color:var(--muted);border-left:2px solid var(--c0);padding:2px 0 2px 10px;margin-top:4px;min-height:3.4em;line-height:1.7}
+.symdesc b{color:var(--ink);font-weight:600}
+
+.frac{display:inline-flex;flex-direction:column;vertical-align:middle;text-align:center;margin:0 5px;line-height:1.42}
+.frac .n{padding:0 7px 2px}
+.frac .d{padding:2px 7px 0;border-top:1.4px solid var(--ink)}
+.cV{color:var(--c2t)} .cW{color:var(--c1t)} .cO{color:var(--c3t)} .cS{color:var(--c4t)} .cF{color:var(--c0t)}
+
+.tag{display:inline-block;font-family:var(--mono);font-size:10.5px;letter-spacing:.08em;border:1px solid var(--rule);border-radius:2px;padding:0 5px;color:var(--muted)}
+.tag.lit{border-color:var(--c0);background:#F6E3BC;color:var(--c0t)}
+.tag.bad{border-color:var(--c4);background:#F5DCE8;color:var(--c4t)}
+
+.qgrid{display:grid;grid-template-columns:repeat(4,1fr);gap:7px;margin-top:11px}
+.qc{border:1px solid var(--rule);border-radius:3px;padding:7px 8px 8px;background:#fff}
+.qc .qk{font-family:var(--mono);font-size:10px;letter-spacing:.09em;color:var(--muted);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.qc .qv{font-family:var(--mono);font-variant-numeric:tabular-nums;font-size:13.5px;line-height:1.4;margin-top:2px;word-break:break-all}
+.qc .qw{font-size:10.5px;line-height:1.55;color:var(--muted);margin-top:4px}
+.qc.up{background:#FAEDF3;border-color:#DFAFC8}
+.qc.up .qv{color:var(--c4t)}
+.qc.dn{background:#ECF1F8;border-color:#B2C5E0}
+.qc.dn .qv{color:var(--c2t)}
+.qc.flat{background:#F4F6F5}
+.qc.flat .qv{color:var(--muted)}
+.qc.ok{background:#EAF4F0;border-color:#A9CFC2}
+.qc.ok .qv{color:var(--c1t)}
+.qc.lock{background:#F6EEDC;border-color:#E0C68A}
+.qc.lock .qv{color:var(--c0t)}
+
+.chip{display:inline-flex;align-items:center;gap:5px}
+.chip .dot{width:9px;height:9px;border-radius:50%;display:inline-block}
+
+.bigrow{display:flex;align-items:baseline;flex-wrap:wrap;gap:6px 20px;border:1px solid var(--rule);border-radius:3px;background:#FAFBFA;padding:9px 12px;margin-top:10px}
+.bigrow .bk{font-family:var(--mono);font-size:10.5px;letter-spacing:.1em;color:var(--muted);display:block}
+.bigrow .bv{font-family:var(--mono);font-variant-numeric:tabular-nums;font-size:25px;line-height:1.25;display:block}
+.bigrow .bu{font-size:11px;color:var(--muted);display:block}
+
+.cmprow{margin-top:12px}
+.cmprow:first-of-type{margin-top:6px}
+.cmptitle{font-family:var(--mono);font-size:10.5px;letter-spacing:.12em;color:var(--muted);padding-bottom:5px;border-bottom:1px solid var(--rule);margin-bottom:8px}
+.cmp{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.cmp .col{border:1px solid var(--rule);border-radius:3px;padding:9px 11px 10px}
+.cmp .col.cl{background:#FAEDF3;border-color:#DFAFC8}
+.cmp .col.ob{background:#EAF4F0;border-color:#A9CFC2}
+.cmp .hd{font-family:var(--mono);font-size:10px;letter-spacing:.1em;margin-bottom:5px}
+.cmp .col.cl .hd{color:var(--c4t)}
+.cmp .col.ob .hd{color:var(--c1t)}
+.cmp .t{font-size:12.5px;font-weight:600;line-height:1.6}
+.cmp .d{font-size:11.5px;line-height:1.68;color:var(--muted);margin-top:3px}
+.cmp .n{font-family:var(--mono);font-variant-numeric:tabular-nums;font-size:14px;margin-top:6px}
+.cmp .col.cl .n{color:var(--c4t)}
+.cmp .col.ob .n{color:var(--c1t)}
+
+@media (max-width:430px){
+  body{font-size:13px}
+  .wrap{padding:14px 10px 56px}
+  .card{padding:11px}
+  h1{font-size:19px}
+  .grid2,.grid3,.stats,.cmp{grid-template-columns:1fr}
+  table{font-size:12px}
+  th,td{padding:4px 4px}
+  .btn{padding:6px 8px;font-size:12px}
+  input[type=range]{max-width:none;flex:1 1 100%}
+  .step .eq{font-size:11.5px}
+  .ctl .val{min-width:0}
+  .fx{font-size:14px;line-height:2.3}
+  .fx.small{font-size:11.5px}
+  .symdesc{min-height:5em}
+  .qgrid{grid-template-columns:repeat(2,1fr);gap:6px}
+  .qc .qv{font-size:13px}
+  .bigrow{gap:6px 14px}
+  .bigrow .bv{font-size:20px}
+  .cmp .col{padding:8px 9px}
+}
+</style>
+</head>
+<body>
+<div class="wrap">
+
+<header>
+  <div class="eyebrow">PHOTOELECTRIC EFFECT</div>
+  <h1>光電効果インタラクティブ</h1>
+  <p class="note">金属に光を当てると電子が飛び出す。ただし振動数が足りないと、どれだけ明るくしても1個も出ない。光を波だと思っている限りこれは説明できず、エネルギーが hν のかたまりで届くと考えたときだけ辻褄が合う。ここでは阻止電圧と飽和電流が何で決まるかをグラフで動かしながら確かめ、古典波動論の予測と実測を3つの論点で並べる。光電流の曲線は模式図ではなく、自由電子モデルから運動エネルギーの分布を組み立てて数値積分した結果を描いている。</p>
+</header>
+
+<div class="card">
+  <div class="eyebrow">LIGHT &amp; METAL</div>
+  <h2>光の設定と金属</h2>
+  <div class="ctl"><span class="lab">金属</span><span class="btnrow" id="metsel"></span></div>
+  <div class="grid2" style="margin-top:4px" id="mainsliders"></div>
+  <div class="viewer"><svg class="stage grab" id="sv-spec" role="img" aria-label="振動数の帯と各金属の閾振動数"><g id="spec-g"></g></svg></div>
+  <p class="note" id="spechint" style="margin-top:7px"></p>
+  <div class="bigrow" id="bigrow"></div>
+  <div class="qgrid" id="qgrid"></div>
+  <p class="note" id="mainnote" style="margin-top:10px"></p>
+  <p class="warn" id="mainwarn" style="margin-top:6px"></p>
+</div>
+
+<div class="card">
+  <div class="eyebrow">EINSTEIN'S RELATION</div>
+  <h2>光子1個ぶんのエネルギー収支</h2>
+  <p class="note">式は足し算ひとつしかない。受け取った hν のうち W が脱出に消え、残りが運動エネルギーになる。記号をタップすると中身が出る。</p>
+  <div class="fx" id="fx1"></div>
+  <div class="symdesc" id="fx1d">記号をタップすると説明が出る。</div>
+  <h2>準位図で見ると W の基準がわかる</h2>
+  <p class="note">仕事関数はバンドの底からの高さではなく、フェルミ準位から真空準位までの高さ。だから同じ hν でも、深いところにいた電子は損をして遅く出てくる。飛び出す電子のエネルギーは 0 から K<sub>max</sub> までの幅を持つ。</p>
+  <div class="viewer"><svg class="stage" id="sv-lev" role="img" aria-label="金属のエネルギー準位と光電子の運動エネルギー"><g id="lev-g"></g></svg></div>
+  <div class="stats" id="levstats" style="margin-top:10px"></div>
+  <p class="note" id="levnote" style="margin-top:9px"></p>
+  <h2>阻止電圧の式</h2>
+  <p class="note">陽極を負にすると電子は坂を登らされる。登りきれる限界が K<sub>max</sub> なので、電流がゼロになる電圧から最大運動エネルギーが直接読める。</p>
+  <div class="fx small" id="fx2"></div>
+  <h2>曲線の形はどこから出すか</h2>
+  <p class="note">阻止電圧だけなら上の式で終わるが、電流が電圧とともにどう減るかを出すには放出電子のエネルギー分布がいる。自由電子モデルで組み立てると、角度についての積分が手で片づいて一重積分だけが残る。</p>
+  <div class="fx small" id="fx3"></div>
+  <p class="note" id="fx3note"></p>
+</div>
+
+<div class="card">
+  <div class="eyebrow">CURRENT VS VOLTAGE</div>
+  <h2>強度を変えても阻止電圧は動かない</h2>
+  <p class="note">横軸は陽極の電位。正なら電子を引き寄せ、負なら押し返す。グラフの上を指でなぞると、その電圧での電流が読める。</p>
+  <div class="ctl"><span class="lab">重ねるもの</span><span class="btnrow" id="ivmode"></span></div>
+  <div class="viewer"><svg class="stage grab" id="sv-iv" role="img" aria-label="光電流と陽極電圧の特性曲線"><g id="iv-g"></g><g id="iv-fg"></g></svg></div>
+  <div class="grid2" style="margin-top:4px" id="ivsliders"></div>
+  <div class="legend" id="ivleg"></div>
+  <div class="stats" id="ivstats" style="margin-top:10px"></div>
+  <p class="note" id="ivnote" style="margin-top:9px"></p>
+  <h2>強度を4段階に振ってみる</h2>
+  <div id="ivtab" style="margin-top:4px"></div>
+  <p class="note" id="ivtabnote" style="margin-top:9px"></p>
+  <h2>逆に振動数を振ると</h2>
+  <div id="nutab" style="margin-top:4px"></div>
+  <p class="note" id="nutabnote" style="margin-top:9px"></p>
+</div>
+
+<div class="card">
+  <div class="eyebrow">SLOPE = h</div>
+  <h2>最大運動エネルギーと振動数は直線で並ぶ</h2>
+  <p class="note">6本とも傾きが同じで、横にずれているだけ。傾きに金属の情報が入っていないことが目で見てわかる。グラフをなぞると振動数が動く。</p>
+  <div class="viewer"><svg class="stage grab" id="sv-line" role="img" aria-label="最大運動エネルギーと振動数の直線関係"><g id="line-g"></g></svg></div>
+  <div class="legend" id="lineleg"></div>
+  <p class="note" id="linenote" style="margin-top:9px"></p>
+  <h2>シミュレートした測定値から h を出す</h2>
+  <p class="note">上の直線は式そのものなので当たり前に h が出る。そこで、数値積分した I-V 曲線から &radic;I の外挿で阻止電圧を読み、8点を最小二乗して傾きを求めた。測定の手続きをそのまま真似た結果が下の数字になる。</p>
+  <div class="bigrow" id="hrow"></div>
+  <div class="viewer"><svg class="stage" id="sv-fit" role="img" aria-label="阻止電圧と振動数の最小二乗当てはめ"><g id="fit-g"></g></svg></div>
+  <div id="fittab" style="margin-top:10px"></div>
+  <p class="note" id="fitnote" style="margin-top:9px"></p>
+</div>
+
+<div class="card">
+  <div class="eyebrow">CLASSICAL VS OBSERVED</div>
+  <h2>波として計算すると、3か所で外れる</h2>
+  <p class="note">左は光を連続的なエネルギーの流れとして扱った予測、右は実際に起きること。数字は上のスライダーの設定で計算し直している。</p>
+  <div id="cmpbox"></div>
+  <h2>時間遅れだけ桁で描く</h2>
+  <p class="note">古典予測と実測上限の差は17桁ある。横軸を対数にしないと同じ図に載らない。</p>
+  <div class="viewer"><svg class="stage" id="sv-delay" role="img" aria-label="放出までの時間の桁比較"><g id="delay-g"></g></svg></div>
+  <p class="note" id="delaynote" style="margin-top:9px"></p>
+  <h2>光子描像でも待ち時間はあるが、意味が違う</h2>
+  <p class="note" id="waitnote"></p>
+  <div class="stats" id="waitstats" style="margin-top:6px"></div>
+</div>
+
+<div class="card">
+  <div class="eyebrow">PHOTON COUNTING</div>
+  <h2>強度は個数、振動数は1個の大きさ</h2>
+  <p class="note">同じ 1 W/m&sup2; でも、赤い光と紫の光では届く粒の数が違う。エネルギーの総量が同じなら、1個が大きいぶん数が減る。左右で粒の色と数を見比べてほしい。</p>
+  <div class="viewer"><svg class="stage" id="sv-cnt" role="img" aria-label="強度と振動数を変えたときの光子の数"><g id="cnt-g"></g></svg></div>
+  <div class="stats" id="cntstats" style="margin-top:10px"></div>
+  <p class="note" id="cntnote" style="margin-top:9px"></p>
+  <div id="cnttab" style="margin-top:10px"></div>
+  <p class="note" id="cnttabnote" style="margin-top:9px"></p>
+</div>
+
+<div class="card">
+  <div class="eyebrow">NUMERICS</div>
+  <h2>電流の式をどう解いているか</h2>
+  <p class="note">運動量空間で見ると、脱出できるのは円錐の内側に入った電子だけ。円錐の開き具合が電圧で変わるところが、そのまま I-V 曲線の形になる。</p>
+  <div class="viewer"><svg class="stage" id="sv-cone" role="img" aria-label="運動量空間のフェルミ球と脱出円錐"><g id="cone-g"></g></svg></div>
+  <p class="note" id="conenote" style="margin-top:9px"></p>
+  <h2>温度を上げると阻止電圧の判定が甘くなる</h2>
+  <div class="grid2" style="margin-top:4px" id="numsliders"></div>
+  <div class="viewer"><svg class="stage" id="sv-tail" role="img" aria-label="阻止電圧付近の熱的な裾"><g id="tail-g"></g></svg></div>
+  <div id="tailtab" style="margin-top:10px"></div>
+  <p class="note" id="tailnote" style="margin-top:9px"></p>
+  <h2>シンプソン則の刻み依存</h2>
+  <div id="numtab" style="margin-top:4px"></div>
+  <p class="note" id="numnote" style="margin-top:9px"></p>
+</div>
+
+<div class="card">
+  <div class="eyebrow">MEDICAL</div>
+  <h2>X線写真が写るのは光電効果のおかげ</h2>
+  <p class="note">診断領域のX線では、光電吸収とコンプトン散乱が競合する。光電吸収だけが原子番号の3乗で効くので、骨とヨウ素造影剤はここで浮かび上がる。エネルギーを上げると光電吸収が急に落ちてコントラストが消え、下げると被曝が増える。この綱引きが管電圧の選び方そのもの。</p>
+  <div class="viewer"><svg class="stage" id="sv-med" role="img" aria-label="光電吸収の原子番号とエネルギー依存"><g id="med-g"></g></svg></div>
+  <div class="grid2" style="margin-top:4px" id="medsliders"></div>
+  <div class="stats" id="medstats" style="margin-top:10px"></div>
+  <p class="note" id="mednote" style="margin-top:9px"></p>
+  <h2>光電子増倍管はこのページの装置そのもの</h2>
+  <p class="note" id="pmtnote"></p>
+</div>
+
+<div class="card">
+  <div class="eyebrow">NOTES</div>
+  <h2>金属のデータと文献値のばらつき</h2>
+  <div id="mettable"></div>
+  <p class="note" id="metnote" style="margin-top:8px"></p>
+  <h2>どの近似がどこで効くか</h2>
+  <div id="apptable" style="margin-top:4px"></div>
+  <h2>使った定数</h2>
+  <div id="consttable" style="margin-top:4px"></div>
+  <p class="note" id="constnote" style="margin-top:8px"></p>
+  <h2>取り違えやすいところ</h2>
+  <ul class="tight note" id="misslist"></ul>
+</div>
+
+</div>
+<script>
+"use strict";
+const TAU=Math.PI*2;
+const INK='#16232B',MUT='#5E6E76',RULE='#D6DDDA',SOFT='#E8EDEB',PAPER='#EDF1EF';
+const CGOLD='#B87A16',CGRN='#158A6D',CBLU='#2457A6',CPUR='#6E3AA7',CCRM='#A82A6A',COLV='#3B6E1E';
+const CGOLDT='#8A5A0C',CGRNT='#0D6A53',CBLUT='#1B4380',CPURT='#572D85',CCRMT='#831F52',COLVT='#2A5215';
+
+/* ---------- 定数（データ駆動） ---------- */
+const HP=6.62607015e-34;         /* プランク定数 [J s] SI 定義値（2019 改定） */
+const QE=1.602176634e-19;        /* 素電荷 [C] SI 定義値 */
+const CL=299792458;              /* 光速 [m/s] 定義値 */
+const KB=1.380649e-23;           /* ボルツマン定数 [J/K] 定義値 */
+const ME=9.1093837015e-31;       /* 電子質量 [kg] CODATA 2018 */
+const HEV=HP/QE;                 /* h/e = 4.135667696e-15 V s（定義値の比なので厳密） */
+const HCNM=HP*CL/QE*1e9;         /* hc = 1239.8419843 eV nm */
+const SPOT=1.0e-4;               /* 照射面積 1.00 cm^2（固定） */
+const ABSF=0.10;                 /* 吸収率。金属の反射率は 0.5〜0.98 で波長依存。桁の目安としてのみ使う */
+
+const CONSTS=[
+  ['プランク定数 h','6.62607015&times;10<sup>&minus;34</sup> J&middot;s','SI 定義値（2019 改定）','いまは測定値ではない。だから「傾きから h を求める」のは歴史的な手続きで、現在は逆に h が電圧の定義（ジョセフソン定数 2e/h）を支えている'],
+  ['素電荷 e','1.602176634&times;10<sup>&minus;19</sup> C','SI 定義値','1 eV = 1.602176634&times;10<sup>&minus;19</sup> J も定義から従う'],
+  ['h/e','4.135667696&times;10<sup>&minus;15</sup> V&middot;s','定義値の比','阻止電圧と振動数の直線の傾きそのもの。厳密値なので誤差がない'],
+  ['光速 c','299792458 m/s','SI 定義値','&lambda; = c/&nu; の換算に使う'],
+  ['hc','1239.8419843 eV&middot;nm','定義値の組合せ','&lambda;<sub>0</sub>[nm] = 1239.84 / W[eV]。閾波長を暗算するときの形'],
+  ['ボルツマン定数 k<sub>B</sub>','1.380649&times;10<sup>&minus;23</sup> J/K','SI 定義値','300 K で k<sub>B</sub>T = 0.02585 eV。阻止電圧の裾の広がりがこの幅'],
+  ['電子の質量 m<sub>e</sub>','9.1093837015&times;10<sup>&minus;31</sup> kg','CODATA 2018','飛び出した電子の速さ v = &radic;(2K/m) に使う'],
+  ['照射面積','1.00 cm&sup2;','このページの設定','光子数と電流の絶対値はこの面積に比例する。形と阻止電圧には効かない'],
+  ['吸収率','0.10','このページの設定','実際の金属の反射率は波長と表面状態で 0.5〜0.98。電流の絶対値は桁の目安としてしか読めない']
+];
+
+/* ---------- 金属（データ駆動） ----------
+   W: 採用した仕事関数 [eV]。多結晶試料の値（HyperPhysics / Tipler 系）
+   alt: 他の文献で見かける値。表面状態と結晶面で 0.5 eV 級に動くので併記する
+   EF: 自由電子モデルのフェルミエネルギー [eV]（Ashcroft-Mermin 表 2.1）
+   rA: 金属結合半径 [m]。古典予測の時間遅れの見積もりに使う               */
+const METALS=[
+  {id:'Na',sym:'Na',nm:'ナトリウム',W:2.36,alt:'2.28 / 2.75',EF:3.24,rA:1.86e-10,col:CGOLD,colt:CGOLDT,
+   note:'多結晶で 2.36 eV。清浄な蒸着膜だと 2.75 eV まで上がり、閾波長が 525 nm から 451 nm へ 74 nm も動く。古い光電管の表にある 2.28 eV も広く使われている'},
+  {id:'K', sym:'K', nm:'カリウム',  W:2.29,alt:'2.30',      EF:2.12,rA:2.27e-10,col:CGRN, colt:CGRNT,
+   note:'多結晶の値。可視光でいちばん電子を出しやすい部類で、初期の光電管はカリウム系の光電面を使った'},
+  {id:'Zn',sym:'Zn',nm:'亜鉛',      W:4.33,alt:'4.3',       EF:9.47,rA:1.34e-10,col:CBLU, colt:CBLUT,
+   note:'ヘルツとレーナルトが使った金属。紫外線でしか反応しない。自由電子モデルは 2 価として当てている'},
+  {id:'Cu',sym:'Cu',nm:'銅',        W:4.65,alt:'4.7 / 4.94(111)',EF:7.00,rA:1.28e-10,col:CCRM,colt:CCRMT,
+   note:'結晶面で 4.59〜4.94 eV。d 電子が状態密度を支配するので、曲線の形については自由電子モデルの当てはまりが悪い'},
+  {id:'Ag',sym:'Ag',nm:'銀',        W:4.26,alt:'4.52(110) / 4.64(100) / 4.74(111)',EF:5.49,rA:1.44e-10,col:CPUR,colt:CPURT,
+   note:'結晶面による差がとくに大きい金属。多結晶 4.26 eV に対し (111) 面は 4.74 eV で、0.5 eV 近く違う'},
+  {id:'Pt',sym:'Pt',nm:'白金',      W:5.65,alt:'5.70&plusmn;0.03 / 6.35',EF:9.40,rA:1.39e-10,col:COLV,colt:COLVT,
+   note:'文献値のばらつきが最大級。5.65 eV（Michaelson）、多結晶の実測平均 5.70 eV、古い CRC 由来の 6.35 eV が併存する。E<sub>F</sub> は 2 価相当の自由電子値を仮に当てたもので、実際は d バンドが支配的'}
+];
+
+const APPROX=[
+  ['光子の運動量を無視（垂直遷移）','I-V 曲線の形','hν = 3 eV の光子の運動量は 1.6&times;10<sup>&minus;27</sup>、1 eV の電子の運動量は 5.4&times;10<sup>&minus;25</sup> kg&middot;m/s。比は 0.3% ほど。実際の比は上のダッシュボードに出している'],
+  ['自由電子モデル（放物線バンド、状態密度 &prop; &radic;E）','収率と I-V の形','銅・白金・亜鉛は d 電子が効くので分布の形が変わる。閾振動数と阻止電圧はこの近似に一切影響されない。効くのは曲線の丸まり方だけ'],
+  ['脱出条件を表面法線方向の運動エネルギーだけで決める','I-V の形','表面の凹凸、像電荷ポテンシャル、トンネル効果を入れると円錐の縁がぼやける'],
+  ['表面へ来る途中の非弾性散乱を無視','収率の絶対値','実際の脱出深さは 1〜3 nm。それより深い電子は途中でエネルギーを失う。真の収率は表示値の 1/3〜1/10'],
+  ['吸収率を一律 0.10 とした','電流の絶対値','金属の反射率は 0.5〜0.98 で波長依存。電流の絶対値は桁の話としてしか読めない。曲線の形と阻止電圧には影響しない'],
+  ['既定の温度で電子分布を切る','阻止電圧の読み','T = 0 なら阻止電圧でぴたりとゼロになるが、有限温度では指数関数的な裾が残る。NUMERICS の節でその差を数値化している'],
+  ['空間電荷を無視','加速側の飽和','この計算では陽極電位が 0 を超えた瞬間に飽和する。実際の光電管では飛び出した電子が作る負電荷が邪魔をして、数ボルトかけないと飽和しない'],
+  ['暗電流と陽極からの逆流を無視','阻止電圧付近','実測では暗電流が下駄になって、電流がゼロになる点の判定が鈍る。だから &radic;I の外挿を使う'],
+  ['1個の光子しか関与しない','全編','10<sup>10</sup> W/m&sup2; を超える強度では 2 光子過程が起き、閾振動数以下でも電子が出る。ここで扱う強度域では起きない'],
+  ['非相対論','電子の速さ','K = 2 eV で v/c = 0.0028。&gamma;&minus;1 は 10<sup>&minus;6</sup> 未満'],
+  ['シンプソン則の打ち切り','積分','刻み数を変えたときの差を NUMERICS の表に出している']
+];
+
+const MISS=[
+  '仕事関数は「フェルミ準位から真空準位までの高さ」。バンドの底からの高さではない。準位図で基準を取り違えると W と E<sub>F</sub>+W を混同する。',
+  'K<sub>max</sub> は最大値であって全員の値ではない。深いところにいた電子はその分だけ遅く出る。だから阻止電圧の手前で電流が滑らかに減る。',
+  '阻止電圧は振動数と金属だけで決まる。強度をどれだけ上げても動かない。逆に飽和電流は強度で決まる。',
+  '「強度2倍」は「光子の数が2倍」であって「光子1個が2倍強くなる」ではない。1個の大きさを決めるのは振動数だけ。',
+  '閾振動数より下では、どれだけ明るくしても電子は出ない。明るさで振動数の不足を埋めることはできない。',
+  'eV<sub>0</sub> = h&nu; &minus; W の左辺は電子1個ぶんのエネルギー。阻止電圧そのものをエネルギーと呼ばない。',
+  '&nu;&ndash;K<sub>max</sub> 直線の傾きは h。金属を変えても傾きは変わらず、動くのは切片だけ。',
+  '自由な電子は光子を吸収できない。エネルギーと運動量が同時に保存しないから。金属では格子や表面が運動量を受け取ってはじめて吸収が成立する。',
+  '光電効果とコンプトン散乱は別物。前者は光子が丸ごと消えて電子が飛び出し、後者は光子が残ってエネルギーの一部を渡す。',
+  '光電流の向きは電子の流れと逆。回路図で符号を落としやすい。',
+  '陽極と陰極で金属が違うと接触電位差の分だけ阻止電圧が一律にずれる。傾きは変わらないので h は正しく出るが、切片から求めた「仕事関数」には陽極側の値が混ざる。',
+  '波長が短いほど光子は大きい。&lambda; を半分にすると hν は2倍。同じ強度なら光子数は半分になり、飽和電流も下がる。'
+];
+
+/* ---------- 小道具 ---------- */
+const clamp=(v,a,b)=>v<a?a:(v>b?b:v);
+const f1=v=>(Math.round(v*100)/100).toString();
+function fmtCore(v,sig,inf,exa,exb){
+  sig=sig||4;
+  if(!isFinite(v)) return inf;
+  if(v===0) return '0';
+  const av=Math.abs(v);
+  if(av>=1e-3&&av<1e6){
+    const dec=clamp(sig-1-Math.floor(Math.log10(av)),0,17);
+    let s=v.toFixed(dec);
+    if(s.indexOf('.')>=0) s=s.replace(/0+$/,'').replace(/\.$/,'');
+    return s.replace('-','\u2212');
+  }
+  let e=Math.floor(Math.log10(av));
+  let m=v/Math.pow(10,e);
+  if(Math.abs(+m.toFixed(sig-1))>=10){ m/=10; e++; }
+  return m.toFixed(sig-1).replace('-','\u2212')+exa+String(e).replace('-','\u2212')+exb;
+}
+function fmt(v,sig){ return fmtCore(v,sig,'&infin;','&times;10<sup>','</sup>'); }
+function expo(v,d){
+  if(v===0) return '0';
+  if(!isFinite(v)) return '&infin;';
+  const parts=v.toExponential(d===undefined?2:d).split('e');
+  return parts[0].replace('-','\u2212')+'&times;10<sup>'+String(parseInt(parts[1],10)).replace('-','\u2212')+'</sup>';
+}
+function mn(v){ return String(v).replace(/-/g,'\u2212'); }
+const PFX=[[1e-15,'f'],[1e-12,'p'],[1e-9,'n'],[1e-6,'\u00B5'],[1e-3,'m'],[1,''],[1e3,'k'],[1e6,'M'],[1e9,'G'],[1e12,'T'],[1e15,'P']];
+function fmtU(v,u,sig){
+  if(!isFinite(v)) return '&infin;';
+  if(v===0) return '0 '+u;
+  const a=Math.abs(v);
+  let best=PFX[0];
+  for(const p of PFX) if(a>=p[0]*0.9999) best=p;
+  return fmt(v/best[0],sig||4)+' '+best[1]+u;
+}
+function niceCeil(v){
+  if(v<=0) return 1;
+  const e=Math.floor(Math.log10(v)), m=v/Math.pow(10,e);
+  const lad=[1,1.2,1.5,2,2.5,3,4,5,6,8,10];
+  for(const q of lad) if(m<=q+1e-12) return q*Math.pow(10,e);
+  return 10*Math.pow(10,e);
+}
+
+/* ---------- SVG 組み立て ---------- */
+function LN(x1,y1,x2,y2,c,w,dash,op){
+  return '<line x1="'+f1(x1)+'" y1="'+f1(y1)+'" x2="'+f1(x2)+'" y2="'+f1(y2)+'" stroke="'+c+'" stroke-width="'+(w||1)+'"'+
+    (dash?' stroke-dasharray="'+dash+'"':'')+(op!==undefined?' opacity="'+op+'"':'')+' stroke-linecap="round"/>';
+}
+function svgTxt(s){
+  return String(s).replace(/<sup>/g,'^').replace(/<\/sup>/g,'').replace(/<sub>/g,'_').replace(/<\/sub>/g,'')
+                  .replace(/<[^>]*>/g,'');
+}
+function TX(x,y,s,c,size,anchor,weight,op){
+  s=svgTxt(s);
+  return '<text x="'+f1(x)+'" y="'+f1(y)+'" fill="'+c+'" font-family="IBM Plex Mono, monospace" font-size="'+(size||10)+'"'+
+    (anchor?' text-anchor="'+anchor+'"':'')+(weight?' font-weight="'+weight+'"':'')+(op!==undefined?' opacity="'+op+'"':'')+'>'+s+'</text>';
+}
+function TXJ(x,y,s,c,size,anchor,weight,op){
+  s=svgTxt(s);
+  return '<text x="'+f1(x)+'" y="'+f1(y)+'" fill="'+c+'" font-family="IBM Plex Sans JP, sans-serif" font-size="'+(size||10)+'"'+
+    (anchor?' text-anchor="'+anchor+'"':'')+(weight?' font-weight="'+weight+'"':'')+(op!==undefined?' opacity="'+op+'"':'')+'>'+s+'</text>';
+}
+function PL(pts,c,w,dash,op){
+  if(pts.length<2) return '';
+  let d='M'+f1(pts[0][0])+' '+f1(pts[0][1]);
+  for(let i=1;i<pts.length;i++) d+='L'+f1(pts[i][0])+' '+f1(pts[i][1]);
+  return '<path d="'+d+'" fill="none" stroke="'+c+'" stroke-width="'+(w||1.6)+'"'+
+    (dash?' stroke-dasharray="'+dash+'"':'')+(op!==undefined?' opacity="'+op+'"':'')+' stroke-linejoin="round" stroke-linecap="round"/>';
+}
+function PLF(pts,fill,op){
+  if(pts.length<3) return '';
+  let d='M'+f1(pts[0][0])+' '+f1(pts[0][1]);
+  for(let i=1;i<pts.length;i++) d+='L'+f1(pts[i][0])+' '+f1(pts[i][1]);
+  return '<path d="'+d+'Z" fill="'+fill+'" stroke="none"'+(op!==undefined?' opacity="'+op+'"':'')+'/>';
+}
+function POLY(pts,fill,stroke,sw,op){
+  if(pts.length<3) return '';
+  let s='';
+  for(const p of pts) s+=f1(p[0])+','+f1(p[1])+' ';
+  return '<polygon points="'+s.trim()+'" fill="'+(fill||'none')+'"'+
+    (stroke?' stroke="'+stroke+'" stroke-width="'+(sw||1)+'"':'')+(op!==undefined?' opacity="'+op+'"':'')+'/>';
+}
+function AR(x1,y1,x2,y2,c,w,hs,op){
+  const dx=x2-x1, dy=y2-y1, len=Math.hypot(dx,dy);
+  if(len<0.6) return '';
+  hs=hs||6;
+  const ux=dx/len, uy=dy/len, px=-uy, py=ux;
+  const bx=x2-ux*hs, by=y2-uy*hs;
+  return LN(x1,y1,bx,by,c,w||1.6,null,op)+
+    '<polygon points="'+f1(x2)+','+f1(y2)+' '+f1(bx+px*hs*0.42)+','+f1(by+py*hs*0.42)+' '+f1(bx-px*hs*0.42)+','+f1(by-py*hs*0.42)+'" fill="'+c+'"'+(op!==undefined?' opacity="'+op+'"':'')+'/>';
+}
+function CIRC(x,y,r,fill,stroke,sw,dash,op){
+  return '<circle cx="'+f1(x)+'" cy="'+f1(y)+'" r="'+f1(r)+'" fill="'+(fill||'none')+'"'+
+    (stroke?' stroke="'+stroke+'" stroke-width="'+(sw||1)+'"':'')+(dash?' stroke-dasharray="'+dash+'"':'')+(op!==undefined?' opacity="'+op+'"':'')+'/>';
+}
+function RECT(x,y,w,h,fill,stroke,sw,dash,op,rx){
+  return '<rect x="'+f1(x)+'" y="'+f1(y)+'" width="'+f1(Math.max(0,w))+'" height="'+f1(Math.max(0,h))+'" fill="'+(fill||'none')+'"'+
+    (stroke?' stroke="'+stroke+'" stroke-width="'+(sw||1)+'"':'')+(dash?' stroke-dasharray="'+dash+'"':'')+
+    (op!==undefined?' opacity="'+op+'"':'')+(rx?' rx="'+rx+'"':'')+'/>';
+}
+function setVB(id,w,h){ const s=document.getElementById(id); if(s) s.setAttribute('viewBox','0 0 '+w+' '+h); }
+function put(id,s){ const e=document.getElementById(id); if(e) e.innerHTML=s; }
+function stt(k,v){ return '<div class="stat"><span class="k">'+k+'</span><span class="v">'+v+'</span></div>'; }
+
+function mkPlot(x,y,w,h,xmin,xmax,ymin,ymax,xt,yt,xlab,ylab,fx,fy){
+  const X=v=>x+(v-xmin)/(xmax-xmin)*w;
+  const Y=v=>y+h-(v-ymin)/(ymax-ymin)*h;
+  let s=RECT(x,y,w,h,'#fff',SOFT,1);
+  for(const t of xt){ s+=LN(X(t),y,X(t),y+h,SOFT,1); s+=TX(X(t),y+h+12,(fx?fx(t):f1(t)),MUT,9,'middle'); }
+  for(const t of yt){ s+=LN(x,Y(t),x+w,Y(t),SOFT,1); s+=TX(x-5,Y(t)+3,(fy?fy(t):f1(t)),MUT,9,'end'); }
+  s+=LN(x,y,x,y+h,RULE,1.2)+LN(x,y+h,x+w,y+h,RULE,1.2);
+  if(xlab) s+=TX(x+w,y+h+24,xlab,MUT,9.5,'end');
+  if(ylab) s+=TX(x,y-7,ylab,MUT,9.5,'start');
+  return {s:s,X:X,Y:Y};
+}
+function ticks(a,b,n){
+  const stp=niceCeil((b-a)/n), out=[];
+  const st=Math.ceil(a/stp-1e-9)*stp;
+  for(let v=st;v<=b+1e-9;v+=stp) out.push(Math.abs(v)<stp*1e-9?0:v);
+  return out;
+}
+/* 波長から色を作る（Bruton の近似）。可視域の外は灰色寄りに落とす */
+function wl2rgb(nm){
+  if(nm<380) return '#4A3E7A';
+  if(nm>780) return '#5C2E2E';
+  let r=0,g=0,b=0;
+  if(nm<440){ r=-(nm-440)/60; b=1; }
+  else if(nm<490){ g=(nm-440)/50; b=1; }
+  else if(nm<510){ g=1; b=-(nm-510)/20; }
+  else if(nm<580){ r=(nm-510)/70; g=1; }
+  else if(nm<645){ r=1; g=-(nm-645)/65; }
+  else { r=1; }
+  let f=1;
+  if(nm<420) f=0.3+0.7*(nm-380)/40;
+  else if(nm>700) f=0.3+0.7*(780-nm)/80;
+  const c8=v=>Math.round(255*Math.pow(Math.max(0,Math.min(1,v))*f,0.8));
+  return 'rgb('+c8(r)+','+c8(g)+','+c8(b)+')';
+}
+
+let narrow=window.innerWidth<=430;
+
+/* ---------- スライダー登録 ---------- */
+const SLREG=[];
+function addSlider(host,id,lab,min,max,step,getv,setv,fmtf,unit,cb,dispf){
+  const h=document.getElementById(host); if(!h) return;
+  const row=document.createElement('div'); row.className='ctl';
+  row.innerHTML='<span class="lab">'+lab+'</span><input type="range" id="sl-'+id+'" min="'+min+'" max="'+max+'" step="'+step+'"><span class="val mono" id="vv-'+id+'"></span>';
+  h.appendChild(row);
+  const el=row.querySelector('input');
+  el.addEventListener('input',function(){ setv(+el.value); (cb||onParam)(); });
+  SLREG.push({id:id,getv:getv,fmtf:fmtf,unit:unit,el:el,row:row,dispf:dispf});
+}
+function syncOne(r){
+  const raw=clamp(Math.round(r.getv()),+r.el.min,+r.el.max);
+  if(+r.el.value!==raw) r.el.value=raw;
+  const box=document.getElementById('vv-'+r.id);
+  if(box) box.innerHTML=(r.dispf?r.dispf():r.fmtf(raw))+(r.unit?' '+r.unit:'');
+}
+function syncSliders(){ for(const r of SLREG) syncOne(r); }
+function syncSlider(id){ for(const r of SLREG) if(r.id===id) syncOne(r); }
+function mkBtnRow(host,items,isOn,onPick){
+  const box=document.getElementById(host); if(!box) return;
+  box.innerHTML='';
+  for(const it of items){
+    const b=document.createElement('button');
+    b.className='btn sm'+(isOn(it)?' on':'')+(it.cls?' '+it.cls:''); b.innerHTML=it.nm;
+    b.addEventListener('click',function(){ onPick(it); });
+    box.appendChild(b);
+  }
+}
+
+/* ---------- 状態 ---------- */
+const ST={
+  met:'Na',
+  nu:8.0,        /* 入射光の振動数 [10^14 Hz] */
+  ik:0,          /* 強度の指数。I = 2^(ik/4) W/m^2 なので ik を 4 増やすとちょうど 2 倍 */
+  Va:-0.5,       /* 陽極電位 [V]。負が阻止側 */
+  ivMode:'int',
+  T:300,         /* 陰極の温度 [K] */
+  nsimp:240,     /* シンプソン則の分割数 */
+  medE:60        /* X線光子のエネルギー [keV] */
+};
+
+/* ---------- 物理量 ---------- */
+function met(){ for(const m of METALS) if(m.id===ST.met) return m; return METALS[0]; }
+function nuHz(){ return ST.nu*1e14; }
+function lamNM(){ return CL/nuHz()*1e9; }
+function hnuEV(){ return HEV*nuHz(); }
+function intensity(){ return Math.pow(2,ST.ik/4); }        /* [W/m^2] */
+function nu0Of(m){ return m.W/HEV; }
+function lam0Of(m){ return HCNM/m.W; }
+function KmaxOf(m,nu){ return HEV*nu-m.W; }
+function Kmax(){ return KmaxOf(met(),nuHz()); }
+function photonRate(I){ return I*SPOT/(hnuEV()*QE); }       /* 単位時間に届く光子数 [1/s] */
+function absRate(I){ return photonRate(I)*ABSF; }
+
+/* ---------- 収率の積分 ----------
+   自由電子モデル。バンド底から測ったエネルギー E の電子が hnu を受け取り、
+   方向は変えずに E+hnu になる。表面法線方向の運動エネルギーが壁 bar を超えたものだけ外へ出る。
+   方向についての積分は解析的に片づいて (1 - sqrt(bar/(E+hnu)))/2 が残るので、E の一重積分になる。
+   単位はすべて eV。返り値は伝導電子1個あたりの収率。                              */
+function yieldY(EF,hnu,bar,T,N){
+  const lo=Math.max(0,bar-hnu);
+  let hi=EF;
+  const kT=KB*T/QE;
+  if(T>0) hi=EF+30*kT;
+  if(lo>=hi) return 0;
+  let n=N||ST.nsimp; if(n%2) n++;
+  const dE=(hi-lo)/n;
+  let s=0;
+  for(let i=0;i<=n;i++){
+    const E=lo+i*dE;
+    const arg=bar/(E+hnu);
+    let v=0;
+    if(arg<1){
+      let occ=1;
+      if(T>0){ const x=(E-EF)/kT; occ=x>700?0:1/(1+Math.exp(x)); }
+      v=Math.sqrt(E)*(1-Math.sqrt(arg))*0.5*occ;
+    }
+    s+=(i===0||i===n?1:(i%2?4:2))*v;
+  }
+  return s*dE/3/((2/3)*Math.pow(EF,1.5));
+}
+/* 陽極電位 Va [V] のときの壁。Va が負のときだけ壁が高くなる */
+function barrierAt(m,Va){ return m.EF+m.W+Math.max(0,-Va); }
+function yieldAt(m,nu,Va,T,N){ return yieldY(m.EF,HEV*nu,barrierAt(m,Va),T===undefined?ST.T:T,N); }
+/* 電流 [A] */
+function currentAt(m,nu,I,Va,T,N){
+  const K=HEV*nu-m.W;
+  if(K<=0) return 0;
+  const rate=I*SPOT/(HEV*nu*QE)*ABSF;
+  return QE*rate*yieldAt(m,nu,Va,T,N);
+}
+function satAt(m,nu,I,T,N){ return currentAt(m,nu,I,0,T,N); }
+
+/* ---------- 振動数の帯 ---------- */
+const SPEC={x0:0,x1:0,nlo:1,nhi:20};
+function drawSpec(){
+  const W=narrow?360:740, H=narrow?168:146;
+  setVB('sv-spec',W,H);
+  const m=met();
+  const bx=narrow?24:34, bw=W-bx-16;
+  SPEC.x0=bx; SPEC.x1=bx+bw;
+  const X=v=>bx+(v-SPEC.nlo)/(SPEC.nhi-SPEC.nlo)*bw;
+  const yb=narrow?66:58, hb=narrow?30:32;
+  let o='';
+  /* 色の帯（グラデーションの停止点で作る） */
+  let stops='';
+  for(let i=0;i<=48;i++){
+    const nu=(SPEC.nlo+(i/48)*(SPEC.nhi-SPEC.nlo))*1e14;
+    stops+='<stop offset="'+f1(i/48*100)+'%" stop-color="'+wl2rgb(CL/nu*1e9)+'"/>';
+  }
+  o+='<defs><linearGradient id="specgrad" x1="0" y1="0" x2="1" y2="0">'+stops+'</linearGradient></defs>';
+  o+=RECT(bx,yb,bw,hb,'url(#specgrad)',null,0,null,0.94);
+  o+=RECT(bx,yb,bw,hb,'none',RULE,1);
+  /* 閾振動数より下は灰色でふさぐ */
+  const n0=nu0Of(m)/1e14;
+  if(n0>SPEC.nlo) o+=RECT(bx,yb,Math.max(0,X(n0)-bx),hb,'#F1F3F2',null,0,null,0.82);
+  if(n0>SPEC.nlo&&X(n0)-bx>54) o+=TXJ((bx+X(n0))/2,yb+hb/2+4,'電子は出ない',MUT,narrow?10:11,'middle','600');
+  if(X(SPEC.nhi)-X(n0)>60) o+=TXJ((X(Math.max(n0,SPEC.nlo))+X(SPEC.nhi))/2,yb-7,'この右側なら出る',m.colt,narrow?10:11,'middle','600');
+  /* 各金属の閾 */
+  const sorted=METALS.slice().sort((a,b)=>a.W-b.W);
+  let k=0;
+  for(const mm of sorted){
+    const v=nu0Of(mm)/1e14;
+    if(v<SPEC.nlo||v>SPEC.nhi) continue;
+    const cur=mm.id===m.id;
+    const ty=(k%2?18:32);
+    o+=LN(X(v),ty+3,X(v),yb+hb,cur?mm.col:RULE,cur?1.8:1,cur?null:'3 3',cur?0.95:0.8);
+    o+=TX(X(v),ty,mm.sym,cur?mm.colt:MUT,cur?11:9.5,'middle',cur?'600':null);
+    k++;
+  }
+  /* 目盛 */
+  for(const t of ticks(SPEC.nlo,SPEC.nhi,5)){
+    if(t<SPEC.nlo) continue;
+    o+=LN(X(t),yb+hb,X(t),yb+hb+4,RULE,1);
+    o+=TX(X(t),yb+hb+15,f1(t),MUT,9,'middle');
+  }
+  o+=TX(bx+bw,yb+hb+27,'\u03BD [10\u00B9\u2074 Hz]',MUT,9.5,'end');
+  /* 波長の目盛 */
+  const lams=[1500,700,550,450,350,250,180];
+  for(const L of lams){
+    const v=CL/(L*1e-9)/1e14;
+    if(v<SPEC.nlo||v>SPEC.nhi) continue;
+    o+=TX(X(v),yb-6,String(L),MUT,8.5,'middle',null,0.85);
+  }
+  o+=TX(bx,yb-6,'\u03BB[nm]',MUT,8.5,'start',null,0.85);
+  /* いまの振動数 */
+  const xc=X(ST.nu);
+  o+=LN(xc,yb-2,xc,yb+hb+2,INK,2);
+  o+=POLY([[xc,yb+hb+2],[xc-5,yb+hb+11],[xc+5,yb+hb+11]],INK);
+  const lab=f1(ST.nu)+'\u00D710\u00B9\u2074 Hz \u00B7 '+fmt(lamNM(),3)+' nm \u00B7 '+fmt(hnuEV(),3)+' eV';
+  o+=TX(clamp(xc,bx+2,bx+bw-2),yb+hb+27,lab,INK,narrow?9.5:10.5,xc>bx+bw*0.62?'end':(xc<bx+bw*0.38?'start':'middle'),'600');
+  put('spec-g',o);
+  put('spechint','帯の上をドラッグすると振動数が動く。'+m.nm+'の閾振動数は '+fmt(nu0Of(m)/1e14,4)+'\u00D710\u00B9\u2074 Hz、閾波長は '+
+    fmt(lam0Of(m),4)+' nm。'+(Kmax()>0?'いまは閾値を超えているので電子が出る。':'いまは閾値に届いていないので、強度をどれだけ上げても電子は1個も出ない。'));
+}
+
+/* ---------- 準位図 ---------- */
+function drawLev(){
+  const W=narrow?360:740, H=narrow?336:286;
+  setVB('sv-lev',W,H);
+  const m=met(), hnu=hnuEV(), V0=m.EF+m.W, K=Math.max(0,hnu-m.W);
+  const Etop=V0+Math.max(K,0.6*m.W)+0.1*V0;
+  const gy=26, gh=H-gy-40;
+  const Y=e=>gy+gh-(e/Etop)*gh;
+  const mx0=narrow?36:56, mx1=narrow?168:300;
+  const ox0=mx1, ox1=narrow?258:512;
+  const sx0=narrow?270:540, sx1=W-16, sw=sx1-sx0;
+  let o='';
+  /* 金属ブロック */
+  o+=RECT(mx0,gy,mx1-mx0,gh,'#F7F9F8',SOFT,1);
+  o+=RECT(mx0,Y(m.EF),mx1-mx0,Y(0)-Y(m.EF),'#DCE6F2',null,0,null,0.95);
+  o+=LN(mx0,Y(0),mx1,Y(0),RULE,1.4);
+  o+=TXJ(mx0+4,Y(0)+13,'バンドの底 E = 0',MUT,9,'start');
+  o+=LN(mx0,Y(m.EF),mx1,Y(m.EF),CBLU,2);
+  o+=TXJ(mx0+4,Y(m.EF)-5,'フェルミ準位 E_F = '+f1(m.EF)+' eV',CBLUT,9.5,'start','600');
+  /* 真空準位 */
+  o+=LN(mx0,Y(V0),ox1,Y(V0),INK,1.6,'6 3');
+  o+=TXJ(mx1+6,Y(V0)-5,'真空準位',INK,9.5,'start','600');
+  /* W のブラケット */
+  const bxw=mx1-20;
+  o+=AR(bxw,Y(m.EF),bxw,Y(V0),CGRN,1.6,6);
+  o+=AR(bxw,Y(V0),bxw,Y(m.EF),CGRN,1.6,6);
+  o+=TX(bxw-4,(Y(m.EF)+Y(V0))/2+3,'W = '+f1(m.W),CGRNT,10,'end','600');
+  /* 光子の矢印（フェルミ準位から） */
+  const ax=mx0+(mx1-mx0)*0.30, col=wl2rgb(lamNM());
+  o+=AR(ax,Y(m.EF),ax,Y(Math.min(m.EF+hnu,Etop)),col,3.2,8);
+  o+=TX(ax-5,(Y(m.EF)+Y(Math.min(m.EF+hnu,Etop)))/2+3,'h\u03BD = '+f1(hnu),INK,10,'end','600');
+  /* 深いところの電子 */
+  const dE=m.EF*0.35, ax2=mx0+(mx1-mx0)*0.62;
+  o+=CIRC(ax2,Y(dE),3.2,CBLU,'#fff',1.2);
+  o+=AR(ax2,Y(dE),ax2,Y(Math.min(dE+hnu,Etop)),col,2,7,0.75);
+  const esc2=dE+hnu>V0;
+  o+=TXJ(ax2+5,Y(Math.min(dE+hnu,Etop))+(esc2?-4:13),esc2?('K = '+f1(dE+hnu-V0)):'届かない',esc2?MUT:CCRMT,9,'start');
+  /* 縦軸 */
+  for(const t of ticks(0,Etop,5)){
+    o+=TX(mx0-5,Y(t)+3,f1(t),MUT,8.5,'end');
+    o+=LN(mx0-3,Y(t),mx0,Y(t),RULE,1);
+  }
+  o+=TX(mx0-5,gy-8,'E [eV]',MUT,9,'end');
+  o+=TXJ(mx0+4,gy+12,m.nm+'（'+m.sym+'）の中',MUT,10,'start');
+  if(!narrow) o+=TXJ(ox0+8,gy+12,'真空',MUT,10,'start');
+  /* 外へ出た電子 */
+  if(K>0){
+    const yk1=Y(V0+K), yk0=Y(V0);
+    o+=LN(ox0,yk1,ox1,yk1,CCRM,1.4,'4 3',0.85);
+    o+=AR(ox0+20,yk1,ox0+58,yk1,CCRM,1.6,6);
+    o+=CIRC(ox0+16,yk1,3.6,CCRM,'#fff',1.3);
+    const klx=ox0+(narrow?2:64), kly=yk1+(narrow?-21:-7);
+    o+=TX(klx,kly,narrow?('K_max = '+f1(K)+' eV'):('K_max = h\u03BD \u2212 W = '+f1(K)+' eV'),CCRMT,narrow?9.5:10.5,'start','600');
+    o+=TXJ(klx,kly+(narrow?13:20),'速さ '+fmt(Math.sqrt(2*K*QE/ME)/1e3,4)+' km/s',MUT,9,'start');
+    /* 拡大パネルへのつなぎ */
+    o+=PLF([[ox1,yk1],[sx0,gy],[sx0,gy+gh],[ox1,yk0]],'#F3D9E4',0.18);
+    o+=LN(ox1,yk1,sx0,gy,SOFT,1,'3 3');
+    o+=LN(ox1,yk0,sx0,gy+gh,SOFT,1,'3 3');
+    /* 放出電子のエネルギー分布（K の拡大スケール） */
+    const YK=k=>gy+gh-(k/K)*gh;
+    const NN=110; let mxv=0; const dd=[];
+    for(let i=0;i<=NN;i++){
+      const kk=K*i/NN, E=kk+V0-hnu;
+      let v=0;
+      if(E>0) v=Math.sqrt(E)*(1-Math.sqrt(V0/(kk+V0)));
+      dd.push([kk,v]); if(v>mxv) mxv=v;
+    }
+    o+=RECT(sx0,gy,sw,gh,'#fff',SOFT,1);
+    const pts=[[sx0,YK(0)]];
+    for(const d of dd) pts.push([sx0+(mxv>0?d[1]/mxv:0)*(sw-10),YK(d[0])]);
+    pts.push([sx0,YK(K)]);
+    o+=PLF(pts,'#F5DCE8',0.95);
+    o+=PL(pts.slice(1,pts.length-1),CCRM,1.8);
+    o+=LN(sx0,YK(K),sx1,YK(K),CCRM,1.4);
+    o+=TX(sx1-4,YK(K)+13,'K_max',CCRMT,9,'end','600');
+    o+=TX(sx1-4,YK(0)-5,'K = 0',MUT,9,'end');
+    if(!narrow) o+=TXJ(sx0+sw/2,gy-8,'放出電子のエネルギー分布（縦は K の拡大）',MUT,9.5,'middle');
+    else o+=TXJ(sx1,gy-8,'放出電子の分布',MUT,9,'end');
+    o+=TXJ(sx0+2,gy+gh+13,'電子の数 \u2192',MUT,9,'start');
+  } else {
+    o+=TXJ(narrow?(ox0+4):((ox0+ox1)/2),Y(V0)-24,narrow?'外へ出られない':'h\u03BD が W に届かないので外へ出られない',CCRMT,narrow?10:11.5,narrow?'start':'middle','600');
+    o+=LN(ax,Y(m.EF+hnu)-3,ax+10,Y(m.EF+hnu)+7,CCRM,2);
+    o+=LN(ax+10,Y(m.EF+hnu)-3,ax,Y(m.EF+hnu)+7,CCRM,2);
+    o+=RECT(sx0,gy,sw,gh,'#FAFBFA',SOFT,1,'3 4');
+    o+=TXJ(sx0+sw/2,gy+gh/2,'分布なし',MUT,10,'middle');
+  }
+  put('lev-g',o);
+  put('levstats',
+    stt('フェルミエネルギー E<sub>F</sub>',f1(m.EF)+' eV')+
+    stt('仕事関数 W',f1(m.W)+' eV')+
+    stt('真空準位（バンド底から）',f1(V0)+' eV')+
+    stt('光子1個 h&nu;',fmt(hnu,4)+' eV')+
+    stt('最大運動エネルギー K<sub>max</sub>',K>0?fmt(K,4)+' eV':'放出なし')+
+    stt('阻止電圧 V<sub>0</sub>',K>0?fmt(K,4)+' V':'\u2014'));
+  put('levnote','フェルミ準位ちょうどにいた電子だけが K<sub>max</sub> で飛び出す。'+
+    (K>0?('図の2本目の矢印は E = '+f1(m.EF*0.35)+' eV から出発した電子で、同じ h&nu; をもらっても '+
+      (m.EF*0.35+hnu>V0?('K = '+f1(m.EF*0.35+hnu-V0)+' eV しか持てない。'):'真空準位に届かず外へ出られない。')):'')+
+    '右のパネルは放出電子のエネルギー分布で、K<sub>max</sub> は真空準位からわずか '+
+    (K>0?f1(K):'0')+' eV しか上にないため、縦を K のスケールに引き伸ばして描いてある。'+
+    'ふくらみは K<sub>max</sub> のところで切り立って終わる。この切り口が阻止電圧に対応し、'+
+    '分布に幅があるからこそ阻止電圧の手前で電流がゼロへ滑らかに落ちていく。');
+}
+
+/* ---------- I-V 曲線 ---------- */
+const IVL={x0:0,x1:0,vlo:-1,vhi:1};
+function ivSet(){
+  const m=met(), nu=nuHz(), I=intensity();
+  if(ST.ivMode==='int'){
+    return {ttl:'強度だけを変えた3本',
+      cs:[{lb:'\u00D70.5',m:m,nu:nu,I:I*0.5,col:CBLU,ct:CBLUT},
+          {lb:'\u00D71（いまの設定）',m:m,nu:nu,I:I,col:CCRM,ct:CCRMT},
+          {lb:'\u00D72',m:m,nu:nu,I:I*2,col:CGOLD,ct:CGOLDT}]};
+  }
+  if(ST.ivMode==='nu'){
+    const f=[1,1.18,1.38];
+    return {ttl:'振動数だけを変えた3本',
+      cs:[{lb:fmt(nu/1e14,3)+'\u00D710\u00B9\u2074 Hz',m:m,nu:nu,I:I,col:CCRM,ct:CCRMT},
+          {lb:fmt(nu*f[1]/1e14,3)+'\u00D710\u00B9\u2074 Hz',m:m,nu:nu*f[1],I:I,col:CGRN,ct:CGRNT},
+          {lb:fmt(nu*f[2]/1e14,3)+'\u00D710\u00B9\u2074 Hz',m:m,nu:nu*f[2],I:I,col:CPUR,ct:CPURT}]};
+  }
+  const ms=METALS.filter(x=>HEV*nu-x.W>0.02).slice(0,3);
+  if(ms.length<2) return {ttl:'いまの振動数で電子を出せる金属',cs:ms.map(x=>({lb:x.sym,m:x,nu:nu,I:I,col:x.col,ct:x.colt}))};
+  return {ttl:'金属だけを変えた3本',cs:ms.map(x=>({lb:x.sym+'（W = '+f1(x.W)+' eV）',m:x,nu:nu,I:I,col:x.col,ct:x.colt}))};
+}
+function drawIV(){
+  const W=narrow?360:740, H=narrow?300:300;
+  setVB('sv-iv',W,H);
+  const set=ivSet();
+  if(!set.cs.length){
+    put('iv-g',TXJ(W/2,H/2,'いまの振動数ではどの金属からも電子が出ない',MUT,12,'middle'));
+    put('iv-fg',''); put('ivstats',''); put('ivleg',''); return;
+  }
+  let v0max=0.15, imax=0;
+  for(const c of set.cs){
+    const K=HEV*c.nu-c.m.W;
+    if(K>v0max) v0max=K;
+    const s=satAt(c.m,c.nu,c.I,ST.T,160);
+    if(s>imax) imax=s;
+  }
+  const vlo=-v0max*1.32, vhi=Math.max(v0max*0.36,0.5);
+  IVL.vlo=vlo; IVL.vhi=vhi;
+  const bx=narrow?46:60, by=26, bw=W-bx-16, bh=H-by-46;
+  IVL.x0=bx; IVL.x1=bx+bw;
+  const iu=imax>0?imax:1;
+  const ymax=niceCeil(iu*1.1);
+  const sc=(function(){ const a=Math.abs(ymax); let best=PFX[0]; for(const p of PFX) if(a>=p[0]*0.9999) best=p; return best; })();
+  const P=mkPlot(bx,by,bw,bh,vlo,vhi,0,ymax/sc[0],ticks(vlo,vhi,5),ticks(0,ymax/sc[0],4),
+    '陽極電位 V [V]','I ['+sc[1]+'A]',t=>mn(f1(t)));
+  let o=P.s;
+  o+=LN(P.X(0),by,P.X(0),by+bh,RULE,1.2,'4 3',0.9);
+  o+=TXJ(P.X(0)+4,by+12,'\u2192 引き寄せる',MUT,9,'start');
+  o+=TXJ(P.X(0)-4,by+12,'押し返す \u2190',MUT,9,'end');
+  const NS=narrow?90:130;
+  for(const c of set.cs){
+    const K=HEV*c.nu-c.m.W;
+    const pts=[];
+    for(let i=0;i<=NS;i++){
+      const V=vlo+(vhi-vlo)*i/NS;
+      pts.push([P.X(V),P.Y(currentAt(c.m,c.nu,c.I,V,ST.T,160)/sc[0])]);
+    }
+    o+=PL(pts,c.col,2.1,null,0.95);
+    if(K>0){
+      o+=LN(P.X(-K),by,P.X(-K),by+bh,c.col,1.2,'3 3',0.6);
+      o+=CIRC(P.X(-K),P.Y(0),3.4,c.col,'#fff',1.2);
+    }
+    const sv=satAt(c.m,c.nu,c.I,ST.T,160)/sc[0];
+    o+=TX(bx+bw-4,P.Y(sv)-5,c.lb,c.ct,narrow?9.5:10.5,'end','600');
+  }
+  /* 阻止電圧の注記 */
+  const ks=set.cs.map(c=>HEV*c.nu-c.m.W).filter(k=>k>0);
+  const same=ks.length>1&&Math.abs(Math.max.apply(null,ks)-Math.min.apply(null,ks))<1e-9;
+  if(same) o+=TXJ(P.X(-ks[0]),by+bh+34,'3本とも同じ点でゼロ \u2192 阻止電圧 '+fmt(ks[0],4)+' V',INK,narrow?10:11,'middle','600');
+  else o+=TXJ(bx,by+bh+34,'ゼロになる点が3本ともずれる',INK,narrow?10:11,'start','600');
+  put('iv-g',o);
+  IVL.P=P; IVL.sc=sc; IVL.set=set; IVL.by=by; IVL.bh=bh;
+  drawIVfg();
+  let lg='';
+  for(const c of set.cs) lg+='<span><span class="swl" style="border-color:'+c.col+'"></span>'+c.lb+'</span>';
+  put('ivleg',lg);
+  const m=met(), K=Kmax();
+  const sat=satAt(m,nuHz(),intensity(),ST.T,320);
+  put('ivstats',
+    stt('飽和電流',K>0?fmtU(sat,'A',4):'0')+
+    stt('阻止電圧 V<sub>0</sub>',K>0?fmt(K,4)+' V':'\u2014')+
+    stt('単位時間の光子数',fmt(photonRate(intensity()),4)+' 個/s')+
+    stt('吸収光子あたりの収率',K>0?fmt(yieldAt(m,nuHz(),0,ST.T,320)*100,3)+' %':'0')+
+    stt('カーソル位置の電流',K>0?fmtU(currentAt(m,nuHz(),intensity(),ST.Va,ST.T,320),'A',4):'0')+
+    stt('飽和電流に対する割合',(K>0&&sat>0)?fmt(currentAt(m,nuHz(),intensity(),ST.Va,ST.T,320)/sat*100,3)+' %':'\u2014'));
+  buildIvTabs();
+  put('ivnote',(ST.ivMode==='int'
+    ? '3本は強度だけが違う。曲線の高さは 0.5 : 1 : 2 にきれいに並ぶのに、ゼロになる電圧は完全に同じ点。積分の中に強度が入っていないので、これは計算上も必然になる。'
+    : (ST.ivMode==='nu'
+      ? '振動数を上げるとゼロ点が左へ動く。同時に高さも変わるが、これは1個あたりのエネルギーが増えたぶん同じ強度で届く光子数が減り、逆に収率が上がるという2つの効果の差し引き。阻止電圧の移動だけが h&nu; &minus; W を直接映している。'
+      : '同じ光を当てても、仕事関数の大きい金属ほどゼロ点が原点寄りになる。差はそのまま W の差。'))+
+    ' 陽極電位が 0 を超えたところで水平になっているのは空間電荷を無視しているから。実際の光電管では飛び出した電子雲が後続を押し返すので、数 V かけないと飽和しない。');
+}
+function buildIvTabs(){
+  const m=met(), nu=nuHz(), I=intensity(), K=Kmax();
+  if(K<=0){
+    put('ivtab','<p class="note">いまの振動数では電子が出ないので、強度を振っても電流はゼロのまま。</p>');
+    put('ivtabnote','閾値以下では「明るくすれば出る」が成り立たない。ここが古典波動論といちばん激しくぶつかるところで、'+
+      '波として扱うかぎり、暗くても長く当てれば必ず出るという結論しか出てこない。');
+  } else {
+    let tb='<table><caption>'+m.nm+'、\u03BD = '+f1(ST.nu)+'\u00D710\u00B9\u2074 Hz のまま強度だけを変えた</caption>'+
+      '<thead><tr><th>相対強度</th><th>強度</th><th>飽和電流 I_sat</th><th>I_sat / 強度</th><th>阻止電圧 V_0</th></tr></thead><tbody>';
+    for(const f of [0.25,0.5,1,2,4]){
+      const sat=satAt(m,nu,I*f,ST.T,320);
+      tb+='<tr'+(f===1?' class="cur"':'')+'><td class="num">\u00D7'+f+'</td><td class="num">'+fmt(I*f,4)+' W/m\u00B2</td>'+
+        '<td class="num">'+fmtU(sat,'A',5)+'</td><td class="num">'+fmtU(sat/(I*f),'A\u00B7m\u00B2/W',5)+'</td>'+
+        '<td class="num">'+fmt(K,6)+' V</td></tr>';
+    }
+    tb+='</tbody></table>';
+    put('ivtab',tb);
+    put('ivtabnote','4列目が 5 桁そろって同じ値になる。飽和電流が強度にきれいに比例している証拠で、'+
+      '光子が1個ずつ独立に電子を叩き出しているという描像から直に出てくる。'+
+      '右端の阻止電圧は 6 桁とも同じ。16 倍の明るさの違いが、飛び出す電子の速さには一切効いていない。');
+  }
+  const rows=[];
+  for(const f of [0.85,1.0,1.2,1.45,1.75]){
+    const n2=nu*f, K2=HEV*n2-m.W;
+    rows.push({nu:n2,K:K2,N:intensity()*SPOT/(HEV*n2*QE),sat:K2>0?satAt(m,n2,I,ST.T,320):0,cur:Math.abs(f-1)<1e-9});
+  }
+  let nt='<table><caption>強度 '+fmt(I,4)+' W/m\u00B2 を保ったまま振動数だけを変えた</caption>'+
+    '<thead><tr><th>\u03BD [10\u00B9\u2074 Hz]</th><th>\u03BB</th><th>光子1個 h\u03BD</th><th>光子数 N</th><th>飽和電流</th><th>阻止電圧</th></tr></thead><tbody>';
+  for(const r of rows){
+    nt+='<tr'+(r.cur?' class="cur"':(r.K<=0?' class="off"':''))+'><td class="num">'+fmt(r.nu/1e14,4)+'</td>'+
+      '<td class="num">'+fmt(CL/r.nu*1e9,4)+' nm</td><td class="num">'+fmt(HEV*r.nu,4)+' eV</td>'+
+      '<td class="num">'+fmt(r.N,4)+' 個/s</td><td class="num">'+(r.K>0?fmtU(r.sat,'A',4):'0')+'</td>'+
+      '<td class="num">'+(r.K>0?fmt(r.K,5)+' V':'出ない')+'</td></tr>';
+  }
+  nt+='</tbody></table>';
+  put('nutab',nt);
+  put('nutabnote','こちらは阻止電圧の列が動く。h\u03BD \u2212 W がそのまま出ているので、'+
+    '振動数の差に h/e を掛けた値だけ増えていく。光子数の列は 1/\u03BD で減っているのに'+
+    '飽和電流はむしろ増えることが多い。光子が減っても、壁を越えられる電子の割合が増えるほうが勝つから。'+
+    '強度を固定して色だけ変える実験は、この2つの効果が混ざるので解釈しにくい。'+
+    '阻止電圧だけが混ざりものなしで h\u03BD \u2212 W を映している。');
+}
+function drawIVfg(){
+  if(!IVL.P){ put('iv-fg',''); return; }
+  const P=IVL.P, m=met(), K=Kmax();
+  const V=clamp(ST.Va,IVL.vlo,IVL.vhi);
+  const cur=K>0?currentAt(m,nuHz(),intensity(),V,ST.T,200):0;
+  let o=LN(P.X(V),IVL.by,P.X(V),IVL.by+IVL.bh,INK,1.4,'2 3',0.8);
+  o+=CIRC(P.X(V),P.Y(cur/IVL.sc[0]),4.4,INK,'#fff',1.6);
+  const lb=mn(f1(V))+' V \u00B7 '+fmtU(cur,'A',3);
+  o+=TX(clamp(P.X(V),IVL.x0+3,IVL.x1-3),IVL.by-6,lb,INK,narrow?9.5:10.5,P.X(V)>IVL.x0+(IVL.x1-IVL.x0)*0.6?'end':'start','600');
+  put('iv-fg',o);
+}
+
+/* ---------- K_max と振動数の直線 ---------- */
+const LNL={x0:0,x1:0};
+function drawLine(){
+  const W=narrow?360:740, H=narrow?300:272;
+  setVB('sv-line',W,H);
+  const m=met();
+  const nlo=0, nhi=20;
+  const kmax=HEV*nhi*1e14-Math.min.apply(null,METALS.map(x=>x.W));
+  const bx=narrow?42:56, by=26, bw=W-bx-16, bh=H-by-44;
+  LNL.x0=bx; LNL.x1=bx+bw;
+  const P=mkPlot(bx,by,bw,bh,nlo,nhi,0,niceCeil(kmax*1.05),ticks(nlo,nhi,5),ticks(0,niceCeil(kmax*1.05),5),
+    '\u03BD [10\u00B9\u2074 Hz]','K_max [eV]');
+  let o=P.s;
+  for(const mm of METALS){
+    const cur=mm.id===m.id;
+    const n0=nu0Of(mm)/1e14;
+    if(n0>nhi) continue;
+    const k1=HEV*nhi*1e14-mm.W;
+    o+=PL([[P.X(n0),P.Y(0)],[P.X(nhi),P.Y(k1)]],mm.col,cur?2.6:1.3,null,cur?1:0.5);
+    o+=CIRC(P.X(n0),P.Y(0),cur?4:2.6,mm.col,'#fff',1.2,null,cur?1:0.6);
+    const lx=P.X(nhi)-4;
+    o+=TX(lx,P.Y(k1)+(cur?-6:3.5),mm.sym,mm.colt,cur?11.5:9.5,'end',cur?'600':null,cur?1:0.7);
+  }
+  /* 傾きの三角形 */
+  const na=6.5, nb=13.5, ka=HEV*na*1e14-m.W, kb=HEV*nb*1e14-m.W;
+  if(ka>0){
+    o+=LN(P.X(na),P.Y(ka),P.X(nb),P.Y(ka),INK,1.2,'3 2',0.8);
+    o+=LN(P.X(nb),P.Y(ka),P.X(nb),P.Y(kb),INK,1.2,'3 2',0.8);
+    o+=TX((P.X(na)+P.X(nb))/2,P.Y(ka)+13,'\u0394\u03BD = 7.0\u00D710\u00B9\u2074 Hz',MUT,9.5,'middle');
+    o+=TX(P.X(nb)-5,(P.Y(ka)+P.Y(kb))/2,'\u0394K = '+f1(kb-ka)+' eV',MUT,9.5,'end');
+    o+=TX(P.X(nb)+5,(P.Y(ka)+P.Y(kb))/2+13,'\u0394K/\u0394\u03BD = h',INK,10,'start','600');
+  }
+  /* いまの点 */
+  const K=Kmax();
+  if(K>0){
+    o+=LN(P.X(ST.nu),by+bh,P.X(ST.nu),P.Y(K),INK,1.2,'2 3',0.85);
+    o+=CIRC(P.X(ST.nu),P.Y(K),4.6,INK,'#fff',1.7);
+    o+=TX(P.X(ST.nu)+7,P.Y(K)-6,fmt(K,4)+' eV',INK,10.5,'start','600');
+  } else {
+    o+=LN(P.X(ST.nu),by,P.X(ST.nu),by+bh,MUT,1.2,'2 3',0.6);
+    o+=TXJ(P.X(ST.nu)+5,by+13,'閾値の左',MUT,9.5,'start');
+  }
+  o+=TXJ(bx+4,by+13,'横軸切片が閾振動数、傾きは6本とも h',MUT,narrow?9.5:10.5,'start');
+  put('line-g',o);
+  let lg='';
+  for(const mm of METALS) lg+='<span><span class="swl" style="border-color:'+mm.col+'"></span>'+mm.sym+' '+f1(mm.W)+' eV</span>';
+  put('lineleg',lg);
+  put('linenote','6本が平行なのは、傾きが h/e で金属によらないから。横に平行移動しているぶんが仕事関数の差そのもの。'+
+    'グラフの上をドラッグすると振動数が動く。'+m.nm+'の直線をたどると、'+
+    (K>0?('いまの '+f1(ST.nu)+'\u00D710\u00B9\u2074 Hz で K_max = '+fmt(K,4)+' eV、阻止電圧にすると '+fmt(K,4)+' V。'):
+         ('いまの振動数は閾値 '+fmt(nu0Of(m)/1e14,4)+'\u00D710\u00B9\u2074 Hz より左なので、直線がまだ始まっていない。'))+
+    'ミリカンは1916年にこの直線の傾きから h = 6.57\u00D710\u207B\u00B3\u2074 J\u00B7s を得た。いまの値との差は 0.8% ほど。');
+}
+
+/* ---------- 阻止電圧の抽出と h の当てはめ ----------
+   √I を V に当てはめて外挿する。しきい値付近で I ∝ (V0-V)^2 になるので √I が直線になり、
+   暗電流や熱的な裾に引きずられにくい。実験で実際に使われる手続きをそのまま真似ている。 */
+function extractV0(m,nu,T){
+  const K=HEV*nu-m.W;
+  if(K<=0.02) return null;
+  const sat=satAt(m,nu,1,T,320);
+  if(!(sat>0)) return null;
+  const xs=[],ys=[];
+  const n=70;
+  for(let i=0;i<=n;i++){
+    const V=K*(0.12+1.45*i/n);
+    const I=currentAt(m,nu,1,-V,T,320);
+    const r=I/sat;
+    if(r>=0.05&&r<=0.40){ xs.push(V); ys.push(Math.sqrt(I)); }
+  }
+  if(xs.length<5) return null;
+  const N=xs.length;
+  let sx=0,sy=0,sxx=0,sxy=0;
+  for(let i=0;i<N;i++){ sx+=xs[i]; sy+=ys[i]; sxx+=xs[i]*xs[i]; sxy+=xs[i]*ys[i]; }
+  const den=N*sxx-sx*sx;
+  if(Math.abs(den)<1e-30) return null;
+  const a=(N*sxy-sx*sy)/den, b=(sy-a*sx)/N;
+  if(Math.abs(a)<1e-30) return null;
+  return -b/a;
+}
+const HFC={};
+function hFit(m,T){
+  const key=m.id+'|'+T;
+  if(HFC[key]) return HFC[key];
+  const n0=nu0Of(m), pts=[];
+  for(let i=0;i<8;i++){
+    const nu=n0*(1.12+i*(2.20-1.12)/7);
+    const v=extractV0(m,nu,T);
+    if(v!==null) pts.push({nu:nu,V0:v,ex:HEV*nu-m.W});
+  }
+  let res={pts:pts,h:NaN,W:NaN};
+  if(pts.length>=3){
+    const N=pts.length;
+    let sx=0,sy=0,sxx=0,sxy=0;
+    for(const p of pts){ sx+=p.nu; sy+=p.V0; sxx+=p.nu*p.nu; sxy+=p.nu*p.V0; }
+    const a=(N*sxy-sx*sy)/(N*sxx-sx*sx), b=(sy-a*sx)/N;
+    res.h=a*QE; res.W=-b; res.a=a; res.b=b;
+  }
+  HFC[key]=res;
+  return res;
+}
+function drawFit(){
+  const W=narrow?360:740, H=narrow?260:238;
+  setVB('sv-fit',W,H);
+  const m=met();
+  const f0=hFit(m,0), fT=hFit(m,ST.T);
+  if(!f0.pts.length){ put('fit-g',TXJ(W/2,H/2,'当てはめに使える点がない',MUT,12,'middle')); return; }
+  const nlo=nu0Of(m)*0.95/1e14, nhi=nu0Of(m)*2.35/1e14;
+  const vmax=Math.max.apply(null,f0.pts.map(p=>p.V0))*1.12;
+  const bx=narrow?44:58, by=24, bw=W-bx-16, bh=H-by-42;
+  const P=mkPlot(bx,by,bw,bh,nlo,nhi,0,niceCeil(vmax),ticks(nlo,nhi,4),ticks(0,niceCeil(vmax),4),
+    '\u03BD [10\u00B9\u2074 Hz]','V_0 [V]',t=>f1(t));
+  let o=P.s;
+  /* 厳密な直線 */
+  const e1=Math.max(0,HEV*nlo*1e14-m.W), e2=HEV*nhi*1e14-m.W;
+  o+=PL([[P.X(nlo),P.Y(e1)],[P.X(nhi),P.Y(e2)]],INK,1.6,'5 3',0.7);
+  o+=TX(P.X(nhi)-4,P.Y(e2)-7,'厳密 (h\u03BD\u2212W)/e',MUT,9.5,'end');
+  /* T=0 と T の当てはめ点 */
+  for(const p of f0.pts) o+=CIRC(P.X(p.nu/1e14),P.Y(p.V0),3.4,CGRN,'#fff',1.1);
+  for(const p of fT.pts) o+=CIRC(P.X(p.nu/1e14),P.Y(p.V0),3.4,CCRM,'#fff',1.1);
+  if(isFinite(fT.h)) o+=PL([[P.X(nlo),P.Y(fT.a*nlo*1e14+fT.b)],[P.X(nhi),P.Y(fT.a*nhi*1e14+fT.b)]],CCRM,1.6,null,0.85);
+  o+=TXJ(bx+5,by+13,'緑 = 0 K、赤 = '+ST.T+' K で読み取った阻止電圧',MUT,narrow?9.5:10.5,'start');
+  put('fit-g',o);
+  const eh=v=>isFinite(v)?fmt(v,6):'\u2014';
+  put('hrow',
+    '<span><span class="bk">当てはめた h（'+ST.T+' K）</span><span class="bv">'+(isFinite(fT.h)?fT.h.toExponential(3).replace('e-34','').replace('-','\u2212'):'\u2014')+
+      '</span><span class="bu">\u00D710\u207B\u00B3\u2074 J\u00B7s　誤差 '+(isFinite(fT.h)?mn(((fT.h/HP-1)*100).toFixed(3))+' %':'\u2014')+'</span></span>'+
+    '<span><span class="bk">当てはめた h（0 K）</span><span class="bv">'+(isFinite(f0.h)?f0.h.toExponential(3).replace('e-34','').replace('-','\u2212'):'\u2014')+
+      '</span><span class="bu">\u00D710\u207B\u00B3\u2074 J\u00B7s　誤差 '+(isFinite(f0.h)?mn(((f0.h/HP-1)*100).toFixed(3))+' %':'\u2014')+'</span></span>'+
+    '<span><span class="bk">既知の h（定義値）</span><span class="bv">6.626</span><span class="bu">\u00D710\u207B\u00B3\u2074 J\u00B7s</span></span>'+
+    '<span><span class="bk">切片から出した W</span><span class="bv">'+(isFinite(fT.W)?fmt(fT.W,4):'\u2014')+'</span><span class="bu">eV　入力値 '+f1(m.W)+' eV</span></span>');
+  let tb='<table><caption>各振動数で &radic;I を外挿して読んだ阻止電圧（'+m.nm+'）</caption><thead><tr><th>\u03BD [10\u00B9\u2074 Hz]</th><th>\u03BB [nm]</th><th>厳密 (h\u03BD\u2212W)/e</th><th>0 K の読み</th><th>'+ST.T+' K の読み</th><th>ずれ</th></tr></thead><tbody>';
+  for(let i=0;i<f0.pts.length;i++){
+    const p=f0.pts[i], q=fT.pts[i];
+    tb+='<tr><td class="num">'+fmt(p.nu/1e14,4)+'</td><td class="num">'+fmt(CL/p.nu*1e9,4)+'</td><td class="num">'+fmt(p.ex,5)+
+      '</td><td class="num">'+fmt(p.V0,5)+'</td><td class="num">'+(q?fmt(q.V0,5):'\u2014')+
+      '</td><td class="num">'+(q?mn((q.V0-p.ex>=0?'+':'')+(q.V0-p.ex).toFixed(4)):'\u2014')+' V</td></tr>';
+  }
+  tb+='</tbody></table>';
+  put('fittab',tb);
+  const e0p=isFinite(f0.h)?Math.abs((f0.h/HP-1)*100):NaN;
+  const eTp=isFinite(fT.h)?Math.abs((fT.h/HP-1)*100):NaN;
+  put('fitnote','0 K なら読み取り値は厳密値とほぼ重なり、当てはめた h の誤差は '+
+    (isFinite(e0p)?mn(e0p.toFixed(3)):'\u2014')+' % に収まる。'+
+    ST.T+' K では熱で励起された電子が阻止電圧を越えてしまうので、読み取り値がどれも上振れする。'+
+    'ずれの量が振動数によらずほぼ一定なので、傾きより切片のほうが大きく狂う。実際、当てはめた h の誤差が '+
+    (isFinite(eTp)?mn(eTp.toFixed(3)):'\u2014')+' % なのに対し、切片から出した仕事関数は '+
+    (isFinite(fT.W)?mn((fT.W-m.W).toFixed(4)):'\u2014')+' eV ずれている。'+
+    'これが「h は測れるが W は測りにくい」という実験の実感の中身。'+
+    '本物の実験ではさらに陽極側の仕事関数が接触電位差として上乗せされるので、切片から W を出すのはもっと難しい。');
+}
+
+/* ---------- 古典波動論との対比 ---------- */
+function classicalDelay(m,I){
+  const A=Math.PI*m.rA*m.rA;
+  return m.W*QE/(I*A);
+}
+const DELAYS=[
+  {t:3e-9,  nm:'1928 年の上限',   d:'ローレンスとビームズ。カー効果シャッターで光をたたき切り、放出開始が 3 ns 以内だと示した',col:CGRN},
+  {t:1e-10, nm:'1955 年の上限',   d:'フォレスターら。さらに 0.1 ns を切ることを確かめた',col:CGRN},
+  {t:2.1e-17,nm:'アト秒分光の実測',d:'ネオンの 2s と 2p から出る電子の到着時刻の差が 21 as。遅れは確かに存在するが、この桁',col:CBLU}
+];
+function drawDelay(){
+  const W=narrow?360:740, H=narrow?196:172;
+  setVB('sv-delay',W,H);
+  const m=met(), I=intensity();
+  const tc=classicalDelay(m,I);
+  const lo=-18, hi=Math.max(4,Math.ceil(Math.log10(tc))+1);
+  const bx=narrow?26:40, bw=W-bx-18, ay=narrow?110:96;
+  const X=e=>bx+(e-lo)/(hi-lo)*bw;
+  let o=LN(bx,ay,bx+bw,ay,RULE,1.4);
+  for(let e=lo;e<=hi;e+=2){
+    o+=LN(X(e),ay-4,X(e),ay+4,RULE,1);
+    o+=TX(X(e),ay+16,'10'+String(e).replace('-','\u2212'),MUT,8.5,'middle');
+  }
+  o+=TX(bx+bw,ay+30,'放出までの時間 [s]（対数）',MUT,9.5,'end');
+  const items=DELAYS.concat([{t:tc,nm:'古典波動論の予測',d:'W を原子1個ぶんの断面積 \u03C0r\u00B2 で受け止めて貯めるまでの時間',col:CCRM,cl:1}]);
+  items.sort((a,b)=>a.t-b.t);
+  let k=0;
+  for(const it of items){
+    const x=X(Math.log10(it.t));
+    const up=(k%2===0);
+    const y=up?(narrow?54:44):(ay+40);
+    o+=LN(x,ay,x,up?y+8:y-11,it.col,1.6,null,0.9);
+    o+=CIRC(x,ay,4.2,it.col,'#fff',1.5);
+    const an=x>bx+bw*0.72?'end':(x<bx+bw*0.2?'start':'middle');
+    o+=TXJ(x,y,it.nm,it.col===CCRM?CCRMT:(it.col===CGRN?CGRNT:CBLUT),narrow?10:11,an,'600');
+    o+=TX(x,y+(up?13:13),fmtU(it.t,'s',3),MUT,9.5,an);
+    k++;
+  }
+  put('delay-g',o);
+  put('delaynote','古典予測の '+fmtU(tc,'s',3)+' と 1928 年の上限 3 ns の差は '+
+    Math.round(Math.log10(tc/3e-9))+' 桁。強度を下げるとこの差はさらに開く。'+
+    '波として少しずつ貯めるという描像では、暗い光ほど長く待たされるはずだが、実験ではどんなに暗くしても待ち時間は現れず、'+
+    '出てくる電子の数が減るだけだった。数が減って時間が変わらないのは、届いているのが粒だからでしか説明がつかない。');
+}
+function buildCmp(){
+  const m=met(), I=intensity(), K=Kmax(), tc=classicalDelay(m,I);
+  const rows=[
+    {t:'閾振動数',
+     cl:{t:'いくらでも低い振動数で出る',
+         d:'波のエネルギーは振幅の2乗、つまり明るさで決まる。振動数は関係ない。暗い赤い光でも、長く当てるか強く当てれば W を貯められるはず',
+         n:'閾値は存在しないはず'},
+     ob:{t:'\u03BD<sub>0</sub> = W/h より下では1個も出ない',
+         d:'どれだけ明るくしても、待っても、閾値以下では電流がゼロのまま。'+m.nm+'なら '+fmt(nu0Of(m)/1e14,4)+'\u00D710\u00B9\u2074 Hz、波長で '+fmt(lam0Of(m),4)+' nm',
+         n:'\u03BD<sub>0</sub> = '+fmt(nu0Of(m)/1e14,4)+'\u00D710\u00B9\u2074 Hz'}},
+    {t:'強度と最大運動エネルギー',
+     cl:{t:'明るくすれば速い電子が出る',
+         d:'振幅が大きいほど電子が受け取る力積が増えるので、飛び出す速さも上がるはず。強度を2倍にすれば K<sub>max</sub> も上がる',
+         n:'K<sub>max</sub> \u221D 強度'},
+     ob:{t:'強度を変えても K<sub>max</sub> は微動だにしない',
+         d:'動くのは電流の大きさだけ。強度 '+fmt(I,3)+' W/m\u00B2 を2倍にすると飽和電流は2倍になるが、阻止電圧は '+(K>0?fmt(K,4)+' V':'\u2014')+' のまま',
+         n:'K<sub>max</sub> = h\u03BD \u2212 W'+(K>0?' = '+fmt(K,4)+' eV':'')}},
+    {t:'放出までの時間',
+     cl:{t:'暗いほど長く待たされる',
+         d:'原子1個ぶんの断面積 \u03C0r\u00B2 = '+expo(Math.PI*m.rA*m.rA,2)+' m\u00B2 でエネルギーを受け止め、W = '+f1(m.W)+' eV たまるまで待つ計算',
+         n:'t = W/(I\u00B7\u03C0r\u00B2) = '+fmtU(tc,'s',3)},
+     ob:{t:'測定できる遅れがない',
+         d:'1928 年に 3 ns 以内、1955 年に 0.1 ns 以内と確かめられた。アト秒分光でようやく見えた遅れは 10\u207B\u00B9\u2077 s 台で、古典予測とは17桁違う',
+         n:'&lt; 3\u00D710\u207B\u2079 s（実測は 10\u207B\u00B9\u2077 s 台）'}}
+  ];
+  let h='';
+  for(const r of rows){
+    h+='<div class="cmprow"><div class="cmptitle">'+r.t+'</div><div class="cmp">'+
+      '<div class="col cl"><div class="hd">CLASSICAL WAVE</div><div class="t">'+r.cl.t+'</div><div class="d">'+r.cl.d+'</div><div class="n">'+r.cl.n+'</div></div>'+
+      '<div class="col ob"><div class="hd">OBSERVED</div><div class="t">'+r.ob.t+'</div><div class="d">'+r.ob.d+'</div><div class="n">'+r.ob.n+'</div></div>'+
+      '</div></div>';
+  }
+  put('cmpbox',h);
+  const A=Math.PI*m.rA*m.rA;
+  const perAtom=I*A/(hnuEV()*QE);
+  const nAtom=SPOT/A;
+  put('waitnote','光子で考えても、特定の1個の原子が光子を受け取るまでの平均待ち時間は '+fmtU(1/perAtom,'s',3)+
+    ' ある。古典予測の '+fmtU(tc,'s',3)+' とそう変わらない。違うのはここから先で、'+
+    '照射面には原子が '+expo(nAtom,3)+' 個並んでいるので、そのうちどれか1個に当たるまでの時間は '+fmtU(1/(perAtom*nAtom),'s',3)+
+    'しかない。古典波動論では全員が同じだけ待たされるのに対し、光子描像では誰か1人が即座に出る。'+
+    '「遅れがない」という観測が効くのは、待つのが全員か1人かという、この一点。');
+  put('waitstats',
+    stt('照射面積',fmt(SPOT*1e4,3)+' cm\u00B2')+
+    stt('原子1個の断面積 &pi;r&sup2;',expo(A,3)+' m\u00B2')+
+    stt('照射面の原子数',expo(nAtom,4)+' 個')+
+    stt('原子1個が光子を受ける頻度',fmt(perAtom,4)+' 回/s')+
+    stt('どれか1個に当たるまで',fmtU(1/(perAtom*nAtom),'s',3))+
+    stt('古典予測（全員が待つ）',fmtU(tc,'s',3)));
+}
+
+/* ---------- 光子の数 ---------- */
+function drawCnt(){
+  const W=narrow?360:740, H=narrow?352:246;
+  setVB('sv-cnt',W,H);
+  const I=intensity(), nu=nuHz();
+  const base=photonRate(I);
+  const cases=[
+    {ttl:'いまの設定',I:I,nu:nu},
+    {ttl:'強度を2倍',I:I*2,nu:nu},
+    {ttl:'振動数を2倍・強度は同じ',I:I,nu:nu*2}
+  ];
+  const pw=narrow?(W-32):(W-40)/3, ph=narrow?86:150;
+  let o='';
+  for(let i=0;i<3;i++){
+    const c=cases[i];
+    const px=narrow?16:(14+i*(pw+6)), py=narrow?(16+i*(ph+22)):34;
+    const rate=c.I*SPOT/(HEV*c.nu*QE);
+    const nd=Math.max(1,Math.min(180,Math.round(rate/base*40)));
+    const col=wl2rgb(CL/c.nu*1e9);
+    o+=RECT(px,py,pw,ph,'#fff',SOFT,1);
+    const cols=Math.ceil(Math.sqrt(nd*pw/ph)), rows=Math.ceil(nd/cols);
+    const cw=pw/cols, ch=ph/rows;
+    const r=Math.max(1.6,Math.min(4.4,Math.min(cw,ch)*0.26));
+    for(let k=0;k<nd;k++){
+      const cx=px+(k%cols+0.5)*cw, cy=py+(Math.floor(k/cols)+0.5)*ch;
+      o+=CIRC(cx,cy,r,col,'#fff',0.5,null,0.95);
+    }
+    o+=TXJ(px,py-8,c.ttl,INK,narrow?10.5:11,'start','600');
+    o+=TX(px,py+ph+13,'h\u03BD = '+fmt(HEV*c.nu,3)+' eV',MUT,9.5,'start');
+    o+=TX(px+pw,py+ph+13,fmt(rate,3)+' 個/s',MUT,9.5,'end');
+    o+=TX(px+pw,py-8,'\u25CF\u00D7'+nd,MUT,9.5,'end');
+  }
+  put('cnt-g',o);
+  const m=met();
+  put('cntstats',
+    stt('光子1個 h&nu;',fmt(hnuEV(),5)+' eV')+
+    stt('&nbsp;',expo(hnuEV()*QE,4)+' J')+
+    stt('光の強度',fmt(I,4)+' W/m\u00B2')+
+    stt('照射面に届く仕事率',fmtU(I*SPOT,'W',4))+
+    stt('単位時間の光子数 N = P/h&nu;',fmt(base,5)+' 個/s')+
+    stt('光子の運動量 h/&lambda;',expo(HP/(lamNM()*1e-9),3)+' kg&middot;m/s'));
+  put('cntnote','左と真ん中は色が同じで粒の数だけが違う。右は同じ明るさなのに粒が大きく（紫に）なったぶん数が半分になっている。'+
+    '「強度を上げる」は粒を増やすことで、「振動数を上げる」は粒1個を大きくすること。'+
+    '電子1個が受け取れるのは粒1個ぶんだけなので、粒をいくら増やしても1個あたりの取り分は変わらない。ここが古典波動論と分かれる急所。');
+  let tb='<table><caption>強度を振ったとき（'+m.nm+'、\u03BD = '+f1(ST.nu)+'\u00D710\u00B9\u2074 Hz）</caption><thead><tr><th>強度</th><th>光子数 N</th><th>飽和電流</th><th>K_max</th><th>阻止電圧</th></tr></thead><tbody>';
+  const K=Kmax();
+  for(const f of [0.25,0.5,1,2,4]){
+    const rr=photonRate(I*f);
+    tb+='<tr'+(f===1?' class="cur"':'')+'><td class="num">'+fmt(I*f,4)+' W/m\u00B2</td><td class="num">'+fmt(rr,4)+' 個/s</td>'+
+      '<td class="num">'+(K>0?fmtU(satAt(m,nu,I*f,ST.T,240),'A',4):'0')+'</td>'+
+      '<td class="num">'+(K>0?fmt(K,6)+' eV':'\u2014')+'</td><td class="num">'+(K>0?fmt(K,6)+' V':'\u2014')+'</td></tr>';
+  }
+  tb+='</tbody></table>';
+  put('cnttab',tb);
+  put('cnttabnote','光子数と飽和電流の列は 16 倍まできれいに比例するのに、右の2列は6桁とも同じ数字が並ぶ。'+
+    '強度は積分の前に掛かる係数でしかなく、積分がゼロになる電圧には手を出せない。'+
+    'ここが「明るさを上げても電子は速くならない」の計算上の正体。');
+}
+
+/* ---------- 運動量空間の脱出円錐 ---------- */
+function drawCone(){
+  const W=narrow?360:740, H=narrow?276:262;
+  setVB('sv-cone',W,H);
+  const m=met(), hnu=hnuEV(), V0=m.EF+m.W;
+  const bar=barrierAt(m,ST.Va);
+  const rin=Math.sqrt(hnu), rout=Math.sqrt(m.EF+hnu), rF=Math.sqrt(m.EF);
+  const cx=narrow?W*0.42:W*0.36, cy=H*0.56;
+  const R=Math.min(narrow?98:104,(H-64)*0.5);
+  const s=R/rout;
+  const Yp=v=>cy-v*s, Xp=v=>cx+v*s;
+  let o='';
+  o+=LN(cx-R-16,cy,cx+R+16,cy,SOFT,1);
+  o+=LN(cx,cy+R+14,cx,cy-R-20,SOFT,1);
+  o+=TX(cx+R+18,cy+4,'p\u22A5',MUT,9.5,'start');
+  o+=TX(cx+4,cy-R-22,'p_z（表面の法線方向）',MUT,9.5,'start');
+  /* 吸収後の殻 */
+  o+=CIRC(cx,cy,rout*s,'#EDF2F7',null,0,null,0.9);
+  o+=CIRC(cx,cy,rin*s,'#FBFCFB',null,0,null,1);
+  o+=CIRC(cx,cy,rout*s,'none',CBLU,1.4);
+  o+=CIRC(cx,cy,rin*s,'none',CBLU,1.1,'3 3',0.8);
+  o+=CIRC(cx,cy,rF*s,'none',MUT,1,'2 3',0.55);
+  /* 脱出領域 */
+  const rb=Math.sqrt(bar);
+  if(rb<rout){
+    const xo=Math.sqrt(Math.max(0,rout*rout-rb*rb));
+    const NN=100, top=[], bot=[];
+    for(let i=0;i<=NN;i++){
+      const x=-xo+2*xo*i/NN;
+      const yh=Math.sqrt(Math.max(0,rout*rout-x*x));
+      const yl=Math.abs(x)<rin?Math.max(rb,Math.sqrt(Math.max(0,rin*rin-x*x))):rb;
+      if(yh>yl+1e-9){ top.push([Xp(x),Yp(yh)]); bot.push([Xp(x),Yp(yl)]); }
+    }
+    if(top.length>2){
+      const poly=top.concat(bot.reverse());
+      o+=PLF(poly,'#F5DCE8',0.95);
+      o+=PL(poly,CCRM,1.4);
+    }
+    o+=LN(cx-R-8,Yp(rb),cx+R+8,Yp(rb),CCRM,1.6,'5 3');
+    o+=TX(cx+R+10,Yp(rb)-4,'この上だけ外へ出る',CCRMT,9.5,'end','600');
+    /* 円錐の角度 */
+    const th=Math.acos(Math.min(1,rb/rout))*180/Math.PI;
+    o+=TX(cx+6,Yp(rout)+16,'開き角 '+f1(th)+'\u00B0',CCRMT,10,'start','600');
+  } else {
+    o+=TXJ(cx,Yp(rout)-14,'壁が高すぎて誰も出られない',CCRMT,11,'middle','600');
+  }
+  o+=TX(Xp(0)+3,Yp(rout)-6,'\u221A(E_F+h\u03BD)',CBLUT,9,'start');
+  o+=TX(Xp(0)+3,Yp(rin)-5,'\u221Ah\u03BD',CBLUT,9,'start',null,0.8);
+  o+=TX(Xp(rF)+3,cy-4,'\u221AE_F',MUT,9,'start',null,0.7);
+  /* 説明 */
+  const tx=narrow?12:W*0.60, ty=narrow?H-52:56;
+  const lines=narrow?[
+    '半径は \u221AE に比例して描いてある。',
+    '光を吸うと殻ごと外へ広がる。',
+    '陽極を負にすると赤い線が上がり、',
+    '色のついた面積が減る。それが電流。'
+  ]:[
+    '半径は \u221AE に比例するように描いてある。',
+    '灰色の内側がフェルミ球、光を吸うと全員が',
+    '\u221A(E+h\u03BD) の殻へ移る。向きは変わらない。',
+    '',
+    '外へ出られるのは p_z が \u221A(壁) を超えたぶん。',
+    '陽極を負にすると壁が eV だけ高くなり、',
+    '赤い線が上がって色のついた面積が減る。',
+    'この面積の変化がそのまま I-V 曲線になる。'
+  ];
+  for(let i=0;i<lines.length;i++) o+=TXJ(tx,ty+i*(narrow?13:16),lines[i],MUT,narrow?9.5:10.5,'start');
+  put('cone-g',o);
+  const th=rb<rout?Math.acos(Math.min(1,rb/rout))*180/Math.PI:0;
+  put('conenote','いまの陽極電位 '+mn(f1(ST.Va))+' V での壁は '+fmt(bar,4)+' eV、脱出円錐の開き角は '+f1(th)+
+    '\u00B0。フェルミ準位ちょうどの電子でこの角度なので、深いところの電子はもっと狭い円錐しか使えない。'+
+    '収率が数パーセントにとどまるのは、エネルギーが足りていても向きが合わない電子がほとんどだから。'+
+    '角度についての積分だけは手で片づいて (1 \u2212 \u221A(壁/(E+h\u03BD)))/2 になるので、残るのはエネルギーの一重積分だけになる。');
+}
+
+/* ---------- 阻止電圧付近の熱的な裾 ---------- */
+function drawTail(){
+  const W=narrow?360:740, H=narrow?430:264;
+  setVB('sv-tail',W,H);
+  const m=met(), nu=nuHz(), K=Kmax();
+  if(K<=0.05){
+    put('tail-g',TXJ(W/2,H/2,'閾値を超える振動数にすると表示される',MUT,12,'middle'));
+    put('tailtab','<p class="note">いまの振動数では電子が出ないので、阻止電圧そのものが定義できない。'+
+      m.nm+'の閾振動数 '+fmt(nu0Of(m)/1e14,4)+'\u00D710\u00B9\u2074 Hz を超えると表が出る。</p>');
+    put('tailnote','');
+    put('numtab','<p class="note">積分区間が空なので刻み依存も出ない。</p>');
+    put('numnote','');
+    return;
+  }
+  const sat0=satAt(m,nu,1,0,320), satT=satAt(m,nu,1,ST.T,320);
+  const g1=narrow?{x:48,y:26,w:W-64,h:150}:{x:52,y:26,w:(W-96)/2,h:H-26-52};
+  const g2=narrow?{x:48,y:254,w:W-64,h:150}:{x:52+(W-96)/2+40,y:26,w:(W-96)/2,h:H-26-52};
+  const vlo=K*0.15, vhi=K*1.55;
+  let o='';
+  /* 左: √I 外挿 */
+  const NS=90;
+  let smax=0; const c0=[],cT=[];
+  for(let i=0;i<=NS;i++){
+    const V=vlo+(vhi-vlo)*i/NS;
+    const a=Math.sqrt(currentAt(m,nu,1,-V,0,320)/(sat0||1));
+    const b=Math.sqrt(currentAt(m,nu,1,-V,ST.T,320)/(satT||1));
+    c0.push([V,a]); cT.push([V,b]);
+    if(a>smax) smax=a; if(b>smax) smax=b;
+  }
+  const P1=mkPlot(g1.x,g1.y,g1.w,g1.h,vlo,vhi,0,niceCeil(smax*1.06),ticks(vlo,vhi,4),ticks(0,niceCeil(smax*1.06),4),
+    '阻止電圧 [V]','\u221A(I/I_sat)',t=>f1(t));
+  o+=P1.s;
+  o+=PL(c0.map(p=>[P1.X(p[0]),P1.Y(p[1])]),CGRN,2);
+  o+=PL(cT.map(p=>[P1.X(p[0]),P1.Y(p[1])]),CCRM,2);
+  o+=LN(P1.X(K),g1.y,P1.X(K),g1.y+g1.h,INK,1.3,'3 3',0.85);
+  o+=TX(P1.X(K)-5,g1.y+12,'厳密 '+fmt(K,4)+' V',INK,9.5,'end','600');
+  const e0=extractV0(m,nu,0), eT=extractV0(m,nu,ST.T);
+  if(eT!==null){ o+=CIRC(P1.X(eT),P1.Y(0),4,CCRM,'#fff',1.4); }
+  if(e0!==null){ o+=CIRC(P1.X(e0),P1.Y(0),4,CGRN,'#fff',1.4); }
+  o+=TXJ(g1.x+4,g1.y-14,'\u221AI は直線になる。外挿した先が読み取り値',MUT,narrow?9.5:10,'start');
+  /* 右: 片対数 */
+  const dlo=-6;
+  const P2=mkPlot(g2.x,g2.y,g2.w,g2.h,vlo,vhi,dlo,0.2,ticks(vlo,vhi,4),[0,-1,-2,-3,-4,-5,-6],
+    '阻止電圧 [V]','log\u2081\u2080(I/I_sat)',t=>f1(t),t=>mn(String(t)));
+  o+=P2.s;
+  const l0=[],lT=[];
+  for(let i=0;i<=NS;i++){
+    const V=vlo+(vhi-vlo)*i/NS;
+    const a=currentAt(m,nu,1,-V,0,320)/(sat0||1), b=currentAt(m,nu,1,-V,ST.T,320)/(satT||1);
+    if(a>0) l0.push([P2.X(V),P2.Y(clamp(Math.log10(a),dlo,0.2))]);
+    if(b>0) lT.push([P2.X(V),P2.Y(clamp(Math.log10(b),dlo,0.2))]);
+  }
+  o+=PL(l0,CGRN,2); o+=PL(lT,CCRM,2);
+  o+=LN(P2.X(K),g2.y,P2.X(K),g2.y+g2.h,INK,1.3,'3 3',0.85);
+  const kT=KB*ST.T/QE;
+  o+=TXJ(g2.x+4,g2.y-14,'0 K は垂直に落ちる。'+ST.T+' K は k_BT = '+fmt(kT*1000,3)+' meV の傾きで尾を引く',MUT,narrow?9.5:10,'start');
+  put('tail-g',o);
+  let tb='<table><caption>阻止電圧を越えたあとに残る電流（飽和電流に対する比）</caption><thead><tr><th>V_0 からの超過</th><th>0 K</th><th>'+ST.T+' K</th><th>比</th></tr></thead><tbody>';
+  for(const d of [0,0.02,0.05,0.10,0.20]){
+    const a=currentAt(m,nu,1,-(K+d),0,320)/(sat0||1), b=currentAt(m,nu,1,-(K+d),ST.T,320)/(satT||1);
+    tb+='<tr><td class="num">+'+d.toFixed(2)+' V</td><td class="num">'+(a>1e-12?expo(a,2):'0')+'</td><td class="num">'+(b>1e-12?expo(b,2):'0')+
+      '</td><td class="num">'+(a>1e-12?fmt(b/a,3):'\u2014')+'</td></tr>';
+  }
+  tb+='</tbody></table>';
+  put('tailtab',tb);
+  put('tailnote','0 K なら阻止電圧でぴたりとゼロになる。'+ST.T+' K ではフェルミ準位より上にも電子がいるので、'+
+    '越えたあとも exp(\u2212eV/k_BT) で減る尾が残る。k_BT = '+fmt(kT*1000,4)+' meV なので、0.1 V 過ぎたあたりで '+
+    'おおよそ 4 桁落ちる。読み取り値は 0 K で '+(e0!==null?fmt(e0,5)+' V':'\u2014')+'、'+ST.T+' K で '+(eT!==null?fmt(eT,5)+' V':'\u2014')+
+    '、厳密値は '+fmt(K,5)+' V。'+(eT!==null?('ずれは '+mn(((eT-K)>=0?'+':'')+(eT-K).toFixed(4))+' V。'):'')+
+    '陰極を冷やせばこの誤差は消えるが、実際の測定では暗電流のほうが先に効くことが多い。');
+  /* シンプソン則 */
+  let nt='<table><caption>分割数を変えたときの飽和電流（'+m.nm+'、いまの設定）</caption><thead><tr><th>分割数</th><th>飽和電流</th><th>1つ前との差</th><th>相対差</th></tr></thead><tbody>';
+  let prev=null;
+  for(const n of [20,40,80,160,320,640,1280]){
+    const v=satAt(m,nu,intensity(),ST.T,n);
+    const d=prev===null?null:v-prev;
+    nt+='<tr'+(n===ST.nsimp?' class="cur"':'')+'><td class="num">'+n+'</td><td class="num">'+fmtU(v,'A',8)+
+      '</td><td class="num">'+(d===null?'\u2014':expo(d,2)+' A')+'</td><td class="num">'+(d===null||v===0?'\u2014':expo(Math.abs(d/v),2))+'</td></tr>';
+    prev=v;
+  }
+  nt+='</tbody></table>';
+  put('numtab',nt);
+  put('numnote','被積分関数は下端で (E \u2212 E_lo) に比例して立ち上がるので折れ目がなく、シンプソン則がそのまま 4 次で効く。'+
+    '分割数を 2 倍にすると差が 1/16 になっているのがその証拠。画面のグラフは速さを優先して 160 分割、'+
+    '表と統計値は 320 分割で計算している。この差は 6 桁目より下にしか出ない。');
+}
+
+/* ---------- 医療応用 ---------- */
+const MEDMAT=[
+  {nm:'軟部組織',Z:7.42,col:CGRN,ct:CGRNT},
+  {nm:'骨',Z:13.8,col:CBLU,ct:CBLUT},
+  {nm:'ヨウ素造影剤',Z:53,col:CCRM,ct:CCRMT,kedge:33.17,jump:5.5}
+];
+/* 水（軟部組織）で光電吸収とコンプトン散乱が並ぶのが約 26 keV。そこを基準に Z³/E³ で伸ばす。
+   30 keV と 100 keV での骨/軟部の減弱比が実測（およそ 2.7 倍と 1.1 倍）に合うことは確認した */
+function photoRel(Z,E,mat){
+  let v=Math.pow(Z/7.42,3)*Math.pow(26/E,3);
+  if(mat&&mat.kedge&&E<mat.kedge) v/=mat.jump;
+  return v;
+}
+function drawMed(){
+  const W=narrow?360:740, H=narrow?290:280;
+  setVB('sv-med',W,H);
+  const elo=15, ehi=140;
+  const bx=narrow?46:60, by=26, bw=W-bx-16, bh=H-by-46;
+  const ylo=-2, yhi=3;
+  const X=e=>bx+(Math.log10(e)-Math.log10(elo))/(Math.log10(ehi)-Math.log10(elo))*bw;
+  const Y=v=>by+bh-(clamp(Math.log10(v),ylo,yhi)-ylo)/(yhi-ylo)*bh;
+  let o=RECT(bx,by,bw,bh,'#fff',SOFT,1);
+  for(const e of [15,20,30,40,60,80,100,140]){
+    o+=LN(X(e),by,X(e),by+bh,SOFT,1);
+    o+=TX(X(e),by+bh+12,String(e),MUT,9,'middle');
+  }
+  for(let p=ylo;p<=yhi;p++){
+    o+=LN(bx,Y(Math.pow(10,p)),bx+bw,Y(Math.pow(10,p)),SOFT,1);
+    o+=TX(bx-5,Y(Math.pow(10,p))+3,'10'+mn(String(p)),MUT,9,'end');
+  }
+  o+=LN(bx,by,bx,by+bh,RULE,1.2)+LN(bx,by+bh,bx+bw,by+bh,RULE,1.2);
+  o+=TX(bx+bw,by+bh+24,'光子のエネルギー [keV]',MUT,9.5,'end');
+  o+=TX(bx,by-7,'光電吸収 / コンプトン散乱',MUT,9.5,'start');
+  o+=LN(bx,Y(1),bx+bw,Y(1),INK,1.4,'5 3',0.8);
+  o+=TX(bx+bw-4,Y(1)-5,'コンプトン散乱と同じ大きさ',MUT,9.5,'end');
+  for(const mt of MEDMAT){
+    let seg=[];
+    for(let i=0;i<=160;i++){
+      const e=elo*Math.pow(ehi/elo,i/160);
+      const enx=i<160?elo*Math.pow(ehi/elo,(i+1)/160):null;
+      seg.push([X(e),Y(photoRel(mt.Z,e,mt))]);
+      if(mt.kedge&&enx!==null&&e<mt.kedge&&enx>=mt.kedge){
+        seg.push([X(mt.kedge),Y(photoRel(mt.Z,mt.kedge-0.01,mt))]);
+        o+=PL(seg,mt.col,2,null,0.95);
+        seg=[[X(mt.kedge),Y(photoRel(mt.Z,mt.kedge+0.01,mt))]];
+      }
+    }
+    o+=PL(seg,mt.col,2,null,0.95);
+    const ee=ehi*0.92, vv=photoRel(mt.Z,ee,mt);
+    o+=TX(X(ee),Y(vv)-6,mt.nm,mt.ct,narrow?9.5:10.5,'end','600');
+    if(mt.kedge){
+      o+=LN(X(mt.kedge),Y(photoRel(mt.Z,mt.kedge-0.01,mt)),X(mt.kedge),Y(photoRel(mt.Z,mt.kedge+0.01,mt)),mt.col,2);
+      o+=TX(X(mt.kedge),by+14,'K 吸収端 33.2 keV',mt.ct,9.5,'middle','600');
+    }
+  }
+  const E=ST.medE;
+  o+=LN(X(E),by,X(E),by+bh,INK,1.4,'2 3',0.85);
+  o+=TX(X(E),by+bh+24,E+' keV',INK,10,'middle','600');
+  put('med-g',o);
+  const ps=photoRel(7.42,E), pb=photoRel(13.8,E), pi=photoRel(53,E,MEDMAT[2]);
+  put('medstats',
+    stt('光子のエネルギー',E+' keV（\u03BB = '+fmt(HCNM/(E*1000),3)+' nm）')+
+    stt('軟部組織の光電吸収の割合',fmt(ps/(1+ps)*100,3)+' %')+
+    stt('骨の光電吸収の割合',fmt(pb/(1+pb)*100,3)+' %')+
+    stt('骨 / 軟部組織の減弱比',fmt((1+pb)/(1+ps),4)+' 倍')+
+    stt('ヨウ素 / 軟部組織の減弱比',fmt((1+pi)/(1+ps),4)+' 倍')+
+    stt('管電圧の目安',E<35?'マンモグラフィ域':(E<70?'一般撮影の実効エネルギー域':'CT・胸部の高電圧域')));
+  put('mednote','エネルギーを 30 keV から 100 keV へ上げると、骨と軟部組織の減弱比は '+
+    fmt((1+photoRel(13.8,30))/(1+photoRel(7.42,30)),3)+' 倍から '+
+    fmt((1+photoRel(13.8,100))/(1+photoRel(7.42,100)),3)+' 倍まで落ちる。コントラストがほしいなら低エネルギー、'+
+    '被曝を抑えて厚いところを通したいなら高エネルギー。マンモグラフィが 25〜32 kVp という低い管電圧を使うのは、'+
+    '乳腺と脂肪という原子番号のほとんど変わらない組織を分けるのに、光電吸収の Z\u00B3 依存を目いっぱい使うしかないから。'+
+    'ヨウ素造影剤が効くのは Z = 53 で、K 吸収端の 33.2 keV をまたぐと吸収が跳ね上がる。'+
+    'この図は Z\u00B3/E\u00B3 のスケーリングを、軟部組織で光電吸収とコンプトン散乱が並ぶ 26 keV に合わせて描いたもの。'+
+    '30 keV と 100 keV での骨/軟部比が実測とおおむね合うことは確かめてある。');
+  put('pmtnote','光電子増倍管の中身は、このページで扱っている光電管そのもの。'+
+    '光電面（Sb-K-Cs などのバイアルカリで、仕事関数はおよそ 1.5〜2 eV）に可視光子が当たって電子が1個出る。'+
+    'そのあとダイノードで 10\u2076 倍に増やして電気信号にする。'+
+    'シンチレータと組み合わせればガンマ線1本ずつが数えられるので、SPECT のガンマカメラ、PET、'+
+    'フローサイトメトリー、生化学自動分析装置の吸光度計まで、この管が入っていない検査室はほとんどない。'+
+    '仕事関数を下げた光電面を使うのは、可視光や近赤外の弱い光子でも電子を叩き出せるようにするため。'+
+    '同じ理由で暗電流（熱で勝手に出てくる電子）が増えるので、冷却して使うことが多い。'+
+    '最近は磁場の中でも動く SiPM への置き換えが進んでいて、PET と MRI の同時撮像はそれで実現している。');
+}
+
+/* ---------- 記号つきの式 ---------- */
+const FX1=[
+  {k:'h',t:'<b>プランク定数</b>　6.62607015&times;10<sup>&minus;34</sup> J&middot;s。2019 年の SI 改定で定義値になった。いまは測るものではなく、測るための基準'},
+  {k:'nu',t:'<b>光の振動数</b>　光子1個の大きさを決める唯一の量。色そのもの。強度とは無関係'},
+  {k:'W',t:'<b>仕事関数</b>　フェルミ準位から真空準位までの高さ。金属の種類と表面状態で決まる。バンドの底からの高さではない'},
+  {k:'K',t:'<b>最大運動エネルギー</b>　フェルミ準位ちょうどにいた電子が持って出られる上限。実際に出てくる電子は 0 からこの値までばらつく'},
+  {k:'nu0',t:'<b>閾振動数</b>　W/h。これより下では強度をいくら上げても電子は出ない。波長でいうと &lambda;<sub>0</sub> = hc/W'},
+  {k:'V0',t:'<b>阻止電圧</b>　光電流をちょうどゼロにする逆電圧。K<sub>max</sub> を電圧で測ったもので、強度によらない'},
+  {k:'N',t:'<b>単位時間の光子数</b>　P/h&nu;。強度を2倍にするとこれが2倍になる。飽和電流はここに比例する'},
+  {k:'EF',t:'<b>フェルミエネルギー</b>　絶対零度で電子が詰まっている高さ。曲線の形には効くが、阻止電圧には効かない'},
+  {k:'bar',t:'<b>壁の高さ</b>　真空準位に、陽極が負のぶんだけ上乗せしたもの。この壁を法線方向の運動エネルギーで越える'},
+  {k:'ang',t:'<b>角度についての積分</b>　向きが合わない電子は落ちる。ここだけ手で片づいて、残るのはエネルギーの一重積分'}
+];
+function buildFx(){
+  put('fx1','<span class="sym" data-k="h">h</span><span class="sym" data-k="nu">\u03BD</span> = '+
+    '<span class="sym" data-k="W">W</span> + <span class="sym" data-k="K">K<sub>max</sub></span>'+
+    '　　<span class="sym" data-k="nu0">\u03BD<sub>0</sub></span> = <span class="frac"><span class="n">W</span><span class="d">h</span></span>');
+  const box=document.getElementById('fx1');
+  if(box) box.addEventListener('click',function(e){
+    const t=e.target.closest('.sym'); if(!t) return;
+    for(const s of box.querySelectorAll('.sym')) s.classList.remove('on');
+    t.classList.add('on');
+    const d=FX1.filter(x=>x.k===t.getAttribute('data-k'))[0];
+    put('fx1d',d?d.t:'');
+  });
+  put('fx2','e<span class="sym" data-k="V0">V<sub>0</sub></span> = K<sub>max</sub> = h\u03BD \u2212 W　　\u2192　　'+
+    'V<sub>0</sub> = <span class="frac"><span class="n">h</span><span class="d">e</span></span>\u03BD \u2212 <span class="frac"><span class="n">W</span><span class="d">e</span></span>'+
+    '　　（傾き h/e = 4.135668\u00D710\u207B\u00B9\u2075 V\u00B7s）');
+  put('fx3','I(V) \u221D <span class="sym" data-k="N">N</span> &int; \u221AE\u00B7'+
+    '<span class="sym" data-k="ang">[1 \u2212 \u221A(<span class="sym" data-k="bar">\u03B2</span>/(E+h\u03BD))] / 2</span> dE'+
+    '　　\u03B2 = <span class="sym" data-k="EF">E<sub>F</sub></span> + W + max(0, \u2212eV)<br>'+
+    '積分の下限 E<sub>lo</sub> = max(0, \u03B2 \u2212 h\u03BD)　　上限 E<sub>F</sub>（T = 0 のとき）');
+  put('fx3note','積分の中に光の強度がどこにも入っていないところが要点。強度が効くのは前に掛かる光子数 N だけで、'+
+    '積分がゼロになる電圧には手が届かない。上限と下限が一致する条件 &beta; \u2212 h&nu; = E<sub>F</sub> を解くと eV = h&nu; \u2212 W が出るので、'+
+    '近似を一切使わずに阻止電圧の式が再現される。下端で被積分関数が (E \u2212 E<sub>lo</sub>) に比例して立ち上がるため、'+
+    '電流は阻止電圧の手前で (V<sub>0</sub> \u2212 V)\u00B2 のようにゼロへ近づく。\u221AI を電圧に対してプロットすると直線になるのはこのため。');
+}
+
+/* ---------- ダッシュボード ---------- */
+function drawBig(){
+  const m=met(), K=Kmax(), I=intensity();
+  const N=photonRate(I);
+  put('bigrow',
+    '<span><span class="bk">光子1個 h&nu;</span><span class="bv">'+fmt(hnuEV(),4)+'</span><span class="bu">eV　振動数だけで決まる</span></span>'+
+    '<span><span class="bk">単位時間の光子数 N</span><span class="bv">'+N.toExponential(2).split('e')[0]+'</span><span class="bu">\u00D710'+
+      mn(String(parseInt(N.toExponential(2).split('e')[1],10)))+' 個/s　強度だけで決まる</span></span>'+
+    '<span><span class="bk">最大運動エネルギー</span><span class="bv">'+(K>0?fmt(K,4):'\u2014')+'</span><span class="bu">eV</span></span>'+
+    '<span><span class="bk">阻止電圧 V<sub>0</sub></span><span class="bv">'+(K>0?fmt(K,4):'\u2014')+'</span><span class="bu">V</span></span>');
+}
+function drawQ(){
+  const m=met(), K=Kmax(), I=intensity(), nu=nuHz();
+  const N=photonRate(I);
+  const sat=K>0?satAt(m,nu,I,ST.T,320):0;
+  const Y=K>0?yieldAt(m,nu,0,ST.T,320):0;
+  const v=K>0?Math.sqrt(2*K*QE/ME):0;
+  const pph=HP/(lamNM()*1e-9);
+  const pe=K>0?Math.sqrt(2*ME*K*QE):0;
+  const items=[
+    {k:'金属',v:m.sym+' / W = '+f1(m.W)+' eV',cls:'flat',w:m.nm+'　\u03BD<sub>0</sub> = '+fmt(nu0Of(m)/1e14,4)+'\u00D710\u00B9\u2074 Hz'},
+    {k:'波長 \u03BB',v:fmt(lamNM(),4)+' nm',cls:'flat',w:'閾波長 '+fmt(lam0Of(m),4)+' nm'},
+    {k:'光子1個 h\u03BD',v:fmt(hnuEV(),4)+' eV',cls:'lock',w:'強度を変えても動かない'},
+    {k:'光子数 N',v:fmt(N,3)+' 個/s',cls:'up',w:'強度に比例'},
+    {k:'K_max',v:K>0?fmt(K,4)+' eV':'放出なし',cls:K>0?'ok':'up',w:K>0?'h\u03BD \u2212 W':'\u03BD &lt; \u03BD<sub>0</sub>'},
+    {k:'阻止電圧 V_0',v:K>0?fmt(K,4)+' V':'\u2014',cls:'lock',w:'強度を変えても動かない'},
+    {k:'飽和電流',v:K>0?fmtU(sat,'A',4):'0',cls:'up',w:'強度に比例'},
+    {k:'吸収光子あたりの収率',v:K>0?fmt(Y*100,3)+' %':'0',cls:'flat',w:'向きが合う電子だけが出る'},
+    {k:'電子の最大速度',v:K>0?fmt(v/1e3,4)+' km/s':'\u2014',cls:'flat',w:K>0?'v/c = '+fmt(v/CL,3):''},
+    {k:'光子の運動量',v:expo(pph,3)+' kg m/s',cls:'flat',w:K>0?'電子の '+fmt(pph/pe*100,3)+' %':'垂直遷移とみなせる'},
+    {k:'k_BT（'+ST.T+' K）',v:fmt(KB*ST.T/QE*1000,4)+' meV',cls:'flat',w:'阻止電圧の裾の幅'},
+    {k:'古典予測の待ち時間',v:fmtU(classicalDelay(m,I),'s',3),cls:'up',w:'実測は 3 ns 以下'}
+  ];
+  let h='';
+  for(const x of items) h+='<div class="qc '+x.cls+'"><div class="qk">'+x.k+'</div><div class="qv">'+x.v+'</div><div class="qw">'+x.w+'</div></div>';
+  put('qgrid',h);
+  put('mainnote','上の4つの数字のうち、左の2つは完全に独立している。振動数を動かすと h&nu; だけが変わり、'+
+    '強度を動かすと N だけが変わる。この2つを混ぜないことが光電効果の理解のほとんどすべてで、'+
+    '「明るい光」と「振動数の高い光」を区別しないまま読むと、どの実験結果も矛盾して見える。'+
+    '下の枠のうち黄色は強度を動かしても変わらない量、赤は強度に比例する量。');
+  put('mainwarn',K>0?'':
+    'いまの振動数 '+f1(ST.nu)+'\u00D710\u00B9\u2074 Hz は'+m.nm+'の閾値 '+fmt(nu0Of(m)/1e14,4)+
+    '\u00D710\u00B9\u2074 Hz を下回っている。強度を最大にしても電流はゼロのまま。振動数を上げるか、仕事関数の小さい金属に変えると動き出す。');
+}
+
+/* ---------- 表 ---------- */
+function buildTables(){
+  let mt='<table><caption>採用した値と、文献で見かける他の値</caption><thead><tr><th>金属</th><th>採用 W</th><th>他の文献値</th><th>閾波長 \u03BB<sub>0</sub></th><th>閾振動数</th><th>E_F（自由電子）</th><th>注記</th></tr></thead><tbody>';
+  for(const m of METALS){
+    mt+='<tr'+(m.id===ST.met?' class="cur"':'')+'><td><span class="chip"><span class="dot" style="background:'+m.col+'"></span>'+m.nm+' '+m.sym+'</span></td>'+
+      '<td class="num">'+f1(m.W)+' eV</td><td class="num">'+m.alt+'</td><td class="num">'+fmt(lam0Of(m),4)+' nm</td>'+
+      '<td class="num">'+fmt(nu0Of(m)/1e14,4)+'\u00D710\u00B9\u2074</td><td class="num">'+f1(m.EF)+' eV</td><td>'+m.note+'</td></tr>';
+  }
+  mt+='</tbody></table>';
+  put('mettable',mt);
+  put('metnote','仕事関数は「その金属の値」として一意に決まる量ではない。結晶面が違えば 0.5 eV 動き、'+
+    '表面に酸素や水が吸着すればさらに動く。採用したのは多結晶試料の値（HyperPhysics / Tipler 系）で、'+
+    '日本の教科書が載せている数字ともおおむね揃う。清浄表面の値を採る CRC / Michaelson 系だとナトリウムが 2.75 eV になり、'+
+    '閾波長が 525 nm から 451 nm へ 74 nm も動く。緑の光で電子が出るか出ないかが文献の選び方で変わってしまう、'+
+    'という程度には不確かな量だと思っておくのが安全。白金は 5.65 eV、5.70 eV、6.35 eV が併存していて、'+
+    'ばらつきの幅では最悪の部類に入る。');
+  let h='<table><thead><tr><th>近似</th><th>効く場所</th><th>ずれの中身</th></tr></thead><tbody>';
+  for(const r of APPROX) h+='<tr><td>'+r[0]+'</td><td>'+r[1]+'</td><td>'+r[2]+'</td></tr>';
+  h+='</tbody></table>';
+  put('apptable',h);
+  let c='<table><thead><tr><th>定数</th><th>採用値</th><th>出どころ</th><th>注記</th></tr></thead><tbody>';
+  for(const r of CONSTS) c+='<tr><td>'+r[0]+'</td><td class="mono">'+r[1]+'</td><td>'+r[2]+'</td><td>'+r[3]+'</td></tr>';
+  c+='</tbody></table>';
+  put('consttable',c);
+  let ms='';
+  for(const s of MISS) ms+='<li>'+s+'</li>';
+  put('misslist',ms);
+}
+function updConstNote(){
+  put('constnote','h も e も 2019 年の SI 改定で定義値になったので、その比である h/e = '+
+    '4.135667696\u00D710\u207B\u00B9\u2075 V\u00B7s には誤差がない。'+
+    'つまり「阻止電圧と振動数の直線の傾きから h を求める」という実験は、いまは h を測っているのではなく、'+
+    '装置が正しく動いているかを確かめる作業になっている。歴史の向きが逆転していて、'+
+    '現在は h のほうが電圧標準（ジョセフソン効果、K_J = 2e/h）を支えている。'+
+    '一方で仕事関数だけは定義値になりようがなく、いまも試料ごとに測るしかない。'+
+    'このページの数字のうち、不確かさが桁違いに大きいのはそこだけ。');
+}
+
+/* ---------- UI ---------- */
+function buildMetUI(){
+  mkBtnRow('metsel',METALS.map(m=>({id:m.id,nm:m.sym+' '+f1(m.W)})),it=>ST.met===it.id,it=>{ ST.met=it.id; clampVa(); onParam(); });
+}
+function buildIvUI(){
+  mkBtnRow('ivmode',[{id:'int',nm:'強度を3段階'},{id:'nu',nm:'振動数を3段階'},{id:'met',nm:'金属を3種'}],
+    it=>ST.ivMode===it.id,it=>{ ST.ivMode=it.id; onParam(); });
+}
+function clampVa(){
+  const K=Kmax();
+  const lo=-(K>0?K:0.4)*1.3;
+  ST.Va=clamp(ST.Va,lo,0.5);
+}
+function buildSliders(){
+  addSlider('mainsliders','nu','振動数 \u03BD',20,400,1,()=>ST.nu*20,v=>{ST.nu=v/20;},v=>(v/20).toFixed(2),'\u00D710\u00B9\u2074 Hz',null,
+    ()=>f1(ST.nu)+'（'+fmt(lamNM(),3)+' nm）');
+  addSlider('mainsliders','ik','光の強度',-28,28,1,()=>ST.ik,v=>{ST.ik=v;},v=>fmt(Math.pow(2,v/4),3),'W/m\u00B2',null,
+    ()=>fmt(intensity(),3)+' W/m\u00B2');
+  addSlider('ivsliders','Va','陽極電位 V',-400,80,1,()=>ST.Va*100,v=>{ST.Va=v/100;},v=>mn((v/100).toFixed(2)),'V',onCursor);
+  addSlider('ivsliders','ik2','光の強度',-28,28,1,()=>ST.ik,v=>{ST.ik=v;},v=>fmt(Math.pow(2,v/4),3),'W/m\u00B2',null,
+    ()=>fmt(intensity(),3)+' W/m\u00B2');
+  addSlider('numsliders','T','陰極の温度 T',0,900,10,()=>ST.T,v=>{ST.T=v;},v=>String(v),'K');
+  addSlider('numsliders','nsimp','シンプソン則の分割数',0,5,1,()=>NSL.indexOf(ST.nsimp),v=>{ST.nsimp=NSL[v];},v=>String(NSL[v]),'');
+  addSlider('medsliders','medE','X線光子のエネルギー',15,140,1,()=>ST.medE,v=>{ST.medE=v;},v=>String(v),'keV',onMed);
+}
+const NSL=[40,80,160,240,480,960];
+
+/* ---------- ポインタ操作 ---------- */
+function bindDrag(svgId,onMove){
+  const sv=document.getElementById(svgId);
+  if(!sv) return;
+  let on=false;
+  const pos=function(e){
+    const r=sv.getBoundingClientRect();
+    const vb=sv.viewBox.baseVal;
+    const w=vb&&vb.width?vb.width:r.width;
+    return (e.clientX-r.left)/r.width*w;
+  };
+  sv.addEventListener('pointerdown',function(e){
+    on=true;
+    try{ sv.setPointerCapture(e.pointerId); }catch(err){}
+    onMove(pos(e));
+  });
+  sv.addEventListener('pointermove',function(e){
+    if(!on) return;
+    e.preventDefault();
+    onMove(pos(e));
+  });
+  const up=function(){ on=false; };
+  sv.addEventListener('pointerup',up);
+  sv.addEventListener('pointercancel',up);
+  sv.addEventListener('pointerleave',up);
+}
+function bindAll(){
+  bindDrag('sv-spec',function(x){
+    const t=(x-SPEC.x0)/Math.max(1,SPEC.x1-SPEC.x0);
+    ST.nu=clamp(SPEC.nlo+t*(SPEC.nhi-SPEC.nlo),1,20);
+    ST.nu=Math.round(ST.nu*20)/20;
+    clampVa(); onParam();
+  });
+  bindDrag('sv-line',function(x){
+    const t=(x-LNL.x0)/Math.max(1,LNL.x1-LNL.x0);
+    ST.nu=clamp(t*20,1,20);
+    ST.nu=Math.round(ST.nu*20)/20;
+    clampVa(); onParam();
+  });
+  bindDrag('sv-iv',function(x){
+    if(!IVL.P) return;
+    const t=(x-IVL.x0)/Math.max(1,IVL.x1-IVL.x0);
+    ST.Va=clamp(IVL.vlo+t*(IVL.vhi-IVL.vlo),-4,0.8);
+    ST.Va=Math.round(ST.Va*100)/100;
+    onCursor();
+  });
+}
+
+/* ---------- 更新 ---------- */
+let heavyTid=null;
+function scheduleHeavy(){
+  clearTimeout(heavyTid);
+  heavyTid=setTimeout(function(){
+    drawFit(); drawTail(); drawCnt(); drawDelay(); buildCmp(); drawMed();
+  },170);
+}
+function refresh(){
+  buildMetUI(); buildIvUI();
+  drawSpec(); drawLev(); drawBig(); drawQ();
+  drawIV(); drawLine(); drawCone();
+  buildTables(); updConstNote();
+  syncSliders();
+  scheduleHeavy();
+}
+function onParam(){ refresh(); }
+function onCursor(){ drawIVfg(); drawCone(); syncSlider('Va');
+  const m=met(), K=Kmax(), sat=K>0?satAt(m,nuHz(),intensity(),ST.T,320):0;
+  put('ivstats',
+    stt('飽和電流',K>0?fmtU(sat,'A',4):'0')+
+    stt('阻止電圧 V<sub>0</sub>',K>0?fmt(K,4)+' V':'\u2014')+
+    stt('単位時間の光子数',fmt(photonRate(intensity()),4)+' 個/s')+
+    stt('吸収光子あたりの収率',K>0?fmt(yieldAt(m,nuHz(),0,ST.T,320)*100,3)+' %':'0')+
+    stt('カーソル位置の電流',K>0?fmtU(currentAt(m,nuHz(),intensity(),ST.Va,ST.T,320),'A',4):'0')+
+    stt('飽和電流に対する割合',(K>0&&sat>0)?fmt(currentAt(m,nuHz(),intensity(),ST.Va,ST.T,320)/sat*100,3)+' %':'\u2014'));
+}
+function onMed(){ drawMed(); syncSlider('medE'); }
+
+let rt=null;
+window.addEventListener('resize',function(){
+  clearTimeout(rt);
+  rt=setTimeout(function(){
+    const n=window.innerWidth<=430;
+    if(n!==narrow){ narrow=n; refresh(); }
+  },160);
+});
+
+/* ---------- 起動 ---------- */
+buildSliders();
+buildFx();
+bindAll();
+clampVa();
+refresh();
+</script>
+</body>
+</html>

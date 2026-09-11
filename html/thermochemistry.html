@@ -1,0 +1,867 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>熱化学 — 反応エンタルピーとヘスの法則</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500;600&family=IBM+Plex+Sans+JP:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+:root{
+  --ink:#16232B; --muted:#5E6E76; --paper:#EDF1EF; --surface:#FFFFFF;
+  --rule:#D6DDDA; --rule-soft:#E8EDEB;
+  --s0:#B87A16; --s0t:#8A5A0C;
+  --s1:#158A6D; --s1t:#0D6A53;
+  --s2:#2457A6; --s2t:#1B4380;
+  --s3:#6E3AA7; --s3t:#572D85;
+  --s4:#A82A6A; --s4t:#831F52;
+  --s5:#3B6E1E; --s5t:#2A5215;
+  --sans:"IBM Plex Sans JP","Hiragino Sans","Yu Gothic UI",system-ui,sans-serif;
+  --mono:"IBM Plex Mono",ui-monospace,SFMono-Regular,Menlo,monospace;
+}
+*{box-sizing:border-box}
+html,body{margin:0;padding:0}
+body{
+  background:var(--paper); color:var(--ink);
+  font-family:var(--sans); font-size:14px; line-height:1.75;
+  -webkit-text-size-adjust:100%;
+}
+.wrap{max-width:810px;margin:0 auto;padding:18px 14px 60px}
+.card{
+  background:var(--surface); border:1px solid var(--rule); border-radius:3px;
+  padding:16px 16px 18px; margin-bottom:14px;
+}
+h1{font-size:22px;font-weight:600;letter-spacing:.01em;margin:6px 0 8px;line-height:1.45}
+h2{font-size:15px;font-weight:600;letter-spacing:.01em;margin:0 0 10px}
+p{margin:0 0 10px}
+.lead{color:var(--muted);font-size:13px;margin:0}
+.eyebrow{
+  display:flex;align-items:center;gap:10px;
+  font-family:var(--mono);font-size:11.5px;letter-spacing:.14em;
+  color:var(--muted);text-transform:uppercase;margin:0 0 4px;
+}
+.eyebrow::after{content:"";flex:1;height:1px;background:var(--rule)}
+.mono{font-family:var(--mono);font-variant-numeric:tabular-nums}
+.num{font-family:var(--mono);font-variant-numeric:tabular-nums;text-align:right;white-space:nowrap}
+.muted{color:var(--muted)}
+.small{font-size:12px}
+.xs{font-size:11.5px}
+
+/* buttons */
+.btnrow{display:flex;flex-wrap:wrap;gap:6px;margin:0 0 12px}
+button{
+  font-family:var(--sans);font-size:12.5px;line-height:1.5;
+  color:var(--ink);background:var(--surface);
+  border:1px solid var(--rule);border-radius:2px;
+  padding:5px 10px;cursor:pointer;
+}
+button:hover{border-color:var(--muted)}
+button.on{background:var(--ink);color:#fff;border-color:var(--ink)}
+button.mini{font-family:var(--mono);font-size:11px;padding:2px 7px}
+button:disabled{opacity:.4;cursor:default}
+
+/* svg host */
+.plot{width:100%;height:auto;display:block;touch-action:none;user-select:none;-webkit-user-select:none}
+.plotbox{border:1px solid var(--rule-soft);border-radius:2px;padding:2px 0 0;margin:0 0 10px}
+
+/* slider */
+.sliderrow{display:flex;align-items:center;gap:10px;margin:0 0 10px}
+.sliderrow label{font-family:var(--mono);font-size:11.5px;letter-spacing:.06em;color:var(--muted);white-space:nowrap}
+input[type=range]{flex:1;accent-color:var(--ink);height:22px}
+
+/* tables */
+table{width:100%;border-collapse:collapse;font-size:12.5px}
+th,td{border-bottom:1px solid var(--rule-soft);padding:6px 6px;text-align:left;vertical-align:top}
+th{font-family:var(--mono);font-size:11px;letter-spacing:.1em;color:var(--muted);font-weight:500;white-space:nowrap}
+tr.dim td{color:var(--muted)}
+tr.act td{background:var(--rule-soft)}
+td.k{width:1%;white-space:nowrap}
+.swatch{display:inline-block;width:9px;height:9px;border-radius:1px;margin-right:6px;vertical-align:-1px}
+.total td{border-top:1px solid var(--rule);border-bottom:none;font-weight:600}
+.note{
+  border-left:2px solid var(--rule);padding:2px 0 2px 10px;
+  color:var(--muted);font-size:12px;margin:10px 0 0;
+}
+.kv{display:flex;flex-wrap:wrap;gap:0 22px;margin:10px 0 0}
+.kv div{font-size:12.5px}
+.kv b{font-family:var(--mono);font-weight:600;font-variant-numeric:tabular-nums}
+.split{display:grid;grid-template-columns:1fr 1fr;gap:0 18px}
+footer{color:var(--muted);font-size:11.5px;font-family:var(--mono);letter-spacing:.06em;text-align:center;padding:6px 0 0}
+@media (max-width:430px){
+  .wrap{padding:12px 10px 44px}
+  .card{padding:13px 12px 15px}
+  h1{font-size:19px}
+  table{font-size:12px}
+  th,td{padding:5px 4px}
+  .split{grid-template-columns:1fr}
+}
+</style>
+</head>
+<body>
+<main class="wrap">
+
+<section class="card">
+  <div class="eyebrow">熱化学 / 第 1 部</div>
+  <h1>反応エンタルピーとヘスの法則</h1>
+  <p class="lead">
+    縦軸は kJ/mol のエンタルピー、反応物を 0 に置く。この軸は第2部（反応速度）と第3部（化学平衡）でもそのまま使う。
+    第1部で決めるのは両端の高さだけで、途中の峠は第2部で載せる。
+  </p>
+</section>
+
+<!-- ===================== 1. ヘスの法則 ===================== -->
+<section class="card">
+  <div class="eyebrow">Hess's law — 経路をたどる</div>
+  <h2>どの道を通っても、両端の高さは同じ</h2>
+  <div class="btnrow" id="rxBtns"></div>
+  <p class="mono small" id="rxEq" style="margin:0 0 2px"></p>
+  <p class="small muted" id="rxTag" style="margin:0 0 10px"></p>
+
+  <div class="btnrow" id="pathBtns"></div>
+
+  <div class="plotbox"><svg class="plot" id="svgHess"></svg></div>
+
+  <div class="sliderrow">
+    <label>STEP</label>
+    <input type="range" id="stepSlider" min="0" max="1" step="1" value="0">
+    <button class="mini" id="stepPrev">←</button>
+    <button class="mini" id="stepNext">→</button>
+  </div>
+
+  <table id="stepTable"></table>
+  <div class="note" id="rxNote"></div>
+</section>
+
+<!-- ===================== 2. 結合エネルギー ===================== -->
+<section class="card">
+  <div class="eyebrow">Bond enthalpy — 原子まで持ち上げる</div>
+  <h2>結合を切って作り直す経路と、そのずれ</h2>
+  <div class="btnrow" id="bondBtns"></div>
+  <div class="plotbox"><svg class="plot" id="svgBond"></svg></div>
+  <div class="split">
+    <table id="bondBreak"></table>
+    <table id="bondForm"></table>
+  </div>
+  <div class="kv" id="bondKv"></div>
+  <div class="note" id="bondNote"></div>
+</section>
+
+<!-- ===================== 3. 共通軸プレビュー ===================== -->
+<section class="card">
+  <div class="eyebrow">Shared axis — 第2部・第3部への接続</div>
+  <h2>峠を下げても、両端は動かない</h2>
+  <p class="small muted" style="margin:0 0 10px">
+    第1部で確定した ΔH は、下の図の左端と右端の高さの差。峠の高さ（活性化エネルギー）をどう変えても、この差は 1 kJ も変わらない。
+    それが第2部で「触媒は速度だけを変える」、第3部で「触媒は平衡を動かさない」につながる。
+  </p>
+  <div class="plotbox"><svg class="plot" id="svgEa"></svg></div>
+  <div class="sliderrow">
+    <label>Ea 正 / kJ mol⁻¹</label>
+    <input type="range" id="eaSlider" min="20" max="300" step="1" value="180">
+    <button class="mini" id="catBtn">Ni 触媒</button>
+  </div>
+  <table id="eaTable"></table>
+</section>
+
+<!-- ===================== 4. 注記 ===================== -->
+<section class="card">
+  <div class="eyebrow">Constants — 採用値の出典</div>
+  <h2>教科書値と食い違う定数</h2>
+  <table id="noteTable"></table>
+  <div class="note">
+    このファイル全体で、標準状態は 298 K・10⁵ Pa。単体の生成エンタルピーを 0 とする。
+    旧課程の熱化学方程式の Q とは Q = −ΔH の関係になる。
+  </div>
+</section>
+
+<footer>THERMOCHEMISTRY — PART 1 OF 3</footer>
+</main>
+
+<script>
+"use strict";
+/* ------------------------------------------------------------------
+   データ定義。反応系を足すときは REACTIONS に1要素追加するだけでよい。
+
+   REACTIONS[i] = {
+     id, name, tag, eq, total,          total = 反応全体の ΔH / kJ mol⁻¹
+     start,                             エネルギー図の左端ノードのラベル
+     paths: [ { name, approx?, steps:[ {t, d, to} ] } ],
+       t  = その段の説明   d = その段の ΔH   to = 到達したノードのラベル
+       approx: true をつけると「終点が total とずれてよい経路」になる
+     note                               図の下に出す注記
+   }
+------------------------------------------------------------------- */
+const REACTIONS = [
+  {
+    id:"ch4", name:"メタンの燃焼", tag:"燃焼エンタルピー / 発熱",
+    eq:"CH₄(気) + 2O₂(気) → CO₂(気) + 2H₂O(液)", total:-890.2,
+    start:"CH₄ + 2O₂",
+    paths:[
+      {name:"直接", steps:[
+        {t:"CH₄ + 2O₂ → CO₂ + 2H₂O(液)", d:-890.2, to:"CO₂ + 2H₂O(液)"}
+      ]},
+      {name:"単体を経由", steps:[
+        {t:"CH₄ を単体に戻す（生成エンタルピーの逆）", d:74.9, to:"C + 2H₂ + 2O₂"},
+        {t:"C(黒鉛) + O₂ → CO₂", d:-393.5, to:"CO₂ + 2H₂ + O₂"},
+        {t:"2H₂ + O₂ → 2H₂O(液)", d:-571.6, to:"CO₂ + 2H₂O(液)"}
+      ]},
+      {name:"水蒸気を経由", steps:[
+        {t:"CH₄ + 2O₂ → CO₂ + 2H₂O(気)", d:-802.2, to:"CO₂ + 2H₂O(気)"},
+        {t:"2H₂O(気) → 2H₂O(液) 凝縮", d:-88.0, to:"CO₂ + 2H₂O(液)"}
+      ]}
+    ],
+    note:"燃焼エンタルピーを問われたら、生成物の水が液体か気体かを必ず確認する。ここでは 88.0 kJ、つまり全体の約 10% が入れ替わる。"
+  },
+  {
+    id:"co", name:"CO の生成", tag:"直接は測れない量",
+    eq:"C(黒鉛) + ½O₂(気) → CO(気)", total:-110.5,
+    start:"C + ½O₂",
+    paths:[
+      {name:"直接", steps:[
+        {t:"C + ½O₂ → CO（この段だけを単離して測るのは難しい）", d:-110.5, to:"CO"}
+      ]},
+      {name:"CO₂ を経由", steps:[
+        {t:"C(黒鉛) + O₂ → CO₂", d:-393.5, to:"CO₂"},
+        {t:"CO₂ → CO + ½O₂（CO の燃焼の逆）", d:283.0, to:"CO"}
+      ]}
+    ],
+    note:"炭素を不足酸素で燃やすと CO と CO₂ が混ざるので、CO だけを作る反応熱は測定できない。測れる 2 つの燃焼エンタルピーの差として求めるのが定石。"
+  },
+  {
+    id:"h2o", name:"水の生成", tag:"状態が変われば値も変わる",
+    eq:"H₂(気) + ½O₂(気) → H₂O(液)", total:-285.8,
+    start:"H₂ + ½O₂",
+    paths:[
+      {name:"直接", steps:[
+        {t:"H₂ + ½O₂ → H₂O(液)", d:-285.8, to:"H₂O(液)"}
+      ]},
+      {name:"水蒸気を経由", steps:[
+        {t:"H₂ + ½O₂ → H₂O(気)", d:-241.8, to:"H₂O(気)"},
+        {t:"H₂O(気) → H₂O(液) 凝縮", d:-44.0, to:"H₂O(液)"}
+      ]}
+    ],
+    note:"2 つの生成エンタルピーの差 44.0 kJ/mol が 298 K での蒸発エンタルピー。沸点 373 K での 40.7 kJ/mol とは温度が違うので一致しない。"
+  },
+  {
+    id:"nh3", name:"アンモニアの合成", tag:"第3部・ハーバー法へ",
+    eq:"N₂(気) + 3H₂(気) → 2NH₃(気)", total:-91.8,
+    start:"N₂ + 3H₂",
+    paths:[
+      {name:"直接", steps:[
+        {t:"N₂ + 3H₂ → 2NH₃", d:-91.8, to:"2NH₃"}
+      ]},
+      {name:"原子を経由", approx:true, steps:[
+        {t:"N≡N を 1 本切る", d:945.0, to:"2N + 3H₂"},
+        {t:"H–H を 3 本切る", d:1308.0, to:"2N + 6H"},
+        {t:"N–H を 6 本つくる", d:-2346.0, to:"2NH₃（結合エネルギー版）"}
+      ]}
+    ],
+    note:"原子経由の終点だけ 1.2 kJ 高いところに落ちる。結合エネルギーが平均値だから。第3部では、この −91.8 kJ の符号が「温度を上げると収率が下がる」を決める。"
+  },
+  {
+    id:"c2h4", name:"エチレンの水素化", tag:"第2部・触媒へ",
+    eq:"C₂H₄(気) + H₂(気) → C₂H₆(気)", total:-136.5,
+    start:"C₂H₄ + H₂",
+    paths:[
+      {name:"直接", steps:[
+        {t:"C₂H₄ + H₂ → C₂H₆", d:-136.5, to:"C₂H₆"}
+      ]},
+      {name:"単体を経由", steps:[
+        {t:"C₂H₄ を単体に戻す", d:-52.5, to:"2C + 3H₂"},
+        {t:"2C + 3H₂ → C₂H₆", d:-84.0, to:"C₂H₆"}
+      ]},
+      {name:"結合エネルギー", approx:true, steps:[
+        {t:"C=C と H–H を切る（変化しない C–H 4 本は数えない）", d:1050.0, to:"切れた状態"},
+        {t:"C–C を 1 本、C–H を 2 本つくる", d:-1174.0, to:"C₂H₆（結合エネルギー版）"}
+      ]}
+    ],
+    note:"結合エネルギー経由だと 12.5 kJ も浅く出る。C=C の平均値が、エチレンの実際の二重結合を表しきれていないため。第2部でこの反応に Ni 触媒を入れるが、両端の高さは動かない。"
+  },
+  {
+    id:"nacl", name:"塩化ナトリウムの格子エネルギー", tag:"ボルン・ハーバーサイクル",
+    eq:"Na(固) + ½Cl₂(気) → NaCl(固)", total:-411.2,
+    start:"Na(固) + ½Cl₂",
+    paths:[
+      {name:"直接", steps:[
+        {t:"Na(固) + ½Cl₂ → NaCl(固)", d:-411.2, to:"NaCl(固)"}
+      ]},
+      {name:"ボルン・ハーバー", steps:[
+        {t:"昇華 Na(固) → Na(気)", d:107.3, to:"Na(気) + ½Cl₂"},
+        {t:"イオン化 Na → Na⁺ + e⁻", d:495.8, to:"Na⁺ + e⁻ + ½Cl₂"},
+        {t:"解離 ½Cl₂ → Cl", d:121.3, to:"Na⁺ + e⁻ + Cl"},
+        {t:"電子親和 Cl + e⁻ → Cl⁻", d:-348.6, to:"Na⁺ + Cl⁻ (気)"},
+        {t:"格子形成 Na⁺ + Cl⁻ → NaCl(固)", d:-787.0, to:"NaCl(固)"}
+      ]}
+    ],
+    note:"格子形成の段だけが直接測れない。他の4段と全体の値が分かっているので引き算で出る。「格子形成の段を未知にする」を押すと、その手順が再現できる。"
+  },
+  {
+    id:"caco3", name:"炭酸カルシウムの熱分解", tag:"吸熱の例",
+    eq:"CaCO₃(固) → CaO(固) + CO₂(気)", total:179.0,
+    start:"CaCO₃(固)",
+    paths:[
+      {name:"直接", steps:[
+        {t:"CaCO₃ → CaO + CO₂", d:179.0, to:"CaO + CO₂"}
+      ]},
+      {name:"単体を経由", steps:[
+        {t:"CaCO₃ を単体に戻す", d:1207.6, to:"Ca + C + ³⁄₂O₂"},
+        {t:"Ca + ½O₂ → CaO", d:-635.1, to:"CaO + C + O₂"},
+        {t:"C + O₂ → CO₂", d:-393.5, to:"CaO + CO₂"}
+      ]}
+    ],
+    note:"生成物のほうが高いところにある。石灰石を焼くのに熱を与え続けなければならないのはこのため。第3部ではこの反応を圧力変化の例として扱う。"
+  }
+];
+
+/* 平均結合エネルギー / kJ mol⁻¹（採用値） */
+const BONDS = {
+  "H–H":436, "N≡N":945, "O=O":498, "Cl–Cl":243,
+  "C–H":413, "N–H":391, "O–H":463, "H–Cl":432,
+  "C–C":348, "C=C":614, "C=O":803
+};
+
+/* 結合エネルギーで見積もる反応系。brk / frm は [結合名, 本数] の配列 */
+const BOND_RX = [
+  {id:"hcl",  eq:"H₂ + Cl₂ → 2HCl",              obs:-184.6, brk:[["H–H",1],["Cl–Cl",1]], frm:[["H–Cl",2]]},
+  {id:"nh3",  eq:"N₂ + 3H₂ → 2NH₃",              obs:-91.8,  brk:[["N≡N",1],["H–H",3]],   frm:[["N–H",6]]},
+  {id:"h2og", eq:"2H₂ + O₂ → 2H₂O(気)",          obs:-483.6, brk:[["H–H",2],["O=O",1]],   frm:[["O–H",4]]},
+  {id:"ch4",  eq:"CH₄ + 2O₂ → CO₂ + 2H₂O(気)",   obs:-802.2, brk:[["C–H",4],["O=O",2]],   frm:[["C=O",2],["O–H",4]]},
+  {id:"c2h6", eq:"C₂H₄ + H₂ → C₂H₆",             obs:-136.5, brk:[["C=C",1],["H–H",1]],   frm:[["C–C",1],["C–H",2]]}
+];
+
+const BOND_NOTES = {
+  hcl:"原子2種・結合3本だけの単純な系では 0.4 kJ しか外さない。",
+  nh3:"N–H の平均値は NH₃ 自身からも取られているので、ずれは小さい。",
+  h2og:"生成物が水蒸気であることに注意。液体の水にすると 88 kJ ずれる。",
+  ch4:"C–H の平均値がメタン専用ではないので 7.8 kJ 深く出る。C=O(CO₂) の 803 も CO₂ 専用の値。",
+  c2h6:"ずれが 12.5 kJ と大きい。C=C の平均値がエチレンの実際の二重結合と合っていないため。結合エネルギーからの計算は、二重結合・三重結合が絡むと精度が落ちる。"
+};
+
+/* 採用値の注記 */
+const NOTES = [
+  {q:"CO₂ の生成エンタルピー", a:"−393.5", b:"−394", why:"実測値を採用。四捨五入前の値で積み上げないと、多段の計算で 1 kJ 以上ずれる"},
+  {q:"H₂O(液) の生成エンタルピー", a:"−285.8", b:"−286", why:"同上"},
+  {q:"CH₄ の生成エンタルピー", a:"−74.9", b:"−74.8 〜 −75", why:"教科書ごとに差がある。ここでは −74.9 で統一"},
+  {q:"NH₃ の生成エンタルピー", a:"−45.9", b:"−46", why:"実測値。2倍して −91.8 kJ が合成反応の ΔH"},
+  {q:"メタンの燃焼エンタルピー", a:"−890.2", b:"−891", why:"生成エンタルピーから積み上げた値。直接測定は −890.8 で、0.6 kJ の差が残る"},
+  {q:"C–H 結合エネルギー", a:"413", b:"415 〜 416", why:"多数の炭化水素からの平均値を採用。メタン1分子から逆算すると 416 になる"},
+  {q:"N≡N 結合エネルギー", a:"945", b:"946", why:"実測 945.3。教科書は 946 が多い"},
+  {q:"O=O 結合エネルギー", a:"498", b:"496 〜 498", why:"498 を採用。496 は古い解離実験に基づく値"},
+  {q:"Cl の電子親和力", a:"348.6", b:"349", why:"実測 348.6。サイクルの収支を合わせるため丸めずに使う"},
+  {q:"NaCl の格子エネルギー", a:"787", b:"771 〜 788", why:"ボルン・ハーバーサイクルから逆算した値を採用。静電モデル（ボルン・ランデ式）の理論値は 766 で、21 kJ の差は共有結合性に由来する"},
+  {q:"格子エネルギーの符号", a:"図では −787", b:"表では +787", why:"教科書は「結晶を気体イオンにばらすのに要するエネルギー」を正で載せる。図では逆向きの段なので負になる"}
+];
+
+/* ---------------- utilities ---------------- */
+const $ = id => document.getElementById(id);
+const MINUS = "\u2212";
+const sgn = n => (n>0?"+":n<0?MINUS:"") + Math.abs(n).toFixed(1);
+const abs1 = n => Math.abs(n).toFixed(1);
+const esc = s => String(s).replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;");
+const SER = i => ["--s0","--s1","--s2","--s3","--s4","--s5"][i%6];
+const SERT = i => ["--s0t","--s1t","--s2t","--s3t","--s4t","--s5t"][i%6];
+const C = v => `var(${v})`;
+let narrow = window.innerWidth <= 430;
+
+function niceStep(range){
+  const raw = range/5;
+  const mag = Math.pow(10, Math.floor(Math.log10(raw)));
+  const n = raw/mag;
+  const s = n<1.5?1 : n<3?2 : n<7?5 : 10;
+  return s*mag;
+}
+function txt(x,y,s,o){
+  o = o||{};
+  const at = [`x="${x}"`,`y="${y}"`,
+    `font-family="${o.mono?'var(--mono)':'var(--sans)'}"`,
+    `font-size="${o.size||11}"`,
+    `fill="${o.fill||C('--muted')}"`,
+    `text-anchor="${o.anchor||'start'}"`];
+  if(o.weight) at.push(`font-weight="${o.weight}"`);
+  if(o.mono) at.push(`style="font-variant-numeric:tabular-nums"`);
+  return `<text ${at.join(" ")}>${esc(s)}</text>`;
+}
+function chip(x,y,s,anchor){
+  const w = s.length*6.6 + 12, h = 17;
+  let cx = anchor==="end" ? x-w : anchor==="middle" ? x-w/2 : x;
+  return `<rect x="${cx}" y="${y-h/2}" width="${w}" height="${h}" rx="2" fill="${C('--ink')}"></rect>`
+       + txt(cx+w/2, y+4, s, {mono:true,size:11,fill:"#fff",anchor:"middle",weight:600});
+}
+function arrowHead(x,y,dir,color){
+  const s = 4.5;
+  const p = dir>0 ? `${x},${y} ${x-s},${y-s*1.6} ${x+s},${y-s*1.6}`
+                  : `${x},${y} ${x-s},${y+s*1.6} ${x+s},${y+s*1.6}`;
+  return `<polygon points="${p}" fill="${color}"></polygon>`;
+}
+function trim(s,n){ return s.length>n ? s.slice(0,n-1)+"…" : s; }
+
+/* ---------------- state ---------------- */
+const st = { r:0, p:0, step:0, unknown:null, b:0, ea:180, cat:false };
+
+/* ================================================================
+   1. ヘスの法則のエネルギー図
+================================================================ */
+function curPath(){ return REACTIONS[st.r].paths[st.p]; }
+
+function effValues(){
+  const rx = REACTIONS[st.r], p = curPath();
+  const v = p.steps.map(s=>s.d);
+  if(st.unknown!==null && !p.approx){
+    let others = 0;
+    v.forEach((d,i)=>{ if(i!==st.unknown) others += d; });
+    v[st.unknown] = Math.round((rx.total - others)*10)/10;
+  }
+  return v;
+}
+
+function drawHess(){
+  const rx = REACTIONS[st.r], p = curPath();
+  const vals = effValues();
+  const n = vals.length;
+  const lv = [0];
+  vals.forEach(d => lv.push(Math.round((lv[lv.length-1]+d)*10)/10));
+
+  const W = narrow ? 380 : 770;
+  const H = narrow ? 320 : 372;
+  const L = narrow ? 46 : 60, R = narrow ? 12 : 18, T = 22, B = narrow ? 34 : 38;
+
+  const all = lv.concat([0, rx.total]);
+  let hi = Math.max.apply(null, all), lo = Math.min.apply(null, all);
+  if(hi-lo < 1){ hi += 10; lo -= 10; }
+  const pad = (hi-lo)*0.16;
+  hi += pad; lo -= pad;
+  const y = v => T + (hi-v)/(hi-lo)*(H-T-B);
+  const seg = (W-L-R)/(n+1);
+  const x0 = i => L + i*seg;
+  const x1 = i => L + (i+1)*seg;
+
+  let g = "";
+
+  /* grid + axis */
+  const stp = niceStep(hi-lo);
+  for(let t = Math.ceil(lo/stp)*stp; t <= hi; t += stp){
+    const yy = y(t);
+    g += `<line x1="${L-6}" y1="${yy}" x2="${W-R}" y2="${yy}" stroke="${C('--rule-soft')}" stroke-width="1"></line>`;
+    g += txt(L-10, yy+3.5, (t>0?"+":t<0?MINUS:"")+Math.abs(Math.round(t)), {mono:true,size:narrow?9.5:10,anchor:"end"});
+  }
+  g += `<line x1="${L-6}" y1="${T-6}" x2="${L-6}" y2="${H-B+6}" stroke="${C('--rule')}" stroke-width="1"></line>`;
+  g += txt(2, T-10, "H / kJ mol⁻¹", {mono:true,size:narrow?9.5:10.5});
+
+  /* guide lines: 反応物 0 / 生成物 total */
+  g += `<line x1="${L-6}" y1="${y(0)}" x2="${W-R}" y2="${y(0)}" stroke="${C('--rule')}" stroke-width="1" stroke-dasharray="3 3"></line>`;
+  g += `<line x1="${L-6}" y1="${y(rx.total)}" x2="${W-R}" y2="${y(rx.total)}" stroke="${C('--rule')}" stroke-width="1" stroke-dasharray="3 3"></line>`;
+  g += txt(W-R, y(0)-5, "反応物", {size:narrow?9.5:10,anchor:"end"});
+  g += txt(W-R, y(rx.total)+12, "生成物（どの経路でも同じ高さ）", {size:narrow?9.5:10,anchor:"end"});
+
+  /* levels + connectors */
+  for(let i=0; i<=n; i++){
+    const done = i <= st.step;
+    const col = done ? C('--ink') : C('--rule');
+    g += `<line x1="${x0(i)}" y1="${y(lv[i])}" x2="${x1(i)}" y2="${y(lv[i])}" stroke="${col}" stroke-width="${done?2:1.4}" stroke-linecap="butt"></line>`;
+
+    if(i < n){
+      const on = i < st.step;
+      const sc = on ? C(SER(i)) : C('--rule');
+      const yA = y(lv[i]), yB = y(lv[i+1]);
+      const xc = x1(i);
+      const isUnk = (st.unknown===i);
+      g += `<line x1="${xc}" y1="${yA}" x2="${xc}" y2="${yB}" stroke="${sc}" stroke-width="${on?2:1.4}" ${isUnk?'stroke-dasharray="4 3"':''}></line>`;
+      g += arrowHead(xc, yB, yB>yA?1:-1, sc);
+      if(!narrow || i===st.step-1 || n<=2){
+        const lab = isUnk ? "?" : sgn(vals[i]);
+        g += txt(xc+6, (yA+yB)/2+3.5, lab, {mono:true,size:narrow?10:11,
+                fill: on ? C(SERT(i)) : C('--muted'), weight:on?600:400});
+      }
+    }
+  }
+
+  /* node labels */
+  const labels = [rx.start].concat(p.steps.map(s=>s.to));
+  for(let i=0; i<=n; i++){
+    if(narrow && n>2 && i!==0 && i!==n && i!==st.step) continue;
+    const above = (i<n && lv[i+1] > lv[i]) || (i===n && lv[n] < 0);
+    const yy = above ? y(lv[i]) - 7 : y(lv[i]) + 14;
+    const maxc = narrow ? 15 : Math.max(10, Math.floor(seg/5.8));
+    g += txt((x0(i)+x1(i))/2, yy, trim(labels[i], maxc),
+             {size:narrow?9.5:10.5, anchor:"middle", fill: i<=st.step ? C('--ink') : C('--muted')});
+  }
+
+  /* cumulative chip */
+  const cum = lv[st.step];
+  const cx = (x0(st.step)+x1(st.step))/2;
+  g += chip(cx, y(cum) + ((st.step<n && lv[st.step+1]>lv[st.step]) ? 30 : -24),
+            (cum>0?"+":cum<0?MINUS:"")+abs1(cum), "middle");
+
+  /* approx gap */
+  if(p.approx){
+    const gap = lv[n] - rx.total;
+    if(Math.abs(gap) > 0.05){
+      const xg = x1(n-1);
+      g += `<line x1="${xg}" y1="${y(lv[n])}" x2="${xg}" y2="${y(rx.total)}" stroke="${C('--s4')}" stroke-width="1.4" stroke-dasharray="2 2"></line>`;
+      g += txt(xg-6, (y(lv[n])+y(rx.total))/2+3.5, "ずれ "+abs1(gap),
+               {mono:true,size:narrow?9.5:10.5,fill:C('--s4t'),anchor:"end",weight:600});
+    }
+  }
+
+  const svg = $("svgHess");
+  svg.setAttribute("viewBox", `0 0 ${W} ${H}`);
+  svg.style.aspectRatio = W + " / " + H;
+  svg.innerHTML = g;
+  svg._geom = {L,R,seg,n,W};
+}
+
+function drawStepTable(){
+  const rx = REACTIONS[st.r], p = curPath();
+  const vals = effValues();
+  let sum = 0, rows = "";
+  vals.forEach((d,i)=>{
+    sum += d;
+    const cls = i < st.step ? "act" : i === st.step ? "" : "dim";
+    const unk = (st.unknown===i);
+    rows += `<tr class="${cls}" data-step="${i}">`
+      + `<td class="k"><span class="swatch" style="background:${i<st.step?C(SER(i)):C('--rule')}"></span><span class="mono xs">${i+1}</span></td>`
+      + `<td>${esc(p.steps[i].t)}${unk?' <span class="xs" style="color:'+C('--s4t')+'">逆算</span>':''}</td>`
+      + `<td class="num">${unk ? "<span style='color:"+C('--s4t')+"'>"+sgn(vals[i])+"</span>" : sgn(vals[i])}</td>`
+      + `<td class="num xs muted">${sgn(Math.round(sum*10)/10)}</td>`
+      + `<td class="k">${p.approx ? "" : `<button class="mini unk" data-i="${i}">${unk?"戻す":"?"}</button>`}</td>`
+      + `</tr>`;
+  });
+  const end = Math.round(sum*10)/10;
+  const ok = Math.abs(end - rx.total) < 0.05;
+  rows += `<tr class="total"><td></td><td>合計</td><td class="num">${sgn(end)}</td>`
+        + `<td class="num xs" style="color:${ok?C('--s1t'):C('--s4t')}">${ok?"一致":"ずれ "+abs1(end-rx.total)}</td><td></td></tr>`;
+  $("stepTable").innerHTML =
+    `<thead><tr><th>#</th><th>段階</th><th class="num">ΔH</th><th class="num">累積</th><th></th></tr></thead><tbody>${rows}</tbody>`;
+
+  $("stepTable").querySelectorAll("tr[data-step]").forEach(tr=>{
+    tr.addEventListener("click", e=>{
+      if(e.target.closest("button")) return;
+      st.step = +tr.dataset.step + 1;
+      $("stepSlider").value = st.step;
+      render();
+    });
+  });
+  $("stepTable").querySelectorAll("button.unk").forEach(b=>{
+    b.addEventListener("click", e=>{
+      e.stopPropagation();
+      const i = +b.dataset.i;
+      st.unknown = (st.unknown===i) ? null : i;
+      render();
+    });
+  });
+}
+
+function renderHess(){
+  const rx = REACTIONS[st.r], p = curPath();
+  $("rxEq").textContent = rx.eq + "     ΔH = " + sgn(rx.total) + " kJ";
+  $("rxTag").textContent = rx.tag;
+
+  $("pathBtns").innerHTML = rx.paths.map((pp,i)=>
+    `<button class="${i===st.p?'on':''}" data-p="${i}">${esc(pp.name)}（${pp.steps.length}段）${pp.approx?" ≈":""}</button>`
+  ).join("");
+  $("pathBtns").querySelectorAll("button").forEach(b=>{
+    b.addEventListener("click", ()=>{
+      st.p = +b.dataset.p; st.step = 0; st.unknown = null;
+      syncSlider(); render();
+    });
+  });
+
+  const sl = $("stepSlider");
+  sl.max = p.steps.length;
+  if(st.step > p.steps.length) st.step = p.steps.length;
+  sl.value = st.step;
+
+  let note = rx.note;
+  if(p.approx) note += " この経路は平均結合エネルギーを使うので、終点が実測値と一致しない。";
+  if(st.unknown!==null) note += " いま "+(st.unknown+1)+" 段目を未知数として、全体の ΔH から逆算している。";
+  $("rxNote").textContent = note;
+
+  drawHess();
+  drawStepTable();
+}
+function syncSlider(){
+  const sl = $("stepSlider");
+  sl.max = curPath().steps.length;
+  sl.value = st.step;
+}
+
+/* pointer on hess svg */
+(function(){
+  const svg = $("svgHess");
+  let down = false;
+  function pick(ev){
+    const g = svg._geom; if(!g) return;
+    const r = svg.getBoundingClientRect();
+    const x = (ev.clientX - r.left) / r.width * g.W;
+    let i = Math.round((x - g.L) / g.seg);
+    i = Math.max(0, Math.min(g.n, i));
+    if(i !== st.step){ st.step = i; $("stepSlider").value = i; render(); }
+  }
+  svg.addEventListener("pointerdown", e=>{ down=true; svg.setPointerCapture(e.pointerId); pick(e); });
+  svg.addEventListener("pointermove", e=>{ if(down) pick(e); });
+  svg.addEventListener("pointerup",  e=>{ down=false; });
+  svg.addEventListener("pointercancel", ()=>{ down=false; });
+})();
+
+/* ================================================================
+   2. 結合エネルギー
+================================================================ */
+function bondCalc(rx){
+  const B = rx.brk.reduce((s,[k,n])=>s + BONDS[k]*n, 0);
+  const F = rx.frm.reduce((s,[k,n])=>s + BONDS[k]*n, 0);
+  return {B, F, est: B - F, gap: (B-F) - rx.obs};
+}
+
+function drawBond(){
+  const rx = BOND_RX[st.b];
+  const {B, F, est} = bondCalc(rx);
+
+  const W = narrow ? 380 : 770;
+  const H = narrow ? 280 : 320;
+  const L = narrow ? 46 : 60, R = narrow ? 12 : 18, T = 22, B0 = narrow ? 30 : 34;
+
+  let hi = B, lo = Math.min(0, est);
+  const pad = (hi-lo)*0.14;
+  hi += pad; lo -= pad;
+  const y = v => T + (hi-v)/(hi-lo)*(H-T-B0);
+  const seg = (W-L-R)/3;
+  const xs = i => [L + i*seg, L + (i+1)*seg];
+
+  let g = "";
+  const stp = niceStep(hi-lo);
+  for(let t = Math.ceil(lo/stp)*stp; t <= hi; t += stp){
+    const yy = y(t);
+    g += `<line x1="${L-6}" y1="${yy}" x2="${W-R}" y2="${yy}" stroke="${C('--rule-soft')}"></line>`;
+    g += txt(L-10, yy+3.5, (t>0?"+":t<0?MINUS:"")+Math.abs(Math.round(t)), {mono:true,size:narrow?9.5:10,anchor:"end"});
+  }
+  g += `<line x1="${L-6}" y1="${T-6}" x2="${L-6}" y2="${H-B0+6}" stroke="${C('--rule')}"></line>`;
+  g += txt(2, T-10, "H / kJ mol⁻¹", {mono:true,size:narrow?9.5:10.5});
+
+  /* 実測 ΔH のガイド */
+  g += `<line x1="${L-6}" y1="${y(rx.obs)}" x2="${W-R}" y2="${y(rx.obs)}" stroke="${C('--s4')}" stroke-width="1" stroke-dasharray="3 3"></line>`;
+  g += txt(W-R, y(rx.obs)+(est<rx.obs?-6:13), "実測 "+sgn(rx.obs), {mono:true,size:narrow?9.5:10.5,anchor:"end",fill:C('--s4t')});
+
+  /* 3 levels */
+  const levels = [0, B, est];
+  const names = ["反応物", "原子ばらばら", "生成物"];
+  for(let i=0;i<3;i++){
+    const [a,b] = xs(i);
+    g += `<line x1="${a}" y1="${y(levels[i])}" x2="${b}" y2="${y(levels[i])}" stroke="${C('--ink')}" stroke-width="2"></line>`;
+    g += txt((a+b)/2, y(levels[i]) + (i===1 ? -8 : 15), names[i], {size:narrow?9.5:10.5,anchor:"middle",fill:C('--ink')});
+    if(i!==1) g += txt((a+b)/2, y(levels[i]) + (i===1?-20:27), sgn(levels[i]), {mono:true,size:narrow?9.5:10.5,anchor:"middle"});
+  }
+  g += txt((xs(1)[0]+xs(1)[1])/2, y(B)-20, sgn(B), {mono:true,size:narrow?9.5:10.5,anchor:"middle"});
+
+  /* 上り: 切る結合を色分けで積む */
+  let acc = 0;
+  const xu = xs(0)[1];
+  rx.brk.forEach(([k,cnt],i)=>{
+    const e = BONDS[k]*cnt;
+    g += `<line x1="${xu}" y1="${y(acc)}" x2="${xu}" y2="${y(acc+e)}" stroke="${C(SER(i))}" stroke-width="6" stroke-linecap="butt"></line>`;
+    if(!narrow) g += txt(xu+8, (y(acc)+y(acc+e))/2+3.5, `${cnt}×${k}  +${e}`, {mono:true,size:10.5,fill:C(SERT(i))});
+    acc += e;
+  });
+  g += arrowHead(xu, y(B), -1, C('--ink'));
+
+  /* 下り: できる結合 */
+  let acc2 = B;
+  const xd = xs(1)[1];
+  rx.frm.forEach(([k,cnt],i)=>{
+    const e = BONDS[k]*cnt;
+    const j = i + rx.brk.length;
+    g += `<line x1="${xd}" y1="${y(acc2)}" x2="${xd}" y2="${y(acc2-e)}" stroke="${C(SER(j))}" stroke-width="6" stroke-linecap="butt"></line>`;
+    if(!narrow) g += txt(xd+8, (y(acc2)+y(acc2-e))/2+3.5, `${cnt}×${k}  ${MINUS}${e}`, {mono:true,size:10.5,fill:C(SERT(j))});
+    acc2 -= e;
+  });
+  g += arrowHead(xd, y(est), 1, C('--ink'));
+
+  if(narrow){
+    g += txt(xu+7, y(B/2)+3.5, "切る "+sgn(B), {mono:true,size:10,fill:C('--s0t')});
+    g += txt(xd+7, y((B+est)/2)+3.5, "作る "+sgn(-F), {mono:true,size:10,fill:C('--s2t')});
+  }
+  g += chip(xs(2)[1]-4, y(est) + (est<rx.obs? 22 : -22), "見積 "+sgn(est), "end");
+
+  const svg = $("svgBond");
+  svg.setAttribute("viewBox", `0 0 ${W} ${H}`);
+  svg.style.aspectRatio = W + " / " + H;
+  svg.innerHTML = g;
+}
+
+function renderBond(){
+  const rx = BOND_RX[st.b];
+  const {B, F, est, gap} = bondCalc(rx);
+
+  $("bondBtns").innerHTML = BOND_RX.map((r,i)=>
+    `<button class="${i===st.b?'on':''}" data-b="${i}">${esc(r.eq)}</button>`).join("");
+  $("bondBtns").querySelectorAll("button").forEach(b=>
+    b.addEventListener("click", ()=>{ st.b = +b.dataset.b; render(); }));
+
+  const rowsB = rx.brk.map(([k,n],i)=>
+    `<tr><td class="k"><span class="swatch" style="background:${C(SER(i))}"></span><span class="mono xs">${n}×</span></td>`
+    + `<td class="mono">${esc(k)}</td><td class="num">${BONDS[k]}</td><td class="num">+${BONDS[k]*n}</td></tr>`).join("");
+  const rowsF = rx.frm.map(([k,n],i)=>
+    `<tr><td class="k"><span class="swatch" style="background:${C(SER(i+rx.brk.length))}"></span><span class="mono xs">${n}×</span></td>`
+    + `<td class="mono">${esc(k)}</td><td class="num">${BONDS[k]}</td><td class="num">${MINUS}${BONDS[k]*n}</td></tr>`).join("");
+
+  $("bondBreak").innerHTML =
+    `<thead><tr><th>切る結合</th><th></th><th class="num">E</th><th class="num">小計</th></tr></thead>`
+    + `<tbody>${rowsB}<tr class="total"><td colspan="3">Σ 切る</td><td class="num">+${B}</td></tr></tbody>`;
+  $("bondForm").innerHTML =
+    `<thead><tr><th>できる結合</th><th></th><th class="num">E</th><th class="num">小計</th></tr></thead>`
+    + `<tbody>${rowsF}<tr class="total"><td colspan="3">Σ できる</td><td class="num">${MINUS}${F}</td></tr></tbody>`;
+
+  $("bondKv").innerHTML =
+      `<div>見積 ΔH <b>${sgn(est)}</b> kJ</div>`
+    + `<div>実測 ΔH <b>${sgn(rx.obs)}</b> kJ</div>`
+    + `<div>ずれ <b style="color:${Math.abs(gap)>5?C('--s4t'):C('--s1t')}">${sgn(gap)}</b> kJ`
+    + ` <span class="xs muted">(${(Math.abs(gap/rx.obs)*100).toFixed(1)}%)</span></div>`;
+  $("bondNote").textContent = BOND_NOTES[rx.id];
+  drawBond();
+}
+
+/* ================================================================
+   3. 共通軸プレビュー（第2部・第3部への接続）
+================================================================ */
+const EA = { eq:"C₂H₄(気) + H₂(気) → C₂H₆(気)", dH:-136.5, catFactor:0.35, catName:"Ni 触媒" };
+
+function drawEa(){
+  const W = narrow ? 380 : 770;
+  const H = narrow ? 260 : 300;
+  const L = narrow ? 46 : 60, R = narrow ? 12 : 18, T = 24, B0 = narrow ? 28 : 32;
+
+  const eaF = st.ea;
+  const eaC = Math.max(8, Math.round(eaF * EA.catFactor));
+  const top = Math.max(eaF, st.cat ? eaC : 0);
+
+  let hi = top, lo = Math.min(0, EA.dH);
+  const pad = (hi-lo)*0.18;
+  hi += pad; lo -= pad;
+  const y = v => T + (hi-v)/(hi-lo)*(H-T-B0);
+
+  const xa = L, xb = W-R;
+  const x0 = L + (xb-xa)*0.20;
+  const xp = L + (xb-xa)*0.50;
+  const x1 = L + (xb-xa)*0.80;
+
+  let g = "";
+  const stp = niceStep(hi-lo);
+  for(let t = Math.ceil(lo/stp)*stp; t <= hi; t += stp){
+    const yy = y(t);
+    g += `<line x1="${L-6}" y1="${yy}" x2="${W-R}" y2="${yy}" stroke="${C('--rule-soft')}"></line>`;
+    g += txt(L-10, yy+3.5, (t>0?"+":t<0?MINUS:"")+Math.abs(Math.round(t)), {mono:true,size:narrow?9.5:10,anchor:"end"});
+  }
+  g += `<line x1="${L-6}" y1="${T-6}" x2="${L-6}" y2="${H-B0+6}" stroke="${C('--rule')}"></line>`;
+  g += txt(2, T-10, "H / kJ mol⁻¹", {mono:true,size:narrow?9.5:10.5});
+
+  function curve(ea, color, dash, wdt){
+    const y0 = y(0), y1v = y(EA.dH), yp = y(ea);
+    return `<path d="M ${xa},${y0} L ${x0},${y0}`
+      + ` C ${x0+(xp-x0)*0.45},${y0} ${xp-(xp-x0)*0.45},${yp} ${xp},${yp}`
+      + ` C ${xp+(x1-xp)*0.45},${yp} ${x1-(x1-xp)*0.45},${y1v} ${x1},${y1v}`
+      + ` L ${xb},${y1v}" fill="none" stroke="${color}" stroke-width="${wdt}" ${dash?`stroke-dasharray="${dash}"`:""}></path>`;
+  }
+  g += curve(eaF, st.cat ? C('--rule') : C('--ink'), "", st.cat?1.4:2);
+  if(st.cat) g += curve(eaC, C('--s1'), "", 2);
+
+  /* 両端の高さと ΔH */
+  g += `<line x1="${xa}" y1="${y(0)}" x2="${xb}" y2="${y(0)}" stroke="${C('--rule')}" stroke-dasharray="3 3"></line>`;
+  g += `<line x1="${xa}" y1="${y(EA.dH)}" x2="${xb}" y2="${y(EA.dH)}" stroke="${C('--rule')}" stroke-dasharray="3 3"></line>`;
+  const xdh = xb - 26;
+  g += `<line x1="${xdh}" y1="${y(0)}" x2="${xdh}" y2="${y(EA.dH)}" stroke="${C('--s4')}" stroke-width="1.4"></line>`;
+  g += arrowHead(xdh, y(EA.dH), 1, C('--s4'));
+  g += txt(xdh-6, (y(0)+y(EA.dH))/2+3.5, "ΔH "+sgn(EA.dH), {mono:true,size:narrow?10:11,anchor:"end",fill:C('--s4t'),weight:600});
+
+  /* Ea 矢印 */
+  const xea = xp - (narrow?12:16);
+  g += `<line x1="${xea}" y1="${y(0)}" x2="${xea}" y2="${y(eaF)}" stroke="${st.cat?C('--rule'):C('--s2')}" stroke-width="1.4"></line>`;
+  if(!st.cat){
+    g += arrowHead(xea, y(eaF), -1, C('--s2'));
+    g += txt(xea-6, (y(0)+y(eaF))/2+3.5, "Ea "+eaF, {mono:true,size:narrow?10:11,anchor:"end",fill:C('--s2t'),weight:600});
+  }else{
+    const xec = xp + (narrow?12:16);
+    g += `<line x1="${xec}" y1="${y(0)}" x2="${xec}" y2="${y(eaC)}" stroke="${C('--s1')}" stroke-width="1.4"></line>`;
+    g += arrowHead(xec, y(eaC), -1, C('--s1'));
+    g += txt(xec+6, (y(0)+y(eaC))/2+3.5, "Ea′ "+eaC, {mono:true,size:narrow?10:11,fill:C('--s1t'),weight:600});
+  }
+
+  g += txt(xa+2, y(0)-8, "C₂H₄ + H₂", {size:narrow?9.5:10.5,fill:C('--ink')});
+  g += txt(xb, y(EA.dH)+15, "C₂H₆", {size:narrow?9.5:10.5,anchor:"end",fill:C('--ink')});
+
+  const svg = $("svgEa");
+  svg.setAttribute("viewBox", `0 0 ${W} ${H}`);
+  svg.style.aspectRatio = W + " / " + H;
+  svg.innerHTML = g;
+}
+
+function renderEa(){
+  const eaF = st.ea;
+  const eaC = Math.max(8, Math.round(eaF * EA.catFactor));
+  const revF = eaF - EA.dH;
+  const revC = eaC - EA.dH;
+  $("catBtn").classList.toggle("on", st.cat);
+
+  let rows =
+    `<tr><td>無触媒</td><td class="num">${eaF}</td><td class="num">${revF.toFixed(1)}</td>`
+    + `<td class="num">${sgn(eaF - revF)}</td></tr>`;
+  if(st.cat){
+    rows += `<tr><td>${EA.catName}</td><td class="num" style="color:${C('--s1t')}">${eaC}</td>`
+      + `<td class="num" style="color:${C('--s1t')}">${revC.toFixed(1)}</td>`
+      + `<td class="num">${sgn(eaC - revC)}</td></tr>`;
+    rows += `<tr class="total"><td>差</td><td class="num">${MINUS}${eaF-eaC}</td>`
+      + `<td class="num">${MINUS}${(revF-revC).toFixed(1)}</td>`
+      + `<td class="num" style="color:${C('--s1t')}">0.0</td></tr>`;
+  }
+  $("eaTable").innerHTML =
+    `<thead><tr><th>条件</th><th class="num">Ea 正</th><th class="num">Ea 逆</th><th class="num">ΔH = Ea正 − Ea逆</th></tr></thead>`
+    + `<tbody>${rows}</tbody>`;
+  drawEa();
+}
+
+/* ================================================================
+   4. 注記テーブル
+================================================================ */
+function renderNotes(){
+  $("noteTable").innerHTML =
+    `<thead><tr><th>量</th><th class="num">採用</th><th class="num">教科書</th><th>理由</th></tr></thead><tbody>`
+    + NOTES.map(n=>`<tr><td>${esc(n.q)}</td><td class="num">${esc(n.a)}</td>`
+      + `<td class="num muted">${esc(n.b)}</td><td class="xs muted">${esc(n.why)}</td></tr>`).join("")
+    + `</tbody>`;
+}
+
+/* ================================================================
+   bootstrap
+================================================================ */
+function renderRxButtons(){
+  $("rxBtns").innerHTML = REACTIONS.map((r,i)=>
+    `<button class="${i===st.r?'on':''}" data-r="${i}">${esc(r.name)}</button>`).join("");
+  $("rxBtns").querySelectorAll("button").forEach(b=>
+    b.addEventListener("click", ()=>{
+      st.r = +b.dataset.r; st.p = 0; st.step = 0; st.unknown = null;
+      renderRxButtons(); syncSlider(); render();
+    }));
+}
+function render(){ renderHess(); renderBond(); renderEa(); }
+
+$("stepSlider").addEventListener("input", e=>{ st.step = +e.target.value; render(); });
+$("stepPrev").addEventListener("click", ()=>{ st.step = Math.max(0, st.step-1); syncSlider(); render(); });
+$("stepNext").addEventListener("click", ()=>{ st.step = Math.min(curPath().steps.length, st.step+1); syncSlider(); render(); });
+$("eaSlider").addEventListener("input", e=>{ st.ea = +e.target.value; renderEa(); });
+$("catBtn").addEventListener("click", ()=>{ st.cat = !st.cat; renderEa(); });
+
+let rt;
+window.addEventListener("resize", ()=>{
+  clearTimeout(rt);
+  rt = setTimeout(()=>{
+    const n = window.innerWidth <= 430;
+    if(n !== narrow){ narrow = n; render(); }
+  }, 120);
+});
+
+renderRxButtons();
+renderNotes();
+syncSlider();
+render();
+</script>
+</body>
+</html>

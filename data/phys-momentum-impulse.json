@@ -1,0 +1,29 @@
+{
+  "formulas": {
+    "momentumConservation": {
+      "text": "m1 v1 + m2 v2 = m1 v1' + m2 v2'",
+      "note": "外力(摩擦・空気抵抗)を無視した1次元衝突における運動量保存則。高校物理(物理)の教科書に載る標準的な式",
+      "source": "高校物理教科書(物理)の運動量保存則"
+    },
+    "restitution": {
+      "text": "e = -(v1' - v2') / (v1 - v2)",
+      "note": "反発係数(はねかえり係数)の定義。e=1で完全弾性衝突、e=0で完全非弾性衝突",
+      "source": "高校物理教科書(物理)の反発係数の定義"
+    }
+  },
+  "controls": {
+    "m1": { "min": 1, "max": 10, "step": 1, "default": 3, "unit": "kg" },
+    "m2": { "min": 1, "max": 10, "step": 1, "default": 5, "unit": "kg" },
+    "v1": { "min": -10, "max": 10, "step": 1, "default": 6, "unit": "m/s" },
+    "v2": { "min": -10, "max": 10, "step": 1, "default": -2, "unit": "m/s" }
+  },
+  "modes": [
+    { "id": "elastic", "label": "弾性衝突", "e": { "value": 1, "fixed": true } },
+    { "id": "inelastic", "label": "完全非弾性衝突", "e": { "value": 0, "fixed": true } },
+    { "id": "custom", "label": "反発係数を設定", "e": { "default": 0.5, "min": 0, "max": 1, "step": 0.01, "fixed": false } }
+  ],
+  "timing": {
+    "collisionTime": { "value": 2, "unit": "s", "note": "衝突までの助走時間。演出上の固定値で、物理定数ではない" },
+    "postDuration": { "value": 2, "unit": "s", "note": "衝突後に観察する時間。演出上の固定値で、物理定数ではない" }
+  }
+}

@@ -1,0 +1,1290 @@
+{
+  "nodes": [
+    {
+      "id": "calcium-carbide",
+      "name": "炭化カルシウム",
+      "formula": "CaC2",
+      "family": "無機化合物",
+      "group": "その他",
+      "detection": [],
+      "note": "カーバイド。水を加えるとアセチレンが出る"
+    },
+    {
+      "id": "methane",
+      "name": "メタン",
+      "formula": "CH4",
+      "family": "脂肪族",
+      "group": "炭化水素",
+      "detection": [],
+      "note": "正四面体形。付加はせず、置換だけ起こる"
+    },
+    {
+      "id": "ethane",
+      "name": "エタン",
+      "formula": "C2H6",
+      "family": "脂肪族",
+      "group": "炭化水素",
+      "detection": [],
+      "note": "アルカン。臭素水を脱色しない"
+    },
+    {
+      "id": "ethylene",
+      "name": "エチレン",
+      "formula": "CH2=CH2",
+      "family": "脂肪族",
+      "group": "炭化水素",
+      "detection": [
+        "臭素水を脱色する"
+      ],
+      "note": "平面形。二重結合をもち付加反応をする"
+    },
+    {
+      "id": "propene",
+      "name": "プロペン",
+      "formula": "CH2=CHCH3",
+      "family": "脂肪族",
+      "group": "炭化水素",
+      "detection": [
+        "臭素水を脱色する"
+      ],
+      "note": "プロピレン。水を付加すると2-プロパノール"
+    },
+    {
+      "id": "acetylene",
+      "name": "アセチレン",
+      "formula": "CH≡CH",
+      "family": "脂肪族",
+      "group": "炭化水素",
+      "detection": [
+        "臭素水を脱色する"
+      ],
+      "note": "直線形。三重結合をもち付加が2回できる"
+    },
+    {
+      "id": "cyclohexane",
+      "name": "シクロヘキサン",
+      "formula": "C6H12",
+      "family": "脂肪族",
+      "group": "炭化水素",
+      "detection": [],
+      "note": "脂環式。ベンゼンに水素を付加して得る"
+    },
+    {
+      "id": "chloromethane",
+      "name": "クロロメタン",
+      "formula": "CH3Cl",
+      "family": "脂肪族",
+      "group": "その他",
+      "detection": [],
+      "note": "塩化メチル。メタンの置換で最初にできる"
+    },
+    {
+      "id": "dibromoethane",
+      "name": "1,2-ジブロモエタン",
+      "formula": "CH2BrCH2Br",
+      "family": "脂肪族",
+      "group": "その他",
+      "detection": [],
+      "note": "エチレンに臭素が付加してできる"
+    },
+    {
+      "id": "methanol",
+      "name": "メタノール",
+      "formula": "CH3OH",
+      "family": "脂肪族",
+      "group": "アルコール",
+      "detection": [],
+      "note": "ヨードホルム反応は示さない。有毒"
+    },
+    {
+      "id": "ethanol",
+      "name": "エタノール",
+      "formula": "C2H5OH",
+      "family": "脂肪族",
+      "group": "アルコール",
+      "detection": [
+        "ヨードホルム反応"
+      ],
+      "note": "濃硫酸の温度で生成物が変わるのが頻出"
+    },
+    {
+      "id": "isopropanol",
+      "name": "2-プロパノール",
+      "formula": "CH3CH(OH)CH3",
+      "family": "脂肪族",
+      "group": "アルコール",
+      "detection": [
+        "ヨードホルム反応"
+      ],
+      "note": "第二級アルコール。酸化するとアセトン"
+    },
+    {
+      "id": "sodium-ethoxide",
+      "name": "ナトリウムエトキシド",
+      "formula": "C2H5ONa",
+      "family": "脂肪族",
+      "group": "アルコール",
+      "detection": [],
+      "note": "エタノールのナトリウム塩。水を加えると強塩基性"
+    },
+    {
+      "id": "diethyl-ether",
+      "name": "ジエチルエーテル",
+      "formula": "C2H5OC2H5",
+      "family": "脂肪族",
+      "group": "エーテル",
+      "detection": [],
+      "note": "ナトリウムとも反応しない。沸点が低く引火性"
+    },
+    {
+      "id": "formaldehyde",
+      "name": "ホルムアルデヒド",
+      "formula": "HCHO",
+      "family": "脂肪族",
+      "group": "アルデヒド",
+      "detection": [
+        "銀鏡反応",
+        "フェーリング液の還元"
+      ],
+      "note": "約37%水溶液がホルマリン"
+    },
+    {
+      "id": "acetaldehyde",
+      "name": "アセトアルデヒド",
+      "formula": "CH3CHO",
+      "family": "脂肪族",
+      "group": "アルデヒド",
+      "detection": [
+        "銀鏡反応",
+        "フェーリング液の還元",
+        "ヨードホルム反応"
+      ],
+      "note": "還元性を示すアルデヒドかつヨードホルム陽性"
+    },
+    {
+      "id": "acetone",
+      "name": "アセトン",
+      "formula": "CH3COCH3",
+      "family": "脂肪族",
+      "group": "ケトン",
+      "detection": [
+        "ヨードホルム反応"
+      ],
+      "note": "還元性なし。銀鏡反応もフェーリングも陰性"
+    },
+    {
+      "id": "formic-acid",
+      "name": "ギ酸",
+      "formula": "HCOOH",
+      "family": "脂肪族",
+      "group": "カルボン酸",
+      "detection": [
+        "銀鏡反応",
+        "フェーリング液の還元",
+        "炭酸水素ナトリウムからCO2発生"
+      ],
+      "note": "ホルミル基をもつので酸なのに還元性がある"
+    },
+    {
+      "id": "acetic-acid",
+      "name": "酢酸",
+      "formula": "CH3COOH",
+      "family": "脂肪族",
+      "group": "カルボン酸",
+      "detection": [
+        "炭酸水素ナトリウムからCO2発生"
+      ],
+      "note": "CH3CO-をもつがヨードホルム反応は陰性"
+    },
+    {
+      "id": "sodium-acetate",
+      "name": "酢酸ナトリウム",
+      "formula": "CH3COONa",
+      "family": "脂肪族",
+      "group": "カルボン酸",
+      "detection": [],
+      "note": "酢酸の塩。水に溶け、水溶液は弱塩基性"
+    },
+    {
+      "id": "acetic-anhydride",
+      "name": "無水酢酸",
+      "formula": "(CH3CO)2O",
+      "family": "脂肪族",
+      "group": "その他",
+      "detection": [],
+      "note": "酸無水物。アセチル化の試薬として使う"
+    },
+    {
+      "id": "ethyl-acetate",
+      "name": "酢酸エチル",
+      "formula": "CH3COOC2H5",
+      "family": "脂肪族",
+      "group": "エステル",
+      "detection": [],
+      "note": "果実に似たにおい。水に溶けにくい"
+    },
+    {
+      "id": "benzene",
+      "name": "ベンゼン",
+      "formula": "C6H6",
+      "family": "芳香族",
+      "group": "炭化水素",
+      "detection": [],
+      "note": "平面正六角形。付加より置換が起こりやすい"
+    },
+    {
+      "id": "toluene",
+      "name": "トルエン",
+      "formula": "C6H5CH3",
+      "family": "芳香族",
+      "group": "炭化水素",
+      "detection": [],
+      "note": "側鎖のメチル基が酸化されて安息香酸になる"
+    },
+    {
+      "id": "cumene",
+      "name": "クメン",
+      "formula": "C6H5CH(CH3)2",
+      "family": "芳香族",
+      "group": "炭化水素",
+      "detection": [],
+      "note": "イソプロピルベンゼン。クメン法の原料"
+    },
+    {
+      "id": "cumene-hydroperoxide",
+      "name": "クメンヒドロペルオキシド",
+      "formula": "C6H5C(CH3)2OOH",
+      "family": "芳香族",
+      "group": "その他",
+      "detection": [],
+      "note": "クメン法の中間体。分解でフェノールとアセトン"
+    },
+    {
+      "id": "chlorobenzene",
+      "name": "クロロベンゼン",
+      "formula": "C6H5Cl",
+      "family": "芳香族",
+      "group": "その他",
+      "detection": [],
+      "note": "塩素が環に直結し、置換しにくい"
+    },
+    {
+      "id": "nitrobenzene",
+      "name": "ニトロベンゼン",
+      "formula": "C6H5NO2",
+      "family": "芳香族",
+      "group": "その他",
+      "detection": [],
+      "note": "淡黄色で水より重い油状。還元でアニリンへ"
+    },
+    {
+      "id": "aniline",
+      "name": "アニリン",
+      "formula": "C6H5NH2",
+      "family": "芳香族",
+      "group": "アミン",
+      "detection": [
+        "さらし粉水溶液で赤紫色",
+        "硫酸酸性の二クロム酸カリウムで黒色"
+      ],
+      "note": "弱塩基。水に溶けにくく、酸には塩をつくって溶ける"
+    },
+    {
+      "id": "aniline-hydrochloride",
+      "name": "アニリン塩酸塩",
+      "formula": "C6H5NH3Cl",
+      "family": "芳香族",
+      "group": "アミン",
+      "detection": [],
+      "note": "アニリンの塩。水によく溶ける"
+    },
+    {
+      "id": "acetanilide",
+      "name": "アセトアニリド",
+      "formula": "C6H5NHCOCH3",
+      "family": "芳香族",
+      "group": "その他",
+      "detection": [],
+      "note": "アミド。中性で、さらし粉の呈色は示さない"
+    },
+    {
+      "id": "benzenediazonium-chloride",
+      "name": "塩化ベンゼンジアゾニウム",
+      "formula": "C6H5N2Cl",
+      "family": "芳香族",
+      "group": "その他",
+      "detection": [],
+      "note": "5℃以上で分解するので氷冷が必須"
+    },
+    {
+      "id": "hydroxyazobenzene",
+      "name": "p-ヒドロキシアゾベンゼン",
+      "formula": "C6H5N=NC6H4OH",
+      "family": "芳香族",
+      "group": "その他",
+      "detection": [],
+      "note": "アゾ基をもつ橙赤色の染料"
+    },
+    {
+      "id": "phenol",
+      "name": "フェノール",
+      "formula": "C6H5OH",
+      "family": "芳香族",
+      "group": "フェノール類",
+      "detection": [
+        "塩化鉄(III)水溶液で紫色",
+        "臭素水で白色沈殿"
+      ],
+      "note": "炭酸より弱い酸。炭酸水素ナトリウムとは反応しない"
+    },
+    {
+      "id": "sodium-phenoxide",
+      "name": "ナトリウムフェノキシド",
+      "formula": "C6H5ONa",
+      "family": "芳香族",
+      "group": "フェノール類",
+      "detection": [],
+      "note": "フェノールの塩。CO2の条件で行き先が変わる"
+    },
+    {
+      "id": "picric-acid",
+      "name": "ピクリン酸",
+      "formula": "C6H2(NO2)3OH",
+      "family": "芳香族",
+      "group": "フェノール類",
+      "detection": [],
+      "note": "2,4,6-トリニトロフェノール。黄色結晶で強酸性"
+    },
+    {
+      "id": "trinitrotoluene",
+      "name": "2,4,6-トリニトロトルエン",
+      "formula": "C6H2(NO2)3CH3",
+      "family": "芳香族",
+      "group": "その他",
+      "detection": [],
+      "note": "TNT。淡黄色の結晶で爆薬に使われる"
+    },
+    {
+      "id": "benzenesulfonic-acid",
+      "name": "ベンゼンスルホン酸",
+      "formula": "C6H5SO3H",
+      "family": "芳香族",
+      "group": "その他",
+      "detection": [],
+      "note": "硫酸に近い強酸。水によく溶ける"
+    },
+    {
+      "id": "sodium-benzenesulfonate",
+      "name": "ベンゼンスルホン酸ナトリウム",
+      "formula": "C6H5SO3Na",
+      "family": "芳香族",
+      "group": "その他",
+      "detection": [],
+      "note": "アルカリ融解でナトリウムフェノキシドになる"
+    },
+    {
+      "id": "benzoic-acid",
+      "name": "安息香酸",
+      "formula": "C6H5COOH",
+      "family": "芳香族",
+      "group": "カルボン酸",
+      "detection": [
+        "炭酸水素ナトリウムからCO2発生"
+      ],
+      "note": "水に溶けにくい白色結晶。炭酸より強い酸"
+    },
+    {
+      "id": "sodium-benzoate",
+      "name": "安息香酸ナトリウム",
+      "formula": "C6H5COONa",
+      "family": "芳香族",
+      "group": "カルボン酸",
+      "detection": [],
+      "note": "水に溶ける。分離操作でエーテル層から水層へ移る"
+    },
+    {
+      "id": "salicylic-acid",
+      "name": "サリチル酸",
+      "formula": "C6H4(OH)COOH",
+      "family": "芳香族",
+      "group": "カルボン酸",
+      "detection": [
+        "塩化鉄(III)水溶液で赤紫色",
+        "炭酸水素ナトリウムからCO2発生"
+      ],
+      "note": "カルボキシ基とフェノール性OHを両方もつ"
+    },
+    {
+      "id": "sodium-salicylate",
+      "name": "サリチル酸ナトリウム",
+      "formula": "C6H4(OH)COONa",
+      "family": "芳香族",
+      "group": "カルボン酸",
+      "detection": [],
+      "note": "ナトリウムフェノキシドとCO2からできる"
+    },
+    {
+      "id": "methyl-salicylate",
+      "name": "サリチル酸メチル",
+      "formula": "C6H4(OH)COOCH3",
+      "family": "芳香族",
+      "group": "エステル",
+      "detection": [
+        "塩化鉄(III)水溶液で赤紫色"
+      ],
+      "note": "フェノール性OHが残るので呈色する。消炎鎮痛剤"
+    },
+    {
+      "id": "acetylsalicylic-acid",
+      "name": "アセチルサリチル酸",
+      "formula": "C6H4(OCOCH3)COOH",
+      "family": "芳香族",
+      "group": "エステル",
+      "detection": [],
+      "note": "OHがふさがれ塩化鉄(III)で呈色しない。解熱鎮痛剤"
+    },
+    {
+      "id": "hexachlorocyclohexane",
+      "name": "1,2,3,4,5,6-ヘキサクロロシクロヘキサン",
+      "formula": "C6H6Cl6",
+      "family": "脂肪族",
+      "group": "その他",
+      "detection": [],
+      "note": "かつて殺虫剤(BHC)の原料。付加なので環は壊れない"
+    },
+    {
+      "id": "benzaldehyde",
+      "name": "ベンズアルデヒド",
+      "formula": "C6H5CHO",
+      "family": "芳香族",
+      "group": "アルデヒド",
+      "detection": [
+        "銀鏡反応"
+      ],
+      "note": "銀鏡反応は陽性だがフェーリング液は還元しない"
+    }
+  ],
+  "reactions": [
+    {
+      "id": "r001",
+      "from": [
+        "calcium-carbide"
+      ],
+      "to": [
+        "acetylene"
+      ],
+      "reagent": "水",
+      "conditions": "常温",
+      "type": "加水分解",
+      "note": "アセチレンの実験室的製法。水酸化カルシウムも生じる",
+      "confidence": "high"
+    },
+    {
+      "id": "r002",
+      "from": [
+        "acetylene"
+      ],
+      "to": [
+        "ethylene"
+      ],
+      "reagent": "H2 / ニッケル(または白金)触媒",
+      "conditions": "加熱",
+      "type": "付加",
+      "note": "付加が進むとさらにエタンまでいく",
+      "confidence": "high"
+    },
+    {
+      "id": "r003",
+      "from": [
+        "ethylene"
+      ],
+      "to": [
+        "ethane"
+      ],
+      "reagent": "H2 / ニッケル(または白金)触媒",
+      "conditions": "加熱",
+      "type": "付加",
+      "note": "二重結合が単結合になる",
+      "confidence": "high"
+    },
+    {
+      "id": "r004",
+      "from": [
+        "acetylene"
+      ],
+      "to": [
+        "benzene"
+      ],
+      "reagent": "なし",
+      "conditions": "赤熱した鉄管に通す(約500℃)",
+      "type": "その他",
+      "note": "3分子が重合して環をつくる",
+      "confidence": "high"
+    },
+    {
+      "id": "r005",
+      "from": [
+        "acetylene"
+      ],
+      "to": [
+        "acetaldehyde"
+      ],
+      "reagent": "水 / 硫酸水銀(II)触媒",
+      "conditions": "",
+      "type": "付加",
+      "note": "不安定なビニルアルコールを経て異性化する",
+      "confidence": "high"
+    },
+    {
+      "id": "r006",
+      "from": [
+        "ethylene"
+      ],
+      "to": [
+        "ethanol"
+      ],
+      "reagent": "水 / リン酸触媒",
+      "conditions": "高温・高圧",
+      "type": "付加",
+      "note": "エタノールの工業的製法",
+      "confidence": "high"
+    },
+    {
+      "id": "r007",
+      "from": [
+        "ethylene"
+      ],
+      "to": [
+        "dibromoethane"
+      ],
+      "reagent": "臭素水(Br2)",
+      "conditions": "常温",
+      "type": "付加",
+      "note": "赤褐色が消える。不飽和結合の検出に使う",
+      "confidence": "high"
+    },
+    {
+      "id": "r008",
+      "from": [
+        "ethylene"
+      ],
+      "to": [
+        "acetaldehyde"
+      ],
+      "reagent": "O2 / 塩化パラジウム(II)・塩化銅(II)触媒",
+      "conditions": "",
+      "type": "酸化",
+      "note": "アセトアルデヒドの工業的製法",
+      "confidence": "low"
+    },
+    {
+      "id": "r009",
+      "from": [
+        "methane"
+      ],
+      "to": [
+        "chloromethane"
+      ],
+      "reagent": "Cl2",
+      "conditions": "光(紫外線)を当てる",
+      "type": "置換",
+      "note": "置換が続くと四塩化炭素まで進む",
+      "confidence": "high"
+    },
+    {
+      "id": "r010",
+      "from": [
+        "sodium-acetate"
+      ],
+      "to": [
+        "methane"
+      ],
+      "reagent": "NaOH(ソーダ石灰)",
+      "conditions": "混ぜて加熱",
+      "type": "その他",
+      "note": "メタンの実験室的製法。炭酸ナトリウムも生じる",
+      "confidence": "high"
+    },
+    {
+      "id": "r011",
+      "from": [
+        "ethanol"
+      ],
+      "to": [
+        "ethylene"
+      ],
+      "reagent": "濃硫酸",
+      "conditions": "160〜170℃",
+      "type": "脱水",
+      "note": "分子内脱水。温度が高いほうがこちら",
+      "confidence": "high"
+    },
+    {
+      "id": "r012",
+      "from": [
+        "ethanol"
+      ],
+      "to": [
+        "diethyl-ether"
+      ],
+      "reagent": "濃硫酸",
+      "conditions": "130〜140℃",
+      "type": "脱水",
+      "note": "2分子からの分子間脱水",
+      "confidence": "high"
+    },
+    {
+      "id": "r013",
+      "from": [
+        "ethanol"
+      ],
+      "to": [
+        "sodium-ethoxide"
+      ],
+      "reagent": "Na(金属ナトリウム)",
+      "conditions": "常温",
+      "type": "置換",
+      "note": "水素が発生する。ヒドロキシ基の確認に使う",
+      "confidence": "high"
+    },
+    {
+      "id": "r014",
+      "from": [
+        "ethanol"
+      ],
+      "to": [
+        "acetaldehyde"
+      ],
+      "reagent": "K2Cr2O7 / 硫酸酸性",
+      "conditions": "加熱",
+      "type": "酸化",
+      "note": "第一級アルコールの酸化。溶液は赤橙色から緑色へ",
+      "confidence": "high"
+    },
+    {
+      "id": "r015",
+      "from": [
+        "acetaldehyde"
+      ],
+      "to": [
+        "acetic-acid"
+      ],
+      "reagent": "K2Cr2O7 / 硫酸酸性",
+      "conditions": "加熱",
+      "type": "酸化",
+      "note": "アルデヒドはさらに酸化されてカルボン酸になる",
+      "confidence": "high"
+    },
+    {
+      "id": "r016",
+      "from": [
+        "methanol"
+      ],
+      "to": [
+        "formaldehyde"
+      ],
+      "reagent": "K2Cr2O7 / 硫酸酸性",
+      "conditions": "加熱",
+      "type": "酸化",
+      "note": "第一級アルコールの酸化。エタノールの酸化と同じ酸化剤",
+      "confidence": "high"
+    },
+    {
+      "id": "r017",
+      "from": [
+        "formaldehyde"
+      ],
+      "to": [
+        "formic-acid"
+      ],
+      "reagent": "K2Cr2O7 / 硫酸酸性",
+      "conditions": "加熱",
+      "type": "酸化",
+      "note": "アルデヒドはさらに酸化されカルボン酸になる",
+      "confidence": "high"
+    },
+    {
+      "id": "r018",
+      "from": [
+        "propene"
+      ],
+      "to": [
+        "isopropanol"
+      ],
+      "reagent": "水 / リン酸触媒",
+      "conditions": "高温・高圧",
+      "type": "付加",
+      "note": "ヒドロキシ基は中央の炭素につく",
+      "confidence": "low"
+    },
+    {
+      "id": "r019",
+      "from": [
+        "isopropanol"
+      ],
+      "to": [
+        "acetone"
+      ],
+      "reagent": "K2Cr2O7 / 硫酸酸性",
+      "conditions": "加熱",
+      "type": "酸化",
+      "note": "第二級アルコールの酸化でケトンになる",
+      "confidence": "high"
+    },
+    {
+      "id": "r020",
+      "from": [
+        "acetic-acid",
+        "ethanol"
+      ],
+      "to": [
+        "ethyl-acetate"
+      ],
+      "reagent": "濃硫酸(触媒)",
+      "conditions": "加熱",
+      "type": "エステル化",
+      "note": "水が取れる。可逆反応なので完全には進まない",
+      "confidence": "high"
+    },
+    {
+      "id": "r021",
+      "from": [
+        "ethyl-acetate"
+      ],
+      "to": [
+        "acetic-acid",
+        "ethanol"
+      ],
+      "reagent": "水 / 希硫酸",
+      "conditions": "加熱",
+      "type": "加水分解",
+      "note": "エステル化の逆反応",
+      "confidence": "high"
+    },
+    {
+      "id": "r022",
+      "from": [
+        "ethyl-acetate"
+      ],
+      "to": [
+        "sodium-acetate",
+        "ethanol"
+      ],
+      "reagent": "NaOH水溶液",
+      "conditions": "加熱",
+      "type": "加水分解",
+      "note": "けん化。塩ができるので逆反応は起こらない",
+      "confidence": "high"
+    },
+    {
+      "id": "r023",
+      "from": [
+        "acetic-acid"
+      ],
+      "to": [
+        "sodium-acetate"
+      ],
+      "reagent": "NaOH水溶液",
+      "conditions": "常温",
+      "type": "中和",
+      "note": "",
+      "confidence": "high"
+    },
+    {
+      "id": "r024",
+      "from": [
+        "sodium-acetate"
+      ],
+      "to": [
+        "acetic-acid"
+      ],
+      "reagent": "塩酸(強酸)",
+      "conditions": "常温",
+      "type": "中和",
+      "note": "弱酸の遊離。分離操作で使う",
+      "confidence": "high"
+    },
+    {
+      "id": "r025",
+      "from": [
+        "acetic-acid"
+      ],
+      "to": [
+        "acetic-anhydride"
+      ],
+      "reagent": "十酸化四リン(P4O10)",
+      "conditions": "加熱",
+      "type": "脱水",
+      "note": "2分子から水1分子が取れる",
+      "confidence": "high"
+    },
+    {
+      "id": "r026",
+      "from": [
+        "acetic-anhydride"
+      ],
+      "to": [
+        "acetic-acid"
+      ],
+      "reagent": "水",
+      "conditions": "",
+      "type": "加水分解",
+      "note": "酢酸2分子にもどる",
+      "confidence": "high"
+    },
+    {
+      "id": "r027",
+      "from": [
+        "benzene"
+      ],
+      "to": [
+        "cyclohexane"
+      ],
+      "reagent": "H2 / ニッケル触媒",
+      "conditions": "高温・高圧",
+      "type": "付加",
+      "note": "ベンゼンが付加反応をする数少ない例",
+      "confidence": "high"
+    },
+    {
+      "id": "r028",
+      "from": [
+        "benzene"
+      ],
+      "to": [
+        "nitrobenzene"
+      ],
+      "reagent": "濃硝酸 + 濃硫酸(混酸)",
+      "conditions": "約60℃",
+      "type": "置換",
+      "note": "水より重い淡黄色の油状物質が得られる",
+      "confidence": "high"
+    },
+    {
+      "id": "r029",
+      "from": [
+        "benzene"
+      ],
+      "to": [
+        "benzenesulfonic-acid"
+      ],
+      "reagent": "濃硫酸",
+      "conditions": "加熱",
+      "type": "置換",
+      "note": "スルホン化。強酸ができる",
+      "confidence": "high"
+    },
+    {
+      "id": "r030",
+      "from": [
+        "benzene"
+      ],
+      "to": [
+        "chlorobenzene"
+      ],
+      "reagent": "Cl2 / 鉄粉(触媒)",
+      "conditions": "",
+      "type": "置換",
+      "note": "触媒があると置換、光を当てると付加になる",
+      "confidence": "high"
+    },
+    {
+      "id": "r031",
+      "from": [
+        "benzene",
+        "propene"
+      ],
+      "to": [
+        "cumene"
+      ],
+      "reagent": "リン酸触媒",
+      "conditions": "",
+      "type": "置換",
+      "note": "クメン法の第1段階",
+      "confidence": "low"
+    },
+    {
+      "id": "r032",
+      "from": [
+        "cumene"
+      ],
+      "to": [
+        "cumene-hydroperoxide"
+      ],
+      "reagent": "O2(空気)",
+      "conditions": "",
+      "type": "酸化",
+      "note": "クメン法の第2段階",
+      "confidence": "high"
+    },
+    {
+      "id": "r033",
+      "from": [
+        "cumene-hydroperoxide"
+      ],
+      "to": [
+        "phenol",
+        "acetone"
+      ],
+      "reagent": "希硫酸",
+      "conditions": "",
+      "type": "その他",
+      "note": "分解。アセトンが同時にできるのがクメン法の特徴",
+      "confidence": "high"
+    },
+    {
+      "id": "r034",
+      "from": [
+        "chlorobenzene"
+      ],
+      "to": [
+        "sodium-phenoxide"
+      ],
+      "reagent": "NaOH水溶液",
+      "conditions": "高温・高圧",
+      "type": "置換",
+      "note": "塩素がヒドロキシ基に置き換わる",
+      "confidence": "high"
+    },
+    {
+      "id": "r035",
+      "from": [
+        "benzenesulfonic-acid"
+      ],
+      "to": [
+        "sodium-benzenesulfonate"
+      ],
+      "reagent": "NaOH水溶液",
+      "conditions": "常温",
+      "type": "中和",
+      "note": "",
+      "confidence": "high"
+    },
+    {
+      "id": "r036",
+      "from": [
+        "sodium-benzenesulfonate"
+      ],
+      "to": [
+        "sodium-phenoxide"
+      ],
+      "reagent": "NaOH(固体)",
+      "conditions": "融解(アルカリ融解)",
+      "type": "その他",
+      "note": "亜硫酸ナトリウムも生じる",
+      "confidence": "high"
+    },
+    {
+      "id": "r037",
+      "from": [
+        "phenol"
+      ],
+      "to": [
+        "sodium-phenoxide"
+      ],
+      "reagent": "NaOH水溶液",
+      "conditions": "常温",
+      "type": "中和",
+      "note": "フェノールが弱い酸としてはたらく",
+      "confidence": "high"
+    },
+    {
+      "id": "r038",
+      "from": [
+        "sodium-phenoxide"
+      ],
+      "to": [
+        "phenol"
+      ],
+      "reagent": "希硫酸(または塩酸)",
+      "conditions": "常温",
+      "type": "中和",
+      "note": "弱酸の遊離",
+      "confidence": "high"
+    },
+    {
+      "id": "r039",
+      "from": [
+        "sodium-phenoxide"
+      ],
+      "to": [
+        "phenol"
+      ],
+      "reagent": "CO2",
+      "conditions": "水溶液に通じる(常温・常圧)",
+      "type": "中和",
+      "note": "フェノールが炭酸より弱い酸だとわかる",
+      "confidence": "high"
+    },
+    {
+      "id": "r040",
+      "from": [
+        "sodium-phenoxide"
+      ],
+      "to": [
+        "sodium-salicylate"
+      ],
+      "reagent": "CO2",
+      "conditions": "高温・高圧",
+      "type": "その他",
+      "note": "同じCO2でも条件が違うと生成物が変わる",
+      "confidence": "high"
+    },
+    {
+      "id": "r041",
+      "from": [
+        "sodium-salicylate"
+      ],
+      "to": [
+        "salicylic-acid"
+      ],
+      "reagent": "希硫酸",
+      "conditions": "常温",
+      "type": "中和",
+      "note": "弱酸の遊離",
+      "confidence": "high"
+    },
+    {
+      "id": "r042",
+      "from": [
+        "salicylic-acid",
+        "methanol"
+      ],
+      "to": [
+        "methyl-salicylate"
+      ],
+      "reagent": "濃硫酸(触媒)",
+      "conditions": "加熱",
+      "type": "エステル化",
+      "note": "カルボキシ基のほうがエステルになる",
+      "confidence": "high"
+    },
+    {
+      "id": "r043",
+      "from": [
+        "salicylic-acid",
+        "acetic-anhydride"
+      ],
+      "to": [
+        "acetylsalicylic-acid"
+      ],
+      "reagent": "無水酢酸",
+      "conditions": "",
+      "type": "その他",
+      "note": "フェノール性OHのアセチル化。酢酸も生じる",
+      "confidence": "high"
+    },
+    {
+      "id": "r044",
+      "from": [
+        "phenol"
+      ],
+      "to": [
+        "picric-acid"
+      ],
+      "reagent": "濃硝酸 + 濃硫酸(混酸)",
+      "conditions": "加熱",
+      "type": "置換",
+      "note": "2,4,6位の3か所がニトロ化される",
+      "confidence": "low"
+    },
+    {
+      "id": "r045",
+      "from": [
+        "nitrobenzene"
+      ],
+      "to": [
+        "aniline-hydrochloride"
+      ],
+      "reagent": "Sn(または Fe) + 濃塩酸",
+      "conditions": "加熱",
+      "type": "還元",
+      "note": "直接得られるのはアニリンではなくその塩",
+      "confidence": "high"
+    },
+    {
+      "id": "r046",
+      "from": [
+        "aniline-hydrochloride"
+      ],
+      "to": [
+        "aniline"
+      ],
+      "reagent": "NaOH水溶液",
+      "conditions": "常温",
+      "type": "中和",
+      "note": "弱塩基の遊離",
+      "confidence": "high"
+    },
+    {
+      "id": "r047",
+      "from": [
+        "aniline"
+      ],
+      "to": [
+        "aniline-hydrochloride"
+      ],
+      "reagent": "塩酸",
+      "conditions": "常温",
+      "type": "中和",
+      "note": "水に溶けないアニリンが塩になって溶ける",
+      "confidence": "high"
+    },
+    {
+      "id": "r048",
+      "from": [
+        "aniline",
+        "acetic-anhydride"
+      ],
+      "to": [
+        "acetanilide"
+      ],
+      "reagent": "無水酢酸",
+      "conditions": "",
+      "type": "その他",
+      "note": "アミノ基のアセチル化。酢酸も生じる",
+      "confidence": "high"
+    },
+    {
+      "id": "r049",
+      "from": [
+        "aniline"
+      ],
+      "to": [
+        "benzenediazonium-chloride"
+      ],
+      "reagent": "NaNO2 + 塩酸",
+      "conditions": "5℃以下(氷冷)",
+      "type": "その他",
+      "note": "ジアゾ化。温度が上がると分解してしまう",
+      "confidence": "high"
+    },
+    {
+      "id": "r050",
+      "from": [
+        "benzenediazonium-chloride",
+        "sodium-phenoxide"
+      ],
+      "to": [
+        "hydroxyazobenzene"
+      ],
+      "reagent": "ナトリウムフェノキシド水溶液",
+      "conditions": "氷冷下",
+      "type": "その他",
+      "note": "カップリング。橙赤色の染料ができる",
+      "confidence": "high"
+    },
+    {
+      "id": "r051",
+      "from": [
+        "benzenediazonium-chloride"
+      ],
+      "to": [
+        "phenol"
+      ],
+      "reagent": "水",
+      "conditions": "加温(5℃以上)",
+      "type": "加水分解",
+      "note": "窒素が発生する。氷冷が必要な理由がこれ",
+      "confidence": "high"
+    },
+    {
+      "id": "r052",
+      "from": [
+        "toluene"
+      ],
+      "to": [
+        "benzoic-acid"
+      ],
+      "reagent": "KMnO4",
+      "conditions": "加熱後に酸を加える",
+      "type": "酸化",
+      "note": "側鎖のメチル基だけが酸化される",
+      "confidence": "high"
+    },
+    {
+      "id": "r053",
+      "from": [
+        "toluene"
+      ],
+      "to": [
+        "trinitrotoluene"
+      ],
+      "reagent": "濃硝酸 + 濃硫酸(混酸)",
+      "conditions": "加熱",
+      "type": "置換",
+      "note": "3か所がニトロ化される",
+      "confidence": "low"
+    },
+    {
+      "id": "r054",
+      "from": [
+        "benzoic-acid"
+      ],
+      "to": [
+        "sodium-benzoate"
+      ],
+      "reagent": "NaOH水溶液",
+      "conditions": "常温",
+      "type": "中和",
+      "note": "水に溶けない安息香酸が溶けるようになる",
+      "confidence": "high"
+    },
+    {
+      "id": "r055",
+      "from": [
+        "sodium-benzoate"
+      ],
+      "to": [
+        "benzoic-acid"
+      ],
+      "reagent": "塩酸(強酸)",
+      "conditions": "常温",
+      "type": "中和",
+      "note": "弱酸の遊離。分離操作で使う",
+      "confidence": "high"
+    },
+    {
+      "id": "r056",
+      "from": [
+        "benzene"
+      ],
+      "to": [
+        "hexachlorocyclohexane"
+      ],
+      "reagent": "Cl2",
+      "conditions": "光(紫外線)を当てる",
+      "type": "付加",
+      "note": "同じCl2でも鉄粉触媒なら置換(クロロベンゼン)になる",
+      "confidence": "high"
+    },
+    {
+      "id": "r057",
+      "from": [
+        "toluene"
+      ],
+      "to": [
+        "benzaldehyde"
+      ],
+      "reagent": "KMnO4(希薄・低温)",
+      "conditions": "反応を途中で止める",
+      "type": "酸化",
+      "note": "条件を制御しないと安息香酸まで進んでしまう",
+      "confidence": "low"
+    },
+    {
+      "id": "r058",
+      "from": [
+        "benzaldehyde"
+      ],
+      "to": [
+        "benzoic-acid"
+      ],
+      "reagent": "KMnO4",
+      "conditions": "加熱",
+      "type": "酸化",
+      "note": "側鎖の酸化はここで安息香酸まで進む",
+      "confidence": "low"
+    }
+  ]
+}

@@ -1,0 +1,838 @@
+<!doctype html>
+<html lang="ja">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>運動量と力積インタラクティブ</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500&family=IBM+Plex+Sans+JP:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+*{box-sizing:border-box}
+:root{
+  --ink:#16232B; --muted:#5E6E76; --paper:#EDF1EF; --surface:#FFFFFF;
+  --rule:#D6DDDA; --rule-soft:#E8EDEB;
+  --c0:#B87A16; --c0t:#8A5A0C;
+  --c1:#158A6D; --c1t:#0D6A53;
+  --c2:#2457A6; --c2t:#1B4380;
+  --c3:#6E3AA7; --c3t:#572D85;
+  --c4:#A82A6A; --c4t:#831F52;
+  --c5:#3B6E1E; --c5t:#2A5215;
+  --mono:"IBM Plex Mono",ui-monospace,SFMono-Regular,Menlo,monospace;
+}
+html,body{margin:0;padding:0}
+body{
+  background:var(--paper); color:var(--ink);
+  font-family:"IBM Plex Sans JP","Hiragino Sans","Yu Gothic UI",system-ui,sans-serif;
+  font-size:13.5px; line-height:1.75; -webkit-text-size-adjust:100%;
+}
+.mono{font-family:var(--mono);font-variant-numeric:tabular-nums}
+.wrap{max-width:820px;margin:0 auto;padding:20px 14px 72px}
+.card{background:var(--surface);border:1px solid var(--rule);border-radius:3px;padding:14px;margin-bottom:14px}
+.eyebrow{display:flex;align-items:center;gap:10px;font-family:var(--mono);font-size:11.5px;letter-spacing:.14em;color:var(--muted)}
+.eyebrow::after{content:"";flex:1;height:1px;background:var(--rule)}
+h1{font-size:22px;font-weight:600;letter-spacing:.01em;margin:8px 0 2px}
+h2{font-size:13.5px;font-weight:600;margin:14px 0 6px;letter-spacing:.01em}
+h2:first-child{margin-top:0}
+p{margin:0 0 8px}
+p:last-child{margin-bottom:0}
+.note{color:var(--muted);font-size:12px;line-height:1.7}
+hr{border:none;border-top:1px solid var(--rule-soft);margin:12px 0}
+
+.btn{font:inherit;font-size:12.5px;line-height:1.4;border:1px solid var(--rule);background:#fff;color:var(--ink);border-radius:2px;padding:6px 10px;cursor:pointer}
+.btn:hover{border-color:#B4C0BC}
+.btn.on{background:var(--ink);color:#fff;border-color:var(--ink)}
+.btn:focus-visible{outline:2px solid var(--c2);outline-offset:1px}
+.btn:disabled{opacity:.4;cursor:not-allowed}
+.btnrow{display:flex;flex-wrap:wrap;gap:6px}
+
+.ctl{display:flex;flex-wrap:wrap;align-items:center;gap:8px;margin-top:10px}
+.ctl .lab{font-family:var(--mono);font-size:11px;letter-spacing:.06em;color:var(--muted);white-space:nowrap;min-width:96px}
+.ctl .val{font-family:var(--mono);font-variant-numeric:tabular-nums;font-size:12.5px;min-width:92px;text-align:right}
+.ctl.disabled .lab,.ctl.disabled .val{color:#A9B4B8}
+input[type=range]{width:100%;max-width:220px;accent-color:#16232B;height:22px}
+input[type=range]:disabled{opacity:.35;cursor:not-allowed;accent-color:#A9B4B8}
+input[type=range]:focus-visible{outline:2px solid var(--c2);outline-offset:2px}
+
+.viewer{position:relative;border:1px solid var(--rule-soft);border-radius:3px;background:#FBFCFB;overflow:hidden;margin-top:10px}
+svg.stage{display:block;width:100%;height:auto;touch-action:none}
+
+.legend{display:flex;flex-wrap:wrap;gap:5px 16px;margin-top:9px;font-size:11.5px;color:var(--muted)}
+.chip{display:inline-flex;align-items:center;gap:6px}
+.dot{display:inline-block;width:10px;height:10px;border-radius:2px;vertical-align:-1px}
+
+.stats{display:grid;grid-template-columns:1fr 1fr;gap:0 18px;margin-top:10px}
+.stat{display:flex;justify-content:space-between;align-items:baseline;gap:10px;border-bottom:1px solid var(--rule-soft);padding:6px 0}
+.stat .k{font-size:12px;color:var(--muted);white-space:nowrap}
+.stat .v{font-family:var(--mono);font-variant-numeric:tabular-nums;font-size:13px;text-align:right;white-space:nowrap}
+@media (max-width:430px){
+  .stats{grid-template-columns:1fr}
+  .stat{flex-direction:column;align-items:flex-start;gap:2px}
+  .stat .v{text-align:left}
+}
+
+.step{border-left:2px solid var(--rule);padding:1px 0 1px 11px;margin-bottom:10px}
+.step:last-child{margin-bottom:0;border-left-color:var(--ink)}
+.step .lbl{font-family:var(--mono);font-size:10.5px;letter-spacing:.12em;color:var(--muted)}
+.step .eq{font-family:var(--mono);font-size:13px;line-height:1.95;word-break:break-word}
+.step .eq sup{font-size:.78em}
+
+.timerow{display:flex;align-items:center;gap:8px;margin-top:12px}
+.timerow input[type=range]{max-width:none;flex:1}
+.timeval{font-family:var(--mono);font-variant-numeric:tabular-nums;font-size:12px;color:var(--muted);white-space:nowrap;min-width:118px;text-align:right}
+
+@media (prefers-reduced-motion: reduce){
+  .btn{transition:none}
+}
+</style>
+</head>
+<body>
+<div class="wrap">
+
+<header>
+  <div class="eyebrow">MOMENTUM &amp; IMPULSE</div>
+  <h1>運動量と力積インタラクティブ</h1>
+  <p class="note">2つの物体が正面衝突するとき、外力(摩擦など)がなければ運動量の合計は衝突の前後で変わらない。一方で運動エネルギーは、衝突のしかた(反発係数 e)によって保たれることもあれば失われることもある。力積は「衝突の瞬間だけに働く力の効果」で、運動量の変化量そのものであり、2物体には向きが逆で大きさが等しい力積(作用・反作用)が働く。このページでは1次元(正面衝突のみ、斜め衝突は扱わない)でこの3つの関係を確かめる。</p>
+</header>
+
+<div class="card">
+  <div class="eyebrow">SIMULATOR</div>
+  <h2>衝突のしかた(反発係数 e)を選んで運動量・力積を見る</h2>
+  <p class="note">質量 m<sub>1</sub>・m<sub>2</sub> と衝突前の速度 v<sub>1</sub>・v<sub>2</sub>(符号は向きを表し、正が右向き)はどのモードでも自由に変えられる。衝突後の速度 v<sub>1</sub>&prime;・v<sub>2</sub>&prime; は運動量保存則と反発係数の式から自動で計算される値で、直接操作することはできない。</p>
+
+  <div class="ctl" style="margin-top:6px">
+    <span class="lab">衝突のしかた</span>
+    <span class="btnrow" id="modebar" role="group" aria-label="反発係数のプリセット"></span>
+  </div>
+
+  <div class="viewer">
+    <svg class="stage" id="stage" viewBox="0 0 440 240" role="img" aria-label="1次元衝突における位置・運動量・力積">
+      <g id="axisLayer"></g>
+      <g id="vectorLayer"></g>
+    </svg>
+  </div>
+
+  <div class="legend">
+    <span class="chip"><span class="dot" style="background:var(--c2)"></span>物体1・運動量 p<sub>1</sub></span>
+    <span class="chip"><span class="dot" style="background:var(--c1)"></span>物体2・運動量 p<sub>2</sub></span>
+    <span class="chip"><span class="dot" style="background:var(--c4)"></span>力積 J<sub>1</sub>(物体1が受ける)</span>
+    <span class="chip"><span class="dot" style="background:var(--c3)"></span>力積 J<sub>2</sub>(物体2が受ける・J<sub>1</sub>と逆向き同じ大きさ)</span>
+  </div>
+  <p class="note">円の大きさは質量の目安として模式的に描いているだけで、実際の物体の大きさとは無関係(点として扱う質点モデル)。速度そのものは矢印では示さず、下の数値パネルの数字で確認する(運動量ベクトルと単位が異なるため、矢印を混在させない)。運動量 p と力積 J は単位が同じ(kg&middot;m/s)なので、矢印の長さは共通の物差し(px/(kg&middot;m/s))で描いている&mdash;衝突前後で運動量の矢印の長さがどう変わるかを、力積の矢印の長さと見比べられる。</p>
+
+  <div class="timerow">
+    <button class="btn sm" id="btnReset" type="button">リセット</button>
+    <button class="btn sm" id="btnPlay" type="button">再生</button>
+    <input type="range" id="sT" min="0" max="4" step="0.01" value="0" aria-label="時刻をスクラブ">
+    <span class="timeval mono" id="valT">0.00 / 4.00 s</span>
+  </div>
+
+  <div class="ctl">
+    <span class="lab">質量 m<sub>1</sub></span>
+    <input type="range" id="sM1" min="1" max="10" step="1" value="3">
+    <span class="val mono" id="valM1">3 kg</span>
+  </div>
+  <div class="ctl">
+    <span class="lab">質量 m<sub>2</sub></span>
+    <input type="range" id="sM2" min="1" max="10" step="1" value="5">
+    <span class="val mono" id="valM2">5 kg</span>
+  </div>
+  <div class="ctl">
+    <span class="lab">衝突前 v<sub>1</sub></span>
+    <input type="range" id="sV1" min="-10" max="10" step="1" value="6">
+    <span class="val mono" id="valV1">6 m/s</span>
+  </div>
+  <div class="ctl">
+    <span class="lab">衝突前 v<sub>2</sub></span>
+    <input type="range" id="sV2" min="-10" max="10" step="1" value="-2">
+    <span class="val mono" id="valV2">-2 m/s</span>
+  </div>
+  <div class="ctl" id="rowE">
+    <span class="lab">反発係数 e</span>
+    <input type="range" id="sE" min="0" max="1" step="0.01" value="0.5">
+    <span class="val mono" id="valE">0.50</span>
+  </div>
+
+  <div class="stats" id="stats"></div>
+</div>
+
+<div class="card">
+  <div class="eyebrow">VECTORS</div>
+  <h2>運動量の矢印は衝突の瞬間に切り替わり、力積の矢印はその瞬間だけ現れる</h2>
+  <p class="note">物体1・物体2の運動量ベクトルは軸に沿った矢印で、時刻が衝突時刻 t<sub>c</sub> を境に衝突前の値(m<sub>1</sub>v<sub>1</sub>・m<sub>2</sub>v<sub>2</sub>)から衝突後の値(m<sub>1</sub>v<sub>1</sub>&prime;・m<sub>2</sub>v<sub>2</sub>&prime;)へ切り替わる。長さは速さでなく運動量の大きさに比例し、向きは符号(右向きが正)で決まる。</p>
+  <p class="note">力積の矢印(J<sub>1</sub>・J<sub>2</sub>)は t = t<sub>c</sub> の前後ごく短い間だけ衝突点に現れる。J<sub>1</sub> と J<sub>2</sub> は大きさが同じで向きが逆(作用・反作用)なので、もし同じ位置・同じ色で描くと1本の矢印にしか見えなくなってしまう。この教材ではJ<sub>1</sub>を軸の上側、J<sub>2</sub>を軸の下側の別の行に離し、色も別々にすることで、逆向き2本の矢印であることが常に見分けられるようにしている。</p>
+</div>
+
+<div class="card">
+  <div class="eyebrow">EQUATIONS</div>
+  <h2>運動量保存則と反発係数から衝突後の速度を求める</h2>
+  <p class="note">右向きを正とし、質量 m<sub>1</sub>・m<sub>2</sub>、衝突前の速度 v<sub>1</sub>・v<sub>2</sub>、衝突後の速度 v<sub>1</sub>&prime;・v<sub>2</sub>&prime;、反発係数 e(0&le;e&le;1)とする。</p>
+  <div class="step">
+    <div class="lbl">運動量保存則</div>
+    <div class="eq">m<sub>1</sub>v<sub>1</sub> + m<sub>2</sub>v<sub>2</sub> = m<sub>1</sub>v<sub>1</sub>&prime; + m<sub>2</sub>v<sub>2</sub>&prime;</div>
+  </div>
+  <div class="step">
+    <div class="lbl">反発係数の定義</div>
+    <div class="eq">e = &minus;(v<sub>1</sub>&prime; &minus; v<sub>2</sub>&prime;) / (v<sub>1</sub> &minus; v<sub>2</sub>)　　(e=1: 完全弾性衝突、e=0: 完全非弾性衝突)</div>
+  </div>
+  <div class="step">
+    <div class="lbl">連立を解いた結果(このシミュレーションが使う式)</div>
+    <div class="eq" style="font-size:12.5px;line-height:2.1">
+      v<sub>1</sub>&prime; = { (m<sub>1</sub>&minus;e&middot;m<sub>2</sub>)v<sub>1</sub> + (1+e)m<sub>2</sub>v<sub>2</sub> } / (m<sub>1</sub>+m<sub>2</sub>)<br>
+      v<sub>2</sub>&prime; = { (1+e)m<sub>1</sub>v<sub>1</sub> + (m<sub>2</sub>&minus;e&middot;m<sub>1</sub>)v<sub>2</sub> } / (m<sub>1</sub>+m<sub>2</sub>)
+    </div>
+  </div>
+  <div class="step">
+    <div class="lbl">力積(運動量の変化量。作用・反作用で符号が逆になる)</div>
+    <div class="eq">J<sub>1</sub> = m<sub>1</sub>v<sub>1</sub>&prime; &minus; m<sub>1</sub>v<sub>1</sub>　　J<sub>2</sub> = m<sub>2</sub>v<sub>2</sub>&prime; &minus; m<sub>2</sub>v<sub>2</sub> = &minus;J<sub>1</sub></div>
+  </div>
+  <p class="note">e=1(弾性衝突)では運動エネルギー合計は衝突前後で変わらない。e=0(完全非弾性衝突)ではv<sub>1</sub>&prime;=v<sub>2</sub>&prime;(2物体が一体になって動く)になり、運動エネルギーは衝突の前より必ず小さくなる(0&lt;e&lt;1ではその中間)。運動量の合計はeの値によらず常に保存される&mdash;数値パネルの「合計運動量」が時刻によらず一定であることで確認できる。</p>
+</div>
+
+</div>
+
+<script type="module">
+"use strict";
+/* ---------- データ(JSONをそのまま埋め込み。fetch は使わない) ---------- */
+const DATA = {"formulas":{"momentumConservation":{"text":"m1 v1 + m2 v2 = m1 v1' + m2 v2'","note":"外力(摩擦・空気抵抗)を無視した1次元衝突における運動量保存則。高校物理(物理)の教科書に載る標準的な式","source":"高校物理教科書(物理)の運動量保存則"},"restitution":{"text":"e = -(v1' - v2') / (v1 - v2)","note":"反発係数(はねかえり係数)の定義。e=1で完全弾性衝突、e=0で完全非弾性衝突","source":"高校物理教科書(物理)の反発係数の定義"}},"controls":{"m1":{"min":1,"max":10,"step":1,"default":3,"unit":"kg"},"m2":{"min":1,"max":10,"step":1,"default":5,"unit":"kg"},"v1":{"min":-10,"max":10,"step":1,"default":6,"unit":"m/s"},"v2":{"min":-10,"max":10,"step":1,"default":-2,"unit":"m/s"}},"modes":[{"id":"elastic","label":"弾性衝突","e":{"value":1,"fixed":true}},{"id":"inelastic","label":"完全非弾性衝突","e":{"value":0,"fixed":true}},{"id":"custom","label":"反発係数を設定","e":{"default":0.5,"min":0,"max":1,"step":0.01,"fixed":false}}],"timing":{"collisionTime":{"value":2,"unit":"s","note":"衝突までの助走時間。演出上の固定値で、物理定数ではない"},"postDuration":{"value":2,"unit":"s","note":"衝突後に観察する時間。演出上の固定値で、物理定数ではない"}}};
+
+/* ---------- ここから scripts/vector-diagram-engine.mjs をそのまま埋め込み(内容は書き換えない) ---------- */
+// 汎用の2Dベクトル矢印描画エンジン。成分分解・合成・スケール変換・矢印の幾何計算だけを扱う。
+// 力学の知識(力とは何か、質量、単位)は一切持ち込まない。「原点・角度・大きさ」の
+// 組から矢印のSVG座標を作るだけの純粋関数の集まりで、力にも速度にも同じ関数を使い回せる。
+//
+// projection-engine.mjs は import しない。教材HTMLには埋め込みJSONと同様、
+// このファイルの中身をそのまま1つの<script>ブロックに埋め込む運用のため、
+// 3D教材のように projection-engine.mjs も同じ画面で埋め込む場合に
+// 関数名が衝突しない・importの解決が要らない、という2点を優先した設計。
+//
+// ブラウザでもそのまま動くこと。Node固有のAPIは使わない。ESM export のみ。外部ライブラリ禁止。
+//
+// 角度の規約: 度数法、0°=+x方向、反時計回りが正（物理でふつうに使う向き）。
+// SVGの画面座標はy軸が下向きに正なので、その変換(反転)は各関数の内部で閉じる。
+//
+// 型（コメントのみ、実行時チェックはしない）
+//   Vector    = { fx: number, fy: number }                 物理座標系での成分(y上向き正)
+//   Point     = { x: number, y: number }
+//   ArrowOpts = { headLength?: number, headWidth?: number }
+//   Arrow     = { x1, y1, x2, y2: number, head: [Point, Point, Point] }  すべて画面px
+
+const D2R = Math.PI / 180;
+const R2D = 180 / Math.PI;
+
+// ---------- toCartesian ----------
+// 角度(度)と大きさから成分に分解する。
+function toCartesian(angleDeg, magnitude) {
+  const rad = angleDeg * D2R;
+  return {
+    fx: magnitude * Math.cos(rad),
+    fy: magnitude * Math.sin(rad),
+  };
+}
+
+// ---------- toPolar ----------
+// 成分から角度(度, [0,360)に正規化)と大きさに戻す。fx=fy=0のときangleDegは0とする。
+function toPolar(fx, fy) {
+  const magnitude = Math.hypot(fx, fy);
+  if (magnitude === 0) return { angleDeg: 0, magnitude: 0 };
+  const deg = Math.atan2(fy, fx) * R2D;
+  return { angleDeg: ((deg % 360) + 360) % 360, magnitude };
+}
+
+// ---------- sumVectors ----------
+// 複数のベクトル(成分表示)を単純に足し合わせる。合力にも速度の合成にも使う。
+// 空配列は{fx:0, fy:0}を返す(「その方向には何もない」を自然に表せるようにする)。
+function sumVectors(vectors) {
+  let fx = 0, fy = 0;
+  for (const v of vectors) {
+    fx += v.fx;
+    fy += v.fy;
+  }
+  return { fx, fy };
+}
+
+// ---------- flipToScreen ----------
+// 物理座標(y上向き正)の点を、画面座標の向き(y下向き正)に直す。xはそのまま。
+// まだpx化はしない(ワールド座標→px座標のスケール・原点位置は教材ごとのステージに
+// 依存するため、この関数の外、教材側のコードが担当する)。
+function flipToScreen(point) {
+  return { x: point.x, y: -point.y };
+}
+
+// ---------- magnitudeToLength ----------
+// 大きさをpxの矢印長に変換する。magnitudeが0以下なら0(=描画しない扱い)を返す。
+// minPxを指定すると、それより短くならない下限を設けられる(既定0、つまり比例を厳守)。
+function magnitudeToLength(magnitude, pxPerUnit, minPx = 0) {
+  if (magnitude <= 0) return 0;
+  return Math.max(magnitude * pxPerUnit, minPx);
+}
+
+// ---------- computeScale ----------
+// 同じ画面・同じフレームで並べて描く一群の大きさ(magnitudes)から、
+// 最大値がmaxPxになるようなpxPerUnitを作る。単位の異なる量(速度と力など)を
+// 混ぜて渡さないこと(呼び出し側がグループを分けて別々に呼ぶ)。
+// 全て0以下ならスケール0を返す(何も描かれない)。
+function computeScale(magnitudes, maxPx) {
+  const maxMag = Math.max(0, ...magnitudes);
+  if (maxMag === 0) return 0;
+  return maxPx / maxMag;
+}
+
+// ---------- arrowGeometry ----------
+// 画面px座標の原点・物理角度(度)・矢印の長さ(px)から、軸線と矢じり(三角形)の
+// 座標を作る。角度は物理座標の向き(0°=+x, 反時計回り正)のまま渡してよく、
+// y反転を含む画面上の方向への変換はこの関数の内部で行う。
+// 矢じりの長さが軸線長を超えて軸線からはみ出さないよう、headLengthはlengthPxで頭打ちにする。
+function arrowGeometry(originPx, angleDeg, lengthPx, opts = {}) {
+  const headLength = Math.min(opts.headLength ?? 10, lengthPx);
+  const headWidth = opts.headWidth ?? 7;
+
+  const rad = angleDeg * D2R;
+  const dx = Math.cos(rad);
+  const dy = -Math.sin(rad);
+
+  const x2 = originPx.x + dx * lengthPx;
+  const y2 = originPx.y + dy * lengthPx;
+  const baseX = x2 - dx * headLength;
+  const baseY = y2 - dy * headLength;
+  const nx = -dy;
+  const ny = dx;
+
+  return {
+    x1: originPx.x,
+    y1: originPx.y,
+    x2,
+    y2,
+    head: [
+      { x: x2, y: y2 },
+      { x: baseX + (nx * headWidth) / 2, y: baseY + (ny * headWidth) / 2 },
+      { x: baseX - (nx * headWidth) / 2, y: baseY - (ny * headWidth) / 2 },
+    ],
+  };
+}
+
+// ---------- labelAnchor ----------
+// 矢じりの先端から、同じ角度の延長線上にgapPxだけ離れた位置を返す。
+// 矢印の大きさを示す数値ラベルの置き場所に使う。
+function labelAnchor(tipPx, angleDeg, gapPx) {
+  const rad = angleDeg * D2R;
+  return {
+    x: tipPx.x + Math.cos(rad) * gapPx,
+    y: tipPx.y - Math.sin(rad) * gapPx,
+  };
+}
+
+export {
+  toCartesian,
+  toPolar,
+  sumVectors,
+  flipToScreen,
+  magnitudeToLength,
+  computeScale,
+  arrowGeometry,
+  labelAnchor,
+};
+/* ---------- ここまで scripts/vector-diagram-engine.mjs の埋め込み ---------- */
+
+/* ---------- ここから scripts/phys-momentum-impulse-layout.mjs をそのまま埋め込み ----------
+   ただし先頭の import 文だけは省略している(vector-diagram-engine.mjsを直前に同じ
+   <script type="module">内へ埋め込み済みで、同一スコープの関数をそのまま参照できるため。
+   相対パスの import 文をそのまま残すと、ブラウザが実ファイルへのfetchを試みてしまい、
+   単一ファイル完結・fetch不使用の方針に反する)。それ以外の内容は書き換えていない。 ---------- */
+// 運動量と力積(1次元衝突)の物理計算とレイアウト計算。DOM・ブラウザAPIに依存しない
+// 純粋関数のみで構成する。html/phys-momentum-impulse.html にそのまま埋め込んで使うのと
+// 同時に、scripts/check-phys-momentum-impulse-overlaps.mjs から直接importして
+// ラベル・矢印の重なり検査にも使う(実装と検査で計算式が食い違うのを避けるため、
+// 「画面に実際に描く座標」を作る関数をここに1つだけ用意し、両方から参照する)。
+//
+// vector-diagram-engine.mjs の関数だけを使い、力学の知識(質量・力の意味)は
+// この上の層(このファイル)に閉じる。projection-engine.mjs は import しない。
+
+/* ---------- 物理: 運動量保存則 + 反発係数の定義から導く衝突後速度 ---------- */
+// e = -(v1'-v2')/(v1-v2)、m1v1+m2v2 = m1v1'+m2v2' の連立を解いた閉じた式。
+// 高校物理(物理)の教科書に載る標準的な式で、途中式は本文側(HTML)の解説カードに書く。
+function postVelocities(m1, m2, v1, v2, e) {
+  const denom = m1 + m2;
+  const v1p = ((m1 - e * m2) * v1 + (1 + e) * m2 * v2) / denom;
+  const v2p = ((1 + e) * m1 * v1 + (m2 - e * m1) * v2) / denom;
+  return { v1p, v2p };
+}
+
+function momentum(m, v) {
+  return m * v;
+}
+function kineticEnergy(m, v) {
+  return 0.5 * m * v * v;
+}
+
+/* ---------- タイミング(演出上の値。物理定数ではない) ----------
+   衝突までの助走・衝突後に観察する時間をどちらも固定2秒とする。速度の大小に
+   よらず時間軸は変えず、位置レンジ(viewXMax)だけを自動フィットさせる方針
+   (mechanics-series-vector-conventions.mdの「実数値を導入しない」節とは別の
+   話だが、同じ発想で「物理量ではない演出パラメータ」であることを明示する)。 */
+const TIMING = { collisionTime: 2, postDuration: 2 };
+const IMPULSE_WINDOW = 0.12; // 秒。|t - t_collision| がこの範囲内なら力積の矢印を出す
+
+function sceneDuration() {
+  return TIMING.collisionTime + TIMING.postDuration;
+}
+
+/* ---------- 時刻tでの状態 ---------- */
+function stateAt(t, params) {
+  const { m1, m2, v1, v2, e } = params;
+  const { v1p, v2p } = postVelocities(m1, m2, v1, v2, e);
+  const tc = TIMING.collisionTime;
+  const before = t < tc;
+  const v1cur = before ? v1 : v1p;
+  const v2cur = before ? v2 : v2p;
+  return {
+    x1: v1cur * (t - tc),
+    x2: v2cur * (t - tc),
+    v1cur,
+    v2cur,
+    v1p,
+    v2p,
+    before,
+    atCollision: Math.abs(t - tc) <= IMPULSE_WINDOW,
+  };
+}
+
+/* ---------- 数値パネル用の一式 ---------- */
+function computeStats(t, params) {
+  const { m1, m2, v1, v2 } = params;
+  const s = stateAt(t, params);
+  const p1Before = momentum(m1, v1);
+  const p2Before = momentum(m2, v2);
+  const p1After = momentum(m1, s.v1p);
+  const p2After = momentum(m2, s.v2p);
+  const p1 = momentum(m1, s.v1cur);
+  const p2 = momentum(m2, s.v2cur);
+  const keBefore = kineticEnergy(m1, v1) + kineticEnergy(m2, v2);
+  const keAfter = kineticEnergy(m1, s.v1p) + kineticEnergy(m2, s.v2p);
+  return {
+    p1,
+    p2,
+    pTotal: p1 + p2,
+    ke1: kineticEnergy(m1, s.v1cur),
+    ke2: kineticEnergy(m2, s.v2cur),
+    keBefore,
+    keAfter,
+    j1: p1After - p1Before,
+    j2: p2After - p2Before,
+    v1p: s.v1p,
+    v2p: s.v2p,
+  };
+}
+
+/* ---------- ワールド座標(x, m)のレンジ ---------- */
+// 位置の極値は必ずt=0・t=シーン全長のどちらかで起きる(各区間で等速なので位置はtの
+// 一次式、極値は区間の端にしかない)。60点サンプリングのような数値探索は不要。
+function computeXRange(params) {
+  const { m1, m2, v1, v2, e } = params;
+  const { v1p, v2p } = postVelocities(m1, m2, v1, v2, e);
+  const tc = TIMING.collisionTime;
+  const T = sceneDuration();
+  const xs = [v1 * (0 - tc), v2 * (0 - tc), v1p * (T - tc), v2p * (T - tc), 0];
+  const maxAbs = Math.max(...xs.map((x) => Math.abs(x)), 1);
+  return maxAbs * 1.15;
+}
+
+/* ---------- レイアウト定数(px) ---------- */
+const BOX = { w: 440, h: 240 };
+// 矢印本体(最大 MOM_MAX_PX)+ラベルまでの隙間(LABEL_GAP)+ラベル半幅の分だけ、
+// 描画領域の外側に余白(PAD_SIDE)を確保する。これにより「矢印+ラベルが
+// ステージの外にはみ出す/矢印の線が自分のラベルに重なる」を両方防ぐ。
+const PAD_SIDE = 118;
+const AXIS_Y = 118;
+const ROW_DY = { p1: -58, j1: -24, j2: 24, p2: 58 };
+const TICK_Y_OFFSET = 94; // ROW_DY.p2(58)よりさらに下に離す
+const MOM_MAX_PX = 40;
+const LABEL_GAP = 34; // 矢じり先端からラベル中心までの距離。ラベル半幅の想定最大値より大きく取る
+const LABEL_CHAR_W = 6.3;
+const LABEL_PAD = 6;
+const LABEL_H = 13;
+
+function circleRadius(m) {
+  return 6 + 2.6 * Math.sqrt(m);
+}
+
+function computeTransform(viewXMax) {
+  const availW = BOX.w - PAD_SIDE * 2;
+  const scale = availW / (2 * viewXMax);
+  return { scale, originX: BOX.w / 2 };
+}
+function worldXToPx(x, transform) {
+  return transform.originX + x * transform.scale;
+}
+
+function labelBox(x, y, text) {
+  const w = text.length * LABEL_CHAR_W + LABEL_PAD;
+  const h = LABEL_H;
+  return { x0: x - w / 2, y0: y - h / 2, x1: x + w / 2, y1: y + h / 2 };
+}
+
+function fmt(n, digits) {
+  return n.toFixed(digits);
+}
+function signed(n, digits) {
+  const v = n.toFixed(digits);
+  return n >= 0 && !v.startsWith("-") ? `+${v}` : v;
+}
+
+// 大きさ(符号付き, fy=0固定)から矢印一式(線分・矢じり・ラベル位置)を作る。
+// 大きさが0(またはスケール0)なら null を返す(=描画しない)。
+function buildArrow(id, originPx, signedMagnitude, color, opts) {
+  const polar = toPolar(signedMagnitude, 0);
+  const lengthPx = magnitudeToLength(polar.magnitude, opts.pxPerUnit, 0);
+  if (lengthPx <= 0) return null;
+  const geo = arrowGeometry(originPx, polar.angleDeg, lengthPx, {
+    headLength: opts.headLength,
+    headWidth: opts.headWidth,
+  });
+  const labelPos = labelAnchor({ x: geo.x2, y: geo.y2 }, polar.angleDeg, opts.labelGap ?? LABEL_GAP);
+  const text = `${opts.labelPrefix} ${signed(signedMagnitude, 1)}`;
+  return {
+    id,
+    color,
+    strokeWidth: opts.strokeWidth ?? 2.2,
+    geo,
+    label: { x: labelPos.x, y: labelPos.y, text, color: opts.labelColor ?? color, box: labelBox(labelPos.x, labelPos.y, text) },
+  };
+}
+
+function niceStep(range) {
+  const candidates = [0.5, 1, 2, 5, 10, 20, 25, 50];
+  for (const c of candidates) if (range / c <= 4) return c;
+  return 50;
+}
+
+function computeAxisTicks(viewXMax, transform) {
+  const step = niceStep(viewXMax);
+  const ticks = [];
+  const n = Math.floor(viewXMax / step);
+  for (let i = -n; i <= n; i++) {
+    const x = i * step;
+    const px = worldXToPx(x, transform);
+    const y = AXIS_Y + TICK_Y_OFFSET;
+    const text = String(Math.round(x * 10) / 10);
+    ticks.push({ x: px, y, text, box: labelBox(px, y, text) });
+  }
+  return ticks;
+}
+
+/* ---------- 全体レイアウト(画面に描く座標一式) ---------- */
+function computeLayout(t, params) {
+  const { m1, m2 } = params;
+  const s = stateAt(t, params);
+  const stats = computeStats(t, params);
+  const viewXMax = computeXRange(params);
+  const transform = computeTransform(viewXMax);
+
+  const x1px = worldXToPx(s.x1, transform);
+  const x2px = worldXToPx(s.x2, transform);
+  const collisionPx = worldXToPx(0, transform);
+
+  const pxPerUnit = computeScale(
+    [stats.p1, stats.p2, momentum(m1, s.v1p), momentum(m2, s.v2p), stats.j1, stats.j2].map((v) => Math.abs(v)),
+    MOM_MAX_PX
+  );
+
+  const circles = [
+    { id: "body1", cx: x1px, cy: AXIS_Y, r: circleRadius(m1), fill: "var(--c2)" },
+    { id: "body2", cx: x2px, cy: AXIS_Y, r: circleRadius(m2), fill: "var(--c1)" },
+  ];
+
+  const arrowOpts = { pxPerUnit, headLength: 9, headWidth: 6.5, strokeWidth: 2.4 };
+  const arrows = [];
+
+  const p1Arrow = buildArrow("p1", { x: x1px, y: AXIS_Y + ROW_DY.p1 }, stats.p1, "var(--c2)", {
+    ...arrowOpts,
+    labelPrefix: "p1",
+    labelColor: "var(--c2t)",
+  });
+  if (p1Arrow) arrows.push(p1Arrow);
+
+  const p2Arrow = buildArrow("p2", { x: x2px, y: AXIS_Y + ROW_DY.p2 }, stats.p2, "var(--c1)", {
+    ...arrowOpts,
+    labelPrefix: "p2",
+    labelColor: "var(--c1t)",
+  });
+  if (p2Arrow) arrows.push(p2Arrow);
+
+  if (s.atCollision) {
+    const j1Arrow = buildArrow("j1", { x: collisionPx, y: AXIS_Y + ROW_DY.j1 }, stats.j1, "var(--c4)", {
+      ...arrowOpts,
+      labelPrefix: "J1",
+      labelColor: "var(--c4t)",
+    });
+    if (j1Arrow) arrows.push(j1Arrow);
+
+    const j2Arrow = buildArrow("j2", { x: collisionPx, y: AXIS_Y + ROW_DY.j2 }, stats.j2, "var(--c3)", {
+      ...arrowOpts,
+      labelPrefix: "J2",
+      labelColor: "var(--c3t)",
+    });
+    if (j2Arrow) arrows.push(j2Arrow);
+  }
+
+  const axisTicks = computeAxisTicks(viewXMax, transform);
+
+  return {
+    box: BOX,
+    axisY: AXIS_Y,
+    axisLine: { x1: 0, y1: AXIS_Y, x2: BOX.w, y2: AXIS_Y },
+    collisionGuide: { x1: collisionPx, y1: AXIS_Y + ROW_DY.p1 - 12, x2: collisionPx, y2: AXIS_Y + ROW_DY.p2 + 12 },
+    circles,
+    arrows,
+    axisTicks,
+    stats,
+    state: s,
+    transform,
+    viewXMax,
+  };
+}
+/* ---------- ここまで scripts/phys-momentum-impulse-layout.mjs の埋め込み ---------- */
+
+/* ---------- 共通 ---------- */
+const $ = (id) => document.getElementById(id);
+const reducedMotion = window.matchMedia && window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+
+const NS = "http://www.w3.org/2000/svg";
+function svgEl(tag, attrs) {
+  const el = document.createElementNS(NS, tag);
+  for (const k in attrs) el.setAttribute(k, attrs[k]);
+  return el;
+}
+
+/* ---------- モード(反発係数のプリセット) ---------- */
+const modeButtons = {};
+const modebar = $("modebar");
+DATA.modes.forEach((m) => {
+  const b = document.createElement("button");
+  b.type = "button";
+  b.className = "btn";
+  b.textContent = m.id === "custom" ? m.label : `${m.label}(e=${m.e.value})`;
+  b.setAttribute("aria-pressed", "false");
+  b.addEventListener("click", () => setMode(m.id));
+  modebar.appendChild(b);
+  modeButtons[m.id] = b;
+});
+
+const sM1 = $("sM1"), sM2 = $("sM2"), sV1 = $("sV1"), sV2 = $("sV2"), sE = $("sE"), sT = $("sT");
+const valM1 = $("valM1"), valM2 = $("valM2"), valV1 = $("valV1"), valV2 = $("valV2"), valE = $("valE"), valT = $("valT");
+const rowE = $("rowE");
+const btnPlay = $("btnPlay"), btnReset = $("btnReset");
+
+let currentModeId = "custom";
+let playing = false;
+let lastFrameMs = null;
+
+if (reducedMotion) {
+  btnPlay.textContent = "+1コマ進める";
+}
+
+function applyFixedE(cfg) {
+  if (cfg.fixed) {
+    sE.min = cfg.value;
+    sE.max = cfg.value;
+    sE.step = 1;
+    sE.value = cfg.value;
+    sE.disabled = true;
+    rowE.classList.add("disabled");
+  } else {
+    sE.min = cfg.min;
+    sE.max = cfg.max;
+    sE.step = cfg.step;
+    sE.value = cfg.default;
+    sE.disabled = false;
+    rowE.classList.remove("disabled");
+  }
+  valE.textContent = fmt(Number(sE.value), 2);
+}
+
+function setMode(modeId) {
+  currentModeId = modeId;
+  const mode = DATA.modes.find((m) => m.id === modeId);
+  for (const id in modeButtons) {
+    const on = id === modeId;
+    modeButtons[id].classList.toggle("on", on);
+    modeButtons[id].setAttribute("aria-pressed", String(on));
+  }
+  applyFixedE(mode.e);
+  renderFrame(Number(sT.value));
+}
+
+/* ---------- パラメータ読み取り ---------- */
+function currentParams() {
+  return {
+    m1: Number(sM1.value),
+    m2: Number(sM2.value),
+    v1: Number(sV1.value),
+    v2: Number(sV2.value),
+    e: Number(sE.value),
+  };
+}
+
+/* ---------- 静的な軸(モード・スライダーが変わっても構造は同じだが、レンジは変わるので毎回引き直す) ---------- */
+const axisLayer = $("axisLayer");
+const vectorLayer = $("vectorLayer");
+
+function drawStatic(layout) {
+  axisLayer.textContent = "";
+  axisLayer.appendChild(svgEl("line", {
+    x1: layout.axisLine.x1, y1: layout.axisLine.y1, x2: layout.axisLine.x2, y2: layout.axisLine.y2,
+    stroke: "var(--rule)", "stroke-width": 1.4,
+  }));
+  // 衝突点の参照線(計算上の特異点=衝突瞬間の位置なので破線を使う。mechanics-series-vector-conventions.md準拠)
+  axisLayer.appendChild(svgEl("line", {
+    x1: layout.collisionGuide.x1, y1: layout.collisionGuide.y1, x2: layout.collisionGuide.x2, y2: layout.collisionGuide.y2,
+    stroke: "var(--rule)", "stroke-width": 1, "stroke-dasharray": "3,3",
+  }));
+  for (const tick of layout.axisTicks) {
+    axisLayer.appendChild(svgEl("line", {
+      x1: tick.x, y1: layout.axisY - 4, x2: tick.x, y2: layout.axisY + 4,
+      stroke: "var(--rule)", "stroke-width": 1,
+    }));
+    const t = svgEl("text", {
+      x: tick.x, y: tick.y, "font-size": 9.5, "font-family": "var(--mono)", fill: "var(--muted)", "text-anchor": "middle",
+    });
+    t.textContent = tick.text;
+    axisLayer.appendChild(t);
+  }
+}
+
+function drawLabel(label) {
+  const w = label.box.x1 - label.box.x0;
+  const h = label.box.y1 - label.box.y0;
+  vectorLayer.appendChild(svgEl("rect", {
+    x: label.box.x0, y: label.box.y0, width: w, height: h,
+    fill: "var(--surface)", "fill-opacity": 1, rx: 2,
+  }));
+  const t = svgEl("text", {
+    x: label.x, y: label.y, "font-size": 10, "font-family": "var(--mono)", fill: label.color,
+    "text-anchor": "middle", "dominant-baseline": "middle",
+  });
+  t.textContent = label.text;
+  vectorLayer.appendChild(t);
+}
+
+function drawArrow(arrow) {
+  vectorLayer.appendChild(svgEl("line", {
+    x1: arrow.geo.x1, y1: arrow.geo.y1, x2: arrow.geo.x2, y2: arrow.geo.y2,
+    stroke: arrow.color, "stroke-width": arrow.strokeWidth,
+  }));
+  const pts = arrow.geo.head.map((p) => `${p.x.toFixed(1)},${p.y.toFixed(1)}`).join(" ");
+  vectorLayer.appendChild(svgEl("polygon", { points: pts, fill: arrow.color }));
+}
+
+/* ---------- 数値パネル ---------- */
+const statsEl = $("stats");
+function statRow(k, v) {
+  return `<div class="stat"><span class="k">${k}</span><span class="v mono">${v}</span></div>`;
+}
+function renderStats(layout) {
+  const st = layout.stats;
+  statsEl.innerHTML = [
+    statRow("衝突後速度 v1&prime;", `${fmt(st.v1p, 2)} m/s`),
+    statRow("衝突後速度 v2&prime;", `${fmt(st.v2p, 2)} m/s`),
+    statRow("運動量 p1", `${fmt(st.p1, 2)} kg&middot;m/s`),
+    statRow("運動量 p2", `${fmt(st.p2, 2)} kg&middot;m/s`),
+    statRow("合計運動量 P(保存)", `${fmt(st.pTotal, 2)} kg&middot;m/s`),
+    statRow("物体1の運動エネルギー", `${fmt(st.ke1, 2)} J`),
+    statRow("物体2の運動エネルギー", `${fmt(st.ke2, 2)} J`),
+    statRow("運動エネルギー合計(衝突前)", `${fmt(st.keBefore, 2)} J`),
+    statRow("運動エネルギー合計(衝突後)", `${fmt(st.keAfter, 2)} J`),
+    statRow("力積 J1", `${fmt(st.j1, 2)} kg&middot;m/s`),
+    statRow("力積 J2", `${fmt(st.j2, 2)} kg&middot;m/s`),
+  ].join("");
+}
+
+/* ---------- 1フレーム描画 ---------- */
+function renderFrame(t) {
+  const params = currentParams();
+  const layout = computeLayout(t, params);
+
+  drawStatic(layout);
+  vectorLayer.textContent = "";
+
+  for (const c of layout.circles) {
+    vectorLayer.appendChild(svgEl("circle", { cx: c.cx, cy: c.cy, r: c.r, fill: c.fill }));
+  }
+  for (const arrow of layout.arrows) {
+    drawArrow(arrow);
+    drawLabel(arrow.label);
+  }
+
+  valT.textContent = `${fmt(t, 2)} / ${fmt(sceneDuration(), 2)} s`;
+  renderStats(layout);
+}
+
+/* ---------- イベント ---------- */
+function onParamChange() {
+  valM1.textContent = `${fmt(Number(sM1.value), 0)} kg`;
+  valM2.textContent = `${fmt(Number(sM2.value), 0)} kg`;
+  valV1.textContent = `${fmt(Number(sV1.value), 0)} m/s`;
+  valV2.textContent = `${fmt(Number(sV2.value), 0)} m/s`;
+  valE.textContent = fmt(Number(sE.value), 2);
+  renderFrame(Number(sT.value));
+}
+
+sM1.addEventListener("input", onParamChange);
+sM2.addEventListener("input", onParamChange);
+sV1.addEventListener("input", onParamChange);
+sV2.addEventListener("input", onParamChange);
+sE.addEventListener("input", onParamChange);
+
+sT.addEventListener("input", () => {
+  playing = false;
+  btnPlay.textContent = reducedMotion ? "+1コマ進める" : "再生";
+  renderFrame(Number(sT.value));
+});
+
+btnReset.addEventListener("click", () => {
+  playing = false;
+  btnPlay.textContent = reducedMotion ? "+1コマ進める" : "再生";
+  sT.value = 0;
+  renderFrame(0);
+});
+
+btnPlay.addEventListener("click", () => {
+  const T = sceneDuration();
+  if (reducedMotion) {
+    const step = T / 24;
+    const t = Math.min(Number(sT.value) + step, T);
+    sT.value = t;
+    renderFrame(t);
+    return;
+  }
+  playing = !playing;
+  btnPlay.textContent = playing ? "一時停止" : "再生";
+  if (playing) {
+    lastFrameMs = null;
+    requestAnimationFrame(tick);
+  }
+});
+
+function tick(nowMs) {
+  if (!playing) return;
+  if (lastFrameMs == null) lastFrameMs = nowMs;
+  const dtReal = (nowMs - lastFrameMs) / 1000;
+  lastFrameMs = nowMs;
+  const T = sceneDuration();
+  let t = Number(sT.value) + dtReal; // シーン全長が短い(4秒)ため、実時間=シミュレーション時間として再生する
+  if (t >= T) {
+    t = T;
+    playing = false;
+    btnPlay.textContent = "再生";
+  }
+  sT.value = t;
+  renderFrame(t);
+  if (playing) requestAnimationFrame(tick);
+}
+
+/* ---------- 初期化 ---------- */
+sT.max = sceneDuration();
+setMode("custom");
+</script>
+</body>
+</html>

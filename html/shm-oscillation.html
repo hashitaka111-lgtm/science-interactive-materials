@@ -1,0 +1,1191 @@
+<!doctype html>
+<html lang="ja">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>単振動インタラクティブ</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500&family=IBM+Plex+Sans+JP:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+*{box-sizing:border-box}
+:root{
+  --ink:#16232B; --muted:#5E6E76; --paper:#EDF1EF; --surface:#FFFFFF;
+  --rule:#D6DDDA; --rule-soft:#E8EDEB;
+  --c0:#B87A16; --c0t:#8A5A0C;
+  --c1:#158A6D; --c1t:#0D6A53;
+  --c2:#2457A6; --c2t:#1B4380;
+  --c3:#6E3AA7; --c3t:#572D85;
+  --c4:#A82A6A; --c4t:#831F52;
+  --c5:#3B6E1E; --c5t:#2A5215;
+  --mono:"IBM Plex Mono",ui-monospace,SFMono-Regular,Menlo,monospace;
+}
+html,body{margin:0;padding:0}
+body{
+  background:var(--paper); color:var(--ink);
+  font-family:"IBM Plex Sans JP","Hiragino Sans","Yu Gothic UI",system-ui,sans-serif;
+  font-size:13.5px; line-height:1.75; -webkit-text-size-adjust:100%;
+}
+.mono{font-family:var(--mono);font-variant-numeric:tabular-nums}
+.wrap{max-width:820px;margin:0 auto;padding:20px 14px 72px}
+.card{background:var(--surface);border:1px solid var(--rule);border-radius:3px;padding:14px;margin-bottom:14px}
+.eyebrow{display:flex;align-items:center;gap:10px;font-family:var(--mono);font-size:11.5px;letter-spacing:.14em;color:var(--muted)}
+.eyebrow::after{content:"";flex:1;height:1px;background:var(--rule)}
+h1{font-size:22px;font-weight:600;letter-spacing:.01em;margin:8px 0 2px}
+h2{font-size:13.5px;font-weight:600;margin:14px 0 6px;letter-spacing:.01em}
+h2:first-child{margin-top:0}
+p{margin:0 0 8px}
+p:last-child{margin-bottom:0}
+.note{color:var(--muted);font-size:12px;line-height:1.7}
+.sub{color:var(--muted);font-size:11.5px;font-family:var(--mono);letter-spacing:.06em}
+hr{border:none;border-top:1px solid var(--rule-soft);margin:12px 0}
+
+.btn{font:inherit;font-size:12.5px;line-height:1.4;border:1px solid var(--rule);background:#fff;color:var(--ink);border-radius:2px;padding:6px 10px;cursor:pointer}
+.btn:hover{border-color:#B4C0BC}
+.btn.on{background:var(--ink);color:#fff;border-color:var(--ink)}
+.btn:focus-visible{outline:2px solid var(--c2);outline-offset:1px}
+.btn.sm{padding:4px 8px;font-size:11.5px}
+.btnrow{display:flex;flex-wrap:wrap;gap:6px}
+.ctl{display:flex;flex-wrap:wrap;align-items:center;gap:8px;margin-top:10px}
+.ctl .lab{font-family:var(--mono);font-size:11px;letter-spacing:.1em;color:var(--muted);white-space:nowrap}
+.ctl .val{font-family:var(--mono);font-variant-numeric:tabular-nums;font-size:12.5px;min-width:74px}
+
+.viewer{position:relative;border:1px solid var(--rule-soft);border-radius:3px;background:#FBFCFB;overflow:hidden;margin-top:10px}
+svg.stage{display:block;width:100%;height:auto;touch-action:none}
+svg.stage.grab{cursor:grab}
+svg.stage.grab.drag{cursor:grabbing}
+
+.legend{display:flex;flex-wrap:wrap;gap:4px 14px;margin-top:9px;font-size:11.5px;color:var(--muted)}
+.sw{display:inline-block;width:10px;height:10px;border-radius:50%;margin-right:5px;vertical-align:-1px}
+.swl{display:inline-block;width:14px;height:0;border-top:2px solid;margin-right:5px;vertical-align:3px}
+
+table{width:100%;border-collapse:collapse;font-size:12.5px}
+th{font-weight:500;color:var(--muted);text-align:left;border-bottom:1px solid var(--rule);padding:5px 6px;font-size:11px;letter-spacing:.06em;font-family:var(--mono)}
+td{border-bottom:1px solid var(--rule-soft);padding:5px 6px;vertical-align:top}
+.num{text-align:right;font-family:var(--mono);font-variant-numeric:tabular-nums}
+tr.hi td{background:#FAFBFA;font-weight:600}
+tr.cur td{background:#F2F6FA}
+caption{caption-side:top;text-align:left;font-size:11.5px;color:var(--muted);padding:0 6px 6px}
+
+.stats{display:grid;grid-template-columns:1fr 1fr;gap:0 18px}
+.stat{display:flex;justify-content:space-between;align-items:baseline;gap:10px;border-bottom:1px solid var(--rule-soft);padding:6px 0}
+.stat .k{font-size:12px;color:var(--muted);white-space:nowrap}
+.stat .v{font-family:var(--mono);font-variant-numeric:tabular-nums;font-size:13px;text-align:right}
+
+.ebar{position:relative;display:flex;height:16px;border:1px solid var(--rule);border-radius:1px;margin:8px 0 4px;overflow:hidden}
+.ebar .seg{height:100%;transition:width .05s linear}
+.ebar .k{background:var(--c0)}
+.ebar .u{background:var(--c3)}
+
+.grid2{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.grid3{display:grid;grid-template-columns:repeat(3,1fr);gap:10px}
+input[type=range]{width:100%;max-width:220px;accent-color:#16232B;height:22px}
+
+.step{border-left:2px solid var(--rule);padding:1px 0 1px 11px;margin-bottom:10px}
+.step:last-child{margin-bottom:0;border-left-color:var(--ink)}
+.step .lbl{font-family:var(--mono);font-size:10.5px;letter-spacing:.12em;color:var(--muted)}
+.step .eq{font-family:var(--mono);font-size:12.5px;line-height:1.95;word-break:break-word}
+.step .eq sup{font-size:.78em}
+
+.warn{color:var(--c4t);font-size:11.5px;line-height:1.7}
+ul.tight{margin:0;padding-left:1.1em}
+ul.tight li{margin-bottom:5px}
+.kx{color:var(--c2t)} .kv{color:var(--c1t)} .ka{color:var(--c4t)}
+
+@media (max-width:430px){
+  body{font-size:13px}
+  .wrap{padding:14px 10px 56px}
+  .card{padding:11px}
+  h1{font-size:19px}
+  .grid2,.grid3,.stats{grid-template-columns:1fr}
+  table{font-size:12px}
+  th,td{padding:4px 4px}
+  .btn{padding:6px 8px;font-size:12px}
+  input[type=range]{max-width:none;flex:1 1 100%}
+  .step .eq{font-size:11.5px}
+  .ctl .val{min-width:0}
+}
+</style>
+</head>
+<body>
+<div class="wrap">
+
+<header>
+  <div class="eyebrow">SIMPLE HARMONIC MOTION</div>
+  <h1>単振動インタラクティブ</h1>
+  <p class="note">等速円運動する点の影が単振動になる。円を指で回すと右に波が描かれ、速度と加速度も同じ影として出てくる。ばね振り子と単振り子を切り替えて、どちらも同じ式に落ちることと、sinθ≈θ が何を捨てているかを数値で確かめる。</p>
+</header>
+
+<div class="card">
+  <div class="eyebrow">MODEL</div>
+  <div class="btnrow" id="modelsel" style="margin-top:10px"></div>
+  <div class="viewer"><svg class="stage" id="sv-schem" role="img" aria-label="振り子の模式図"><g id="schem-dyn"></g></svg></div>
+  <div id="mparams"></div>
+  <div class="stats" id="mstats" style="margin-top:10px"></div>
+  <p class="note" id="mnote" style="margin-top:9px"></p>
+</div>
+
+<div class="card">
+  <div class="eyebrow">CIRCLE &rarr; WAVE</div>
+  <p class="note" style="margin-top:9px">左の円を指やマウスで回すと、右に x-t グラフが描かれる。円周上の点の速度ベクトルと加速度ベクトルを、変位の軸に落とした影が v と a になる。</p>
+  <div class="viewer"><svg class="stage grab" id="sv-wave" role="img" aria-label="等速円運動とその射影"><g id="wave-static"></g><g id="wave-dyn"></g></svg></div>
+  <div id="wparams"></div>
+  <div class="ctl">
+    <button class="btn" id="b-play">停止</button>
+    <span class="lab">速さ</span>
+    <span class="btnrow" id="speedsel"></span>
+    <button class="btn" id="b-reset">t = 0 に戻す</button>
+  </div>
+  <div class="ctl">
+    <span class="lab">表示</span>
+    <button class="btn on" id="t-vel">速度ベクトル</button>
+    <button class="btn on" id="t-acc">加速度ベクトル</button>
+    <button class="btn on" id="t-shadow">影を落とす</button>
+  </div>
+  <div class="legend">
+    <span><span class="sw" style="background:var(--c2)"></span>変位 x</span>
+    <span><span class="sw" style="background:var(--c1)"></span>速度 v</span>
+    <span><span class="sw" style="background:var(--c4)"></span>加速度 a</span>
+  </div>
+</div>
+
+<div class="card">
+  <div class="eyebrow">HELIX / 3D</div>
+  <p class="note" style="margin-top:9px">円運動を時間の方向に引き伸ばすと螺旋になる。正面から見れば円、真横から見れば正弦波。ドラッグで視点が動く。</p>
+  <div class="viewer"><svg class="stage grab" id="sv-helix" role="img" aria-label="単振動のらせん表示"><g id="helix-static"></g><g id="helix-dyn"></g></svg></div>
+  <div class="ctl">
+    <span class="lab">視点</span>
+    <button class="btn" id="h-front">正面（円）</button>
+    <button class="btn" id="h-side">真横（正弦波）</button>
+    <button class="btn on" id="h-obl">斜め</button>
+  </div>
+</div>
+
+<div class="card">
+  <div class="eyebrow">x &middot; v &middot; a</div>
+  <p class="note" style="margin-top:9px">同じ時刻の縦線で3つがつながっている。<span class="ka">a</span> は <span class="kx">x</span> を上下反転して定数倍したもので、向きが一致することは一度もない。</p>
+  <div class="viewer"><svg class="stage" id="sv-three" role="img" aria-label="変位・速度・加速度のグラフ"><g id="three-static"></g><g id="three-dyn"></g></svg></div>
+  <div class="stats" id="threeval" style="margin-top:10px"></div>
+</div>
+
+<div class="card">
+  <div class="eyebrow">PHASOR</div>
+  <p class="note" style="margin-top:9px">3つの量を、同じ角速度で回る矢印として重ねる。長さは比べられないので、それぞれ見やすい長さに揃えてある。読むのは角度だけ。</p>
+  <div class="viewer"><svg class="stage" id="sv-phasor" role="img" aria-label="回転ベクトル図"><g id="ph-static"></g><g id="ph-dyn"></g></svg></div>
+  <h2 style="margin-top:14px">交流回路との対応</h2>
+  <table style="margin-top:6px">
+    <thead><tr><th>単振動</th><th>LC回路</th><th>位相の関係</th></tr></thead>
+    <tbody>
+      <tr><td>変位 x</td><td>電気量 q</td><td class="mono">基準</td></tr>
+      <tr><td>速度 v</td><td>電流 i = dq/dt</td><td class="mono">+90&deg;</td></tr>
+      <tr><td>加速度 a</td><td>di/dt</td><td class="mono">+180&deg;</td></tr>
+      <tr><td>ばね定数 k</td><td>1/C</td><td class="mono">&mdash;</td></tr>
+      <tr><td>質量 m</td><td>自己インダクタンス L</td><td class="mono">&mdash;</td></tr>
+    </tbody>
+  </table>
+  <p class="note" style="margin-top:8px">コイルの起電力は −L·di/dt、コンデンサーの電圧は q/C。閉回路では L·d²q/dt² = −q/C になり、m·d²x/dt² = −kx とまったく同じ形。角振動数は ω = 1/√(LC) で、√(k/m) の k に 1/C、m に L を入れたものにあたる。</p>
+</div>
+
+<div class="card">
+  <div class="eyebrow">ENERGY</div>
+  <div class="ebar"><div class="seg k" id="bark"></div><div class="seg u" id="baru"></div></div>
+  <div class="legend" style="margin-top:2px">
+    <span><span class="sw" style="background:var(--c0)"></span>運動エネルギー K</span>
+    <span><span class="sw" style="background:var(--c3)"></span>位置エネルギー U</span>
+    <span class="mono" id="ebarval"></span>
+  </div>
+  <div class="viewer"><svg class="stage" id="sv-energy" role="img" aria-label="エネルギーの放物線"><g id="en-static"></g><g id="en-dyn"></g></svg></div>
+  <p class="note" id="ennote" style="margin-top:9px"></p>
+</div>
+
+<div class="card">
+  <div class="eyebrow">sin&theta; &asymp; &theta;</div>
+  <p class="note" style="margin-top:9px">単振り子の周期を近似なしで解く。第一種完全楕円積分を算術幾何平均で計算し、別経路として運動方程式そのものを RK4 で積分した結果も並べる。両者が一致することが、数値が正しいことの担保になる。</p>
+  <div class="ctl">
+    <span class="lab">振れ角 &theta;<sub>0</sub></span>
+    <input type="range" id="sl-th0" min="1" max="175" step="1" value="30">
+    <span class="val mono" id="v-th0"></span>
+  </div>
+  <div class="stats" id="pstats" style="margin-top:6px"></div>
+  <div class="viewer"><svg class="stage" id="sv-perr" role="img" aria-label="振れ角と周期のずれ"><g id="perr-static"></g><g id="perr-dyn"></g></svg></div>
+  <div class="viewer"><svg class="stage" id="sv-pwave" role="img" aria-label="厳密解と近似解の波形"><g id="pwave-static"></g></svg></div>
+  <p class="note" id="pwnote" style="margin-top:9px"></p>
+  <div id="ptable" style="margin-top:12px"></div>
+  <p class="note" style="margin-top:9px">2次近似は T ≒ T<sub>0</sub>(1 + θ<sub>0</sub>²/16) を展開の途中で打ち切ったもの。30&deg; までなら厳密値と 0.03% しか違わないのに、90&deg; では 2.2% ずれる。近似式そのものが効く範囲も狭い。</p>
+</div>
+
+<div class="card">
+  <div class="eyebrow">DERIVATION</div>
+
+  <h2>円運動の影として</h2>
+  <p class="note">半径 A の円周上を角速度 ω で回る点の座標は (A cos(ωt+φ), A sin(ωt+φ))。速度は接線向きで大きさ Aω、加速度は中心向きで大きさ Aω²。この3つを変位の軸に落とすだけで、微分せずに v と a が出る。</p>
+  <div class="step"><span class="lbl">POSITION</span><div class="eq">x = A cos(ωt+φ)</div></div>
+  <div class="step"><span class="lbl">VELOCITY</span><div class="eq">v = &minus;Aω sin(ωt+φ)　（円運動の速度 Aω の影）</div></div>
+  <div class="step"><span class="lbl">ACCELERATION</span><div class="eq">a = &minus;Aω<sup>2</sup> cos(ωt+φ) = &minus;ω<sup>2</sup>x</div></div>
+  <p class="note">最後の式には時間も三角関数も残っていない。加速度が変位に比例して逆向きという関係が見つかれば、それは単振動で、比例定数の平方根がそのまま ω になる。使うのはほぼこの一行。</p>
+
+  <h2>2つの振り子が同じ式に落ちる</h2>
+  <div class="step"><span class="lbl">SPRING</span><div class="eq">m·d<sup>2</sup>x/dt<sup>2</sup> = &minus;kx　→　ω = √(k/m)、T = 2π√(m/k)</div></div>
+  <div class="step"><span class="lbl">PENDULUM</span><div class="eq">mL·d<sup>2</sup>θ/dt<sup>2</sup> = &minus;mg sinθ　→（sinθ ≒ θ）→　ω = √(g/L)、T = 2π√(L/g)</div></div>
+  <div class="step"><span class="lbl">COMMON FORM</span><div class="eq">T = 2π√(慣性 ÷ 復元の強さ)　　m/k ↔ mL<sup>2</sup>/(mgL) = L/g</div></div>
+  <p class="note">単振り子で質量が消えるのは、復元力も慣性も m に比例して約分されるから。ばねでは k が m と無関係なので m が残る。鉛直ばねの場合は、つり合いの位置 x₀ = mg/k を新しい原点に取り直すと重力の項がそのまま消えて、水平ばねと同じ式になる。周期は向きにも振幅にも依らない。</p>
+
+  <h2>厳密な周期の出し方</h2>
+  <p class="note">エネルギー保存から θ′ = √(2g/L)·√(cosθ − cosθ₀) なので、周期は次の積分になる。</p>
+  <div class="step"><span class="lbl">RAW INTEGRAL</span><div class="eq">T = 4√(L/2g) ∫<sub>0</sub><sup>θ₀</sup> dθ / √(cosθ &minus; cosθ₀)</div></div>
+  <p class="note">これは θ→θ₀ で分母が 0 になる。可積分な特異点なので値は有限だが、シンプソン則をそのまま当てると桁が落ちる。sin(θ/2) = k·sinφ、k = sin(θ₀/2) と置換すると特異点が消える。</p>
+  <div class="step"><span class="lbl">ELLIPTIC FORM</span><div class="eq">T = 4√(L/g)·K(k)、　K(k) = ∫<sub>0</sub><sup>π/2</sup> dφ / √(1 &minus; k<sup>2</sup>sin<sup>2</sup>φ)</div></div>
+  <div class="step"><span class="lbl">AGM</span><div class="eq">a<sub>0</sub>=1, b<sub>0</sub>=√(1&minus;k<sup>2</sup>)　→　a<sub>n+1</sub>=(a<sub>n</sub>+b<sub>n</sub>)/2, b<sub>n+1</sub>=√(a<sub>n</sub>b<sub>n</sub>)　→　K(k) = π/(2a<sub>∞</sub>)</div></div>
+  <p class="note">算術幾何平均は2次収束するので、倍精度なら5回で止まる。このページの厳密値は全部この方法で出している。検算に使った RK4 は θ″ = −(g/L)sinθ を直接積分し、θ が 0 を横切る時刻を線形補間で拾って周期にしたもの。上のカードで両者の差を表示している。</p>
+
+  <h2>エネルギー</h2>
+  <div class="step"><span class="lbl">KINETIC</span><div class="eq">K = ½mv<sup>2</sup> = ½mA<sup>2</sup>ω<sup>2</sup> sin<sup>2</sup>(ωt+φ)</div></div>
+  <div class="step"><span class="lbl">POTENTIAL</span><div class="eq">U = ½kx<sup>2</sup> = ½mω<sup>2</sup>A<sup>2</sup> cos<sup>2</sup>(ωt+φ)</div></div>
+  <div class="step"><span class="lbl">TOTAL</span><div class="eq">E = K + U = ½kA<sup>2</sup>（一定）、時間平均は ⟨K⟩ = ⟨U⟩ = E/2</div></div>
+  <p class="note">単振り子の位置エネルギーは厳密には mgL(1−cosθ)。θ² まで展開すると ½mgLθ² となり、弧の長さ s = Lθ を使えば ½(mg/L)s² という放物線になる。本物の谷は放物線より外側で寝ているので、大きく振ると戻るのに余計に時間がかかる。周期が伸びる理由をポテンシャルの形として見られるのがここ。</p>
+
+  <h2>どの近似がどこで効くか</h2>
+  <table style="margin-top:6px">
+    <thead><tr><th>近似</th><th>効く場所</th><th>ずれの大きさ</th></tr></thead>
+    <tbody>
+      <tr><td>sinθ ≒ θ</td><td>単振り子の周期</td><td>5&deg;で+0.048%、30&deg;で+1.74%、90&deg;で+18.0%</td></tr>
+      <tr><td>ばねの質量を無視</td><td>周期の m</td><td>実効質量は m + m<sub>ばね</sub>/3</td></tr>
+      <tr><td>おもりを質点扱い</td><td>単振り子の慣性</td><td>半径 r の球なら周期が約 1 + r<sup>2</sup>/(5L<sup>2</sup>) 倍</td></tr>
+      <tr><td>フックの法則の線形性</td><td>ばねの復元力</td><td>大きく伸ばすと成り立たない</td></tr>
+      <tr><td>減衰なし</td><td>振幅と角振動数</td><td>減衰があると ω′ = √(ω<sup>2</sup>−γ<sup>2</sup>) で振幅は e<sup>−γt</sup></td></tr>
+      <tr><td>糸の伸び・浮力・空気抵抗・コリオリ力</td><td>全体</td><td>高校範囲では無視</td></tr>
+    </tbody>
+  </table>
+
+  <h2>使った定数</h2>
+  <p class="note">重力加速度は標準重力 9.80665 m/s²（国際的に決められた定義値）を既定にした。教科書の 9.8 と、東京付近の実測にあたる 9.798 も切り替えられる。9.80665 と 9.798 の差は 0.09% だが、周期は √g で効くので影響は 0.046% に縮む。単振り子を 30&deg; まで振ったときのずれ 1.74% と比べれば、g をどれにするかは些細な話だと分かる。どれを使って計算しているかは MODEL カードに出している。</p>
+  <p class="note">ばね定数 k と質量 m、糸の長さ L は入力値。振幅 A は cm で入れて、エネルギーの計算のときだけ m に直している。</p>
+
+  <h2>取り違えやすいところ</h2>
+  <ul class="tight note">
+    <li>単振動の周期は振幅に依らない。ただしそれは a = −ω²x が厳密に成り立つ場合の話で、単振り子ではもともと成り立っていない。</li>
+    <li>v が最大になるのは中心、a が最大になるのは端。同時に最大になることはない。</li>
+    <li>単振り子の復元力は張力ではなく重力の接線成分。張力は円の中心を向いていて、接線方向の運動には効かない。</li>
+    <li>鉛直ばねで「重力があるから周期が変わる」と考えない。原点をつり合いの位置に移せば消える。</li>
+    <li>エネルギーの式の k は、単振り子では mg/L のこと。ばね定数と同じ役をしている。</li>
+  </ul>
+</div>
+
+</div>
+
+<script>
+"use strict";
+const TAU=Math.PI*2, RAD=Math.PI/180, DEG=180/Math.PI;
+const INK='#16232B',MUT='#5E6E76',RULE='#D6DDDA',SOFT='#E8EDEB';
+const CX_='#2457A6',CV='#158A6D',CA='#A82A6A',CK='#B87A16',CU='#6E3AA7',CG='#3B6E1E';
+
+/* ---------- データ ---------- */
+const GVALS=[
+  {id:'std', v:9.80665, nm:'9.80665', note:'標準重力（定義値）'},
+  {id:'txt', v:9.8,     nm:'9.8',     note:'教科書の値'},
+  {id:'loc', v:9.798,   nm:'9.798',   note:'東京付近の実測のおおよその値'}
+];
+const MODELS=[
+  {id:'spring', nm:'ばね振り子',
+   eq:'m·d²x/dt² = −kx', om:'ω = √(k/m)', Tf:'T = 2π√(m/k)',
+   desc:'ばねが自然長から x だけ伸びると、−kx の力で引き戻される。これがそのまま a = −(k/m)x になる。'},
+  {id:'pend', nm:'単振り子',
+   eq:'mL·d²θ/dt² = −mg sinθ', om:'ω = √(g/L)', Tf:'T = 2π√(L/g)',
+   desc:'接線方向の復元力は重力の成分 −mg sinθ。sinθ ≒ θ とした瞬間にばねと同じ式になる。捨てた分は下のカードで数値にしている。'}
+];
+const ANGLES=[5,10,15,30,45,60,90,120,150,170];
+const SPEEDS=[{v:0.25,nm:'0.25×'},{v:0.5,nm:'0.5×'},{v:1,nm:'1×'},{v:2,nm:'2×'}];
+const AXLADDER=[2,3,5,8,10,15,20,25,30,40,50];
+
+const LIM={A:[1,40], k:[0.5,60], m:[0.05,3], L:[0.05,6], om:[0.6,10]};
+
+const ST={
+  model:'spring',
+  A:12, phi:0,
+  k:4.5, m:0.5,
+  L:1.09, gIdx:0,
+  t:0, playing:true, speed:1,
+  showV:true, showA:true, showShadow:true,
+  th0:30,
+  yaw:-0.50, pitch:0.30
+};
+
+/* ---------- 小道具 ---------- */
+const clamp=(v,a,b)=>v<a?a:(v>b?b:v);
+const f1=v=>(Math.round(v*10)/10).toString();
+const gv=()=>GVALS[ST.gIdx].v;
+function omega(){ return ST.model==='spring' ? Math.sqrt(ST.k/ST.m) : Math.sqrt(gv()/ST.L); }
+function setOmega(w){
+  w=clamp(w,LIM.om[0],LIM.om[1]);
+  if(ST.model==='spring') ST.k=clamp(ST.m*w*w,LIM.k[0],LIM.k[1]);
+  else ST.L=clamp(gv()/(w*w),LIM.L[0],LIM.L[1]);
+}
+function keff(){ return ST.model==='spring' ? ST.k : ST.m*gv()/ST.L; }
+function period(){ return TAU/omega(); }
+function theta0(){ return (ST.A/100)/ST.L; }           /* 単振り子の振れ角 rad */
+function axMax(){ for(const q of AXLADDER) if(q>=ST.A-1e-9) return q; return 50; }
+function niceCeil(v){
+  if(v<=0) return 1;
+  const e=Math.floor(Math.log10(v)), m=v/Math.pow(10,e);
+  const lad=[1,1.2,1.5,2,2.5,3,4,5,6,8,10];
+  for(const q of lad) if(m<=q+1e-12) return q*Math.pow(10,e);
+  return 10*Math.pow(10,e);
+}
+function fmt(v,sig){
+  sig=sig||4;
+  if(!isFinite(v)) return '—';
+  if(v===0) return '0';
+  const av=Math.abs(v);
+  if(av>=1e-3&&av<1e5){
+    let s=v.toPrecision(sig);
+    if(s.indexOf('e')<0&&s.indexOf('.')>=0) s=s.replace(/0+$/,'').replace(/\.$/,'');
+    return s;
+  }
+  const e=Math.floor(Math.log10(av));
+  return (v/Math.pow(10,e)).toFixed(sig-1)+'×10<sup>'+String(e).replace('-','\u2212')+'</sup>';
+}
+function LN(x1,y1,x2,y2,c,w,dash){
+  return '<line x1="'+f1(x1)+'" y1="'+f1(y1)+'" x2="'+f1(x2)+'" y2="'+f1(y2)+'" stroke="'+c+'" stroke-width="'+(w||1)+'"'+(dash?' stroke-dasharray="'+dash+'"':'')+' stroke-linecap="round"/>';
+}
+function TX(x,y,s,c,size,anchor,weight){
+  return '<text x="'+f1(x)+'" y="'+f1(y)+'" fill="'+c+'" font-family="IBM Plex Mono, monospace" font-size="'+(size||10)+'"'+(anchor?' text-anchor="'+anchor+'"':'')+(weight?' font-weight="'+weight+'"':'')+'>'+s+'</text>';
+}
+function PL(pts,c,w,dash){
+  if(pts.length<2) return '';
+  let d='M'+f1(pts[0][0])+' '+f1(pts[0][1]);
+  for(let i=1;i<pts.length;i++) d+='L'+f1(pts[i][0])+' '+f1(pts[i][1]);
+  return '<path d="'+d+'" fill="none" stroke="'+c+'" stroke-width="'+(w||1.6)+'"'+(dash?' stroke-dasharray="'+dash+'"':'')+' stroke-linejoin="round" stroke-linecap="round"/>';
+}
+function AR(x1,y1,x2,y2,c,w,hs){
+  const dx=x2-x1, dy=y2-y1, len=Math.hypot(dx,dy);
+  if(len<0.6) return '';
+  hs=hs||6;
+  const ux=dx/len, uy=dy/len, px=-uy, py=ux;
+  const bx=x2-ux*hs, by=y2-uy*hs;
+  return LN(x1,y1,bx,by,c,w||1.6)+
+    '<polygon points="'+f1(x2)+','+f1(y2)+' '+f1(bx+px*hs*0.42)+','+f1(by+py*hs*0.42)+' '+f1(bx-px*hs*0.42)+','+f1(by-py*hs*0.42)+'" fill="'+c+'"/>';
+}
+function CIRC(x,y,r,fill,stroke,sw,dash){
+  return '<circle cx="'+f1(x)+'" cy="'+f1(y)+'" r="'+f1(r)+'" fill="'+(fill||'none')+'"'+(stroke?' stroke="'+stroke+'" stroke-width="'+(sw||1)+'"':'')+(dash?' stroke-dasharray="'+dash+'"':'')+'/>';
+}
+function setVB(id,w,h){ const s=document.getElementById(id); s.setAttribute('viewBox','0 0 '+w+' '+h); }
+function put(id,s){ document.getElementById(id).innerHTML=s; }
+
+/* ---------- 数値解法 ---------- */
+/* 第一種完全楕円積分（算術幾何平均、2次収束） */
+function ellipK(k){
+  let a=1, b=Math.sqrt(1-k*k), n=0;
+  while(Math.abs(a-b)>1e-16 && n<60){ const na=(a+b)/2; b=Math.sqrt(a*b); a=na; n++; }
+  return Math.PI/(2*a);
+}
+/* 厳密周期 / 近似周期 */
+function ratioAGM(th0){ return (2/Math.PI)*ellipK(Math.sin(th0/2)); }
+/* 検算経路：θ" = −sinθ を RK4 で積分（g/L=1 の単位系、T0=2π） */
+function ratioRK4(th0,dt){
+  dt=dt||1e-4;
+  let th=th0, w=0, t=0;
+  const fa=x=>-Math.sin(x);
+  for(let i=0;i<4000000;i++){
+    const k1v=w,            k1a=fa(th);
+    const k2v=w+dt/2*k1a,   k2a=fa(th+dt/2*k1v);
+    const k3v=w+dt/2*k2a,   k3a=fa(th+dt/2*k2v);
+    const k4v=w+dt*k3a,     k4a=fa(th+dt*k3v);
+    const nth=th+dt/6*(k1v+2*k2v+2*k3v+k4v);
+    const nw =w +dt/6*(k1a+2*k2a+2*k3a+k4a);
+    t+=dt;
+    if(nth<=0&&th>0){
+      const tc=(t-dt)+dt*th/(th-nth);
+      return 4*tc/TAU;
+    }
+    th=nth; w=nw;
+  }
+  return NaN;
+}
+/* 厳密な θ(t) を標本化（g/L=1、t は T0=2π 単位） */
+function exactWave(th0,tmax,n){
+  const dt=tmax/(n*8);
+  let th=th0, w=0, out=[[0,th0]];
+  const fa=x=>-Math.sin(x);
+  for(let j=1;j<=n;j++){
+    for(let s=0;s<8;s++){
+      const k1v=w,          k1a=fa(th);
+      const k2v=w+dt/2*k1a, k2a=fa(th+dt/2*k1v);
+      const k3v=w+dt/2*k2a, k3a=fa(th+dt/2*k2v);
+      const k4v=w+dt*k3a,   k4a=fa(th+dt*k3v);
+      const nth=th+dt/6*(k1v+2*k2v+2*k3v+k4v);
+      w=w+dt/6*(k1a+2*k2a+2*k3a+k4a); th=nth;
+    }
+    out.push([j*tmax/n,th]);
+  }
+  return out;
+}
+const PTABLE=ANGLES.map(d=>{
+  const r=ratioAGM(d*RAD);
+  return {deg:d, exact:r, rk4:ratioRK4(d*RAD), quad:1+Math.pow(d*RAD,2)/16};
+});
+
+/* ---------- 状態から出る量 ---------- */
+let narrow=window.innerWidth<=430;
+function nper(){ return narrow?1.5:2; }
+function tspan(){ return period()*nper(); }
+function tw(){ const S=tspan(); return ((ST.t%S)+S)%S; }
+function ang(){ return omega()*ST.t+ST.phi; }
+function xOf(a){ return ST.A*Math.cos(a); }
+
+/* ---------- スライダー ---------- */
+const SLIDERS=[
+  {key:'A',   host:'wparams', lab:'振幅 A',      unit:'cm',    min:10, max:400, div:10,
+   get:()=>ST.A, set:v=>{ST.A=v;}, fmt:v=>v.toFixed(1)},
+  {key:'om',  host:'wparams', lab:'角振動数 ω',  unit:'rad/s', min:60, max:1000, div:100,
+   get:()=>omega(), set:v=>{setOmega(v);}, fmt:v=>v.toFixed(2)},
+  {key:'phi', host:'wparams', lab:'初期位相 φ',  unit:'°',     min:-180, max:180, div:1,
+   get:()=>ST.phi*DEG, set:v=>{ST.phi=v*RAD;}, fmt:v=>v.toFixed(0)},
+  {key:'k',   host:'mparams', lab:'ばね定数 k',  unit:'N/m',   min:5, max:600, div:10,
+   only:'spring', get:()=>ST.k, set:v=>{ST.k=v;}, fmt:v=>v.toFixed(1)},
+  {key:'m',   host:'mparams', lab:'質量 m',      unit:'kg',    min:5, max:300, div:100,
+   get:()=>ST.m, set:v=>{ST.m=v;}, fmt:v=>v.toFixed(2)},
+  {key:'L',   host:'mparams', lab:'糸の長さ L',  unit:'m',     min:5, max:600, div:100,
+   only:'pend', get:()=>ST.L, set:v=>{ST.L=v;}, fmt:v=>v.toFixed(2)}
+];
+function buildSliders(){
+  for(const h of ['wparams','mparams']) document.getElementById(h).innerHTML='';
+  for(const s of SLIDERS){
+    if(s.only&&s.only!==ST.model) continue;
+    const row=document.createElement('div'); row.className='ctl';
+    row.innerHTML='<span class="lab">'+s.lab+'</span>'+
+      '<input type="range" id="sl-'+s.key+'" min="'+s.min+'" max="'+s.max+'" step="1">'+
+      '<span class="val mono" id="vv-'+s.key+'"></span>';
+    document.getElementById(s.host).appendChild(row);
+    const el=row.querySelector('input');
+    el.value=Math.round(clamp(s.get()*s.div,s.min,s.max));
+    el.addEventListener('input',()=>{ s.set(+el.value/s.div); refresh(); });
+  }
+  if(ST.model==='pend'){
+    const row=document.createElement('div'); row.className='ctl';
+    row.innerHTML='<span class="lab">重力加速度 g</span><span class="btnrow" id="gsel"></span>';
+    document.getElementById('mparams').appendChild(row);
+    const box=row.querySelector('#gsel');
+    GVALS.forEach((g,i)=>{
+      const b=document.createElement('button');
+      b.className='btn sm'+(i===ST.gIdx?' on':''); b.textContent=g.nm;
+      b.addEventListener('click',()=>{ ST.gIdx=i; buildSliders(); refresh(); });
+      box.appendChild(b);
+    });
+  }
+  syncSliders();
+}
+function syncSliders(){
+  for(const s of SLIDERS){
+    const el=document.getElementById('sl-'+s.key); if(!el) continue;
+    const raw=s.get();
+    const iv=Math.round(clamp(raw*s.div,s.min,s.max));
+    if(+el.value!==iv) el.value=iv;
+    document.getElementById('vv-'+s.key).textContent=s.fmt(raw)+' '+s.unit;
+  }
+}
+
+/* ---------- 模式図 ---------- */
+function drawSchem(){
+  const W=narrow?340:520, H=narrow?120:130;
+  setVB('sv-schem',W,H);
+  const a=ang(), x=xOf(a), s=(narrow?95:130)/axMax();
+  const cx=W/2, g='';
+  let o='';
+  if(ST.model==='spring'){
+    const cy=H/2+6, wallx=narrow?18:26, bw=narrow?26:32;
+    const bx=cx+x*s;
+    o+=LN(wallx,cy-30,wallx,cy+30,INK,2);
+    for(let i=0;i<6;i++) o+=LN(wallx,cy-30+i*12,wallx-7,cy-22+i*12,MUT,1);
+    o+=LN(wallx,cy+30,W-10,cy+30,RULE,1);
+    /* ばね */
+    const x0=wallx, x1=bx-bw/2, n=12, pts=[[x0,cy]];
+    for(let i=0;i<=n;i++){
+      const t=i/n, px=x0+(x1-x0)*t;
+      pts.push([px, cy+(i===0||i===n?0:(i%2?-9:9))]);
+    }
+    pts.push([x1,cy]);
+    o+=PL(pts,MUT,1.4);
+    o+=LN(cx,cy-38,cx,cy+34,RULE,1,'3 3');
+    o+=TX(cx,cy-42,'x = 0',MUT,9.5,'middle');
+    o+='<rect x="'+f1(bx-bw/2)+'" y="'+f1(cy-bw/2)+'" width="'+bw+'" height="'+bw+'" fill="'+CX_+'" fill-opacity=".16" stroke="'+CX_+'" stroke-width="1.4"/>';
+    if(Math.abs(x)>0.2) o+=AR(bx,cy+bw/2+11,bx-Math.sign(x)*Math.min(48,Math.abs(x*s)),cy+bw/2+11,CA,1.6);
+    o+=TX(bx,cy+bw/2+26,'復元力',CA,9.5,'middle');
+    o+=TX(W-10,16,'x = '+x.toFixed(1)+' cm',CX_,10,'end');
+  }else{
+    const px=cx, py=narrow?16:18, Lp=narrow?76:90;
+    const th=clamp((ST.A/100/ST.L)*Math.cos(a),-Math.PI,Math.PI);
+    const bx=px+Lp*Math.sin(th), by=py+Lp*Math.cos(th);
+    o+=LN(px-30,py,px+30,py,INK,2);
+    o+=LN(px,py,px,py+Lp+16,RULE,1,'3 3');
+    const t0=Math.min(theta0(),Math.PI);
+    o+='<path d="M'+f1(px+ (Lp*0.55)*Math.sin(-t0))+' '+f1(py+(Lp*0.55)*Math.cos(-t0))+
+       ' A '+f1(Lp*0.55)+' '+f1(Lp*0.55)+' 0 0 1 '+f1(px+(Lp*0.55)*Math.sin(t0))+' '+f1(py+(Lp*0.55)*Math.cos(t0))+
+       '" fill="none" stroke="'+SOFT+'" stroke-width="1.2"/>';
+    o+=LN(px,py,bx,by,MUT,1.3);
+    o+=CIRC(bx,by,narrow?9:11,'rgba(36,87,166,.16)',CX_,1.4);
+    const s0=Math.max(Math.sin(Math.min(t0,Math.PI/2)),0.06);
+    if(Math.abs(th)>0.004){
+      const tang=[Math.cos(th),-Math.sin(th)];
+      const mg=(narrow?34:44)*Math.sin(th)/s0, r0=(narrow?9:11);
+      o+=AR(bx-tang[0]*Math.sign(mg)*r0,by-tang[1]*Math.sign(mg)*r0,bx-tang[0]*(mg+Math.sign(mg)*r0),by-tang[1]*(mg+Math.sign(mg)*r0),CA,1.6);
+    }
+    o+=TX(px+6,py+Lp*0.5,'L = '+ST.L.toFixed(2)+' m',MUT,9.5);
+    o+=TX(W-10,16,'θ = '+(th*DEG).toFixed(1)+'°',CX_,10,'end');
+    o+=TX(W-10,29,'θ₀ = '+(t0*DEG).toFixed(1)+'°',MUT,9.5,'end');
+    o+=TX(10,H-8,'復元力は重力の接線成分 −mg sinθ',CA,9.5);
+  }
+  put('schem-dyn',g+o);
+}
+
+/* ---------- 円 → 波 ---------- */
+let WV={};
+function layoutWave(){
+  const W=narrow?360:760, H=narrow?260:300;
+  const cx=narrow?80:128, cy=H/2, R=narrow?62:100;
+  const gx0=narrow?152:250, gx1=W-(narrow?12:22);
+  WV={W:W,H:H,cx:cx,cy:cy,R:R,gx0:gx0,gx1:gx1};
+  setVB('sv-wave',W,H);
+}
+function drawWaveStatic(){
+  layoutWave();
+  const {W,H,cx,cy,R,gx0,gx1}=WV, ax=axMax(), orb=R*ST.A/ax;
+  let o='';
+  o+=CIRC(cx,cy,orb,'none',RULE,1,'3 3');
+  o+=LN(cx,cy-R-14,cx,cy+R+14,INK,1);
+  o+=LN(cx-R-10,cy,cx+R+10,cy,SOFT,1);
+  o+=TX(cx+5,cy-R-18,'x',CX_,11,'start','500');
+  o+=TX(cx-R-6,cy-R-4,'半径 = A = '+ST.A.toFixed(1)+' cm',MUT,9.5);
+  for(const q of [1,-1]){
+    o+=LN(cx-4,cy-q*R,cx+4,cy-q*R,INK,1);
+  }
+  o+=TX(cx+8,cy-R-3,'+'+ax,MUT,9);
+  o+=TX(cx+8,cy+R+13,'\u2212'+ax,MUT,9);
+  /* グラフ枠 */
+  const S=tspan();
+  o+=LN(gx0,cy,gx1,cy,INK,1);
+  o+=LN(gx0,cy-R-14,gx0,cy+R+14,SOFT,1);
+  o+=TX(gx1,cy+R+26,'t [s]',MUT,10,'end');
+  const nT=Math.round(nper()*4);
+  for(let i=0;i<=nT;i++){
+    const t=S*i/nT, X=gx0+(gx1-gx0)*i/nT;
+    const big=(i%2===0);
+    o+=LN(X,cy-(big?4:2),X,cy+(big?4:2),RULE,1);
+    if(big) o+=TX(X,cy+R+16,t.toFixed(1),MUT,9,'middle');
+  }
+  for(let i=1;i<=Math.floor(nper());i++){
+    const X=gx0+(gx1-gx0)*i/nper();
+    o+=LN(X,cy-R-6,X,cy+R+6,RULE,1,'2 4');
+    o+=TX(X,cy-R-10,i+'T',MUT,9,'middle');
+  }
+  for(const q of [1,-1]) o+=LN(gx0,cy-q*R,gx1,cy-q*R,SOFT,1,'2 5');
+  put('wave-static',o);
+}
+function drawWaveDyn(){
+  const {W,H,cx,cy,R,gx0,gx1}=WV, ax=axMax(), s=R/ax;
+  const w=omega(), A=ST.A, tt=tw(), S=tspan();
+  const a=w*tt+ST.phi;
+  const mapP=(X,Y)=>[cx-Y*s, cy-X*s];
+  const P=mapP(A*Math.cos(a),A*Math.sin(a));
+  const x=A*Math.cos(a);
+  const X2T=t=>gx0+(gx1-gx0)*t/S;
+  let o='';
+  /* 描かれた波 */
+  const N=Math.max(2,Math.round(240*tt/S));
+  const pts=[];
+  for(let i=0;i<=N;i++){
+    const t=tt*i/N;
+    pts.push([X2T(t), cy-A*Math.cos(w*t+ST.phi)*s]);
+  }
+  o+=PL(pts,CX_,1.8);
+  /* 半径と点 */
+  o+=LN(cx,cy,P[0],P[1],CX_,1.4);
+  /* 影の連結線 */
+  if(ST.showShadow){
+    o+=LN(P[0],P[1],cx,cy-x*s,SOFT,1,'2 3');
+    o+=LN(cx,cy-x*s,X2T(tt),cy-x*s,INK,1,'2 4');
+  }
+  /* 変位の目印 */
+  o+=LN(cx,cy,cx,cy-x*s,CX_,3.2);
+  o+=CIRC(cx,cy-x*s,4.6,CX_);
+  o+=CIRC(X2T(tt),cy-x*s,3.6,CX_);
+  /* 速度・加速度 */
+  const orb=R*A/ax, LV=clamp(orb*0.60,16,narrow?40:56), LA=clamp(orb*0.48,13,narrow?32:46);
+  const off=narrow?9:12, ym=cy-x*s;
+  if(ST.showV){
+    const sv=[-Math.cos(a)*LV, Math.sin(a)*LV];
+    o+=AR(P[0],P[1],P[0]+sv[0],P[1]+sv[1],CV,1.7);
+    const pv=-Math.sin(a)*LV;
+    o+=AR(cx-off,ym,cx-off,ym-pv,CV,2.2,7);
+    if(ST.showShadow) o+=LN(P[0]+sv[0],P[1]+sv[1],cx-off,ym-pv,CV,0.8,'2 3');
+  }
+  if(ST.showA){
+    const sa=[Math.sin(a)*LA, Math.cos(a)*LA];
+    o+=AR(P[0],P[1],P[0]+sa[0],P[1]+sa[1],CA,1.7);
+    const pa=-Math.cos(a)*LA;
+    o+=AR(cx+off,ym,cx+off,ym-pa,CA,2.2,7);
+    if(ST.showShadow) o+=LN(P[0]+sa[0],P[1]+sa[1],cx+off,ym-pa,CA,0.8,'2 3');
+  }
+  o+=CIRC(P[0],P[1],5,INK);
+  /* 角度 */
+  const ra=clamp(orb*0.34,12,narrow?22:30);
+  const st0=mapP(ra/s,0), en=mapP(ra*Math.cos(a)/s,ra*Math.sin(a)/s);
+  const large=(((a%TAU)+TAU)%TAU)>Math.PI?1:0;
+  o+='<path d="M'+f1(st0[0])+' '+f1(st0[1])+' A '+f1(ra)+' '+f1(ra)+' 0 '+large+' 0 '+f1(en[0])+' '+f1(en[1])+'" fill="none" stroke="'+MUT+'" stroke-width="1"/>';
+  const am=(((a%TAU)+TAU)%TAU)/2, lr=ra+13;
+  o+=TX(cx-Math.sin(am)*lr,cy-Math.cos(am)*lr+3,'ωt+φ',MUT,9.5,'middle');
+  o+=TX(gx0+4,cy-R-16,'x = A cos(ωt+φ)',CX_,10.5);
+  o+=TX(WV.W-10,WV.H-8,'t = '+tt.toFixed(2)+' s',MUT,10,'end');
+  put('wave-dyn',o);
+}
+
+/* ---------- らせん（自前の3D投影） ---------- */
+let HX={};
+function proj3(p,SC,DIST,CX,CY){
+  const cy=Math.cos(ST.yaw), sy=Math.sin(ST.yaw);
+  const X=p[0]*cy-p[1]*sy, Y=p[0]*sy+p[1]*cy;
+  const cp=Math.cos(ST.pitch), sp=Math.sin(ST.pitch);
+  const D=Y*cp-p[2]*sp, U=Y*sp+p[2]*cp;
+  const k=DIST/(DIST+D);
+  return {x:CX+X*SC*k, y:CY-U*SC*k, d:D};
+}
+function drawHelixStatic(){
+  const W=narrow?340:520, H=narrow?260:300;
+  setVB('sv-helix',W,H);
+  const SC=(narrow?42:62), DIST=11, CX=W/2, CY=H*0.46;
+  HX={W:W,H:H,SC:SC,DIST:DIST,CX:CX,CY:CY};
+  const ZL=5.0, NP=220, ph=ST.phi;
+  const P=p=>proj3(p,SC,DIST,CX,CY);
+  const items=[];
+  /* 時間軸と周期の目盛り */
+  for(let i=0;i<24;i++){
+    const a=P([-ZL/2+ZL*i/24,0,0]), b=P([-ZL/2+ZL*(i+1)/24,0,0]);
+    items.push({k:(a.d+b.d)/2, s:LN(a.x,a.y,b.x,b.y,RULE,1)});
+  }
+  for(let q=1;q<=Math.floor(nper());q++){
+    const z=-ZL/2+ZL*q/nper();
+    const a=P([z,0,-0.16]), b=P([z,0,0.16]), c=P([z,0,-0.5]);
+    items.push({k:a.d, s:LN(a.x,a.y,b.x,b.y,MUT,1)+TX(c.x,c.y+10,q+'T',MUT,9,'middle')});
+  }
+  /* 壁の正弦波（p1 を潰した影） */
+  for(let i=0;i<NP;i++){
+    const t0=i/NP, t1=(i+1)/NP;
+    const a=P([-ZL/2+ZL*t0,-1.4,Math.cos(TAU*nper()*t0+ph)]);
+    const b=P([-ZL/2+ZL*t1,-1.4,Math.cos(TAU*nper()*t1+ph)]);
+    items.push({k:(a.d+b.d)/2-0.01, s:LN(a.x,a.y,b.x,b.y,'#B9C6C1',1.4)});
+  }
+  /* 端の円 */
+  for(let i=0;i<64;i++){
+    const u0=TAU*i/64, u1=TAU*(i+1)/64;
+    const a=P([-ZL/2,Math.sin(u0),Math.cos(u0)]);
+    const b=P([-ZL/2,Math.sin(u1),Math.cos(u1)]);
+    items.push({k:(a.d+b.d)/2, s:LN(a.x,a.y,b.x,b.y,'#9FB3AC',1.2)});
+  }
+  /* らせん */
+  for(let i=0;i<NP;i++){
+    const t0=i/NP, t1=(i+1)/NP;
+    const a0=TAU*nper()*t0+ph, a1=TAU*nper()*t1+ph;
+    const a=P([-ZL/2+ZL*t0,Math.sin(a0),Math.cos(a0)]);
+    const b=P([-ZL/2+ZL*t1,Math.sin(a1),Math.cos(a1)]);
+    items.push({k:(a.d+b.d)/2, s:LN(a.x,a.y,b.x,b.y,CX_,2)});
+  }
+  items.sort((p,q)=>q.k-p.k);
+  let o=items.map(q=>q.s).join('');
+  const w0=P([-ZL/2,-1.4,0]), w1=P([ZL/2,-1.4,0]);
+  o=LN(w0.x,w0.y,w1.x,w1.y,SOFT,1)+o;
+  const e=P([ZL/2+0.45,0,0]);
+  o+=TX(e.x,e.y-6,'t',MUT,11,'middle','500');
+  o+=TX(10,16,'らせん = 円運動 × 時間',CX_,10);
+  o+=TX(10,H-8,'灰色の線は壁に落ちた影（正弦波）',MUT,9.5);
+  put('helix-static',o);
+}
+function drawHelixDyn(){
+  const {SC,DIST,CX,CY}=HX, ZL=5.0, P=p=>proj3(p,SC,DIST,CX,CY);
+  const tt=tw(), S=tspan(), u=tt/S;
+  const a=omega()*tt+ST.phi;
+  const z=-ZL/2+ZL*u;
+  const p=P([z,Math.sin(a),Math.cos(a)]);
+  const c=P([z,0,0]);
+  const wall=P([z,-1.4,Math.cos(a)]);
+  let o='';
+  o+=LN(c.x,c.y,p.x,p.y,INK,1.2);
+  o+=LN(p.x,p.y,wall.x,wall.y,MUT,1,'2 3');
+  o+=CIRC(wall.x,wall.y,3.4,'#7C8D87');
+  o+=CIRC(p.x,p.y,5,INK);
+  put('helix-dyn',o);
+}
+
+/* ---------- x, v, a の3連グラフ ---------- */
+let TH={};
+function drawThreeStatic(){
+  const W=narrow?360:700, H=narrow?448:450;
+  setVB('sv-three',W,H);
+  const ml=narrow?42:58, mr=narrow?10:18, top=26, gh=narrow?106:104, gap=narrow?24:32;
+  const rows=[
+    {key:'x', c:CX_, lab:'x [cm]',      max:axMax(),                      f:t=>ST.A*Math.cos(omega()*t+ST.phi)},
+    {key:'v', c:CV,  lab:'v [cm/s]',    max:niceCeil(ST.A*omega()),       f:t=>-ST.A*omega()*Math.sin(omega()*t+ST.phi)},
+    {key:'a', c:CA,  lab:'a [cm/s²]',   max:niceCeil(ST.A*omega()*omega()),f:t=>-ST.A*omega()*omega()*Math.cos(omega()*t+ST.phi)}
+  ];
+  const S=tspan(), x0=ml, x1=W-mr;
+  TH={W:W,H:H,x0:x0,x1:x1,top:top,gh:gh,gap:gap,rows:rows,S:S};
+  let o='';
+  rows.forEach((r,i)=>{
+    const cy=top+gh/2+i*(gh+gap), hh=gh/2-6;
+    r.cy=cy; r.hh=hh;
+    o+=LN(x0,cy,x1,cy,INK,1);
+    o+=LN(x0,cy-hh,x0,cy+hh,SOFT,1);
+    o+=LN(x0-3,cy-hh,x0+3,cy-hh,RULE,1);
+    o+=LN(x0-3,cy+hh,x0+3,cy+hh,RULE,1);
+    o+=TX(x0-6,cy-hh+4,'+'+fmt(r.max,3),MUT,9,'end');
+    o+=TX(x0-6,cy+hh+4,'\u2212'+fmt(r.max,3),MUT,9,'end');
+    o+=TX(x0-6,cy+3,'0',MUT,9,'end');
+    o+=TX(x0+3,cy-hh-7,r.lab,r.c,10.5,'start','500');
+    for(let q=1;q<=Math.floor(nper());q++){
+      const X=x0+(x1-x0)*q/nper();
+      o+=LN(X,cy-hh,X,cy+hh,RULE,1,'2 4');
+    }
+    const pts=[];
+    for(let j=0;j<=260;j++){
+      const t=S*j/260;
+      pts.push([x0+(x1-x0)*j/260, cy-r.f(t)/r.max*hh]);
+    }
+    if(r.key==='a'){
+      const q=[];
+      for(let j=0;j<=260;j++){
+        const t=S*j/260;
+        q.push([x0+(x1-x0)*j/260, cy+r.f(t)/r.max*hh]);
+      }
+      o+=PL(q,CX_,1.2,'4 3');
+    }
+    o+=PL(pts,r.c,1.9);
+  });
+  const cy3=rows[2].cy, hh3=rows[2].hh;
+  for(let q=0;q<=Math.floor(nper()*2);q++){
+    const X=x0+(x1-x0)*(q/2)/nper();
+    o+=TX(X,cy3+hh3+16,(S*(q/2)/nper()).toFixed(1),MUT,9,'middle');
+  }
+  o+=TX(x1,cy3+hh3+30,'t [s]',MUT,10,'end');
+  o+=TX(x0+3,H-8,'破線は x を a の高さに合わせたもの。a はその上下反転。',MUT,9.5);
+  put('three-static',o);
+}
+function drawThreeDyn(){
+  const {x0,x1,rows,S}=TH, tt=tw();
+  const X=x0+(x1-x0)*tt/S;
+  let o='';
+  o+=LN(X,rows[0].cy-rows[0].hh-6,X,rows[2].cy+rows[2].hh+6,INK,1,'3 3');
+  const a=omega()*tt+ST.phi;
+  const vals=[ST.A*Math.cos(a), -ST.A*omega()*Math.sin(a), -ST.A*omega()*omega()*Math.cos(a)];
+  rows.forEach((r,i)=>{
+    const y=r.cy-vals[i]/r.max*r.hh;
+    if(Math.abs(vals[i])>r.max*0.012) o+=AR(X,r.cy,X,y,r.c,2.4,7);
+    o+=CIRC(X,y,4,r.c);
+  });
+  put('three-dyn',o);
+  const w=omega();
+  document.getElementById('threeval').innerHTML=
+    st('位相 ωt+φ',(((a*DEG)%360+360)%360).toFixed(1)+'°')+
+    st('変位 x',vals[0].toFixed(2)+' cm')+
+    st('速度 v',vals[1].toFixed(2)+' cm/s')+
+    st('加速度 a',vals[2].toFixed(1)+' cm/s²')+
+    st('\u2212ω²x',(-w*w*vals[0]).toFixed(1)+' cm/s²')+
+    st('a ÷ x',(Math.abs(vals[0])>1e-6?(vals[2]/vals[0]).toFixed(3):'—')+' 1/s²');
+}
+function st(k,v){ return '<div class="stat"><span class="k">'+k+'</span><span class="v">'+v+'</span></div>'; }
+
+/* ---------- 回転ベクトル ---------- */
+let PH={};
+function drawPhStatic(){
+  const W=narrow?340:520, H=narrow?270:250;
+  setVB('sv-phasor',W,H);
+  const cx=narrow?W/2:170, cy=narrow?120:H/2, R=narrow?86:96;
+  PH={W:W,H:H,cx:cx,cy:cy,R:R};
+  let o='';
+  o+=CIRC(cx,cy,R,'none',RULE,1,'3 3');
+  o+=LN(cx,cy-R-12,cx,cy+R+12,INK,1);
+  o+=LN(cx-R-12,cy,cx+R+12,cy,SOFT,1);
+  o+=TX(cx+5,cy-R-16,'変位の軸',MUT,9.5);
+  put('ph-static',o);
+}
+function drawPhDyn(){
+  const {W,H,cx,cy,R}=PH, a=omega()*tw()+ST.phi;
+  const arms=[
+    {ang:a,             r:R,        c:CX_, lab:'x'},
+    {ang:a+Math.PI/2,   r:R*0.76,   c:CV,  lab:'v'},
+    {ang:a+Math.PI,     r:R*0.55,   c:CA,  lab:'a'}
+  ];
+  let o='';
+  arms.forEach((m,i)=>{
+    const p=[cx-Math.sin(m.ang)*m.r, cy-Math.cos(m.ang)*m.r];
+    const dx=cx+(i-1)*8, dy=cy-Math.cos(m.ang)*m.r;
+    o+=AR(cx,cy,p[0],p[1],m.c,2.2,8);
+    o+=TX(cx-Math.sin(m.ang)*(m.r+14),cy-Math.cos(m.ang)*(m.r+14)+4,m.lab,m.c,12,'middle','500');
+    o+=LN(p[0],p[1],dx,dy,SOFT,1,'2 3');
+    o+=CIRC(dx,dy,3.4,m.c);
+  });
+  const tx=narrow?12:300, ty=narrow?H-72:56;
+  o+=TX(tx,ty,'x を基準にすると',MUT,10);
+  o+=TX(tx,ty+18,'v は 90° 進み',CV,11);
+  o+=TX(tx,ty+34,'a は 180° 進み（= 逆向き）',CA,11);
+  o+=TX(tx,ty+54,'矢印は全部同じ ω で回る。',MUT,10);
+  o+=TX(tx,ty+69,'角度の差だけが意味を持つ。',MUT,10);
+  put('ph-dyn',o);
+}
+
+/* ---------- エネルギー ---------- */
+let EN={};
+function drawEnStatic(){
+  const W=narrow?340:520, H=narrow?230:240;
+  setVB('sv-energy',W,H);
+  const ml=narrow?44:60, mr=narrow?14:20, mt=22, mb=40;
+  const x0=ml, x1=W-mr, y0=mt, y1=H-mb;
+  const ax=axMax(), Am=ST.A/100, ke=keff(), E=0.5*ke*Am*Am;
+  const YM=Math.max(E*1.15, 0.5*ke*Math.pow(ax/100,2)*1.06);
+  EN={W:W,H:H,x0:x0,x1:x1,y0:y0,y1:y1,ax:ax,E:E,ke:ke,YM:YM};
+  const PX=x=>x0+(x1-x0)*(x+ax)/(2*ax);
+  const PY=e=>y1-(y1-y0)*e/YM;
+  let o='';
+  o+=LN(x0,y1,x1,y1,INK,1);
+  o+=LN(PX(0),y0-6,PX(0),y1+5,SOFT,1);
+  o+=TX(PX(0),y1+16,'0',MUT,9,'middle');
+  o+=TX(PX(ax),y1+16,'+'+ax,MUT,9,'middle');
+  o+=TX(PX(-ax),y1+16,'\u2212'+ax,MUT,9,'middle');
+  o+=TX(x1,y1+30,'x [cm]',MUT,10,'end');
+  /* U, K, E */
+  const pu=[],pk=[];
+  for(let i=0;i<=160;i++){
+    const x=-ax+2*ax*i/160, xm=x/100;
+    pu.push([PX(x),PY(0.5*ke*xm*xm)]);
+    if(Math.abs(x)<=ST.A) pk.push([PX(x),PY(E-0.5*ke*xm*xm)]);
+  }
+  o+=PL(pk,CK,1.9);
+  o+=PL(pu,CU,1.9);
+  o+=LN(x0,PY(E),x1,PY(E),INK,1.2,'4 3');
+  o+=TX(PX(0),PY(E)-8,'E = ½kA²',INK,10,'middle');
+  o+=TX(PX(0)+7,PY(E*0.42),'K',CK,11,'start','500');
+  o+=TX(PX(ST.A*0.72),PY(0.5*ke*Math.pow(ST.A*0.72/100,2))-6,'U',CU,11,'middle','500');
+  /* 単振り子の厳密なポテンシャル */
+  if(ST.model==='pend'){
+    const pe=[];
+    for(let i=0;i<=120;i++){
+      const x=-ax+2*ax*i/120, s=x/100, th=s/ST.L;
+      pe.push([PX(x),PY(ST.m*gv()*ST.L*(1-Math.cos(th)))]);
+    }
+    o+=PL(pe,'#8E6BB8',1.4,'4 3');
+  }
+  /* 振幅の位置 */
+  for(const q of [1,-1]) o+=LN(PX(q*ST.A),y0-4,PX(q*ST.A),y1,RULE,1,'2 4');
+  o+=TX(PX(ST.A),y0-8,'x = A',MUT,9,'middle');
+  put('en-static',o);
+  /* 注記 */
+  const th0=theta0();
+  let n='いまの全エネルギーは E = ½kA² = '+fmt(E,3)+' J。中心では全部が運動エネルギー、両端では全部が位置エネルギーになる。時間で平均すると K も U も E/2。';
+  if(ST.model==='pend'&&th0<Math.PI*0.97){
+    const ex=ST.m*gv()*ST.L*(1-Math.cos(th0)), hp=0.5*ST.m*gv()/ST.L*Math.pow(ST.A/100,2);
+    n+=' 破線は単振り子の厳密な位置エネルギー mgL(1−cosθ)。端（θ₀ = '+(th0*DEG).toFixed(1)+'°）では放物線より '+
+       ((1-ex/hp)*100).toFixed(2)+'% 低い。谷が外側で寝ている分だけ戻りが遅くなり、周期が伸びる。';
+  }else if(ST.model==='pend'){
+    n+=' 破線は厳密な位置エネルギー mgL(1−cosθ)。いまは振れ角が大きすぎて谷を外れている。';
+  }else{
+    n+=' ばねの場合、この放物線は近似ではなくフックの法則そのもの。';
+  }
+  document.getElementById('ennote').textContent=n;
+}
+function drawEnDyn(){
+  const {x0,x1,y0,y1,ax,E,ke,YM}=EN, a=omega()*tw()+ST.phi;
+  const x=ST.A*Math.cos(a), xm=x/100;
+  const U=0.5*ke*xm*xm, K=Math.max(0,E-U);
+  const PX=v=>x0+(x1-x0)*(v+ax)/(2*ax);
+  const PY=e=>y1-(y1-y0)*e/YM;
+  let o='';
+  o+=LN(PX(x),y0-4,PX(x),y1,INK,1,'3 3');
+  o+=LN(PX(x),PY(0),PX(x),PY(U),CU,3.4);
+  o+=LN(PX(x),PY(U),PX(x),PY(E),CK,3.4);
+  o+=CIRC(PX(x),PY(U),4,CU);
+  o+=CIRC(PX(x),PY(E),4,CK);
+  put('en-dyn',o);
+  const pk=E>0?K/E*100:0;
+  document.getElementById('bark').style.width=pk.toFixed(2)+'%';
+  document.getElementById('baru').style.width=(100-pk).toFixed(2)+'%';
+  document.getElementById('ebarval').textContent='K '+pk.toFixed(1)+'% / U '+(100-pk).toFixed(1)+'%　E = '+E.toFixed(4)+' J';
+}
+
+/* ---------- 単振り子の近似誤差 ---------- */
+let PE={};
+function drawPerrStatic(){
+  const W=narrow?340:520, H=narrow?200:220;
+  setVB('sv-perr',W,H);
+  const ml=narrow?40:52, mr=narrow?12:18, mt=20, mb=34;
+  const x0=ml,x1=W-mr,y0=mt,y1=H-mb, XM=180, YM=1.5;
+  PE={W:W,H:H,x0:x0,x1:x1,y0:y0,y1:y1,XM:XM,YM:YM};
+  const PX=d=>x0+(x1-x0)*d/XM, PY=r=>y1-(y1-y0)*(r-1)/(YM-1);
+  let o='';
+  o+=LN(x0,y1,x1,y1,INK,1);
+  o+=LN(x0,y0,x0,y1,SOFT,1);
+  for(const d of [0,30,60,90,120,150,180]){
+    o+=LN(PX(d),y1,PX(d),y1+4,RULE,1);
+    o+=TX(PX(d),y1+16,d+'°',MUT,9,'middle');
+  }
+  for(const r of [1,1.1,1.25,1.5]){
+    o+=LN(x0,PY(r),x1,PY(r),SOFT,1,'2 5');
+    o+=TX(x0-5,PY(r)+3,r.toFixed(2),MUT,9,'end');
+  }
+  const pe=[],pq=[];
+  for(let i=0;i<=180;i++){
+    const d=XM*i/180, th=d*RAD;
+    const re=ratioAGM(th), rq=1+th*th/16;
+    if(re<=YM) pe.push([PX(d),PY(re)]);
+    if(rq<=YM) pq.push([PX(d),PY(rq)]);
+  }
+  o+=PL(pq,CX_,1.4,'4 3');
+  o+=PL(pe,CA,2);
+  for(const r of PTABLE){
+    if(r.exact>YM) continue;
+    o+=CIRC(PX(r.deg),PY(r.exact),3,CA);
+  }
+  o+=TX(x1,y1+30,'振れ角 θ₀',MUT,10,'end');
+  o+=TX(x0+4,y0+2,'T / T₀',MUT,10);
+  o+=TX(x0+4,y0+16,'実線 = 厳密（楕円積分）',CA,9.5);
+  o+=TX(x0+4,y0+29,'破線 = 1 + θ₀²/16',CX_,9.5);
+  o+=TX(x1-4,y0+16,'150° で 1.76、170° で 2.44',MUT,9,'end');
+  put('perr-static',o);
+}
+function drawPerrDyn(){
+  const {x0,x1,y0,y1,XM,YM}=PE, d=ST.th0;
+  const PX=q=>x0+(x1-x0)*q/XM, PY=r=>y1-(y1-y0)*(r-1)/(YM-1);
+  const r=ratioAGM(d*RAD);
+  let o='';
+  o+=LN(PX(d),y0,PX(d),y1,INK,1,'3 3');
+  if(r<=YM) o+=CIRC(PX(d),PY(r),4.6,INK);
+  put('perr-dyn',o);
+}
+function drawPwave(){
+  const W=narrow?340:520, H=narrow?178:198;
+  setVB('sv-pwave',W,H);
+  const ml=narrow?38:50, mr=narrow?12:18, mt=22, mb=32;
+  const x0=ml,x1=W-mr,y0=mt,y1=H-mb, cy=(y0+y1)/2, hh=(y1-y0)/2-4;
+  const th0=ST.th0*RAD, TM=2;
+  const wave=exactWave(th0,TM*TAU,220);
+  const PX=u=>x0+(x1-x0)*u/TM, PY=v=>cy-v*hh;
+  let o='';
+  o+=LN(x0,cy,x1,cy,INK,1);
+  o+=LN(x0,y0,x0,y1,SOFT,1);
+  for(const u of [0,0.5,1,1.5,2]){
+    o+=LN(PX(u),cy-3,PX(u),cy+3,RULE,1);
+    o+=TX(PX(u),y1+14,(u===0?'0':u+'T₀'),MUT,9,'middle');
+  }
+  const pa=[],pb=[];
+  for(let i=0;i<=220;i++){
+    const u=TM*i/220;
+    pa.push([PX(u),PY(Math.cos(TAU*u))]);
+  }
+  for(const p of wave) pb.push([PX(p[0]/TAU),PY(p[1]/th0)]);
+  o+=PL(pa,CX_,1.5,'4 3');
+  o+=PL(pb,CA,2);
+  o+=TX(x0+4,y0-6,'θ/θ₀ の時間変化（θ₀ = '+ST.th0+'°）',MUT,10);
+  o+=TX(x1,y1+28,'時間（近似周期 T₀ を単位に）',MUT,9.5,'end');
+  o+=TX(x1-2,y0-6,'破線 = 近似 cos',CX_,9.5,'end');
+  put('pwave-static',o);
+  const r=ratioAGM(th0);
+  const lag=(r-1)*2*100;
+  document.getElementById('pwnote').textContent=
+    '2周期ぶん進めると、厳密解は近似解より '+lag.toFixed(1)+'% ぶん遅れる。振れ角が大きいほど山の形も鈍り、正弦波から外れていく。'+
+    (ST.th0>=90?' 90° を超えると、もはや正弦波として扱える形をしていない。':'');
+}
+function drawPstats(){
+  const d=ST.th0, th=d*RAD;
+  const ex=ratioAGM(th), rk=ratioRK4(th), qd=1+th*th/16;
+  const T0=TAU*Math.sqrt(ST.L/gv());
+  document.getElementById('v-th0').textContent=d+'°';
+  document.getElementById('pstats').innerHTML=
+    st('近似周期 T₀ = 2π√(L/g)',T0.toFixed(4)+' s')+
+    st('厳密周期 T',(T0*ex).toFixed(4)+' s')+
+    st('T / T₀（楕円積分）',ex.toFixed(7))+
+    st('T / T₀（RK4 で検算）',rk.toFixed(7))+
+    st('2つの解法の差',fmt(Math.abs(ex-rk),2))+
+    st('近似のずれ','+'+((ex-1)*100).toFixed(3)+' %')+
+    st('2次近似 1+θ₀²/16',qd.toFixed(7))+
+    st('2次近似のずれ',((qd/ex-1)*100).toFixed(3)+' %');
+}
+function drawPtable(){
+  let h='<table><caption>厳密値は算術幾何平均、検算列は運動方程式の RK4 積分。刻み幅は 1×10⁻⁴（g/L=1 の単位系）。</caption>'+
+    '<thead><tr><th>θ₀</th><th class="num">T / T₀</th><th class="num">ずれ</th><th class="num">1+θ₀²/16</th><th class="num">RK4</th></tr></thead><tbody>';
+  for(const r of PTABLE){
+    const hi=[5,30,60,90].indexOf(r.deg)>=0?' hi':'';
+    const cur=(Math.abs(r.deg-ST.th0)<=0.5)?' cur':'';
+    h+='<tr class="'+(hi+cur).trim()+'"><td>'+r.deg+'°</td><td class="num">'+r.exact.toFixed(6)+
+       '</td><td class="num">+'+((r.exact-1)*100).toFixed(3)+'%</td><td class="num">'+r.quad.toFixed(6)+
+       '</td><td class="num">'+r.rk4.toFixed(6)+'</td></tr>';
+  }
+  h+='</tbody></table>';
+  document.getElementById('ptable').innerHTML=h;
+}
+
+/* ---------- モデル ---------- */
+function drawModelStats(){
+  const M=MODELS.find(q=>q.id===ST.model), w=omega(), T=period();
+  let s='';
+  s+=st('運動方程式',M.eq);
+  s+=st('角振動数',M.om+' = '+w.toFixed(3)+' rad/s');
+  s+=st('周期 T',T.toFixed(3)+' s');
+  s+=st('振動数 f',(1/T).toFixed(3)+' Hz');
+  if(ST.model==='spring'){
+    s+=st('ばね定数 k',ST.k.toFixed(2)+' N/m');
+    s+=st('復元力の係数',(ST.k).toFixed(2)+' N/m');
+  }else{
+    s+=st('復元力の係数 mg/L',(ST.m*gv()/ST.L).toFixed(2)+' N/m');
+    s+=st('重力加速度 g',gv()+' m/s²');
+  }
+  document.getElementById('mstats').innerHTML=s;
+  let n=M.desc;
+  if(ST.model==='pend'){
+    const t0=theta0();
+    if(t0<Math.PI*0.97){
+      const r=ratioAGM(t0);
+      n+=' いまの振幅だと振れ角は '+(t0*DEG).toFixed(1)+'°、厳密な周期は近似より '+((r-1)*100).toFixed(3)+'% 長い（'+(period()*r).toFixed(3)+' s）。';
+      if(t0>Math.PI/2) n+=' ここまで振ると、そもそも正弦波の形をしていない。';
+    }else{
+      n+=' 振幅 A（弧の長さ）が糸の長さに対して大きすぎて、振れ角が 180° を超えている。A を小さくするか L を長くすると単振り子として意味のある範囲に入る。';
+    }
+    n+=' g は '+GVALS[ST.gIdx].note+' を使っている。';
+  }else{
+    n+=' 周期は振幅にも重力にも依らない。宇宙船の中でも同じ周期で振動する。';
+  }
+  document.getElementById('mnote').textContent=n;
+}
+
+/* ---------- まとめて描く ---------- */
+function refresh(){
+  syncSliders();
+  drawModelStats();
+  drawWaveStatic();
+  drawHelixStatic();
+  drawThreeStatic();
+  drawPhStatic();
+  drawEnStatic();
+  drawPerrStatic();
+  drawPwave();
+  drawPstats();
+  drawPtable();
+  dyn();
+}
+function dyn(){
+  drawSchem();
+  drawWaveDyn();
+  drawHelixDyn();
+  drawThreeDyn();
+  drawPhDyn();
+  drawEnDyn();
+  drawPerrDyn();
+}
+
+/* ---------- 操作 ---------- */
+function buildModelSel(){
+  const box=document.getElementById('modelsel'); box.innerHTML='';
+  for(const m of MODELS){
+    const b=document.createElement('button');
+    b.className='btn'+(m.id===ST.model?' on':''); b.textContent=m.nm;
+    b.addEventListener('click',()=>{
+      if(ST.model===m.id) return;
+      const w=omega(); ST.model=m.id; setOmega(w);
+      if(m.id==='pend'&&theta0()<0.14) ST.A=clamp(ST.L*100*0.35,LIM.A[0],LIM.A[1]);
+      buildModelSel(); buildSliders(); refresh();
+    });
+    box.appendChild(b);
+  }
+}
+function buildSpeed(){
+  const box=document.getElementById('speedsel'); box.innerHTML='';
+  for(const s of SPEEDS){
+    const b=document.createElement('button');
+    b.className='btn sm'+(s.v===ST.speed?' on':''); b.textContent=s.nm;
+    b.addEventListener('click',()=>{ ST.speed=s.v; buildSpeed(); });
+    box.appendChild(b);
+  }
+}
+function toggle(id,key){
+  const b=document.getElementById(id);
+  b.addEventListener('click',()=>{ ST[key]=!ST[key]; b.classList.toggle('on'); dyn(); });
+}
+toggle('t-vel','showV'); toggle('t-acc','showA'); toggle('t-shadow','showShadow');
+document.getElementById('b-play').addEventListener('click',e=>{
+  ST.playing=!ST.playing; e.target.textContent=ST.playing?'停止':'再生';
+});
+document.getElementById('b-reset').addEventListener('click',()=>{ ST.t=0; dyn(); });
+document.getElementById('sl-th0').addEventListener('input',e=>{
+  ST.th0=+e.target.value; drawPstats(); drawPerrDyn(); drawPwave(); drawPtable();
+});
+document.getElementById('h-front').addEventListener('click',()=>{ ST.yaw=Math.PI/2; ST.pitch=0; setHV('h-front'); drawHelixStatic(); drawHelixDyn(); });
+document.getElementById('h-side').addEventListener('click',()=>{ ST.yaw=0; ST.pitch=0; setHV('h-side'); drawHelixStatic(); drawHelixDyn(); });
+document.getElementById('h-obl').addEventListener('click',()=>{ ST.yaw=-0.50; ST.pitch=0.30; setHV('h-obl'); drawHelixStatic(); drawHelixDyn(); });
+function setHV(id){ for(const q of ['h-front','h-side','h-obl']) document.getElementById(q).classList.toggle('on',q===id); }
+
+/* 円をドラッグして波を描く */
+(function(){
+  const sv=document.getElementById('sv-wave');
+  let dragging=false, lastA=0;
+  function angAt(e){
+    const r=sv.getBoundingClientRect();
+    const sx=(e.clientX-r.left)/r.width*WV.W, sy=(e.clientY-r.top)/r.height*WV.H;
+    const dx=sx-WV.cx, dy=sy-WV.cy;
+    return Math.atan2(-dx,-dy);
+  }
+  sv.addEventListener('pointerdown',e=>{
+    const r=sv.getBoundingClientRect();
+    const sx=(e.clientX-r.left)/r.width*WV.W;
+    if(sx>WV.cx+WV.R+18) return;
+    dragging=true; lastA=angAt(e); sv.setPointerCapture(e.pointerId); sv.classList.add('drag');
+    e.preventDefault();
+  });
+  sv.addEventListener('pointermove',e=>{
+    if(!dragging) return;
+    const a=angAt(e);
+    let d=a-lastA;
+    while(d>Math.PI) d-=TAU;
+    while(d<-Math.PI) d+=TAU;
+    lastA=a; ST.t+=d/omega(); dyn();
+  });
+  const up=()=>{ dragging=false; sv.classList.remove('drag'); };
+  sv.addEventListener('pointerup',up);
+  sv.addEventListener('pointercancel',up);
+})();
+
+/* らせんをドラッグして回す */
+(function(){
+  const sv=document.getElementById('sv-helix');
+  let d=false,px=0,py=0;
+  sv.addEventListener('pointerdown',e=>{ d=true;px=e.clientX;py=e.clientY;sv.setPointerCapture(e.pointerId);sv.classList.add('drag');e.preventDefault(); });
+  sv.addEventListener('pointermove',e=>{
+    if(!d) return;
+    ST.yaw+=(e.clientX-px)*0.008;
+    ST.pitch=clamp(ST.pitch+(e.clientY-py)*0.006,-1.45,1.45);
+    px=e.clientX; py=e.clientY;
+    setHV(''); drawHelixStatic(); drawHelixDyn();
+  });
+  const up=()=>{ d=false; sv.classList.remove('drag'); };
+  sv.addEventListener('pointerup',up);
+  sv.addEventListener('pointercancel',up);
+})();
+
+let rt=null;
+window.addEventListener('resize',()=>{
+  clearTimeout(rt);
+  rt=setTimeout(()=>{ const n=window.innerWidth<=430; if(n!==narrow){ narrow=n; refresh(); } },150);
+});
+
+/* ---------- 時間を進める ---------- */
+let last=0;
+function frame(ts){
+  if(ST.playing){
+    if(last) ST.t+=Math.min(0.05,(ts-last)/1000)*ST.speed;
+    last=ts; dyn();
+  }else last=ts;
+  requestAnimationFrame(frame);
+}
+
+buildModelSel();
+buildSpeed();
+buildSliders();
+refresh();
+requestAnimationFrame(frame);
+</script>
+</body>
+</html>

@@ -1,0 +1,63 @@
+{
+  "schema_version": 1,
+  "problems": [
+    {
+      "id": "seq-01",
+      "title": "3残基の配列決定",
+      "verified": true,
+      "confidence": "high",
+      "residue_count": 3,
+      "answer": ["Gly", "Ala", "Ser"],
+      "conditions": [
+        { "id": "c1", "type": "composition", "reveal": "full" },
+        { "id": "c2", "type": "terminus", "end": "N" },
+        { "id": "c3", "type": "fragment", "start": 1, "length": 2 }
+      ]
+    },
+    {
+      "id": "seq-02",
+      "title": "4残基:断片の重なり",
+      "verified": true,
+      "confidence": "high",
+      "residue_count": 4,
+      "answer": ["Ala", "Gly", "Ser", "Ala"],
+      "conditions": [
+        { "id": "c1", "type": "composition", "reveal": "full" },
+        { "id": "c2", "type": "fragment", "start": 0, "length": 2 },
+        { "id": "c3", "type": "fragment", "start": 1, "length": 2 },
+        { "id": "c4", "type": "fragment", "start": 2, "length": 2 }
+      ]
+    },
+    {
+      "id": "seq-03",
+      "title": "5残基:酵素分解と末端",
+      "verified": true,
+      "confidence": "high",
+      "residue_count": 5,
+      "answer": ["Gly", "Lys", "Val", "Ala", "Ser"],
+      "conditions": [
+        { "id": "c1", "type": "composition", "reveal": "full" },
+        { "id": "c2", "type": "terminus", "end": "N" },
+        { "id": "c3", "type": "enzyme", "cleaveAfter": ["Lys"], "reveal": "composition" },
+        { "id": "c4", "type": "fragment", "start": 2, "length": 3 }
+      ]
+    },
+    {
+      "id": "seq-04",
+      "title": "6残基:組成決定から",
+      "verified": true,
+      "confidence": "high",
+      "residue_count": 6,
+      "answer": ["Tyr", "Gly", "Ala", "Ser", "Gly", "Ser"],
+      "conditions": [
+        { "id": "c1", "type": "composition", "reveal": "pool", "pool": ["Gly", "Ala", "Ser", "Val", "Cys", "Tyr"] },
+        { "id": "c2", "type": "color", "test": "sulfur" },
+        { "id": "c3", "type": "color", "test": "xanthoproteic" },
+        { "id": "c4", "type": "chirality" },
+        { "id": "c5", "type": "mass" },
+        { "id": "c6", "type": "enzyme", "cleaveAfter": ["Tyr", "Ala"], "reveal": "composition" },
+        { "id": "c7", "type": "fragment", "start": 2, "length": 3 }
+      ]
+    }
+  ]
+}

@@ -1,0 +1,800 @@
+<!doctype html>
+<html lang="ja">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>落体・放物運動インタラクティブ</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500&family=IBM+Plex+Sans+JP:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+*{box-sizing:border-box}
+:root{
+  --ink:#16232B; --muted:#5E6E76; --paper:#EDF1EF; --surface:#FFFFFF;
+  --rule:#D6DDDA; --rule-soft:#E8EDEB;
+  --c0:#B87A16; --c0t:#8A5A0C;
+  --c1:#158A6D; --c1t:#0D6A53;
+  --c2:#2457A6; --c2t:#1B4380;
+  --c3:#6E3AA7; --c3t:#572D85;
+  --c4:#A82A6A; --c4t:#831F52;
+  --c5:#3B6E1E; --c5t:#2A5215;
+  --mono:"IBM Plex Mono",ui-monospace,SFMono-Regular,Menlo,monospace;
+}
+html,body{margin:0;padding:0}
+body{
+  background:var(--paper); color:var(--ink);
+  font-family:"IBM Plex Sans JP","Hiragino Sans","Yu Gothic UI",system-ui,sans-serif;
+  font-size:13.5px; line-height:1.75; -webkit-text-size-adjust:100%;
+}
+.mono{font-family:var(--mono);font-variant-numeric:tabular-nums}
+.wrap{max-width:820px;margin:0 auto;padding:20px 14px 72px}
+.card{background:var(--surface);border:1px solid var(--rule);border-radius:3px;padding:14px;margin-bottom:14px}
+.eyebrow{display:flex;align-items:center;gap:10px;font-family:var(--mono);font-size:11.5px;letter-spacing:.14em;color:var(--muted)}
+.eyebrow::after{content:"";flex:1;height:1px;background:var(--rule)}
+h1{font-size:22px;font-weight:600;letter-spacing:.01em;margin:8px 0 2px}
+h2{font-size:13.5px;font-weight:600;margin:14px 0 6px;letter-spacing:.01em}
+h2:first-child{margin-top:0}
+p{margin:0 0 8px}
+p:last-child{margin-bottom:0}
+.note{color:var(--muted);font-size:12px;line-height:1.7}
+hr{border:none;border-top:1px solid var(--rule-soft);margin:12px 0}
+
+.btn{font:inherit;font-size:12.5px;line-height:1.4;border:1px solid var(--rule);background:#fff;color:var(--ink);border-radius:2px;padding:6px 10px;cursor:pointer}
+.btn:hover{border-color:#B4C0BC}
+.btn.on{background:var(--ink);color:#fff;border-color:var(--ink)}
+.btn:focus-visible{outline:2px solid var(--c2);outline-offset:1px}
+.btn:disabled{opacity:.4;cursor:not-allowed}
+.btnrow{display:flex;flex-wrap:wrap;gap:6px}
+
+.ctl{display:flex;flex-wrap:wrap;align-items:center;gap:8px;margin-top:10px}
+.ctl .lab{font-family:var(--mono);font-size:11px;letter-spacing:.06em;color:var(--muted);white-space:nowrap;min-width:96px}
+.ctl .val{font-family:var(--mono);font-variant-numeric:tabular-nums;font-size:12.5px;min-width:92px;text-align:right}
+.ctl.disabled .lab,.ctl.disabled .val{color:#A9B4B8}
+input[type=range]{width:100%;max-width:220px;accent-color:#16232B;height:22px}
+input[type=range]:disabled{opacity:.35;cursor:not-allowed;accent-color:#A9B4B8}
+input[type=range]:focus-visible{outline:2px solid var(--c2);outline-offset:2px}
+
+.viewer{position:relative;border:1px solid var(--rule-soft);border-radius:3px;background:#FBFCFB;overflow:hidden;margin-top:10px}
+svg.stage{display:block;width:100%;height:auto;touch-action:none}
+
+.chkrow{display:flex;flex-wrap:wrap;gap:8px 16px;margin-top:10px;font-size:12px}
+.chkrow label{display:inline-flex;align-items:center;gap:6px;cursor:pointer}
+.chkrow input[type=checkbox]{accent-color:#16232B}
+.chkrow input[type=checkbox]:focus-visible{outline:2px solid var(--c2);outline-offset:2px}
+.dot{display:inline-block;width:10px;height:10px;border-radius:2px;vertical-align:-1px}
+
+.legend{display:flex;flex-wrap:wrap;gap:5px 16px;margin-top:9px;font-size:11.5px;color:var(--muted)}
+.chip{display:inline-flex;align-items:center;gap:6px}
+
+.stats{display:grid;grid-template-columns:1fr 1fr;gap:0 18px;margin-top:10px}
+.stat{display:flex;justify-content:space-between;align-items:baseline;gap:10px;border-bottom:1px solid var(--rule-soft);padding:6px 0}
+.stat .k{font-size:12px;color:var(--muted);white-space:nowrap}
+.stat .v{font-family:var(--mono);font-variant-numeric:tabular-nums;font-size:13px;text-align:right;white-space:nowrap}
+@media (max-width:430px){
+  .stat{flex-direction:column;align-items:flex-start;gap:2px}
+  .stat .v{text-align:left}
+}
+
+.step{border-left:2px solid var(--rule);padding:1px 0 1px 11px;margin-bottom:10px}
+.step:last-child{margin-bottom:0;border-left-color:var(--ink)}
+.step .lbl{font-family:var(--mono);font-size:10.5px;letter-spacing:.12em;color:var(--muted)}
+.step .eq{font-family:var(--mono);font-size:13px;line-height:1.95;word-break:break-word}
+.step .eq sup{font-size:.78em}
+
+.timerow{display:flex;align-items:center;gap:8px;margin-top:12px}
+.timerow input[type=range]{max-width:none;flex:1}
+.timeval{font-family:var(--mono);font-variant-numeric:tabular-nums;font-size:12px;color:var(--muted);white-space:nowrap;min-width:112px;text-align:right}
+
+@media (prefers-reduced-motion: reduce){
+  .btn{transition:none}
+}
+</style>
+</head>
+<body>
+<div class="wrap">
+
+<header>
+  <div class="eyebrow">PROJECTILE MOTION</div>
+  <h1>落体・放物運動インタラクティブ</h1>
+  <p class="note">物体に働く力は空気抵抗を無視すれば重力だけで、大きさも向き(常に鉛直下向き)も運動の間ずっと変わらない。それなのに物体の速度は水平・鉛直それぞれで別々に変化し、軌道は放物線を描く。「力は一定なのに運動は変わる」という対比を、力のベクトルと速度のベクトルを同じ画面に並べて確かめる。自由落下・鉛直投げ上げ・水平投射・斜方投射はすべて同じ式の特別な場合になっている。</p>
+</header>
+
+<div class="card">
+  <div class="eyebrow">SIMULATOR</div>
+  <h2>モードを選んで軌道と速度・重力のベクトルを見る</h2>
+  <p class="note">水平方向の速度 v<sub>x</sub>・鉛直方向の速度 v<sub>y</sub>・その合成である実際の速度 v をベクトルで表示する。重力のベクトルは向きだけが正しく、長さは目安として一定の長さで描いていて、速度のベクトルとは物差しが違う(下の凡例を参照)。</p>
+
+  <div class="ctl" style="margin-top:6px">
+    <span class="lab">モード</span>
+    <span class="btnrow" id="modebar" role="group" aria-label="運動の種類"></span>
+  </div>
+
+  <div class="viewer">
+    <svg class="stage" id="stage" viewBox="0 0 336 280" role="img" aria-label="軌道と速度・重力のベクトル">
+      <g id="axisLayer"></g>
+      <path id="trajPath" fill="none" stroke="var(--c3)" stroke-width="1.6"></path>
+      <g id="vectorLayer"></g>
+      <circle id="marker" r="4.2" fill="var(--ink)"></circle>
+    </svg>
+  </div>
+
+  <div class="chkrow">
+    <label><input type="checkbox" id="chkComp" checked><span class="dot" style="background:var(--c2)"></span>v<sub>x</sub>・<span class="dot" style="background:var(--c1)"></span>v<sub>y</sub>(分解成分)</label>
+    <label><input type="checkbox" id="chkRes" checked><span class="dot" style="background:var(--c4)"></span>合成速度 v</label>
+  </div>
+  <div class="legend">
+    <span class="chip"><span class="dot" style="background:var(--muted)"></span>重力(向きは常に鉛直下向きで正しいが、長さは模式的な一定値。速度の矢印とは物差しが異なり、長さを比較できない)</span>
+  </div>
+
+  <div class="timerow">
+    <button class="btn sm" id="btnReset" type="button">リセット</button>
+    <button class="btn sm" id="btnPlay" type="button">再生</button>
+    <input type="range" id="sT" min="0" max="1" step="0.001" value="0" aria-label="時刻をスクラブ">
+    <span class="timeval mono" id="valT">0.00 / 0.00 s</span>
+  </div>
+
+  <div class="ctl" id="rowV0">
+    <span class="lab">初速度 v<sub>0</sub></span>
+    <input type="range" id="sV0" min="0" max="30" step="1" value="20">
+    <span class="val mono" id="valV0">20 m/s</span>
+  </div>
+  <div class="ctl" id="rowAngle">
+    <span class="lab">射出角 &theta;</span>
+    <input type="range" id="sAngle" min="0" max="90" step="1" value="45">
+    <span class="val mono" id="valAngle">45&deg;</span>
+  </div>
+  <div class="ctl" id="rowY0">
+    <span class="lab">初期高さ y<sub>0</sub></span>
+    <input type="range" id="sY0" min="0" max="50" step="1" value="20">
+    <span class="val mono" id="valY0">20 m</span>
+  </div>
+
+  <div class="stats" id="stats"></div>
+</div>
+
+<div class="card">
+  <div class="eyebrow">VECTORS</div>
+  <h2>力のベクトルは不変、速度のベクトルは変化する</h2>
+  <p class="note">働く力は重力のみで、大きさ mg・向き鉛直下向きはどの瞬間でも同じ。だから重力のベクトルは画面上でも長さ・向きが変わらない。一方で速度は水平成分 v<sub>x</sub> が一定、鉛直成分 v<sub>y</sub> が時間とともに変化し(重力によって毎秒 g ずつ下向きに変わる)、この2本を足し合わせた矢印が実際の速度 v になる。矢印の向きと長さが刻々と変わっていく様子と、重力の矢印がまったく変わらない様子を見比べる。</p>
+  <p class="note">v<sub>x</sub>・v<sub>y</sub>・v は同じ物差し(同じ px/(m/s))で描いているので、長さの比を速さの比としてそのまま読める。重力の矢印だけは質量を教材に持ち込んでいないため実際の値を持たず、比較できない参考の矢印であることに注意する。</p>
+</div>
+
+<div class="card">
+  <div class="eyebrow">EQUATIONS</div>
+  <h2>4つのモードは同じ式の特別な場合</h2>
+  <p class="note">鉛直上向きを正、重力加速度の大きさを g、初速度を v<sub>0</sub>、水平から測った射出角を &theta;、初期高さを y<sub>0</sub> とすると、時刻 t での位置と速度は次の式で決まる。</p>
+  <div class="step">
+    <div class="lbl">水平方向</div>
+    <div class="eq">x(t) = v<sub>0</sub>cos&theta; &middot; t　　v<sub>x</sub>(t) = v<sub>0</sub>cos&theta;(一定)</div>
+  </div>
+  <div class="step">
+    <div class="lbl">鉛直方向</div>
+    <div class="eq">y(t) = y<sub>0</sub> + v<sub>0</sub>sin&theta; &middot; t &minus; (1/2)g t<sup>2</sup>　　v<sub>y</sub>(t) = v<sub>0</sub>sin&theta; &minus; g t</div>
+  </div>
+  <div class="step">
+    <div class="lbl">4つのモードとの対応</div>
+    <div class="eq" style="font-size:12.5px;line-height:2.1">
+      自由落下: v<sub>0</sub>=0 → x=0, y=y<sub>0</sub>&minus;(1/2)gt<sup>2</sup><br>
+      鉛直投げ上げ: &theta;=90&deg; → cos&theta;=0, sin&theta;=1<br>
+      水平投射: &theta;=0&deg; → cos&theta;=1, sin&theta;=0<br>
+      斜方投射: 0&deg;&lt;&theta;&lt;90&deg;(一般の場合)
+    </div>
+  </div>
+  <p class="note" id="gravityNote"></p>
+</div>
+
+</div>
+
+<script type="module">
+"use strict";
+/* ---------- データ(JSONをそのまま埋め込み。fetch は使わない) ---------- */
+const DATA = {"constants":{"gravity":{"value":9.8,"unit":"m/s^2","note":"高校物理の教科書における慣用値(有効数字2桁)。啓林館『物理基礎』ほか主要教科書で共通して採用されている値","source":"高校物理教科書(啓林館『物理基礎』等)の慣用値"}},"modes":[{"id":"free-fall","label":"自由落下","v0":{"value":0,"fixed":true},"angleDeg":{"value":90,"fixed":true},"y0":{"default":20,"min":0,"max":50,"step":1}},{"id":"vertical-throw","label":"鉛直投げ上げ","v0":{"default":15,"min":0,"max":30,"step":1,"fixed":false},"angleDeg":{"value":90,"fixed":true},"y0":{"default":0,"min":0,"max":50,"step":1}},{"id":"horizontal-throw","label":"水平投射","v0":{"default":10,"min":0,"max":30,"step":1,"fixed":false},"angleDeg":{"value":0,"fixed":true},"y0":{"default":20,"min":0,"max":50,"step":1}},{"id":"oblique-throw","label":"斜方投射","v0":{"default":20,"min":0,"max":30,"step":1,"fixed":false},"angleDeg":{"default":45,"min":0,"max":90,"step":1,"fixed":false},"y0":{"default":20,"min":0,"max":50,"step":1}}]};
+
+/* ---------- ここから scripts/vector-diagram-engine.mjs をそのまま埋め込み(内容は書き換えない) ---------- */
+// 汎用の2Dベクトル矢印描画エンジン。成分分解・合成・スケール変換・矢印の幾何計算だけを扱う。
+// 力学の知識(力とは何か、質量、単位)は一切持ち込まない。「原点・角度・大きさ」の
+// 組から矢印のSVG座標を作るだけの純粋関数の集まりで、力にも速度にも同じ関数を使い回せる。
+//
+// projection-engine.mjs は import しない。教材HTMLには埋め込みJSONと同様、
+// このファイルの中身をそのまま1つの<script>ブロックに埋め込む運用のため、
+// 3D教材のように projection-engine.mjs も同じ画面で埋め込む場合に
+// 関数名が衝突しない・importの解決が要らない、という2点を優先した設計。
+//
+// ブラウザでもそのまま動くこと。Node固有のAPIは使わない。ESM export のみ。外部ライブラリ禁止。
+//
+// 角度の規約: 度数法、0°=+x方向、反時計回りが正（物理でふつうに使う向き）。
+// SVGの画面座標はy軸が下向きに正なので、その変換(反転)は各関数の内部で閉じる。
+//
+// 型（コメントのみ、実行時チェックはしない）
+//   Vector    = { fx: number, fy: number }                 物理座標系での成分(y上向き正)
+//   Point     = { x: number, y: number }
+//   ArrowOpts = { headLength?: number, headWidth?: number }
+//   Arrow     = { x1, y1, x2, y2: number, head: [Point, Point, Point] }  すべて画面px
+
+const D2R = Math.PI / 180;
+const R2D = 180 / Math.PI;
+
+// ---------- toCartesian ----------
+// 角度(度)と大きさから成分に分解する。
+function toCartesian(angleDeg, magnitude) {
+  const rad = angleDeg * D2R;
+  return {
+    fx: magnitude * Math.cos(rad),
+    fy: magnitude * Math.sin(rad),
+  };
+}
+
+// ---------- toPolar ----------
+// 成分から角度(度, [0,360)に正規化)と大きさに戻す。fx=fy=0のときangleDegは0とする。
+function toPolar(fx, fy) {
+  const magnitude = Math.hypot(fx, fy);
+  if (magnitude === 0) return { angleDeg: 0, magnitude: 0 };
+  const deg = Math.atan2(fy, fx) * R2D;
+  return { angleDeg: ((deg % 360) + 360) % 360, magnitude };
+}
+
+// ---------- sumVectors ----------
+// 複数のベクトル(成分表示)を単純に足し合わせる。合力にも速度の合成にも使う。
+// 空配列は{fx:0, fy:0}を返す(「その方向には何もない」を自然に表せるようにする)。
+function sumVectors(vectors) {
+  let fx = 0, fy = 0;
+  for (const v of vectors) {
+    fx += v.fx;
+    fy += v.fy;
+  }
+  return { fx, fy };
+}
+
+// ---------- flipToScreen ----------
+// 物理座標(y上向き正)の点を、画面座標の向き(y下向き正)に直す。xはそのまま。
+// まだpx化はしない(ワールド座標→px座標のスケール・原点位置は教材ごとのステージに
+// 依存するため、この関数の外、教材側のコードが担当する)。
+function flipToScreen(point) {
+  return { x: point.x, y: -point.y };
+}
+
+// ---------- magnitudeToLength ----------
+// 大きさをpxの矢印長に変換する。magnitudeが0以下なら0(=描画しない扱い)を返す。
+// minPxを指定すると、それより短くならない下限を設けられる(既定0、つまり比例を厳守)。
+function magnitudeToLength(magnitude, pxPerUnit, minPx = 0) {
+  if (magnitude <= 0) return 0;
+  return Math.max(magnitude * pxPerUnit, minPx);
+}
+
+// ---------- computeScale ----------
+// 同じ画面・同じフレームで並べて描く一群の大きさ(magnitudes)から、
+// 最大値がmaxPxになるようなpxPerUnitを作る。単位の異なる量(速度と力など)を
+// 混ぜて渡さないこと(呼び出し側がグループを分けて別々に呼ぶ)。
+// 全て0以下ならスケール0を返す(何も描かれない)。
+function computeScale(magnitudes, maxPx) {
+  const maxMag = Math.max(0, ...magnitudes);
+  if (maxMag === 0) return 0;
+  return maxPx / maxMag;
+}
+
+// ---------- arrowGeometry ----------
+// 画面px座標の原点・物理角度(度)・矢印の長さ(px)から、軸線と矢じり(三角形)の
+// 座標を作る。角度は物理座標の向き(0°=+x, 反時計回り正)のまま渡してよく、
+// y反転を含む画面上の方向への変換はこの関数の内部で行う。
+// 矢じりの長さが軸線長を超えて軸線からはみ出さないよう、headLengthはlengthPxで頭打ちにする。
+function arrowGeometry(originPx, angleDeg, lengthPx, opts = {}) {
+  const headLength = Math.min(opts.headLength ?? 10, lengthPx);
+  const headWidth = opts.headWidth ?? 7;
+
+  const rad = angleDeg * D2R;
+  const dx = Math.cos(rad);
+  const dy = -Math.sin(rad);
+
+  const x2 = originPx.x + dx * lengthPx;
+  const y2 = originPx.y + dy * lengthPx;
+  const baseX = x2 - dx * headLength;
+  const baseY = y2 - dy * headLength;
+  const nx = -dy;
+  const ny = dx;
+
+  return {
+    x1: originPx.x,
+    y1: originPx.y,
+    x2,
+    y2,
+    head: [
+      { x: x2, y: y2 },
+      { x: baseX + (nx * headWidth) / 2, y: baseY + (ny * headWidth) / 2 },
+      { x: baseX - (nx * headWidth) / 2, y: baseY - (ny * headWidth) / 2 },
+    ],
+  };
+}
+
+// ---------- labelAnchor ----------
+// 矢じりの先端から、同じ角度の延長線上にgapPxだけ離れた位置を返す。
+// 矢印の大きさを示す数値ラベルの置き場所に使う。
+function labelAnchor(tipPx, angleDeg, gapPx) {
+  const rad = angleDeg * D2R;
+  return {
+    x: tipPx.x + Math.cos(rad) * gapPx,
+    y: tipPx.y - Math.sin(rad) * gapPx,
+  };
+}
+
+export {
+  toCartesian,
+  toPolar,
+  sumVectors,
+  flipToScreen,
+  magnitudeToLength,
+  computeScale,
+  arrowGeometry,
+  labelAnchor,
+};
+/* ---------- ここまで scripts/vector-diagram-engine.mjs の埋め込み ---------- */
+
+/* ---------- 共通 ---------- */
+const $ = (id) => document.getElementById(id);
+const G = DATA.constants.gravity.value;
+const reducedMotion = window.matchMedia && window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+
+$("gravityNote").textContent =
+  `g = ${G} ${DATA.constants.gravity.unit}(${DATA.constants.gravity.note})`;
+
+const NS = "http://www.w3.org/2000/svg";
+function svgEl(tag, attrs) {
+  const el = document.createElementNS(NS, tag);
+  for (const k in attrs) el.setAttribute(k, attrs[k]);
+  return el;
+}
+function fmt(n, digits) {
+  return n.toFixed(digits);
+}
+
+/* ---------- モードごとのスライダー設定 ---------- */
+const modeButtons = {};
+const modebar = $("modebar");
+DATA.modes.forEach((m) => {
+  const b = document.createElement("button");
+  b.type = "button";
+  b.className = "btn";
+  b.textContent = m.label;
+  b.setAttribute("aria-pressed", "false");
+  b.addEventListener("click", () => setMode(m.id));
+  modebar.appendChild(b);
+  modeButtons[m.id] = b;
+});
+
+const sV0 = $("sV0"), sAngle = $("sAngle"), sY0 = $("sY0"), sT = $("sT");
+const rowV0 = $("rowV0"), rowAngle = $("rowAngle"), rowY0 = $("rowY0");
+const valV0 = $("valV0"), valAngle = $("valAngle"), valY0 = $("valY0"), valT = $("valT");
+const chkComp = $("chkComp"), chkRes = $("chkRes");
+const btnPlay = $("btnPlay"), btnReset = $("btnReset");
+
+let currentMode = DATA.modes[3]; // 斜方投射を既定表示にする
+let traj = null; // recomputeTrajectory()の結果一式
+let playing = false;
+let lastFrameMs = null;
+
+if (reducedMotion) {
+  btnPlay.textContent = "+1コマ進める";
+}
+
+function applyFixed(row, input, valEl, cfg, unit, digits) {
+  if (cfg.fixed) {
+    input.min = cfg.value;
+    input.max = cfg.value;
+    input.step = 1;
+    input.value = cfg.value;
+    input.disabled = true;
+    row.classList.add("disabled");
+  } else {
+    input.min = cfg.min;
+    input.max = cfg.max;
+    input.step = cfg.step;
+    input.disabled = false;
+    row.classList.remove("disabled");
+  }
+  valEl.textContent = `${fmt(Number(input.value), digits)} ${unit}`;
+}
+
+function setMode(modeId) {
+  currentMode = DATA.modes.find((m) => m.id === modeId);
+  for (const id in modeButtons) {
+    const on = id === modeId;
+    modeButtons[id].classList.toggle("on", on);
+    modeButtons[id].setAttribute("aria-pressed", String(on));
+  }
+
+  applyFixed(rowV0, sV0, valV0, currentMode.v0, "m/s", 0);
+  applyFixed(rowAngle, sAngle, valAngle, currentMode.angleDeg, "°", 0);
+  if (!sV0.disabled && currentMode.v0.default != null) sV0.value = currentMode.v0.default;
+  if (!sAngle.disabled && currentMode.angleDeg.default != null) sAngle.value = currentMode.angleDeg.default;
+  sY0.min = currentMode.y0.min;
+  sY0.max = currentMode.y0.max;
+  sY0.step = currentMode.y0.step;
+  sY0.value = currentMode.y0.default;
+  valV0.textContent = `${fmt(Number(sV0.value), 0)} m/s`;
+  valAngle.textContent = `${fmt(Number(sAngle.value), 0)}°`;
+  valY0.textContent = `${fmt(Number(sY0.value), 0)} m`;
+
+  playing = false;
+  btnPlay.textContent = reducedMotion ? "+1コマ進める" : "再生";
+  recomputeTrajectory();
+}
+
+/* ---------- 運動方程式(高校物理の等加速度運動。物理知識はここに閉じる) ---------- */
+// 90度・0度でcos/sinの浮動小数点誤差(完全な0にならない)がvx・vyの微小な残差を
+// 生み、水平投射・鉛直投げ上げで「大きさ0のはずの成分」に矢印とラベルが
+// 出てしまうのを防ぐためのスナップ。
+function snapZero(v) {
+  return Math.abs(v) < 1e-9 ? 0 : v;
+}
+function stateAt(t, v0, angleDeg, y0) {
+  const rad = angleDeg * Math.PI / 180;
+  const vx0 = v0 * snapZero(Math.cos(rad));
+  const vy0 = v0 * snapZero(Math.sin(rad));
+  return {
+    x: vx0 * t,
+    y: y0 + vy0 * t - 0.5 * G * t * t,
+    vx: vx0,
+    vy: vy0 - G * t,
+  };
+}
+function flightTime(v0, angleDeg, y0) {
+  const rad = angleDeg * Math.PI / 180;
+  const vy0 = v0 * Math.sin(rad);
+  const a = 0.5 * G, b = -vy0, c = -y0;
+  const disc = Math.max(0, b * b - 4 * a * c);
+  if (a === 0) return 0;
+  return (-b + Math.sqrt(disc)) / (2 * a);
+}
+function apexInfo(v0, angleDeg, y0) {
+  const rad = angleDeg * Math.PI / 180;
+  const vy0 = v0 * Math.sin(rad);
+  if (vy0 <= 0) return { t: 0, y: y0 };
+  const t = vy0 / G;
+  return { t, y: y0 + (vy0 * vy0) / (2 * G) };
+}
+
+/* ---------- ワールド座標(m, y上向き正)→画面px変換 ---------- */
+// padBottomは地面(y=0)より下に確保する余白。物体は着地時・y0=0の発射時に
+// 必ずy=0を通るため、重力ベクトル(固定長)や下向きの速度ベクトルがそこから
+// 画面下端の外にはみ出さないよう、GRAVITY_ARROW_PXより十分大きく取る。
+const BOX = { w: 336, h: 280, padTop: 30, padBottom: 100, padSide: 34 };
+let transform = { scale: 1, originX: BOX.padSide, originY: BOX.h - BOX.padBottom };
+
+function computeTransform(rangeX, rangeY) {
+  const availW = BOX.w - BOX.padSide * 2;
+  const availH = BOX.h - BOX.padTop - BOX.padBottom;
+  const rx = rangeX < 0.5 ? 1 : rangeX;
+  const ry = rangeY < 0.5 ? 1 : rangeY;
+  const scale = Math.min(availW / rx, availH / ry);
+  const centered = rangeX < 0.5; // 自由落下・鉛直投げ上げは水平にほぼ動かないので中央寄せ
+  return {
+    scale,
+    originX: centered ? BOX.w / 2 : BOX.padSide,
+    originY: BOX.h - BOX.padBottom,
+  };
+}
+function worldToPx(wx, wy) {
+  const flipped = flipToScreen({ x: wx, y: wy });
+  return { x: transform.originX + flipped.x * transform.scale, y: transform.originY + flipped.y * transform.scale };
+}
+
+/* ---------- 静的な軸・地面・軌道の描画(モード/スライダーが変わるたびに引き直す) ---------- */
+const axisLayer = $("axisLayer");
+const trajPath = $("trajPath");
+function niceStep(range) {
+  const candidates = [1, 2, 5, 10, 20, 25, 50, 100];
+  for (const c of candidates) if (range / c <= 5) return c;
+  return 100;
+}
+function redrawStatic() {
+  axisLayer.textContent = "";
+  const groundPx = worldToPx(0, 0);
+  axisLayer.appendChild(svgEl("line", {
+    x1: 0, y1: groundPx.y, x2: BOX.w, y2: groundPx.y, stroke: "var(--rule)", "stroke-width": 1,
+  }));
+  const step = niceStep(traj.viewYMax);
+  for (let y = step; y <= traj.viewYMax; y += step) {
+    const p = worldToPx(0, y);
+    axisLayer.appendChild(svgEl("line", {
+      x1: 0, y1: p.y, x2: BOX.w, y2: p.y, stroke: "var(--rule-soft)", "stroke-width": 1,
+    }));
+    const t = svgEl("text", { x: 4, y: p.y - 3, "font-size": 9, "font-family": "var(--mono)", fill: "var(--muted)" });
+    t.textContent = String(y);
+    axisLayer.appendChild(t);
+  }
+  const y0px = worldToPx(0, traj.y0);
+  axisLayer.appendChild(svgEl("circle", { cx: y0px.x, cy: y0px.y, r: 2.4, fill: "var(--muted)" }));
+
+  const pts = [];
+  const N = 60;
+  for (let i = 0; i <= N; i++) {
+    const t = (traj.T * i) / N;
+    const s = stateAt(t, traj.v0, traj.angleDeg, traj.y0);
+    const p = worldToPx(s.x, s.y);
+    pts.push(`${i === 0 ? "M" : "L"}${p.x.toFixed(1)} ${p.y.toFixed(1)}`);
+  }
+  trajPath.setAttribute("d", pts.join(" "));
+}
+
+/* ---------- ベクトル描画(毎フレーム) ---------- */
+const vectorLayer = $("vectorLayer");
+const marker = $("marker");
+const VEL_MAX_PX = 62;
+const GRAVITY_ARROW_PX = 40; // 実数値ではなく固定の参照長。速度側のスケールとは無関係
+
+function drawArrow(originPx, angleDeg, lengthPx, color, opts) {
+  if (lengthPx <= 0) return;
+  const a = arrowGeometry(originPx, angleDeg, lengthPx, opts);
+  vectorLayer.appendChild(svgEl("line", {
+    x1: a.x1, y1: a.y1, x2: a.x2, y2: a.y2, stroke: color, "stroke-width": opts.strokeWidth || 2,
+  }));
+  const pts = a.head.map((p) => `${p.x.toFixed(1)},${p.y.toFixed(1)}`).join(" ");
+  vectorLayer.appendChild(svgEl("polygon", { points: pts, fill: color }));
+  return a;
+}
+// 自由落下・鉛直投げ上げでは vx=0 のため v(合成)とvyが常に同じ向き・同じ大きさになり、
+// 矢印もラベルもほぼ同じ位置に重なる。位置をずらすだけでは文字同士が重なって読めなく
+// なる場合があるため、背景の板を敷いて重なっても個々のラベルが読める形にする。
+// 背景は完全不透明にする(半透明だと下の軌道曲線が透けて「はみ出て」見えるため)。
+function drawLabel(pos, text, color) {
+  const w = text.length * 6.3 + 6;
+  const h = 13;
+  vectorLayer.appendChild(svgEl("rect", {
+    x: pos.x - w / 2, y: pos.y - h / 2, width: w, height: h,
+    fill: "var(--surface)", "fill-opacity": 1, rx: 2,
+  }));
+  const t = svgEl("text", {
+    x: pos.x, y: pos.y, "font-size": 10, "font-family": "var(--mono)", fill: color,
+    "text-anchor": "middle", "dominant-baseline": "middle",
+  });
+  t.textContent = text;
+  vectorLayer.appendChild(t);
+}
+
+// drawLabelと同じ計算式でラベルの矩形を求める(実際に描く前に位置判定するため)
+function labelBox(pos, text) {
+  const w = text.length * 6.3 + 6, h = 13;
+  return { x0: pos.x - w / 2, y0: pos.y - h / 2, x1: pos.x + w / 2, y1: pos.y + h / 2 };
+}
+function rectsOverlap(a, b) {
+  return a.x0 < b.x1 && a.x1 > b.x0 && a.y0 < b.y1 && a.y1 > b.y0;
+}
+function bboxOfPoints(pts) {
+  const xs = pts.map((p) => p.x), ys = pts.map((p) => p.y);
+  return { x0: Math.min(...xs), y0: Math.min(...ys), x1: Math.max(...xs), y1: Math.max(...ys) };
+}
+// vの矢じりは面積を持つ塗りつぶし三角形なので、ラベルの上に乗ると文字ごと隠してしまう
+// (細い線がラベルの上を横切ること自体は許容する方針: mechanics-series-vector-conventions.md)。
+// vはv0・θのスライダーで連続的に向き・大きさが変わるため、ラベルを固定位置に置いたままだと
+// 特定の組み合わせで矢じりと重なる。そのため、矢じりの外接矩形および他の既配置ラベルの
+// 矩形(=obstacles)と重なると分かったラベルだけを動的に(上→下→左右の順で)ずらし、
+// どれとも重ならない位置を探す。obstaclesに他ラベルも含めるのは、矢じり回避だけを考えて
+// ずらすと今度は別のラベル(vx・vyなど)に重なってしまう問題を避けるため。
+// 候補位置は原点(pos)を中心にした同心円状の探索にする。固定した数方向・数段階の
+// オフセットだけでは、障害物(矢じり・他ラベル)が密集する組み合わせ(v0・θの特定の
+// 値)で衝突を解消しきれない候補しか出せないことがあったため、半径・角度を細かく
+// 振って解を探す。半径が小さい候補から順に試すので、見た目の移動量は最小限に留まる。
+function nudgeAwayFromObstacles(pos, text, obstacles) {
+  if (!obstacles || obstacles.length === 0) return pos;
+  const overlapsAny = (box) => obstacles.some((o) => rectsOverlap(box, o));
+  const inBounds = (box) => box.y0 >= 6 && box.y1 <= BOX.h - 6 && box.x0 >= 2 && box.x1 <= BOX.w - 2;
+  const box0 = labelBox(pos, text);
+  if (!overlapsAny(box0) && inBounds(box0)) return pos;
+  const radii = [8, 16, 24, 32, 40, 48, 56, 64, 72, 80, 90, 100];
+  // 270°(画面上で真上)を最優先にし、既存のスタック方式(上に積む見た目)をなるべく踏襲する
+  const angles = [270, 90, 315, 225, 0, 180, 45, 135, 300, 240, 60, 120, 330, 210, 30, 150];
+  for (const r of radii) {
+    for (const a of angles) {
+      const rad = (a * Math.PI) / 180;
+      const c = { x: pos.x + r * Math.cos(rad), y: pos.y + r * Math.sin(rad) };
+      const b = labelBox(c, text);
+      if (!inBounds(b)) continue;
+      if (!overlapsAny(b)) return c;
+    }
+  }
+  return pos;
+}
+
+function updateFrame(t) {
+  const s = stateAt(t, traj.v0, traj.angleDeg, traj.y0);
+  const originPx = worldToPx(s.x, s.y);
+  marker.setAttribute("cx", originPx.x);
+  marker.setAttribute("cy", originPx.y);
+  vectorLayer.textContent = "";
+
+  // 描画順の方針(重要): 合成速度vの矢印は本文の学習の核(v=vx+vyの合成)に
+  // 関わる最重要の矢印なので、どの角度・どの時刻でも他の要素の下に隠れては
+  // いけない。vはx=0〜90°の全域を連続的に振れる(v0の角度そのまま)ため、
+  // ラベルスタックをどこに固定してもvの矢印の通り道と交差しうる角度が
+  // 必ず存在する(固定オフセットだけでは幾何学的に潰しきれない)。そのため
+  // 「vの矢印(線・矢じり)だけは他の全要素より最後=最前面に描く」ことで、
+  // 交差しても矢印本体が隠れないことを保証する。vx・vyの矢印は短い(vのx/y
+  // 成分そのもの)ため、ラベルスタックの通り道にはならず、この対応は不要。
+  //
+  // ラベル位置の方針:
+  // - 物体の発射点は常にワールドx=0付近にあり、それが画面左端のy軸目盛り領域
+  //   (x=4付近)に近い。矢印の向きに沿ってラベルを回転配置すると、向きによっては
+  //   ラベルがy軸目盛りへ向かって突き出し、目盛りの数字と重なる(実際に発生した不具合)。
+  //   これを避けるため、重力のラベルは「矢印の向きに関係なく常に右側」に固定した
+  //   オフセットで置く(y軸から離れる方向)。
+  // - vx・vy・vの3つは、v=(vx,vy)の関係上どの角度でも先端同士が近接しうる
+  //   (特にvx=0のときv=vyで先端が完全に一致する)。矢印の先端を基準にラベルを
+  //   置くと角度によって衝突パターンが変わり続けて潰しきれないため、この3つだけは
+  //   「物体から右に固定距離、上下3段に固定した位置」にまとめて置く(スタック方式)。
+  //   段の位置はmarker.y基準にしつつ、頂点付近でステージ上端からはみ出さないよう
+  //   下限をクランプする。stackXはラベル半幅(最大25px程度)より確実に離す。
+
+  // 重力: 固定の参照長。computeScaleにはかけない(実数値のmgを導入しないため)
+  const gArrow = drawArrow(originPx, -90, GRAVITY_ARROW_PX, "var(--muted)", { strokeWidth: 2, headLength: 8, headWidth: 6 });
+
+  // 速度: vx・vyは速度系のグループとしてcomputeScaleを1回だけ共有する(力系とは独立)
+  const pxPerUnitVel = computeScale([traj.speed0, traj.speedT], VEL_MAX_PX);
+  const vxPolar = toPolar(s.vx, 0);
+  const vyPolar = toPolar(0, s.vy);
+  const vRes = sumVectors([{ fx: s.vx, fy: 0 }, { fx: 0, fy: s.vy }]);
+  const vResPolar = toPolar(vRes.fx, vRes.fy);
+
+  // vの矢じりの外接矩形を先に計算しておく(実際に描くのは最後だが、他のラベルが
+  // この領域を避けられるよう、位置だけ先に知っておく必要がある)。
+  const VRES_HEAD_OPTS = { headLength: 10, headWidth: 7 };
+  const lenV = chkRes.checked ? magnitudeToLength(vResPolar.magnitude, pxPerUnitVel) : 0;
+  const vHeadBBox = lenV > 0
+    ? bboxOfPoints(arrowGeometry(originPx, vResPolar.angleDeg, lenV, VRES_HEAD_OPTS).head)
+    : null;
+
+  let ax, ay;
+  if (chkComp.checked) {
+    const lenX = magnitudeToLength(vxPolar.magnitude, pxPerUnitVel);
+    ax = drawArrow(originPx, vxPolar.angleDeg, lenX, "var(--c2)", { strokeWidth: 2.2, headLength: 9, headWidth: 6 });
+    const lenY = magnitudeToLength(vyPolar.magnitude, pxPerUnitVel);
+    ay = drawArrow(originPx, vyPolar.angleDeg, lenY, "var(--c1)", { strokeWidth: 2.2, headLength: 9, headWidth: 6 });
+  }
+
+  // ラベルを置くたびに、そのラベルの矩形をobstaclesへ追加していく。vの矢じりだけでなく
+  // 「既に置いた他のラベル」、そして重力・vx・vyそれぞれの矢じりも避けるべき対象にする。
+  // (vの矢じりだけを回避対象にしていたところ、θが大きくvxが短くなる組み合わせで
+  // 今度はvxの矢じりが「v」ラベルに重なる別の不具合が見つかったため、全ての矢じりを対象にする)
+  const obstacles = [];
+  if (vHeadBBox) obstacles.push(vHeadBBox);
+  if (gArrow) obstacles.push(bboxOfPoints(gArrow.head));
+  if (ax) obstacles.push(bboxOfPoints(ax.head));
+  if (ay) obstacles.push(bboxOfPoints(ay.head));
+
+  if (gArrow) {
+    const gText = "重力";
+    const gPos = nudgeAwayFromObstacles({ x: gArrow.x2 + 18, y: gArrow.y2 + 4 }, gText, obstacles);
+    drawLabel(gPos, gText, "var(--muted)");
+    obstacles.push(labelBox(gPos, gText));
+  }
+
+  const stackX = originPx.x + 30;
+  const vRow = Math.max(originPx.y - 40, 8);
+  const vyRow = Math.max(originPx.y - 26, 22);
+  const vxRow = Math.max(originPx.y - 12, 36);
+  if (ax) {
+    const vxText = `vx ${fmt(s.vx, 1)}`;
+    const vxPos = nudgeAwayFromObstacles({ x: stackX, y: vxRow }, vxText, obstacles);
+    drawLabel(vxPos, vxText, "var(--c2t)");
+    obstacles.push(labelBox(vxPos, vxText));
+  }
+  if (ay) {
+    const vyText = `vy ${fmt(s.vy, 1)}`;
+    const vyPos = nudgeAwayFromObstacles({ x: stackX, y: vyRow }, vyText, obstacles);
+    drawLabel(vyPos, vyText, "var(--c1t)");
+    obstacles.push(labelBox(vyPos, vyText));
+  }
+
+  // vのラベルを先に置き、その後でvの矢印を描く(=矢印がラベルより最前面)。
+  // 重力・vx・vyのラベルより後に描くことで、矢印の線がどのラベルの背景にも
+  // 隠れないことを保証する。ただし矢じり(面積を持つ塗りつぶし三角形)は
+  // ラベルの文字そのものを覆ってしまいうるため、obstaclesを使って重なるラベルは
+  // 避ける側にずらし、矢じり自体は最前面のまま維持する。
+  if (chkRes.checked && lenV > 0) {
+    const vText = `v ${fmt(vResPolar.magnitude, 1)}`;
+    const vPos = nudgeAwayFromObstacles({ x: stackX, y: vRow }, vText, obstacles);
+    drawLabel(vPos, vText, "var(--c4t)");
+    drawArrow(originPx, vResPolar.angleDeg, lenV, "var(--c4)", { strokeWidth: 2.6, headLength: 10, headWidth: 7 });
+  }
+
+  valT.textContent = `${fmt(t, 2)} / ${fmt(traj.T, 2)} s`;
+  renderStats(t, s, vResPolar.magnitude);
+}
+
+/* ---------- 数値パネル ---------- */
+const statsEl = $("stats");
+function statRow(k, v) {
+  return `<div class="stat"><span class="k">${k}</span><span class="v mono">${v}</span></div>`;
+}
+function renderStats(t, s, speed) {
+  statsEl.innerHTML = [
+    statRow("時刻 t", `${fmt(t, 2)} s`),
+    statRow("水平距離 x", `${fmt(s.x, 2)} m`),
+    statRow("高さ y", `${fmt(s.y, 2)} m`),
+    statRow("水平速度 vx", `${fmt(s.vx, 2)} m/s`),
+    statRow("鉛直速度 vy", `${fmt(s.vy, 2)} m/s`),
+    statRow("速さ |v|", `${fmt(speed, 2)} m/s`),
+    statRow("最高到達点", `${fmt(traj.apex.y, 2)} m`),
+    statRow("到達距離(着地)", `${fmt(traj.range, 2)} m`),
+    statRow("滞空時間 T", `${fmt(traj.T, 2)} s`),
+  ].join("");
+}
+
+/* ---------- スライダー変更→軌道の再計算 ---------- */
+function recomputeTrajectory() {
+  const v0 = Number(sV0.value);
+  const angleDeg = Number(sAngle.value);
+  const y0 = Number(sY0.value);
+  const T = Math.max(flightTime(v0, angleDeg, y0), 0.001);
+  const apex = apexInfo(v0, angleDeg, y0);
+  const landing = stateAt(T, v0, angleDeg, y0);
+  const speed0 = v0;
+  const speedT = Math.hypot(landing.vx, landing.vy);
+
+  const viewYMax = Math.max(y0, apex.y, landing.y, 1) * 1.12;
+  const viewXMax = Math.max(landing.x, 1) * 1.08;
+
+  traj = { v0, angleDeg, y0, T, apex, range: landing.x, speed0, speedT, viewYMax, viewXMax };
+  transform = computeTransform(viewXMax, viewYMax);
+
+  sT.max = T;
+  sT.step = T / 300;
+  const t = Math.min(Number(sT.value), T);
+  sT.value = t;
+
+  redrawStatic();
+  updateFrame(t);
+}
+
+/* ---------- イベント ---------- */
+sV0.addEventListener("input", () => { valV0.textContent = `${fmt(Number(sV0.value), 0)} m/s`; recomputeTrajectory(); });
+sAngle.addEventListener("input", () => { valAngle.textContent = `${fmt(Number(sAngle.value), 0)}°`; recomputeTrajectory(); });
+sY0.addEventListener("input", () => { valY0.textContent = `${fmt(Number(sY0.value), 0)} m`; recomputeTrajectory(); });
+sT.addEventListener("input", () => { playing = false; btnPlay.textContent = reducedMotion ? "+1コマ進める" : "再生"; updateFrame(Number(sT.value)); });
+chkComp.addEventListener("change", () => updateFrame(Number(sT.value)));
+chkRes.addEventListener("change", () => updateFrame(Number(sT.value)));
+
+btnReset.addEventListener("click", () => {
+  playing = false;
+  btnPlay.textContent = reducedMotion ? "+1コマ進める" : "再生";
+  sT.value = 0;
+  updateFrame(0);
+});
+
+btnPlay.addEventListener("click", () => {
+  if (reducedMotion) {
+    const step = traj.T / 24;
+    const t = Math.min(Number(sT.value) + step, traj.T);
+    sT.value = t;
+    updateFrame(t);
+    return;
+  }
+  playing = !playing;
+  btnPlay.textContent = playing ? "一時停止" : "再生";
+  if (playing) {
+    lastFrameMs = null;
+    requestAnimationFrame(tick);
+  }
+});
+
+function tick(nowMs) {
+  if (!playing) return;
+  if (lastFrameMs == null) lastFrameMs = nowMs;
+  const dtReal = (nowMs - lastFrameMs) / 1000;
+  lastFrameMs = nowMs;
+  const playbackDuration = 4; // 滞空時間の長短によらず、実時間およそ4秒で1回の飛行を見せる
+  const dtSim = dtReal * (traj.T / playbackDuration);
+  let t = Number(sT.value) + dtSim;
+  if (t >= traj.T) {
+    t = traj.T;
+    playing = false;
+    btnPlay.textContent = "再生";
+  }
+  sT.value = t;
+  updateFrame(t);
+  if (playing) requestAnimationFrame(tick);
+}
+
+/* ---------- 初期化 ---------- */
+setMode("oblique-throw");
+</script>
+</body>
+</html>

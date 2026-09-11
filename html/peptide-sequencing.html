@@ -1,0 +1,1349 @@
+<!doctype html>
+<html lang="ja">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>ペプチドの配列決定</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500&family=IBM+Plex+Sans+JP:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+*{box-sizing:border-box}
+:root{
+  --ink:#16232B; --muted:#5E6E76; --paper:#EDF1EF; --surface:#FFFFFF;
+  --rule:#D6DDDA; --rule-soft:#E8EDEB;
+  --c1:#158A6D; --c1t:#0D6A53;
+  --c2:#2457A6; --c2t:#1B4380;
+  --c4:#A82A6A; --c4t:#831F52;
+  --sans:"IBM Plex Sans JP","Hiragino Sans","Yu Gothic UI",system-ui,sans-serif;
+  --mono:"IBM Plex Mono",ui-monospace,SFMono-Regular,Menlo,monospace;
+}
+html,body{margin:0;padding:0}
+body{background:var(--paper);color:var(--ink);font-family:var(--sans);font-size:13.5px;line-height:1.75;-webkit-text-size-adjust:100%}
+.mono{font-family:var(--mono);font-variant-numeric:tabular-nums}
+.wrap{max-width:820px;margin:0 auto;padding:20px 14px 60px}
+.card{background:var(--surface);border:1px solid var(--rule);border-radius:3px;padding:14px;margin-bottom:14px}
+.eyebrow{display:flex;align-items:center;gap:10px;font-family:var(--mono);font-size:11.5px;letter-spacing:.14em;color:var(--muted)}
+.eyebrow::after{content:"";flex:1;height:1px;background:var(--rule)}
+.eyebrow-row{display:flex;align-items:center;gap:8px;flex-wrap:wrap}
+h1{font-size:22px;font-weight:600;letter-spacing:.01em;margin:8px 0 2px}
+p{margin:0 0 8px} p:last-child{margin-bottom:0}
+.note{color:var(--muted);font-size:12px;line-height:1.7}
+
+.btn{font:inherit;font-size:12.5px;line-height:1.4;border:1px solid var(--rule);background:#fff;color:var(--ink);border-radius:2px;padding:7px 11px;cursor:pointer}
+.btn:hover{border-color:#B4C0BC}
+.btn.on{background:var(--ink);color:#fff;border-color:var(--ink)}
+.btn:focus-visible{outline:2px solid var(--c2);outline-offset:1px}
+.btn:disabled{opacity:.45;cursor:not-allowed}
+.btn.sm{font-size:11.5px;padding:4px 8px}
+.btn.wide{width:100%;text-align:left;padding:10px 12px}
+.btnrow{display:flex;flex-wrap:wrap;gap:6px}
+
+.badge{display:inline-block;font-family:var(--mono);font-size:9.5px;letter-spacing:.06em;border:1px solid var(--rule);border-radius:2px;padding:0 4px;margin-left:6px;color:var(--muted);vertical-align:1px}
+.badge.verified{border-color:var(--c1);color:var(--c1t)}
+
+/* ---------- PROBLEM / 自動生成 ---------- */
+.gencard{margin-top:10px;padding-top:10px;border-top:1px solid var(--rule-soft)}
+.genrow{display:flex;flex-wrap:wrap;align-items:center;gap:6px;margin-top:6px}
+.genfield{font-family:var(--mono);font-size:12.5px;border:1px solid var(--rule);border-radius:2px;padding:6px 8px;width:110px;background:#fff;color:var(--ink)}
+.genfield:focus-visible{outline:2px solid var(--c2);outline-offset:-1px}
+.gensharerow{display:flex;flex-wrap:wrap;align-items:center;gap:6px;margin-top:6px}
+.gensharerow[hidden]{display:none}
+.genshare{font-family:var(--mono);font-size:11.5px;border:1px solid var(--rule);border-radius:2px;padding:5px 7px;flex:1 1 220px;min-width:0;background:var(--paper);color:var(--ink)}
+#gen-status,#gen-status-busy{font-family:var(--mono);font-size:11px;color:var(--muted)}
+#gen-error{color:var(--c4t);font-size:12px;margin-top:4px}
+#gen-copy-feedback{font-size:11px;color:var(--c1t);margin-left:4px}
+
+/* ---------- PREMISE ---------- */
+.pool-list{display:flex;flex-wrap:wrap;gap:6px 14px;margin:8px 0}
+.pool-item{display:flex;align-items:baseline;gap:6px;font-size:12.5px}
+.pool-item .mono{color:var(--c2t)}
+.pool-name{color:var(--ink)}
+.pool-count{font-family:var(--mono);font-size:11px;color:var(--muted)}
+.enzyme-rule{margin-top:8px;padding-top:8px;border-top:1px solid var(--rule-soft)}
+
+/* ---------- 2カラム作業域 ---------- */
+.worklayout{display:block}
+@media (min-width:761px){
+  .worklayout{display:grid;grid-template-columns:minmax(300px,40%) minmax(0,1fr);gap:14px;align-items:start}
+}
+@media (min-width:761px) and (min-height:760px){
+  .worklayout-left{position:sticky;top:14px}
+}
+
+/* ---------- SEQUENCE ---------- */
+.seqends{display:flex;justify-content:space-between;font-family:var(--mono);font-size:10.5px;letter-spacing:.1em;color:var(--muted);margin-bottom:4px}
+.seqrow{display:flex;gap:5px;flex-wrap:wrap}
+.seqcell{flex:1 1 0;min-width:38px;border:1px solid var(--rule);border-radius:2px;background:var(--paper);text-align:center;padding:8px 2px;display:flex;flex-direction:column;align-items:center;gap:2px}
+.seqcell.determined{background:#EFF6F3;border-color:var(--c1)}
+.seqcell .mono{font-size:13px;font-weight:500;color:var(--c1t)}
+.seqcell .qmark{font-size:15px;color:var(--muted)}
+.seqcell .count{font-size:10px;color:var(--muted)}
+#seq-remaining{font-family:var(--mono);font-size:11.5px;letter-spacing:.06em;color:var(--muted);margin-top:10px}
+#seq-remaining b{color:var(--ink);font-weight:500}
+
+/* ---------- NARROWING ---------- */
+.narrowrow{display:flex;align-items:center;gap:8px;padding:3px 0}
+.narrowlabel{flex:0 0 108px;min-width:0;font-size:11.5px;color:var(--muted);overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.narrowtrack{flex:1 1 auto;position:relative;height:14px;background:var(--rule-soft);border-radius:2px}
+.narrowfill{position:absolute;left:0;top:0;bottom:0;background:var(--c2);border-radius:2px;min-width:2px}
+.narrowfill.final{background:var(--c1)}
+.narrowvalue{flex:0 0 auto;min-width:56px;text-align:right;font-size:11.5px}
+.narrowdelta{color:var(--muted);font-size:10.5px}
+.narrowaxisrow{display:flex;align-items:center;gap:8px;margin-bottom:4px}
+.narrowaxis-spacer{flex:0 0 108px}
+.narrowaxis-track{flex:1 1 auto;position:relative;height:12px}
+.narrowaxis-track span{position:absolute;transform:translateX(-50%);font-size:10px;color:var(--muted)}
+.narrowaxis-valuespacer{flex:0 0 auto;min-width:56px}
+.narrowrow.final .narrowlabel{color:var(--c1t)}
+
+/* ---------- HINT ---------- */
+.hintbtns{display:flex;flex-direction:column;gap:8px}
+.hintbtn-primary{background:var(--ink);color:#fff;border-color:var(--ink);font-weight:500}
+.hintbtn-primary:hover{border-color:var(--ink);opacity:.92}
+.hintbtn-secondary{border-color:var(--c4);color:var(--c4t)}
+.hint{border-left:2px solid var(--rule);padding:1px 0 1px 11px;margin:9px 0;font-size:12px;line-height:1.7}
+.hint:last-child{margin-bottom:0}
+.hint .hl{font-family:var(--mono);font-size:10.5px;letter-spacing:.1em;color:var(--muted);display:block}
+.hint.ok{border-left-color:var(--c1)}
+.hint.ok .hl{color:var(--c1t)}
+.hint.warn{border-left-color:var(--c4)}
+.hint.warn .hl{color:var(--c4t)}
+#hint-suggest-result:empty,#hint-finish-result:empty{margin:0}
+
+/* ---------- CONDITIONS ---------- */
+.condhead{display:flex;justify-content:space-between;align-items:center;margin-bottom:16px}
+.condcard{border:1px solid var(--rule);border-radius:3px;padding:11px 12px;margin-bottom:9px;outline-offset:2px}
+.condcard:last-child{margin-bottom:0}
+.condcard.opened{border-color:var(--rule);background:#FBFCFC}
+.condcard:focus-visible{outline:2px solid var(--c2)}
+.condtop{display:flex;align-items:center;gap:8px;margin-bottom:4px}
+.condnum{font-size:11px;color:var(--muted);letter-spacing:.08em}
+.condstate{font-size:10px;letter-spacing:.06em;color:var(--c1t)}
+.condtext{font-size:12.5px;margin-bottom:8px}
+.condresult{font-size:13px;margin-bottom:4px}
+.condcount{color:var(--muted);font-size:11px}
+.chip{display:inline-block;border:1px solid var(--rule);border-radius:2px;padding:1px 6px;margin:1px 2px 1px 0;font-size:12px;background:var(--paper)}
+.chiparrow{color:var(--muted);margin:0 1px}
+.fragchip{display:inline-block;margin:2px 6px 2px 0;padding:2px 4px;border:1px dashed var(--rule);border-radius:2px}
+.pos{color:var(--c1t);font-weight:500}
+.neg{color:var(--muted)}
+@media (prefers-reduced-motion:no-preference){
+  .condcard.flash{animation:condflash 300ms ease-out}
+}
+@media (prefers-reduced-motion:reduce){
+  .condcard.flash{border-color:var(--c2)}
+}
+@keyframes condflash{from{background:#EAF1F8;border-color:var(--c2)}to{background:var(--surface);border-color:var(--rule)}}
+
+/* ---------- ANSWER ---------- */
+.answerseq{display:flex;flex-wrap:wrap;align-items:center;gap:2px;margin:8px 0}
+.answerchip{display:flex;flex-direction:column;align-items:center;border:1px solid var(--c1);border-radius:2px;padding:6px 8px;background:#EFF6F3}
+.answerchip .mono{font-size:13px;color:var(--c1t)}
+.answerchip .answername{font-size:10px;color:var(--muted)}
+.answerarrow{color:var(--muted);margin:0 3px}
+.answernote{margin-top:10px;border-top:1px solid var(--rule-soft);padding-top:8px}
+.answernote summary{cursor:pointer;font-size:12px;color:var(--c2t);font-family:var(--mono)}
+.answernote summary:focus-visible{outline:2px solid var(--c2)}
+.compseq{font-size:12.5px;margin-top:6px}
+
+@media (max-width:430px){
+  body{font-size:13px}
+  .wrap{padding:14px 10px 50px}
+  .card{padding:11px}
+  h1{font-size:19px}
+  .btn{padding:7px 9px;font-size:12px}
+  .narrowlabel,.narrowaxis-spacer{flex-basis:74px}
+  .narrowvalue,.narrowaxis-valuespacer{min-width:46px}
+  .seqcell{padding:6px 1px;min-width:0}
+  .genfield{width:88px}
+}
+</style>
+</head>
+<body>
+<div class="wrap">
+
+<header>
+  <div class="eyebrow">PEPTIDE SEQUENCING</div>
+  <h1>ペプチドの配列決定</h1>
+  <p class="note">条件を1つずつ開いて、ペプチドの配列を1通りに絞り込む。組成(使われているアミノ酸の種類)は前提として最初から示され、絞り込みの対象には数えない。</p>
+</header>
+
+<div class="card" id="problem-card">
+  <div class="eyebrow">PROBLEM</div>
+  <div class="btnrow" id="fixedbtns" style="margin-top:8px" role="group" aria-label="固定題を選ぶ"></div>
+
+  <div class="gencard">
+    <div class="eyebrow-row">
+      <span class="mono" style="font-size:11px;color:var(--muted);letter-spacing:.1em">自動生成</span>
+    </div>
+    <div class="genrow" role="group" aria-label="残基数を選ぶ">
+      <button class="btn sm genlenbtn" data-len="3" aria-pressed="false">3残基</button>
+      <button class="btn sm genlenbtn" data-len="4" aria-pressed="true">4残基</button>
+      <button class="btn sm genlenbtn" data-len="5" aria-pressed="false">5残基</button>
+      <button class="btn sm genlenbtn" data-len="6" aria-pressed="false">6残基</button>
+    </div>
+    <div class="genrow">
+      <label class="note" for="gen-seed-input">シード</label>
+      <input class="genfield" type="text" inputmode="numeric" id="gen-seed-input" value="1" aria-label="シード(数値)">
+      <button class="btn sm" id="gen-run-btn">生成</button>
+      <span id="gen-status-busy" aria-live="polite"></span>
+    </div>
+    <div id="gen-error" aria-live="polite"></div>
+    <div class="gensharerow" id="gen-share-row" hidden>
+      <span id="gen-status" class="mono"></span>
+    </div>
+    <div class="gensharerow" id="gen-share-row2" hidden>
+      <input class="genshare" type="text" id="gen-share-url" readonly aria-label="この問題を共有するURL">
+      <button class="btn sm" id="gen-copy-btn">コピー</button>
+      <span id="gen-copy-feedback" aria-live="polite"></span>
+    </div>
+    <p class="note" style="margin-top:8px">自動生成の問題は人手で検証していない。固定題(検証済バッジ付き)とは別に扱う。</p>
+  </div>
+</div>
+
+<div class="card" id="premise-card">
+  <div class="eyebrow">PREMISE</div>
+  <div id="premise-body" style="margin-top:8px"></div>
+</div>
+
+<div class="worklayout">
+  <div class="worklayout-left">
+
+    <div class="card" id="sequence-card">
+      <div class="eyebrow">SEQUENCE</div>
+      <div style="margin-top:10px">
+        <div class="seqends"><span>N末端</span><span>C末端</span></div>
+        <div id="seqgrid"></div>
+        <div id="seq-remaining" aria-live="polite"></div>
+      </div>
+    </div>
+
+    <div class="card" id="narrowing-card">
+      <div class="eyebrow">NARROWING</div>
+      <div id="narrowbody" style="margin-top:10px"></div>
+    </div>
+
+  </div>
+  <div class="worklayout-right">
+
+    <div class="card" id="hintcard">
+      <div class="eyebrow">HINT</div>
+      <div class="hintbtns" style="margin-top:10px">
+        <div>
+          <button class="btn wide hintbtn-primary" id="hint-suggest-btn">次に開く条件を選ぶ</button>
+          <p class="note" style="margin-top:4px">最悪ケースで候補が最も減る条件。正解を知らなくても計算できる。</p>
+          <div id="hint-suggest-result"></div>
+        </div>
+        <div>
+          <button class="btn wide hintbtn-secondary" id="hint-finish-btn">1つで決まる条件を探す</button>
+          <p class="note" style="margin-top:4px">今の観測値なら1つで決まる条件。正解に依存する強いヒント。</p>
+          <div id="hint-finish-result"></div>
+        </div>
+      </div>
+    </div>
+
+    <div class="card" id="conditions-card">
+      <div class="condhead">
+        <div class="eyebrow" style="margin-bottom:0">CONDITIONS</div>
+        <button class="btn sm" id="cond-reset-btn">すべて閉じ直す</button>
+      </div>
+      <div id="condlist"></div>
+    </div>
+
+    <div class="card" id="answercard" hidden>
+      <div class="eyebrow">ANSWER</div>
+      <div id="answerbody" style="margin-top:10px"></div>
+    </div>
+
+  </div>
+</div>
+
+</div><!-- /wrap -->
+<script type="module">
+/* ---------- ここから scripts/peptide-solver.mjs をそのまま埋め込み(内容は書き換えない) ---------- */
+// 逆引き（性質から候補を絞り込む）の汎用ソルバー。html/reverse-lookup-spec.md 第2部の型の実装。
+// ラベルの意味（アミノ酸か、他の何かか）は一切知らない。color/mass/chirality の3条件だけ、
+// ラベルごとの値テーブルを引数(tables)として外から受け取る。
+//
+// ブラウザでもそのまま動くこと。Node固有のAPIは使わない。ESM export のみ。外部ライブラリ禁止。
+//
+// 型（コメントのみ、実行時チェックはしない）
+//   Label      = string
+//   Candidate  = Label[]                      長さ n のラベル列
+//   DomainSpec = { mode:"counts", counts: Record<Label,number> }
+//              | { mode:"kinds",  kinds: Label[], length: number }
+//              | { mode:"pool",   pool:  Label[], length: number }   // 列挙処理は kinds と同一
+//   Tables     = { color: Record<testName, Record<Label,boolean>>, mass: Record<Label,number>,
+//                  chirality: Record<Label,boolean> }
+//   Condition  = { type:"terminus",   end: "N"|"C" }
+//              | { type:"fragment",   start: number, length: number }
+//              | { type:"enzyme",     cleaveAfter: Label[], reveal: "sequence"|"composition"|"count" }
+//              | { type:"color",      test: string }
+//              | { type:"mass" }
+//              | { type:"chirality" }
+//              | { type:"composition", reveal:"full"|"kinds" }
+//              | { type:"composition", reveal:"pool", pool: Label[] }   // 判定は常にtrue。定義域を定めるだけ
+
+const DOMAIN_LIMIT = 100000;
+const MASS_EPSILON = 1e-6;
+
+// ---------- buildDomain ----------
+
+function permuteCounts(counts) {
+  const labels = Object.keys(counts).sort();
+  const total = labels.reduce((sum, l) => sum + counts[l], 0);
+  const remaining = { ...counts };
+  const current = [];
+  const result = [];
+
+  function backtrack() {
+    if (current.length === total) {
+      result.push(current.slice());
+      return;
+    }
+    for (const l of labels) {
+      if (remaining[l] > 0) {
+        remaining[l] -= 1;
+        current.push(l);
+        backtrack();
+        current.pop();
+        remaining[l] += 1;
+      }
+    }
+  }
+  backtrack();
+  return result;
+}
+
+function cartesianPow(kinds, length) {
+  const total = kinds.length ** length;
+  if (total > DOMAIN_LIMIT) {
+    throw new Error(
+      `候補数が上限を超えます: ${kinds.length}^${length} = ${total} > ${DOMAIN_LIMIT}`
+    );
+  }
+  const current = new Array(length);
+  const result = [];
+
+  function rec(pos) {
+    if (pos === length) {
+      result.push(current.slice());
+      return;
+    }
+    for (const k of kinds) {
+      current[pos] = k;
+      rec(pos + 1);
+    }
+  }
+  rec(0);
+  return result;
+}
+
+export function buildDomain(spec) {
+  if (spec.mode === "counts") return permuteCounts(spec.counts);
+  if (spec.mode === "kinds") return cartesianPow(spec.kinds, spec.length);
+  if (spec.mode === "pool") return cartesianPow(spec.pool, spec.length);
+  throw new Error(`未知の domain mode: ${spec.mode}`);
+}
+
+// ---------- domainSpecOf ----------
+// { conditions, answer, residue_count? } の形をした問題から DomainSpec を組み立てる。
+// composition条件は必ず定義域を宣言する（reveal に関わらず、定義域内の全候補がその条件を
+// 自動的に満たすように domain を作る）ので、それを手がかりにする。
+//   composition/pool  → { mode:"pool",  pool:  その pool,             length: residue_count }
+//   composition/kinds → { mode:"kinds", kinds: answerの使用ラベル集合, length: residue_count }
+//   composition/full  → { mode:"counts", counts: answerの多重集合 }
+// 明示的な domain フィールドがあればそれを優先する。どちらも無ければエラー。
+
+export function domainSpecOf(problem) {
+  if (problem.domain) return problem.domain;
+
+  const poolCond = problem.conditions.find(
+    (c) => c.type === "composition" && c.reveal === "pool"
+  );
+  if (poolCond) {
+    return {
+      mode: "pool",
+      pool: poolCond.pool,
+      length: problem.residue_count ?? problem.answer.length,
+    };
+  }
+
+  const kindsCond = problem.conditions.find(
+    (c) => c.type === "composition" && c.reveal === "kinds"
+  );
+  if (kindsCond) {
+    return {
+      mode: "kinds",
+      kinds: uniqueSortedLabels(problem.answer),
+      length: problem.residue_count ?? problem.answer.length,
+    };
+  }
+
+  const fullCond = problem.conditions.find(
+    (c) => c.type === "composition" && c.reveal === "full"
+  );
+  if (fullCond) {
+    return { mode: "counts", counts: Object.fromEntries(countsOf(problem.answer)) };
+  }
+
+  throw new Error(
+    "domainSpecOf: 定義域を推定できません（domain フィールドも、composition条件も無い）"
+  );
+}
+
+// ---------- 内部ヘルパー ----------
+
+function arraysEqual(a, b) {
+  if (a.length !== b.length) return false;
+  for (let i = 0; i < a.length; i++) if (a[i] !== b[i]) return false;
+  return true;
+}
+
+// cleaveAfter に含まれるラベルの直後で分割する。末尾で切れる場合は空断片を作らない。
+function cleave(sequence, cleaveAfter) {
+  const fragments = [];
+  let current = [];
+  for (const label of sequence) {
+    current.push(label);
+    if (cleaveAfter.includes(label)) {
+      fragments.push(current);
+      current = [];
+    }
+  }
+  if (current.length > 0) fragments.push(current);
+  return fragments;
+}
+
+// 断片1つを「ラベルでソートした文字列」に正規化する（断片内の順序を無視するため）。
+function fragmentSignature(fragment) {
+  return fragment.slice().sort().join(",");
+}
+
+// 断片の集まりを「順序を無視した比較」ができる形にする（断片同士の順序も無視するため）。
+function normalizeFragments(fragments) {
+  return fragments.map(fragmentSignature).sort();
+}
+
+function countsOf(sequence) {
+  const counts = {};
+  for (const label of sequence) counts[label] = (counts[label] || 0) + 1;
+  return Object.keys(counts)
+    .sort()
+    .map((l) => [l, counts[l]]);
+}
+
+function uniqueSortedLabels(sequence) {
+  return Array.from(new Set(sequence)).sort();
+}
+
+function massOf(sequence, tables) {
+  const sum = sequence.reduce((s, label) => s + tables.mass[label], 0);
+  return sum - 18.0 * (sequence.length - 1);
+}
+
+function colorOf(sequence, testName, tables) {
+  const table = tables.color[testName];
+  return sequence.some((label) => !!table[label]);
+}
+
+function chiralityFalseCountOf(sequence, tables) {
+  return sequence.filter((label) => tables.chirality[label] === false).length;
+}
+
+// ---------- deriveObservation / matches ----------
+
+export function deriveObservation(answer, condition, tables) {
+  switch (condition.type) {
+    case "terminus":
+      return condition.end === "N" ? answer[0] : answer[answer.length - 1];
+
+    case "fragment":
+      return answer.slice(condition.start, condition.start + condition.length);
+
+    case "enzyme": {
+      const fragments = cleave(answer, condition.cleaveAfter);
+      if (condition.reveal === "sequence") return fragments.map((f) => f.slice());
+      if (condition.reveal === "composition") return normalizeFragments(fragments);
+      if (condition.reveal === "count") return fragments.length;
+      throw new Error(`未知の enzyme reveal: ${condition.reveal}`);
+    }
+
+    case "color":
+      return colorOf(answer, condition.test, tables);
+
+    case "mass":
+      return massOf(answer, tables);
+
+    case "chirality":
+      return chiralityFalseCountOf(answer, tables);
+
+    case "composition":
+      if (condition.reveal === "full") return countsOf(answer);
+      if (condition.reveal === "kinds") return uniqueSortedLabels(answer);
+      if (condition.reveal === "pool") return condition.pool.slice();
+      throw new Error(`未知の composition reveal: ${condition.reveal}`);
+
+    default:
+      throw new Error(`未知の condition type: ${condition.type}`);
+  }
+}
+
+export function matches(candidate, condition, observation, tables) {
+  switch (condition.type) {
+    case "terminus": {
+      const end = condition.end === "N" ? candidate[0] : candidate[candidate.length - 1];
+      return end === observation;
+    }
+
+    case "fragment": {
+      const len = observation.length;
+      if (len === 0) return true;
+      for (let i = 0; i + len <= candidate.length; i++) {
+        if (arraysEqual(candidate.slice(i, i + len), observation)) return true;
+      }
+      return false;
+    }
+
+    case "enzyme": {
+      const fragments = cleave(candidate, condition.cleaveAfter);
+      if (condition.reveal === "sequence") {
+        if (fragments.length !== observation.length) return false;
+        return fragments.every((f, i) => arraysEqual(f, observation[i]));
+      }
+      if (condition.reveal === "composition") {
+        return arraysEqual(normalizeFragments(fragments), observation);
+      }
+      if (condition.reveal === "count") return fragments.length === observation;
+      throw new Error(`未知の enzyme reveal: ${condition.reveal}`);
+    }
+
+    case "color":
+      return colorOf(candidate, condition.test, tables) === observation;
+
+    case "mass":
+      return Math.abs(massOf(candidate, tables) - observation) < MASS_EPSILON;
+
+    case "chirality":
+      return chiralityFalseCountOf(candidate, tables) === observation;
+
+    case "composition": {
+      if (condition.reveal === "pool") return true;
+      if (condition.reveal === "full") {
+        const c = countsOf(candidate);
+        return (
+          c.length === observation.length &&
+          c.every(([l, n], i) => l === observation[i][0] && n === observation[i][1])
+        );
+      }
+      if (condition.reveal === "kinds") {
+        return arraysEqual(uniqueSortedLabels(candidate), observation);
+      }
+      throw new Error(`未知の composition reveal: ${condition.reveal}`);
+    }
+
+    default:
+      throw new Error(`未知の condition type: ${condition.type}`);
+  }
+}
+
+// ---------- solve ----------
+
+export function solve(domain, conditions, answer, tables) {
+  let remaining = domain.slice();
+  const steps = [];
+  for (const condition of conditions) {
+    const observation = deriveObservation(answer, condition, tables);
+    remaining = remaining.filter((c) => matches(c, condition, observation, tables));
+    steps.push({ condition, observation, remaining: remaining.length });
+  }
+  return { steps, final: remaining };
+}
+
+// ---------- findFinishingCondition ----------
+// 「残候補を全部異なる値に分ける条件」を探す分離型（amino-acids-matrix.html の
+// findDecisiveCondition）とは別物。こちらは完了型:
+// unusedConditions を配列の先頭から順に試し、その条件の実際の観測値（answer から導出）で
+// remaining を絞ったとき1件になるものを返す。見つからなければ null。
+
+export function findFinishingCondition(remaining, unusedConditions, answer, tables) {
+  for (const condition of unusedConditions) {
+    const observation = deriveObservation(answer, condition, tables);
+    const filtered = remaining.filter((c) => matches(c, condition, observation, tables));
+    if (filtered.length === 1) return { condition, observation, remaining: filtered };
+  }
+  return null;
+}
+
+// ---------- suggestNextCondition ----------
+// 各未選択条件について、remaining の各候補を「それ自身が answer だったら」の観測値でビン分けし、
+// worst(最大ビン件数)昇順・同値なら split(ビン数)降順で並べた先頭を返す。
+
+export function suggestNextCondition(remaining, unusedConditions, tables) {
+  if (!unusedConditions.length) return null;
+  const rows = unusedConditions.map((condition) => {
+    const bins = new Map();
+    for (const candidate of remaining) {
+      const key = JSON.stringify(deriveObservation(candidate, condition, tables));
+      bins.set(key, (bins.get(key) || 0) + 1);
+    }
+    let worst = 0;
+    for (const n of bins.values()) if (n > worst) worst = n;
+    return { condition, worst, split: bins.size };
+  });
+  rows.sort((a, b) => a.worst - b.worst || b.split - a.split);
+  return rows[0];
+}
+
+// ---------- minimizeConditions ----------
+// composition条件は reveal が full/kinds/pool のどれでも「定義域を定める条件」(domainSpecOfの
+// 手がかりそのもの)なので、matchesが常にtrueで判定に効かなくても削除対象から外す。
+
+function isDomainDefining(condition) {
+  return condition.type === "composition";
+}
+
+export function minimizeConditions(domain, conditions, answer, tables) {
+  let kept = conditions.slice();
+  const removed = [];
+  for (const condition of conditions) {
+    if (isDomainDefining(condition)) continue;
+    const trial = kept.filter((c) => c !== condition);
+    if (solve(domain, trial, answer, tables).final.length === 1) {
+      kept = trial;
+      removed.push(condition);
+    }
+  }
+  return { kept, removed };
+}
+
+// ---------- シード付き乱数 (xorshift32) ----------
+
+export function createRng(seed) {
+  let state = seed >>> 0;
+  if (state === 0) state = 0x9e3779b9;
+  return function next() {
+    state ^= state << 13;
+    state >>>= 0;
+    state ^= state >>> 17;
+    state ^= state << 5;
+    state >>>= 0;
+    return state / 4294967296;
+  };
+}
+
+function pick(rng, arr) {
+  return arr[Math.floor(rng() * arr.length)];
+}
+
+function shuffle(rng, arr) {
+  const a = arr.slice();
+  for (let i = a.length - 1; i > 0; i--) {
+    const j = Math.floor(rng() * (i + 1));
+    [a[i], a[j]] = [a[j], a[i]];
+  }
+  return a;
+}
+
+// ---------- generateProblem ----------
+// domain.mode === "pool" のときは、定義域を宣言する composition/pool 条件を自動で先頭に足す
+// （minimizeConditions で絶対に落ちない）。conditionPool をシャッフルした順に条件を足していき、
+// 1件に絞れた時点で止め、最後に minimizeConditions で最小集合に削る。
+
+export function generateProblem(options, rng) {
+  const domainCandidates = buildDomain(options.domain);
+  const answer = pick(rng, domainCandidates);
+
+  const chosen = [];
+  if (options.domain.mode === "pool") {
+    chosen.push({ type: "composition", reveal: "pool", pool: options.domain.pool.slice() });
+  }
+
+  const shuffledPool = shuffle(rng, options.conditionPool);
+  let finalCandidates = solve(domainCandidates, chosen, answer, options.tables).final;
+  for (const condition of shuffledPool) {
+    if (finalCandidates.length <= 1) break;
+    chosen.push(condition);
+    finalCandidates = solve(domainCandidates, chosen, answer, options.tables).final;
+  }
+
+  if (finalCandidates.length !== 1) {
+    throw new Error("generateProblem: conditionPool では候補を1件に絞り込めません");
+  }
+
+  const { kept } = minimizeConditions(domainCandidates, chosen, answer, options.tables);
+  return { answer, domain: options.domain, conditions: kept };
+}
+
+/* ---------- データ(JSONをそのまま埋め込み。fetch は使わない) ---------- */
+const PROBLEMS = {"schema_version":1,"problems":[{"id":"seq-01","title":"3残基の配列決定","verified":true,"confidence":"high","residue_count":3,"answer":["Gly","Ala","Ser"],"conditions":[{"id":"c1","type":"composition","reveal":"full"},{"id":"c2","type":"terminus","end":"N"},{"id":"c3","type":"fragment","start":1,"length":2}]},{"id":"seq-02","title":"4残基:断片の重なり","verified":true,"confidence":"high","residue_count":4,"answer":["Ala","Gly","Ser","Ala"],"conditions":[{"id":"c1","type":"composition","reveal":"full"},{"id":"c2","type":"fragment","start":0,"length":2},{"id":"c3","type":"fragment","start":1,"length":2},{"id":"c4","type":"fragment","start":2,"length":2}]},{"id":"seq-03","title":"5残基:酵素分解と末端","verified":true,"confidence":"high","residue_count":5,"answer":["Gly","Lys","Val","Ala","Ser"],"conditions":[{"id":"c1","type":"composition","reveal":"full"},{"id":"c2","type":"terminus","end":"N"},{"id":"c3","type":"enzyme","cleaveAfter":["Lys"],"reveal":"composition"},{"id":"c4","type":"fragment","start":2,"length":3}]},{"id":"seq-04","title":"6残基:組成決定から","verified":true,"confidence":"high","residue_count":6,"answer":["Tyr","Gly","Ala","Ser","Gly","Ser"],"conditions":[{"id":"c1","type":"composition","reveal":"pool","pool":["Gly","Ala","Ser","Val","Cys","Tyr"]},{"id":"c2","type":"color","test":"sulfur"},{"id":"c3","type":"color","test":"xanthoproteic"},{"id":"c4","type":"chirality"},{"id":"c5","type":"mass"},{"id":"c6","type":"enzyme","cleaveAfter":["Tyr","Ala"],"reveal":"composition"},{"id":"c7","type":"fragment","start":2,"length":3}]}]};
+const AMINO = {"amino_acids":[{"abbr3":"Gly","name":"グリシン","molar_mass":75,"tests":{"ninhydrin":{"result":"positive","note":"","confidence":"high"},"xanthoproteic":{"result":"negative","note":"","confidence":"high"},"sulfur":{"result":"negative","note":"","confidence":"high"}},"chiral":false},{"abbr3":"Ala","name":"アラニン","molar_mass":89,"tests":{"ninhydrin":{"result":"positive","note":"","confidence":"high"},"xanthoproteic":{"result":"negative","note":"","confidence":"high"},"sulfur":{"result":"negative","note":"","confidence":"high"}},"chiral":true},{"abbr3":"Val","name":"バリン","molar_mass":117,"tests":{"ninhydrin":{"result":"positive","note":"","confidence":"high"},"xanthoproteic":{"result":"negative","note":"","confidence":"high"},"sulfur":{"result":"negative","note":"","confidence":"high"}},"chiral":true},{"abbr3":"Leu","name":"ロイシン","molar_mass":131,"tests":{"ninhydrin":{"result":"positive","note":"","confidence":"high"},"xanthoproteic":{"result":"negative","note":"","confidence":"high"},"sulfur":{"result":"negative","note":"","confidence":"high"}},"chiral":true},{"abbr3":"Ile","name":"イソロイシン","molar_mass":131,"tests":{"ninhydrin":{"result":"positive","note":"","confidence":"high"},"xanthoproteic":{"result":"negative","note":"","confidence":"high"},"sulfur":{"result":"negative","note":"","confidence":"high"}},"chiral":true},{"abbr3":"Ser","name":"セリン","molar_mass":105,"tests":{"ninhydrin":{"result":"positive","note":"","confidence":"high"},"xanthoproteic":{"result":"negative","note":"","confidence":"high"},"sulfur":{"result":"negative","note":"","confidence":"high"}},"chiral":true},{"abbr3":"Thr","name":"トレオニン","molar_mass":119,"tests":{"ninhydrin":{"result":"positive","note":"","confidence":"high"},"xanthoproteic":{"result":"negative","note":"","confidence":"high"},"sulfur":{"result":"negative","note":"","confidence":"high"}},"chiral":true},{"abbr3":"Cys","name":"システイン","molar_mass":121,"tests":{"ninhydrin":{"result":"positive","note":"","confidence":"high"},"xanthoproteic":{"result":"negative","note":"","confidence":"high"},"sulfur":{"result":"positive","note":"チオール基由来の硫黄が塩基性下で分解し硫化物イオンとなり、酢酸鉛(II)と反応して黒色沈殿を生じる","confidence":"high"}},"chiral":true},{"abbr3":"Met","name":"メチオニン","molar_mass":149,"tests":{"ninhydrin":{"result":"positive","note":"","confidence":"high"},"xanthoproteic":{"result":"negative","note":"","confidence":"high"},"sulfur":{"result":"conditional","note":"システインのチオール基とは事情が異なり、側鎖の硫黄はスルフィド(-S-)であるため、通常の硫黄検出反応の条件では検出されない場合がある","confidence":"low"}},"chiral":true},{"abbr3":"Asn","name":"アスパラギン","molar_mass":132,"tests":{"ninhydrin":{"result":"positive","note":"","confidence":"high"},"xanthoproteic":{"result":"negative","note":"","confidence":"high"},"sulfur":{"result":"negative","note":"","confidence":"high"}},"chiral":true},{"abbr3":"Gln","name":"グルタミン","molar_mass":146,"tests":{"ninhydrin":{"result":"positive","note":"","confidence":"high"},"xanthoproteic":{"result":"negative","note":"","confidence":"high"},"sulfur":{"result":"negative","note":"","confidence":"high"}},"chiral":true},{"abbr3":"Asp","name":"アスパラギン酸","molar_mass":133,"tests":{"ninhydrin":{"result":"positive","note":"","confidence":"high"},"xanthoproteic":{"result":"negative","note":"","confidence":"high"},"sulfur":{"result":"negative","note":"","confidence":"high"}},"chiral":true},{"abbr3":"Glu","name":"グルタミン酸","molar_mass":147,"tests":{"ninhydrin":{"result":"positive","note":"","confidence":"high"},"xanthoproteic":{"result":"negative","note":"","confidence":"high"},"sulfur":{"result":"negative","note":"","confidence":"high"}},"chiral":true},{"abbr3":"Lys","name":"リシン","molar_mass":146,"tests":{"ninhydrin":{"result":"positive","note":"","confidence":"high"},"xanthoproteic":{"result":"negative","note":"","confidence":"high"},"sulfur":{"result":"negative","note":"","confidence":"high"}},"chiral":true},{"abbr3":"Arg","name":"アルギニン","molar_mass":174,"tests":{"ninhydrin":{"result":"positive","note":"","confidence":"high"},"xanthoproteic":{"result":"negative","note":"","confidence":"high"},"sulfur":{"result":"negative","note":"","confidence":"high"}},"chiral":true},{"abbr3":"His","name":"ヒスチジン","molar_mass":155,"tests":{"ninhydrin":{"result":"positive","note":"","confidence":"high"},"xanthoproteic":{"result":"negative","note":"","confidence":"high"},"sulfur":{"result":"negative","note":"","confidence":"high"}},"chiral":true},{"abbr3":"Phe","name":"フェニルアラニン","molar_mass":165,"tests":{"ninhydrin":{"result":"positive","note":"","confidence":"high"},"xanthoproteic":{"result":"conditional","note":"教科書は「ベンゼン環をもつアミノ酸」とキサントプロテイン反応を紹介するが、実際にはっきり呈色するのはチロシンとトリプトファンで、フェニルアラニン単独では呈色が弱く検出されにくい","confidence":"low"},"sulfur":{"result":"negative","note":"","confidence":"high"}},"chiral":true},{"abbr3":"Tyr","name":"チロシン","molar_mass":181,"tests":{"ninhydrin":{"result":"positive","note":"","confidence":"high"},"xanthoproteic":{"result":"positive","note":"","confidence":"high"},"sulfur":{"result":"negative","note":"","confidence":"high"}},"chiral":true},{"abbr3":"Trp","name":"トリプトファン","molar_mass":204,"tests":{"ninhydrin":{"result":"positive","note":"","confidence":"high"},"xanthoproteic":{"result":"positive","note":"","confidence":"high"},"sulfur":{"result":"negative","note":"","confidence":"high"}},"chiral":true},{"abbr3":"Pro","name":"プロリン","molar_mass":115,"tests":{"ninhydrin":{"result":"positive","note":"第二級アミン（イミノ酸）のため呈色が黄色になる（通常の青紫ではない）","confidence":"low"},"xanthoproteic":{"result":"negative","note":"","confidence":"high"},"sulfur":{"result":"negative","note":"","confidence":"high"}},"chiral":true}]};
+
+/* ---------- ここから教材アプリ本体 (peptide-solver.mjs のロジックはそのまま上で読み込み済み) ---------- */
+
+const esc = s => String(s).replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+const reduceMotion = () => window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+
+/* ---------- 起動時チェック ---------- */
+(function checkData(){
+  const msg=[];
+  if(!PROBLEMS.problems || !PROBLEMS.problems.length) msg.push('PROBLEMS.problems が空');
+  PROBLEMS.problems.forEach(p=>{
+    if(!p.answer || !p.conditions) msg.push(p.id+' : answer/conditions が欠落');
+  });
+  AMINO.amino_acids.forEach(a=>{
+    if(!a.abbr3||!a.name||!a.tests) msg.push((a.abbr3||'?')+' : 必須フィールドが欠落');
+  });
+  if(msg.length) console.warn('[DATA] 不整合 '+msg.length+'件\n'+msg.join('\n'));
+  else console.info('[DATA] 固定題 '+PROBLEMS.problems.length+'件・アミノ酸 '+AMINO.amino_acids.length+'件を読み込んだ');
+})();
+
+/* ---------- テーブル構築 (AMINO の abbr3/molar_mass/tests/chiral から) ----------
+   conditional はここで陰性に潰さない。プレースホルダ(false)を入れつつ conditionalLabels に
+   記録するだけにとどめ、実際に「陰性として扱ってよいか」の判定は assertNoConditionalInDomain が
+   問題ごとの定義域を見て行う(scripts/check-peptide-uniqueness.mjs の buildTables と同じ形)。 */
+function buildTables(list){
+  const mass={}, chirality={}, color={}, conditionalLabels={};
+  for(const aa of list){
+    mass[aa.abbr3]=aa.molar_mass;
+    chirality[aa.abbr3]=aa.chiral;
+    for(const [t,v] of Object.entries(aa.tests)){
+      if(!color[t]) color[t]={};
+      if(!conditionalLabels[t]) conditionalLabels[t]=new Set();
+      if(v.result==='conditional'){
+        conditionalLabels[t].add(aa.abbr3);
+        color[t][aa.abbr3] = false; // 未使用時のプレースホルダ。ガードを通過した問題では参照されない
+      }else{
+        color[t][aa.abbr3] = v.result==='positive';
+      }
+    }
+  }
+  return {mass,chirality,color,conditionalLabels};
+}
+
+/* DomainSpec からその定義域に含まれるラベル一覧を取り出す(scripts/check-peptide-uniqueness.mjs と同じ形)。 */
+function domainLabelsOf(domainSpec){
+  if(domainSpec.mode==='counts') return Object.keys(domainSpec.counts);
+  if(domainSpec.mode==='kinds') return domainSpec.kinds;
+  if(domainSpec.mode==='pool') return domainSpec.pool;
+  throw new Error(`未知のdomain mode: ${domainSpec.mode}`);
+}
+
+/* 問題の color 条件が、conditional なラベルを定義域内に持っていないか検査する。
+   持っていれば、そのラベルを「陰性」と決めつけて描画してしまうことになるため、
+   問題ID・ラベル名・テスト名を添えて例外を投げる(固定題・自動生成題の両方でこの経路を通す)。 */
+function assertNoConditionalInDomain(problemLabel, domainSpec, conditions, tables){
+  const labels = domainLabelsOf(domainSpec);
+  for(const condition of conditions){
+    if(condition.type!=='color') continue;
+    const conditionalSet = tables.conditionalLabels[condition.test];
+    if(!conditionalSet) continue;
+    for(const label of labels){
+      if(conditionalSet.has(label)){
+        throw new Error(
+          `${problemLabel}: ラベル "${label}" の "${condition.test}" 反応が conditional。` +
+          `この問題の color 条件の判定材料にできない`
+        );
+      }
+    }
+  }
+}
+const TABLES = buildTables(AMINO.amino_acids);
+const AMINO_BY_ABBR = {};
+AMINO.amino_acids.forEach(a=>{ AMINO_BY_ABBR[a.abbr3]=a; });
+
+/* ---------- 自動生成: ラベル集合 ---------- */
+/* Gly・Tyr の2種は固定(不斉炭素・キサントプロテイン反応が必ず効くようにするため)。
+   Cys は残り4枠の抽選に入れる。conditional(呈色の真偽が確定していない)ラベルは除外する。
+   除外されるのは data/amino-acids.json では Met(sulfur)・Phe(xanthoproteic)。 */
+const FIXED_LABELS = ['Gly','Tyr'];
+const CANDIDATE_LABELS = AMINO.amino_acids
+  .filter(a => a.tests.sulfur.result!=='conditional' && a.tests.xanthoproteic.result!=='conditional' && !FIXED_LABELS.includes(a.abbr3))
+  .map(a => a.abbr3);
+
+function shuffleLabels(rng, arr){
+  const a = arr.slice();
+  for(let i=a.length-1;i>0;i--){
+    const j = Math.floor(rng()*(i+1));
+    [a[i],a[j]] = [a[j],a[i]];
+  }
+  return a;
+}
+
+/* プール内の任意の2残基(同じラベル2個を含む)の合計分子量に一致するペアがあれば縮退とみなす。
+   Ala+Tyr と Ser+Phe の分子量が一致するのと同型の問題を、プール選定の時点で排除する。 */
+function poolHasMassDegeneracy(pool, massOf){
+  const sums = new Map();
+  for(let i=0;i<pool.length;i++){
+    for(let j=i;j<pool.length;j++){
+      const sum = massOf[pool[i]] + massOf[pool[j]];
+      if(sums.has(sum)) return true;
+      sums.set(sum, true);
+    }
+  }
+  return false;
+}
+
+const GEN_POOL_MAX_ATTEMPTS = 40;
+function buildGenPool(rng){
+  for(let attempt=0; attempt<GEN_POOL_MAX_ATTEMPTS; attempt++){
+    const shuffled = shuffleLabels(rng, CANDIDATE_LABELS);
+    const picked = shuffled.slice(0, 6 - FIXED_LABELS.length);
+    const pool = FIXED_LABELS.concat(picked);
+    if(!poolHasMassDegeneracy(pool, TABLES.mass)) return pool;
+  }
+  return null;
+}
+
+/* 酵素条件は1問につき1つに限る。1種類の酵素が複数種の残基の後ろで切ること自体は普通
+   (seq-04はTyr・Alaの2種が対象)なので、cleaveAfterには1〜2ラベルを選ぶ。制限しているのは
+   条件の「個数」であって、1つの規則が指す残基の種類数ではない。条件が複数あると、酵素Aという
+   単一の切断規則の話として PREMISE に書けなくなるため1つに絞っている。 */
+function pickEnzymeRule(rng, pool){
+  const n = rng() < 0.5 ? 1 : 2;
+  const shuffled = shuffleLabels(rng, pool);
+  return shuffled.slice(0, n).sort();
+}
+
+function buildConditionPool(pool, length, hasCys, enzymeCleaveAfter){
+  const conds = [];
+  conds.push({type:'terminus', end:'N'});
+  conds.push({type:'terminus', end:'C'});
+  if(hasCys) conds.push({type:'color', test:'sulfur'});
+  conds.push({type:'color', test:'xanthoproteic'});
+  conds.push({type:'chirality'});
+  conds.push({type:'mass'});
+  conds.push({type:'enzyme', cleaveAfter: enzymeCleaveAfter, reveal:'composition'});
+  for(let start=0; start+2<=length; start++) conds.push({type:'fragment', start, length:2});
+  for(let start=0; start+3<=length; start++) conds.push({type:'fragment', start, length:3});
+  return conds;
+}
+
+const GEN_ATTEMPT_LIMIT = 40;
+function runGeneration(length, seed){
+  const rng = createRng(seed);
+  let lastError = null;
+  for(let attempt=0; attempt<GEN_ATTEMPT_LIMIT; attempt++){
+    const pool = buildGenPool(rng);
+    if(!pool){ lastError = new Error('分子量が縮退しないプールを作れなかった'); continue; }
+    const hasCys = pool.includes('Cys');
+    const enzymeRule = pickEnzymeRule(rng, pool);
+    const conditionPool = buildConditionPool(pool, length, hasCys, enzymeRule);
+    try{
+      const problem = generateProblem({domain:{mode:'pool', pool, length}, conditionPool, tables:TABLES}, rng);
+      return problem;
+    }catch(e){
+      lastError = e;
+    }
+  }
+  throw new Error(`シード${seed}・残基数${length}では一意に決まる問題を${GEN_ATTEMPT_LIMIT}回試しても作れなかった(${lastError?lastError.message:''})。シードを変えて試してほしい。`);
+}
+
+/* ---------- ハッシュ ---------- */
+function parseHash(hash){
+  const h = hash.replace(/^#/, '');
+  const genMatch = /^gen-(\d)-(-?\d+)$/.exec(h);
+  if(genMatch){
+    const length = Number(genMatch[1]);
+    const seed = Number(genMatch[2]);
+    if(length>=3 && length<=6 && Number.isFinite(seed)) return {type:'gen', length, seed};
+  }
+  const fixedMatch = /^(seq-0[1-9])$/.exec(h);
+  if(fixedMatch) return {type:'fixed', id:fixedMatch[1]};
+  return null;
+}
+function buildHash(source){
+  if(source.type==='gen') return `#gen-${source.length}-${source.seed}`;
+  return `#${source.id}`;
+}
+
+/* ---------- 位置ごとの候補ラベル集合(1回の走査で全マス分をまとめて数える) ---------- */
+function computePositionSets(remaining, length){
+  const sets = Array.from({length}, () => new Set());
+  for(const cand of remaining){
+    for(let i=0;i<length;i++) sets[i].add(cand[i]);
+  }
+  return sets;
+}
+
+function compKey(seq){ return seq.slice().sort().join(','); }
+
+/* ---------- 条件の表示テキスト ---------- */
+function conditionShortLabel(c){
+  switch(c.type){
+    case 'terminus': return c.end==='N' ? 'N末端' : 'C末端';
+    case 'fragment': return `断片(${c.start+1}〜${c.start+c.length}番目)`;
+    case 'enzyme': return '酵素A分解';
+    case 'color': return c.test==='sulfur' ? '硫黄の検出反応' : 'キサントプロテイン反応';
+    case 'mass': return '分子量';
+    case 'chirality': return '不斉炭素';
+    default: return c.type;
+  }
+}
+function conditionQuestionText(c){
+  switch(c.type){
+    case 'terminus': return c.end==='N' ? 'N末端のアミノ酸を特定する。' : 'C末端のアミノ酸を特定する。';
+    case 'fragment': return `部分分解によって、N末端から${c.start+1}番目から${c.length}残基ぶんの配列を決定する。`;
+    case 'enzyme': return '酵素Aで分解し、生じた断片の構成を調べる(酵素Aの切断規則はPREMISEに明示してある)。';
+    case 'color': return (c.test==='sulfur' ? '硫黄の検出反応' : 'キサントプロテイン反応') + 'を、ペプチド全体に対して行う。';
+    case 'mass': return 'ペプチド全体の分子量を測定する。';
+    case 'chirality': return '構成する各アミノ酸について、不斉炭素の有無を調べる。';
+    default: return '';
+  }
+}
+function chip(label){ return `<span class="chip mono">${esc(label)}</span>`; }
+function conditionRevealHTML(c, observation){
+  switch(c.type){
+    case 'terminus': {
+      const aa = AMINO_BY_ABBR[observation];
+      return chip(observation) + (aa ? `<span class="note" style="display:inline">${esc(aa.name)}</span>` : '');
+    }
+    case 'fragment':
+      return observation.map(chip).join('<span class="chiparrow">–</span>');
+    case 'enzyme':
+      return observation.map(sig => '<span class="fragchip">'+sig.split(',').map(chip).join('')+'</span>').join(' / ');
+    case 'color':
+      return observation ? '<span class="pos">陽性</span>' : '<span class="neg">陰性</span>';
+    case 'mass':
+      return `<span class="mono">${observation}</span> g/mol`;
+    case 'chirality':
+      return `不斉炭素をもたない残基が <span class="mono">${observation}</span> 個`;
+    default:
+      return '';
+  }
+}
+
+/* ---------- 状態 ---------- */
+const state = {
+  answer: null, domainSpec: null, domain: null,
+  compositionCond: null, conditions: [], observations: [],
+  meta: null,
+  openedIdx: [], openedSetIdx: new Set(),
+  currentRemaining: [],
+};
+
+function loadProblemCommon(cfg){
+  const conditions = cfg.allConditions.filter(c=>c.type!=='composition');
+  assertNoConditionalInDomain(cfg.problemLabel, cfg.domainSpec, conditions, TABLES);
+  state.answer = cfg.answer;
+  state.domainSpec = cfg.domainSpec;
+  state.domain = buildDomain(cfg.domainSpec);
+  state.compositionCond = cfg.allConditions.find(c=>c.type==='composition');
+  state.conditions = conditions;
+  state.observations = state.conditions.map(c=>deriveObservation(cfg.answer, c, TABLES));
+  state.meta = cfg.meta;
+  state.openedIdx = [];
+  state.openedSetIdx = new Set();
+  clearHintResults();
+  renderAll();
+}
+
+function loadFixedProblem(id){
+  const problem = PROBLEMS.problems.find(p=>p.id===id);
+  if(!problem) return;
+  loadProblemCommon({
+    problemLabel: id,
+    answer: problem.answer,
+    domainSpec: domainSpecOf(problem),
+    allConditions: problem.conditions,
+    meta: { source: {type:'fixed', id}, title: problem.title, verified: problem.verified===true },
+  });
+  lastAppliedHash = buildHash({type:'fixed', id});
+  location.hash = lastAppliedHash;
+}
+
+function loadGeneratedProblem(length, seed, problem){
+  loadProblemCommon({
+    problemLabel: `gen-${length}-${seed}`,
+    answer: problem.answer,
+    domainSpec: problem.domain,
+    allConditions: problem.conditions,
+    meta: { source: {type:'gen', length, seed}, title: `自動生成(${length}残基)`, verified:false },
+  });
+}
+
+/* ---------- 履歴(開いた順の累積残候補数) ---------- */
+function computeHistory(){
+  let rem = state.domain;
+  const rows = [{label:'開始', count: rem.length, idx:null}];
+  state.openedIdx.forEach(idx=>{
+    rem = rem.filter(cand => matches(cand, state.conditions[idx], state.observations[idx], TABLES));
+    rows.push({label: conditionShortLabel(state.conditions[idx]), count: rem.length, idx});
+  });
+  return { rows, finalRemaining: rem };
+}
+
+function openCondition(idx){
+  if(state.openedSetIdx.has(idx)) return;
+  state.openedIdx.push(idx);
+  state.openedSetIdx.add(idx);
+  clearHintResults();
+  renderAll();
+  const el = document.getElementById('cond-card-'+idx);
+  if(el) el.focus();
+}
+
+function clearHintResults(){
+  const s = document.getElementById('hint-suggest-result');
+  const f = document.getElementById('hint-finish-result');
+  if(s) s.innerHTML='';
+  if(f) f.innerHTML='';
+}
+
+function flashCondition(idx){
+  const el = document.getElementById('cond-card-'+idx);
+  if(!el) return;
+  el.scrollIntoView({behavior: reduceMotion() ? 'auto' : 'smooth', block:'center'});
+  el.classList.add('flash');
+  setTimeout(()=>el.classList.remove('flash'), 320);
+}
+
+/* ---------- 描画 ---------- */
+function renderAll(){
+  const { rows, finalRemaining } = computeHistory();
+  state.currentRemaining = finalRemaining;
+  const beforeAfterByIdx = {};
+  state.openedIdx.forEach((origIdx,k)=>{
+    beforeAfterByIdx[origIdx] = { before: rows[k].count, after: rows[k+1].count };
+  });
+  renderProblemBar();
+  renderPremise();
+  renderSequenceGrid(finalRemaining);
+  renderNarrowing(rows);
+  renderConditions(beforeAfterByIdx);
+  renderHintArea();
+  renderAnswer(finalRemaining);
+}
+
+function renderProblemBar(){
+  document.querySelectorAll('.fixedbtn').forEach(btn=>{
+    const active = state.meta && state.meta.source.type==='fixed' && state.meta.source.id===btn.dataset.fixedId;
+    btn.classList.toggle('on', !!active);
+    btn.setAttribute('aria-pressed', active?'true':'false');
+  });
+  const genActive = state.meta && state.meta.source.type==='gen';
+  const shareRow = document.getElementById('gen-share-row');
+  const shareRow2 = document.getElementById('gen-share-row2');
+  const statusEl = document.getElementById('gen-status');
+  shareRow.hidden = !genActive;
+  shareRow2.hidden = !genActive;
+  if(genActive){
+    statusEl.textContent = `現在表示中: 自動生成・${state.meta.source.length}残基・シード${state.meta.source.seed}(未検証)`;
+    document.getElementById('gen-share-url').value = location.origin + location.pathname + buildHash(state.meta.source);
+  }
+}
+
+function renderPremise(){
+  const host = document.getElementById('premise-body');
+  const c = state.compositionCond;
+  const obs = deriveObservation(state.answer, c, TABLES);
+  let h = '';
+  const n = state.answer.length;
+  if(c.reveal === 'full'){
+    h += `<p class="note">この${n}残基のペプチドを完全に加水分解すると、次の組成が得られている(順序は不明)。</p>`;
+    h += '<div class="pool-list">' + obs.map(([label,count])=>{
+      const aa = AMINO_BY_ABBR[label];
+      return `<div class="pool-item"><span class="mono">${esc(label)}</span><span class="pool-name">${esc(aa.name)}</span>`+
+        (count>1 ? `<span class="pool-count">×${count}</span>` : '') + '</div>';
+    }).join('') + '</div>';
+  }else{
+    h += `<p class="note">このペプチドは${n}残基で、次の${obs.length}種類のアミノ酸のいずれかから構成される(重複あり・順序は不明)。</p>`;
+    h += '<div class="pool-list">' + obs.map(label=>{
+      const aa = AMINO_BY_ABBR[label];
+      return `<div class="pool-item"><span class="mono">${esc(label)}</span><span class="pool-name">${esc(aa.name)}</span></div>`;
+    }).join('') + '</div>';
+  }
+  const enzymeConds = state.conditions.filter(cc=>cc.type==='enzyme');
+  if(enzymeConds.length){
+    const rule = enzymeConds[0].cleaveAfter;
+    h += `<p class="note enzyme-rule">酵素Aは、${rule.map(l=>esc(l)).join('・')} の右側のペプチド結合を切る。</p>`;
+  }
+  host.innerHTML = h;
+}
+
+function renderSequenceGrid(remaining){
+  const n = state.answer.length;
+  const sets = computePositionSets(remaining, n);
+  let h = '<div class="seqrow" role="list" aria-label="配列(N末端からC末端)">';
+  for(let i=0;i<n;i++){
+    const set = sets[i];
+    if(set.size===1){
+      const label = [...set][0];
+      const aa = AMINO_BY_ABBR[label];
+      h += `<div class="seqcell determined" role="listitem" aria-label="${i+1}番目 ${esc(aa.name)}"><span class="mono">${esc(label)}</span></div>`;
+    }else{
+      h += `<div class="seqcell" role="listitem" aria-label="${i+1}番目 未確定 ${set.size}種類の可能性がある"><span class="qmark">?</span><span class="count mono">${set.size}種</span></div>`;
+    }
+  }
+  h += '</div>';
+  document.getElementById('seqgrid').innerHTML = h;
+  document.getElementById('seq-remaining').innerHTML =
+    `残り <b class="mono">${remaining.length}</b> 通り　条件 <b class="mono">${state.openedIdx.length}</b> / ${state.conditions.length} 開封`;
+}
+
+function valueToPercent(v, max, mode){
+  if(mode==='linear') return max<=0 ? 0 : (v/max)*100;
+  if(v<=1) return 0;
+  return (Math.log10(v)/Math.log10(max))*100;
+}
+function logTicks(max){
+  const ticks=[]; let p=1;
+  while(p<=max){ ticks.push(p); p*=10; }
+  return ticks;
+}
+function linearTicks(max){
+  const mid = Math.round(max/2);
+  return mid>0 && mid<max ? [0, mid, max] : [0, max];
+}
+function renderNarrowing(rows){
+  const max = rows[0].count;
+  const mode = max < 100 ? 'linear' : 'log';
+  const ticks = mode==='linear' ? linearTicks(max) : logTicks(max);
+  let h = '';
+  h += `<p class="note">${mode==='log' ? '横軸は対数目盛(候補数)。' : '横軸は候補数(線形目盛)。'}条件を開いた順に積み上げる。ここで数えているのは配列の候補(並び順を区別する)。</p>`;
+  h += '<div class="narrowaxisrow"><span class="narrowaxis-spacer"></span><span class="narrowaxis-track">' +
+    ticks.map(t=>`<span style="left:${valueToPercent(t,max,mode)}%">${t}</span>`).join('') +
+    '</span><span class="narrowaxis-valuespacer"></span></div>';
+  rows.forEach((row,i)=>{
+    const isFinal = row.count===1;
+    let pct = valueToPercent(row.count, max, mode);
+    if(isFinal && mode==='log') pct = Math.max(pct, 2);
+    const prevCount = i>0 ? rows[i-1].count : null;
+    let deltaText = '';
+    if(prevCount!==null){
+      const ratio = prevCount / row.count;
+      const ratioLabel = ratio===1 ? '変化なし' : ('×1/' + (Number.isInteger(ratio) ? ratio : ratio.toFixed(1)));
+      deltaText = ` <span class="narrowdelta mono">${ratioLabel}</span>`;
+    }
+    h += `<div class="narrowrow${isFinal?' final':''}">`+
+      `<span class="narrowlabel" title="${esc(row.label)}">${i===0?'開始':(i+'. '+esc(row.label))}</span>`+
+      `<span class="narrowtrack"><span class="narrowfill${isFinal?' final':''}" style="width:${pct}%"></span></span>`+
+      `<span class="narrowvalue mono">${row.count}${isFinal?'(確定)':''}</span>${deltaText}`+
+      '</div>';
+  });
+  document.getElementById('narrowbody').innerHTML = h;
+}
+
+function renderConditions(beforeAfterByIdx){
+  let h = '';
+  state.conditions.forEach((c,i)=>{
+    const opened = state.openedSetIdx.has(i);
+    h += `<div class="condcard${opened?' opened':''}" id="cond-card-${i}" tabindex="-1">`;
+    h += `<div class="condtop"><span class="condnum mono">条件${i+1}</span>`+
+      (opened ? '<span class="condstate mono">開封済</span>' : '') + '</div>';
+    h += `<p class="condtext">${esc(conditionQuestionText(c))}</p>`;
+    if(opened){
+      h += `<div class="condresult">${conditionRevealHTML(c, state.observations[i])}</div>`;
+      const ba = beforeAfterByIdx[i];
+      h += `<p class="condcount mono">候補 ${ba.before} → ${ba.after} 通り</p>`;
+    }else{
+      h += `<button class="btn sm" data-open-idx="${i}">開く</button>`;
+    }
+    h += '</div>';
+  });
+  const host = document.getElementById('condlist');
+  host.innerHTML = h;
+  host.querySelectorAll('button[data-open-idx]').forEach(btn=>{
+    btn.addEventListener('click', ()=>openCondition(Number(btn.dataset.openIdx)));
+  });
+}
+
+function renderHintArea(){
+  const card = document.getElementById('hintcard');
+  if(state.currentRemaining.length<=1){ card.hidden = true; return; }
+  card.hidden = false;
+  const unopenedCount = state.conditions.length - state.openedIdx.length;
+  document.getElementById('hint-suggest-btn').disabled = unopenedCount===0;
+  document.getElementById('hint-finish-btn').disabled = unopenedCount===0;
+}
+
+function unopenedConditionsWithIdx(){
+  return state.conditions
+    .map((c,i)=>({c,i}))
+    .filter(x=>!state.openedSetIdx.has(x.i));
+}
+
+document.getElementById('hint-suggest-btn').addEventListener('click', ()=>{
+  const list = unopenedConditionsWithIdx();
+  const result = suggestNextCondition(state.currentRemaining, list.map(x=>x.c), TABLES);
+  const host = document.getElementById('hint-suggest-result');
+  if(!result){ host.innerHTML = '<p class="note">開ける条件がもう残っていない。</p>'; return; }
+  const idx = state.conditions.indexOf(result.condition);
+  host.innerHTML = `<div class="hint ok"><span class="hl">次に開く条件を選ぶ(最悪ケース)</span>`+
+    `条件${idx+1}「${esc(conditionShortLabel(result.condition))}」。どの結果になっても、残りは最大 <b>${result.worst}</b> 通りになる(${result.split}通りに分かれる)。</div>`;
+  flashCondition(idx);
+});
+
+document.getElementById('hint-finish-btn').addEventListener('click', ()=>{
+  const list = unopenedConditionsWithIdx();
+  const result = findFinishingCondition(state.currentRemaining, list.map(x=>x.c), state.answer, TABLES);
+  const host = document.getElementById('hint-finish-result');
+  if(!result){ host.innerHTML = '<p class="note">残っている条件の中に、これ1つで1通りに決まるものはない。</p>'; return; }
+  const idx = state.conditions.indexOf(result.condition);
+  host.innerHTML = `<div class="hint warn"><span class="hl">1つで決まる条件(正解依存の強いヒント)</span>`+
+    `条件${idx+1}「${esc(conditionShortLabel(result.condition))}」を開けば、今の観測だけで1通りに決まる。</div>`;
+  flashCondition(idx);
+});
+
+document.getElementById('cond-reset-btn').addEventListener('click', ()=>{
+  state.openedIdx = [];
+  state.openedSetIdx = new Set();
+  clearHintResults();
+  renderAll();
+});
+
+function renderAnswer(remaining){
+  const card = document.getElementById('answercard');
+  if(remaining.length!==1){ card.hidden = true; return; }
+  card.hidden = false;
+  const seq = remaining[0];
+  let h = '';
+  h += '<div class="answerseq">' + seq.map(label=>{
+    const aa = AMINO_BY_ABBR[label];
+    return `<span class="answerchip"><span class="mono">${esc(label)}</span><span class="answername">${esc(aa.name)}</span></span>`;
+  }).join('<span class="answerarrow">-</span>') + '</div>';
+
+  const usedLabels = state.openedIdx.map((idx,k)=> (k+1)+'. '+conditionShortLabel(state.conditions[idx])).join('・');
+  h += `<p class="note">開いた条件(${state.openedIdx.length}件): ${esc(usedLabels || 'なし')}</p>`;
+
+  if(state.compositionCond.reveal === 'pool'){
+    let rem = state.domain;
+    const compRows = [ new Set(rem.map(compKey)).size ];
+    state.openedIdx.forEach(idx=>{
+      rem = rem.filter(cand=>matches(cand, state.conditions[idx], state.observations[idx], TABLES));
+      compRows.push(new Set(rem.map(compKey)).size);
+    });
+    h += '<details class="answernote"><summary>数え方についての注記</summary>';
+    h += '<p class="note" style="margin-top:6px">画面のカウンタ(NARROWING・SEQUENCEの「残り」)が数えているのは「配列の候補」(並び順を区別する)。参考として、「組成の候補」(並び順を無視した、アミノ酸の種類と個数の組み合わせの数)の推移を別に示す。両者は別の数列であり、混同しないこと。</p>';
+    h += '<p class="compseq mono">' + compRows.join(' → ') + '</p>';
+    h += '</details>';
+  }
+  document.getElementById('answerbody').innerHTML = h;
+}
+
+/* ---------- PROBLEM欄の配線 ---------- */
+function buildFixedButtons(){
+  const host = document.getElementById('fixedbtns');
+  let h = '';
+  PROBLEMS.problems.forEach(p=>{
+    h += `<button class="btn fixedbtn" data-fixed-id="${p.id}" aria-pressed="false">${esc(p.title)}`+
+      (p.verified ? '<span class="badge verified">検証済</span>' : '') + '</button>';
+  });
+  host.innerHTML = h;
+  host.querySelectorAll('.fixedbtn').forEach(btn=>{
+    btn.addEventListener('click', ()=>loadFixedProblem(btn.dataset.fixedId));
+  });
+}
+
+let pendingGenLength = 4;
+document.querySelectorAll('.genlenbtn').forEach(btn=>{
+  btn.addEventListener('click', ()=>{
+    pendingGenLength = Number(btn.dataset.len);
+    document.querySelectorAll('.genlenbtn').forEach(b=>{
+      const on = b===btn;
+      b.classList.toggle('on', on);
+      b.setAttribute('aria-pressed', on?'true':'false');
+    });
+  });
+});
+
+function setGenBusy(busy){
+  document.getElementById('gen-run-btn').disabled = busy;
+  document.getElementById('gen-status-busy').textContent = busy ? '生成中…' : '';
+}
+function showGenError(msg){
+  document.getElementById('gen-error').textContent = msg;
+}
+
+function generateFromUI(length, seedRaw){
+  const seed = Number(seedRaw);
+  if(!Number.isFinite(seed)){ showGenError('シードは数値で入力してほしい'); return; }
+  showGenError('');
+  setGenBusy(true);
+  /* rAF はタブが非表示扱いだと発火が保証されない(バックグラウンドタブ等)。
+     「生成中…」を確実に描画してから重い同期処理に入るには setTimeout(0) の方が安全。 */
+  setTimeout(()=>{
+    try{
+      const problem = runGeneration(length, seed);
+      setGenBusy(false);
+      loadGeneratedProblem(length, seed, problem);
+      lastAppliedHash = buildHash({type:'gen', length, seed});
+      location.hash = lastAppliedHash;
+    }catch(e){
+      setGenBusy(false);
+      showGenError(e.message);
+    }
+  }, 0);
+}
+
+document.getElementById('gen-run-btn').addEventListener('click', ()=>{
+  const seedRaw = document.getElementById('gen-seed-input').value.trim();
+  if(seedRaw===''){ showGenError('シードを入力してほしい'); return; }
+  generateFromUI(pendingGenLength, seedRaw);
+});
+document.getElementById('gen-seed-input').addEventListener('keydown', (e)=>{
+  if(e.key==='Enter'){
+    e.preventDefault();
+    document.getElementById('gen-run-btn').click();
+  }
+});
+
+document.getElementById('gen-copy-btn').addEventListener('click', async ()=>{
+  const input = document.getElementById('gen-share-url');
+  input.select();
+  const feedback = document.getElementById('gen-copy-feedback');
+  try{
+    await navigator.clipboard.writeText(input.value);
+    feedback.textContent = 'コピーした';
+  }catch(e){
+    feedback.textContent = 'コピーできなかった。手動で選択してコピーしてほしい';
+  }
+  setTimeout(()=>{ feedback.textContent=''; }, 3000);
+});
+
+/* ---------- 初期化 ---------- */
+buildFixedButtons();
+
+/* 自分自身が location.hash を書き換えた直後の hashchange は無視する(二重ロード防止)。
+   タブを開いたままハッシュだけ別の値に変えて共有URLを開き直すケース(hashchangeイベント)にも
+   同じ経路で対応するため、初回ロードとイベント処理を1本の関数にまとめる。 */
+let lastAppliedHash = null;
+function loadFromHash(hash){
+  if(hash === lastAppliedHash) return;
+  lastAppliedHash = hash;
+  const parsed = parseHash(hash);
+  if(parsed && parsed.type==='fixed' && PROBLEMS.problems.some(p=>p.id===parsed.id)){
+    loadFixedProblem(parsed.id);
+    return;
+  }
+  if(parsed && parsed.type==='gen'){
+    pendingGenLength = parsed.length;
+    document.getElementById('gen-seed-input').value = String(parsed.seed);
+    document.querySelectorAll('.genlenbtn').forEach(b=>{
+      const on = Number(b.dataset.len)===parsed.length;
+      b.classList.toggle('on', on);
+      b.setAttribute('aria-pressed', on?'true':'false');
+    });
+    setGenBusy(true);
+    setTimeout(()=>{
+      try{
+        const problem = runGeneration(parsed.length, parsed.seed);
+        setGenBusy(false);
+        loadGeneratedProblem(parsed.length, parsed.seed, problem);
+        lastAppliedHash = buildHash({type:'gen', length:parsed.length, seed:parsed.seed});
+      }catch(e){
+        setGenBusy(false);
+        showGenError(e.message);
+        loadFixedProblem('seq-01');
+      }
+    }, 0);
+    return;
+  }
+  loadFixedProblem('seq-01');
+}
+window.addEventListener('hashchange', ()=> loadFromHash(location.hash));
+loadFromHash(location.hash);
+</script>
+</body>
+</html>

@@ -1,0 +1,1210 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>電気化学 — 電極電位・電池・電気分解・ファラデーの法則</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500;600&family=IBM+Plex+Sans+JP:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+:root{
+  --ink:#16232B;
+  --muted:#5E6E76;
+  --paper:#EDF1EF;
+  --surface:#FFFFFF;
+  --rule:#D6DDDA;
+  --rule-soft:#E8EDEB;
+  --ox:#A82A6A;      /* 酸化 = 系列4 */
+  --oxd:#831F52;
+  --rd:#2457A6;      /* 還元 = 系列2 */
+  --rdd:#1B4380;
+  --sans:"IBM Plex Sans JP","Hiragino Sans","Yu Gothic UI",system-ui,sans-serif;
+  --mono:"IBM Plex Mono",ui-monospace,SFMono-Regular,Menlo,monospace;
+}
+*{box-sizing:border-box}
+html,body{margin:0;padding:0}
+body{
+  background:var(--paper);color:var(--ink);
+  font-family:var(--sans);font-size:14px;line-height:1.75;
+  -webkit-text-size-adjust:100%;
+}
+.wrap{max-width:820px;margin:0 auto;padding:22px 14px 64px}
+.card{background:var(--surface);border:1px solid var(--rule);border-radius:3px;padding:16px;margin-bottom:14px}
+h1{font-size:22px;font-weight:600;letter-spacing:.01em;margin:0 0 8px;line-height:1.5}
+h2{font-size:15px;font-weight:600;margin:0 0 8px;letter-spacing:.01em}
+h3{font-size:12.5px;font-weight:600;margin:14px 0 6px;color:var(--muted);letter-spacing:.02em}
+p{margin:0 0 10px}
+p:last-child{margin-bottom:0}
+.eyebrow{
+  display:flex;align-items:center;gap:10px;
+  font-family:var(--mono);font-size:11.5px;letter-spacing:.14em;color:var(--muted);
+  margin:0 0 10px;
+}
+.eyebrow::after{content:"";flex:1;height:1px;background:var(--rule)}
+.mono{font-family:var(--mono);font-variant-numeric:tabular-nums}
+.note{font-size:12px;color:var(--muted);line-height:1.7;margin:8px 0 0}
+.note b{font-weight:600;color:var(--ink)}
+.hint{font-size:11.5px;color:var(--muted);margin:0 0 10px}
+.btns{display:flex;flex-wrap:wrap;gap:6px;margin:0 0 10px}
+.btns.tight{margin-bottom:6px}
+button.b{
+  font:inherit;font-size:12.5px;line-height:1.4;
+  padding:6px 10px;border:1px solid var(--rule);border-radius:2px;
+  background:var(--surface);color:var(--ink);cursor:pointer;
+}
+button.b .mono{font-size:11.5px}
+button.b.on{background:var(--ink);color:#fff;border-color:var(--ink)}
+button.b:disabled{color:#A6B1B5;border-color:var(--rule-soft);cursor:not-allowed}
+button.b:focus-visible,input:focus-visible,svg:focus-visible{outline:2px solid var(--ink);outline-offset:1px}
+.lab{font-family:var(--mono);font-size:11px;letter-spacing:.1em;color:var(--muted);display:block;margin:0 0 4px}
+.row{display:flex;flex-wrap:wrap;gap:14px;margin:0 0 4px}
+.col{flex:1 1 220px;min-width:0}
+.eq{font-family:var(--mono);font-size:13px;line-height:1.9;overflow-wrap:anywhere}
+.eq.big{font-size:14px}
+.ox{color:var(--oxd)}
+.rd{color:var(--rdd)}
+.tag{
+  font-family:var(--mono);font-size:10.5px;letter-spacing:.08em;
+  padding:1px 5px;border:1px solid currentColor;border-radius:2px;white-space:nowrap;
+}
+.tag.fill{background:var(--ink);color:#fff;border-color:var(--ink)}
+.tag.oxt{color:var(--oxd)}
+.tag.rdt{color:var(--rdd)}
+table{border-collapse:collapse;width:100%;font-size:12.5px;margin:4px 0 0}
+th,td{border-bottom:1px solid var(--rule-soft);padding:6px 8px;text-align:left;vertical-align:top}
+th{font-weight:600;color:var(--muted);font-size:11.5px;letter-spacing:.04em;white-space:nowrap}
+td.n,th.n{text-align:right;font-family:var(--mono);font-variant-numeric:tabular-nums;white-space:nowrap}
+.cand{list-style:none;margin:0;padding:0}
+.cand li{
+  display:flex;gap:8px;align-items:baseline;justify-content:space-between;
+  border-bottom:1px solid var(--rule-soft);padding:6px 0 6px 8px;
+  border-left:2px solid transparent;
+}
+.cand li.win{border-left-color:var(--ink);background:#FAFCFB}
+.cand li.dim{color:var(--muted)}
+.cand .e{font-family:var(--mono);font-variant-numeric:tabular-nums;font-size:12px;white-space:nowrap}
+.cand .rx{font-family:var(--mono);font-size:12px;overflow-wrap:anywhere}
+.svgbox{width:100%;margin:2px 0 0}
+svg{display:block;width:100%;height:auto;touch-action:pan-y}
+.flag{
+  border:1px solid var(--rule);border-left:2px solid var(--ox);
+  padding:8px 10px;margin:10px 0 0;font-size:12px;line-height:1.7;color:var(--ink);
+}
+.flag .h{font-family:var(--mono);font-size:10.5px;letter-spacing:.1em;color:var(--oxd);display:block}
+.inline-ctl{display:flex;align-items:center;gap:8px;flex-wrap:wrap;margin:0 0 10px}
+input[type=range]{
+  -webkit-appearance:none;appearance:none;height:2px;background:var(--rule);
+  flex:1 1 160px;min-width:120px;outline:none;
+}
+input[type=range]::-webkit-slider-thumb{
+  -webkit-appearance:none;width:16px;height:16px;border-radius:50%;
+  background:var(--ink);cursor:pointer;border:none;
+}
+input[type=range]::-moz-range-thumb{
+  width:16px;height:16px;border-radius:50%;background:var(--ink);cursor:pointer;border:none;
+}
+input[type=number]{
+  font-family:var(--mono);font-variant-numeric:tabular-nums;font-size:13px;
+  width:88px;padding:4px 6px;border:1px solid var(--rule);border-radius:2px;
+  background:var(--surface);color:var(--ink);text-align:right;
+}
+.kv{display:flex;justify-content:space-between;gap:10px;border-bottom:1px solid var(--rule-soft);padding:5px 0}
+.kv:last-child{border-bottom:none}
+.kv .k{color:var(--muted);font-size:12.5px}
+.kv .v{font-family:var(--mono);font-variant-numeric:tabular-nums;font-size:13px;text-align:right}
+.foot{font-size:11.5px;color:var(--muted);line-height:1.8}
+@media (max-width:430px){
+  .wrap{padding:16px 10px 48px}
+  .card{padding:12px}
+  h1{font-size:19px}
+  body{font-size:13.5px}
+  .eq{font-size:12px}
+  button.b{padding:6px 8px;font-size:12px}
+}
+</style>
+</head>
+<body>
+<div class="wrap">
+
+<div class="card">
+  <p class="eyebrow">ELECTROCHEMISTRY</p>
+  <h1>電位でつながる電池と電気分解</h1>
+  <p>半反応の起こりやすさは、単独では測れない。白金黒に水素を吹きつけた電極を 0 V と決め、そこからの電位差として表したのが標準電極電位 E° です。表の値はすべて還元の向き（酸化型 + ne⁻ → 還元型）に揃えてあり、大きいほど電子を受け取りたがる。</p>
+  <p>二つを組めば、E° の大きいほうが還元されて正極に、小さいほうが逆向きに進んで酸化され負極になります。</p>
+  <p class="eq big">E°<sub>cell</sub> = E°(正極) − E°(負極)</p>
+  <p>引き算になるのは、負極側を表と逆向きに使うぶん符号が反転するからです。半反応を何倍しても電位は変わりません。電位は電荷1個あたりのエネルギーであって、量ではない。量に比例するのは取り出せるエネルギー <span class="mono">nFE</span> のほうです。</p>
+  <p class="note">数値は25 ℃、溶液は 1 mol/L、気体は 1.0×10⁵ Pa を基準にした代表値です。教科書によって小数第2位が異なることがあります。</p>
+</div>
+
+<!-- 1. 電位の数直線 -->
+<div class="card">
+  <p class="eyebrow">01 — POTENTIAL LADDER</p>
+  <h2>電位の物差しから起電力を出す</h2>
+  <p class="hint">縦軸を指でなぞると値が出ます。二つ選ぶと、下に正極・負極・起電力・全反応式が並びます。</p>
+  <div class="btns tight" id="scaleBtns"></div>
+  <div class="btns" id="presetBtns"></div>
+  <div class="svgbox" id="scaleBox"></div>
+  <div id="pairOut"></div>
+</div>
+
+<!-- 2. 実用電池 -->
+<div class="card">
+  <p class="eyebrow">02 — CELLS</p>
+  <h2>電池のなかで電子がどう動くか</h2>
+  <p class="hint">電池を選び、放電と充電（電気分解）を切り替えると、同じ電極で反応が逆転する様子が見られます。</p>
+  <div class="btns tight" id="cellBtns"></div>
+  <div class="btns" id="modeBtns"></div>
+  <div class="svgbox" id="cellBox"></div>
+  <div id="cellOut"></div>
+</div>
+
+<!-- 3. 電池と電気分解の対応 -->
+<div class="card">
+  <p class="eyebrow">03 — CONTRAST</p>
+  <h2>入れ替わるもの、変わらないもの</h2>
+  <p>酸化が起こる電極をアノード、還元が起こる電極をカソードと呼びます。この対応は電池でも電気分解でも動きません。名前と電子の向きだけが変わる。</p>
+  <table>
+    <thead><tr><th></th><th>電池（放電）</th><th>電気分解</th></tr></thead>
+    <tbody>
+      <tr><td>酸化が起こる電極</td><td class="ox">負極（アノード）</td><td class="ox">陽極（アノード）</td></tr>
+      <tr><td>還元が起こる電極</td><td class="rd">正極（カソード）</td><td class="rd">陰極（カソード）</td></tr>
+      <tr><td>電子が出ていく側</td><td>負極</td><td>陽極</td></tr>
+      <tr><td>電子が入ってくる側</td><td>正極</td><td>陰極</td></tr>
+      <tr><td>外部電源との接続</td><td>つながない</td><td>陽極を＋極、陰極を−極へ</td></tr>
+      <tr><td>電位が高い電極</td><td>正極</td><td>陽極</td></tr>
+      <tr><td>反応の向き</td><td>E°<sub>cell</sub> &gt; 0 で自発的に進む</td><td>E°<sub>cell</sub> &lt; 0 を電源で押し戻す</td></tr>
+      <tr><td>エネルギー</td><td>取り出す</td><td>与える</td></tr>
+    </tbody>
+  </table>
+  <p class="note">名前の付け方だけ注意。電池の「正極」は電位が高い電極、電気分解の「陽極」は電源の＋極につないだ電極で、どちらも記号は＋ですが定義の出どころが違います。混乱したら、酸化はアノード、還元はカソード、と反応のほうから決めるほうが速い。</p>
+</div>
+
+<!-- 4. 電気分解 -->
+<div class="card">
+  <p class="eyebrow">04 — ELECTROLYSIS</p>
+  <h2>電気分解で何が起こるかを電位順に決める</h2>
+  <p class="hint">溶液と電極を選ぶと、各電極に集まった候補が電位順に並びます。陰極は値が最も大きいもの、陽極は最も小さいものが選ばれます。</p>
+  <span class="lab">水溶液</span>
+  <div class="btns" id="solBtns"></div>
+  <div class="row">
+    <div class="col"><span class="lab">陽極の材料</span><div class="btns" id="anMatBtns"></div></div>
+    <div class="col"><span class="lab">陰極の材料</span><div class="btns" id="caMatBtns"></div></div>
+  </div>
+  <div class="svgbox" id="elBox"></div>
+  <div id="elOut"></div>
+</div>
+
+<!-- 5. ファラデー -->
+<div class="card">
+  <p class="eyebrow">05 — FARADAY</p>
+  <h2>電流と時間から生成量へ</h2>
+  <p>電子は1個ずつ数えられます。電子 1 mol が運ぶ電気量は <span class="mono">F = 9.65×10⁴ C/mol</span>。ここを経由すれば、電流計の読みと生成物の質量が一本の線でつながります。</p>
+  <div class="btns" id="prodBtns"></div>
+  <div class="inline-ctl">
+    <span class="lab" style="margin:0;min-width:52px">電流 I</span>
+    <input type="range" id="curR" min="0.1" max="20" step="0.1" value="1.0">
+    <input type="number" id="curN" min="0.1" max="200" step="0.1" value="1.0"><span class="mono" style="font-size:12px">A</span>
+  </div>
+  <div class="inline-ctl">
+    <span class="lab" style="margin:0;min-width:52px">時間 t</span>
+    <input type="range" id="timR" min="1" max="600" step="1" value="60">
+    <input type="number" id="timN" min="1" max="100000" step="1" value="60">
+    <div class="btns" style="margin:0" id="unitBtns"></div>
+  </div>
+  <div class="svgbox" id="farBox"></div>
+  <div id="farOut"></div>
+</div>
+
+<div class="card">
+  <p class="eyebrow">NOTES</p>
+  <p class="foot">
+  この教材は標準状態の E° だけで反応を予測します。実際の値は濃度と温度でずれ（ネルンストの式）、気体が絡む反応では電極表面の事情でさらに余分な電圧が必要になります（過電圧）。高校の範囲では E° の序列で足りますが、序列どおりにならない有名な例は各所に注記しました。<br>
+  気体の体積は 0 ℃、1.013×10⁵ Pa で 22.4 L/mol として計算しています。<br>
+  Al や Na のように水より還元されにくい金属は、水溶液の電気分解では取り出せません。融解塩電解が使われるのはこのためです。
+  </p>
+</div>
+
+</div>
+
+<script>
+(function(){
+"use strict";
+
+/* ============================================================
+   0. 共通
+   ============================================================ */
+var F = 96500;
+var REDUCE_MOTION = window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+function $(id){ return document.getElementById(id); }
+function isNarrow(){ return window.innerWidth <= 430; }
+function boxW(el, min, max){
+  var w = el.clientWidth || 320;
+  return Math.max(min, Math.min(max, Math.round(w)));
+}
+function esc(s){ return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;'); }
+var SUP = {'-':'⁻','0':'⁰','1':'¹','2':'²','3':'³','4':'⁴','5':'⁵','6':'⁶','7':'⁷','8':'⁸','9':'⁹'};
+function sup(n){ return String(n).split('').map(function(c){ return SUP[c]||c; }).join(''); }
+function sig(v, d){
+  if(!isFinite(v)) return '—';
+  if(v === 0) return '0';
+  var a = Math.abs(v);
+  if(a >= 1e5 || a < 1e-3){
+    var e = Math.floor(Math.log10(a));
+    var m = v / Math.pow(10, e);
+    return m.toFixed(2) + '×10' + sup(e);
+  }
+  var r = Number(v.toPrecision(d || 3));
+  return String(r);
+}
+function fixed(v, d){ return (v<0?'−':'') + Math.abs(v).toFixed(d); }
+
+/* 系列カラー */
+var G = [
+  {f:'#B87A16', t:'#8A5A0C', n:'ハロゲン・オキソ酸'},
+  {f:'#158A6D', t:'#0D6A53', n:'酸素と水'},
+  {f:'#2457A6', t:'#1B4380', n:'金属イオン（貴）'},
+  {f:'#6E3AA7', t:'#572D85', n:'水素（基準）'},
+  {f:'#A82A6A', t:'#831F52', n:'金属イオン（卑）'},
+  {f:'#3B6E1E', t:'#2A5215', n:'アルカリ金属・Al'}
+];
+var OX = '#A82A6A', OXD = '#831F52', RD = '#2457A6', RDD = '#1B4380';
+var INK = '#16232B', MUTED = '#5E6E76', RULE = '#D6DDDA', RULESOFT = '#E8EDEB', PAPER = '#EDF1EF';
+
+/* ============================================================
+   1. 半反応データ（すべて還元の向きで統一）
+       L + n e⁻ → R
+   ============================================================ */
+var HALF = [
+{id:'F2',   c:'F₂ / F⁻',            L:[[1,'F₂']],                        R:[[2,'F⁻']],                  n:2, E: 2.87, g:0, m:'any'},
+{id:'PbO2', c:'PbO₂ / PbSO₄',       L:[[1,'PbO₂'],[4,'H⁺'],[1,'SO₄²⁻']], R:[[1,'PbSO₄'],[2,'H₂O']],     n:2, E: 1.69, g:0, m:'acid', key:1},
+{id:'MnO4', c:'MnO₄⁻ / Mn²⁺',       L:[[1,'MnO₄⁻'],[8,'H⁺']],            R:[[1,'Mn²⁺'],[4,'H₂O']],      n:5, E: 1.51, g:0, m:'acid', key:1},
+{id:'Cl2',  c:'Cl₂ / Cl⁻',          L:[[1,'Cl₂']],                       R:[[2,'Cl⁻']],                 n:2, E: 1.36, g:0, m:'any', key:1},
+{id:'Cr2O7',c:'Cr₂O₇²⁻ / Cr³⁺',     L:[[1,'Cr₂O₇²⁻'],[14,'H⁺']],         R:[[2,'Cr³⁺'],[7,'H₂O']],      n:6, E: 1.33, g:0, m:'acid'},
+{id:'O2a',  c:'O₂ / H₂O（酸性）',    L:[[1,'O₂'],[4,'H⁺']],               R:[[2,'H₂O']],                 n:4, E: 1.23, g:1, m:'acid', key:1},
+{id:'Br2',  c:'Br₂ / Br⁻',          L:[[1,'Br₂']],                       R:[[2,'Br⁻']],                 n:2, E: 1.07, g:0, m:'any'},
+{id:'Ag',   c:'Ag⁺ / Ag',           L:[[1,'Ag⁺']],                       R:[[1,'Ag']],                  n:1, E: 0.80, g:2, m:'any', key:1},
+{id:'Fe3',  c:'Fe³⁺ / Fe²⁺',        L:[[1,'Fe³⁺']],                      R:[[1,'Fe²⁺']],                n:1, E: 0.77, g:2, m:'any'},
+{id:'I2',   c:'I₂ / I⁻',            L:[[1,'I₂']],                        R:[[2,'I⁻']],                  n:2, E: 0.54, g:0, m:'any', key:1},
+{id:'O2b',  c:'O₂ / OH⁻（塩基性）',  L:[[1,'O₂'],[2,'H₂O']],              R:[[4,'OH⁻']],                 n:4, E: 0.40, g:1, m:'base', key:1},
+{id:'Cu',   c:'Cu²⁺ / Cu',          L:[[1,'Cu²⁺']],                      R:[[1,'Cu']],                  n:2, E: 0.34, g:2, m:'any', key:1},
+{id:'H',    c:'H⁺ / H₂（基準 0 V）', L:[[2,'H⁺']],                        R:[[1,'H₂']],                  n:2, E: 0.00, g:3, m:'acid', key:1},
+{id:'Pb',   c:'Pb²⁺ / Pb',          L:[[1,'Pb²⁺']],                      R:[[1,'Pb']],                  n:2, E:-0.13, g:4, m:'any'},
+{id:'Sn',   c:'Sn²⁺ / Sn',          L:[[1,'Sn²⁺']],                      R:[[1,'Sn']],                  n:2, E:-0.14, g:4, m:'any'},
+{id:'Ni',   c:'Ni²⁺ / Ni',          L:[[1,'Ni²⁺']],                      R:[[1,'Ni']],                  n:2, E:-0.26, g:4, m:'any'},
+{id:'PbSO4',c:'PbSO₄ / Pb',         L:[[1,'PbSO₄']],                     R:[[1,'Pb'],[1,'SO₄²⁻']],      n:2, E:-0.36, g:4, m:'acid', key:1},
+{id:'Fe2',  c:'Fe²⁺ / Fe',          L:[[1,'Fe²⁺']],                      R:[[1,'Fe']],                  n:2, E:-0.44, g:4, m:'any', key:1},
+{id:'Zn',   c:'Zn²⁺ / Zn',          L:[[1,'Zn²⁺']],                      R:[[1,'Zn']],                  n:2, E:-0.76, g:4, m:'any', key:1},
+{id:'H2Ob', c:'H₂O / H₂（中性・塩基性）',L:[[2,'H₂O']],                    R:[[1,'H₂'],[2,'OH⁻']],        n:2, E:-0.83, g:1, m:'base', key:1},
+{id:'Al',   c:'Al³⁺ / Al',          L:[[1,'Al³⁺']],                      R:[[1,'Al']],                  n:3, E:-1.66, g:5, m:'any', key:1},
+{id:'Mg',   c:'Mg²⁺ / Mg',          L:[[1,'Mg²⁺']],                      R:[[1,'Mg']],                  n:2, E:-2.37, g:5, m:'any'},
+{id:'Na',   c:'Na⁺ / Na',           L:[[1,'Na⁺']],                       R:[[1,'Na']],                  n:1, E:-2.71, g:5, m:'any', key:1},
+{id:'Ca',   c:'Ca²⁺ / Ca',          L:[[1,'Ca²⁺']],                      R:[[1,'Ca']],                  n:2, E:-2.87, g:5, m:'any'},
+{id:'K',    c:'K⁺ / K',             L:[[1,'K⁺']],                        R:[[1,'K']],                   n:1, E:-2.93, g:5, m:'any'},
+{id:'Li',   c:'Li⁺ / Li',           L:[[1,'Li⁺']],                       R:[[1,'Li']],                  n:1, E:-3.04, g:5, m:'any'}
+];
+var HMAP = {};
+HALF.forEach(function(h){ HMAP[h.id] = h; });
+function H(id){ return HMAP[id]; }
+
+/* --- 反応式の組み立て ------------------------------------- */
+function term(c, s){ return (c === 1 ? '' : c) + s; }
+function side(list){
+  return list.map(function(p){ return term(p[0], p[1]); }).join(' + ');
+}
+function eqRed(h, k){
+  k = k || 1;
+  var L = h.L.map(function(p){ return [p[0]*k, p[1]]; });
+  var R = h.R.map(function(p){ return [p[0]*k, p[1]]; });
+  var ne = h.n * k;
+  return side(L) + ' + ' + (ne === 1 ? '' : ne) + 'e⁻ → ' + side(R);
+}
+function eqOx(h, k){
+  k = k || 1;
+  var L = h.L.map(function(p){ return [p[0]*k, p[1]]; });
+  var R = h.R.map(function(p){ return [p[0]*k, p[1]]; });
+  var ne = h.n * k;
+  return side(R) + ' → ' + side(L) + ' + ' + (ne === 1 ? '' : ne) + 'e⁻';
+}
+function gcd(a, b){ return b ? gcd(b, a % b) : a; }
+function lcm(a, b){ return a * b / gcd(a, b); }
+
+/* 正極(cat) と 負極(an) から全反応をつくる。負極は R→L の向きで使う */
+function overall(cat, an){
+  var N = lcm(cat.n, an.n), kc = N / cat.n, ka = N / an.n;
+  var left = [], right = [];
+  an.R.forEach(function(p){ left.push([p[0]*ka, p[1]]); });
+  cat.L.forEach(function(p){ left.push([p[0]*kc, p[1]]); });
+  an.L.forEach(function(p){ right.push([p[0]*ka, p[1]]); });
+  cat.R.forEach(function(p){ right.push([p[0]*kc, p[1]]); });
+  function merge(a){
+    var o = [], idx = {};
+    a.forEach(function(p){
+      if(idx[p[1]] === undefined){ idx[p[1]] = o.length; o.push([p[0], p[1]]); }
+      else { o[idx[p[1]]][0] += p[0]; }
+    });
+    return o;
+  }
+  left = merge(left); right = merge(right);
+  function cancelPair(){
+    left.forEach(function(p){
+      right.forEach(function(q){
+        if(p[1] === q[1]){ var k = Math.min(p[0], q[0]); p[0] -= k; q[0] -= k; }
+      });
+    });
+  }
+  /* 同じ側に出た H⁺ と OH⁻ は水になる */
+  function neutralize(a){
+    var hp = null, oh = null, w = null;
+    a.forEach(function(p){
+      if(p[1] === 'H⁺') hp = p;
+      if(p[1] === 'OH⁻') oh = p;
+      if(p[1] === 'H₂O') w = p;
+    });
+    if(hp && oh){
+      var k = Math.min(hp[0], oh[0]);
+      if(k > 0){
+        hp[0] -= k; oh[0] -= k;
+        if(w) w[0] += k; else a.push([k, 'H₂O']);
+      }
+    }
+  }
+  cancelPair();
+  neutralize(left); neutralize(right);
+  cancelPair();
+  left = left.filter(function(p){ return p[0] > 0; });
+  right = right.filter(function(p){ return p[0] > 0; });
+  if(!left.length || !right.length) return {empty:true, n:N};
+  var g = N;
+  left.concat(right).forEach(function(p){ g = gcd(g, p[0]); });
+  if(g > 1){
+    left = left.map(function(p){ return [p[0]/g, p[1]]; });
+    right = right.map(function(p){ return [p[0]/g, p[1]]; });
+  }
+  return {empty:false, n:N/g, text:side(left) + ' → ' + side(right)};
+}
+
+/* ============================================================
+   2. 電位の数直線
+   ============================================================ */
+var EMAX = 3.10, EMIN = -3.10;
+var sc = { keyOnly:true, sel:[], hover:null };
+
+function scaleItems(){
+  return HALF.filter(function(h){ return !sc.keyOnly || h.key; })
+             .slice().sort(function(a,b){ return b.E - a.E; });
+}
+
+function renderScaleBtns(){
+  $('scaleBtns').innerHTML =
+    '<button class="b' + (sc.keyOnly?' on':'') + '" data-k="1">頻出のみ</button>' +
+    '<button class="b' + (!sc.keyOnly?' on':'') + '" data-k="0">すべて表示</button>' +
+    '<button class="b" data-clear="1">選択を解除</button>';
+  Array.prototype.forEach.call($('scaleBtns').querySelectorAll('button'), function(b){
+    b.addEventListener('click', function(){
+      if(b.dataset.clear){ sc.sel = []; }
+      else { sc.keyOnly = (b.dataset.k === '1'); }
+      renderScaleBtns(); renderScale(); renderPair();
+    });
+  });
+}
+
+var PRESETS = [
+  {n:'ダニエル電池', a:'Zn', c:'Cu'},
+  {n:'亜鉛と希塩酸', a:'Zn', c:'H'},
+  {n:'銅と希塩酸', a:'Cu', c:'H'},
+  {n:'過マンガン酸と鉄(Ⅱ)', a:'Fe3', c:'MnO4'},
+  {n:'ヨウ化物と塩素', a:'I2', c:'Cl2'}
+];
+function renderPresetBtns(){
+  $('presetBtns').innerHTML = '<span class="lab" style="margin:6px 4px 0 0">例</span>' +
+    PRESETS.map(function(p,i){ return '<button class="b" data-i="'+i+'">'+esc(p.n)+'</button>'; }).join('');
+  Array.prototype.forEach.call($('presetBtns').querySelectorAll('button'), function(b){
+    b.addEventListener('click', function(){
+      var p = PRESETS[+b.dataset.i];
+      if(sc.keyOnly && (!H(p.a).key || !H(p.c).key)){
+        sc.keyOnly = false;
+        renderScaleBtns();
+      }
+      sc.sel = [p.a, p.c];
+      renderScale(); renderPair();
+    });
+  });
+}
+
+function renderScale(){
+  var box = $('scaleBox');
+  var narrow = isNarrow();
+  var W = boxW(box, 280, 786);
+  var items = scaleItems();
+  var padT = 26, padB = 24;
+  var plotH = narrow ? 560 : 690;
+  var Hgt = plotH + padT + padB;
+  var axX = narrow ? 40 : 58;
+  var markW = 12;
+  var labX = axX + (narrow ? 26 : 34);
+  var gap = narrow ? 17.5 : 20;
+  var fs = narrow ? 10.5 : 12;
+
+  function y(E){ return padT + (EMAX - E) / (EMAX - EMIN) * plotH; }
+
+  /* ラベルの押し出し（上から順に最小間隔を確保） */
+  var lay = items.map(function(h){ return {h:h, ty:y(h.E), ly:y(h.E)}; });
+  var prev = -1e9;
+  lay.forEach(function(o){
+    o.ly = Math.max(o.ty, prev + gap);
+    prev = o.ly;
+  });
+  var over = lay.length ? (lay[lay.length-1].ly - (padT + plotH)) : 0;
+  if(over > 0){
+    var next = 1e9;
+    for(var i = lay.length - 1; i >= 0; i--){
+      lay[i].ly = Math.min(lay[i].ly, next - gap);
+      next = lay[i].ly;
+    }
+  }
+
+  var s = '<svg viewBox="0 0 ' + W + ' ' + Hgt + '" xmlns="http://www.w3.org/2000/svg" tabindex="0" role="img" aria-label="標準電極電位の数直線">';
+  s += '<rect x="0" y="0" width="' + W + '" height="' + Hgt + '" fill="none"/>';
+
+  /* 目盛 */
+  for(var v = 3; v >= -3; v -= 0.5){
+    var yy = y(v), major = (Math.abs(v - Math.round(v)) < 1e-9);
+    s += '<line x1="' + axX + '" y1="' + yy.toFixed(1) + '" x2="' + (axX - (major?7:4)) + '" y2="' + yy.toFixed(1) + '" stroke="' + RULE + '" stroke-width="1"/>';
+    if(major){
+      s += '<line x1="' + axX + '" y1="' + yy.toFixed(1) + '" x2="' + (W-4) + '" y2="' + yy.toFixed(1) + '" stroke="' + RULESOFT + '" stroke-width="1"/>';
+      s += '<text x="' + (axX - 10) + '" y="' + (yy + 3.5).toFixed(1) + '" text-anchor="end" style="font-family:var(--mono);font-variant-numeric:tabular-nums" font-size="' + (fs-1.5) + '" fill="' + MUTED + '">' + (v>0?'+':'') + v.toFixed(1) + '</text>';
+    }
+  }
+  /* 0 V の基準線だけ破線 */
+  var y0 = y(0);
+  s += '<line x1="' + axX + '" y1="' + y0.toFixed(1) + '" x2="' + (W-4) + '" y2="' + y0.toFixed(1) + '" stroke="' + MUTED + '" stroke-width="1" stroke-dasharray="3 3"/>';
+  s += '<text x="' + (W-4) + '" y="' + (y0 - 6).toFixed(1) + '" text-anchor="end" style="font-family:var(--mono);font-variant-numeric:tabular-nums" font-size="' + (fs-1.5) + '" fill="' + MUTED + '">標準水素電極 0 V</text>';
+
+  /* 軸 */
+  s += '<line x1="' + axX + '" y1="' + padT + '" x2="' + axX + '" y2="' + (padT+plotH) + '" stroke="' + INK + '" stroke-width="1"/>';
+  s += '<text x="' + (axX - 10) + '" y="' + (padT - 10) + '" text-anchor="end" style="font-family:var(--mono);font-variant-numeric:tabular-nums" font-size="' + (fs-1.5) + '" fill="' + MUTED + '">E° / V</text>';
+  s += '<text x="' + (axX + 6) + '" y="' + (padT - 10) + '" font-size="' + (fs-1.5) + '" fill="' + MUTED + '">↑ 還元されやすい（強い酸化剤）</text>';
+  s += '<text x="' + (axX + 6) + '" y="' + (padT + plotH + 17) + '" font-size="' + (fs-1.5) + '" fill="' + MUTED + '">↓ 酸化されやすい（強い還元剤）</text>';
+
+  /* 各半反応 */
+  lay.forEach(function(o){
+    var h = o.h, col = G[h.g], selIdx = sc.sel.indexOf(h.id);
+    var isSel = selIdx >= 0, isHov = (sc.hover === h.id);
+    var role = null;
+    if(sc.sel.length === 2){
+      var a = H(sc.sel[0]), b = H(sc.sel[1]);
+      var hi = (a.E >= b.E) ? a : b;
+      role = (h.id === hi.id) ? 'red' : 'ox';
+    }
+    var stroke = isSel ? INK : col.f;
+    var lw = isSel ? 3 : (isHov ? 2.4 : 1.6);
+    s += '<line x1="' + axX + '" y1="' + o.ty.toFixed(1) + '" x2="' + (axX + markW) + '" y2="' + o.ty.toFixed(1) + '" stroke="' + stroke + '" stroke-width="' + lw + '"/>';
+    /* 引き出し線 */
+    if(Math.abs(o.ly - o.ty) > 0.8){
+      s += '<polyline points="' + (axX+markW) + ',' + o.ty.toFixed(1) + ' ' + (axX+markW+8) + ',' + o.ty.toFixed(1) + ' ' + (labX-8) + ',' + o.ly.toFixed(1) + ' ' + (labX-3) + ',' + o.ly.toFixed(1) + '" fill="none" stroke="' + (isSel?INK:RULE) + '" stroke-width="1"/>';
+    } else {
+      s += '<line x1="' + (axX+markW) + '" y1="' + o.ty.toFixed(1) + '" x2="' + (labX-3) + '" y2="' + o.ly.toFixed(1) + '" stroke="' + (isSel?INK:RULE) + '" stroke-width="1"/>';
+    }
+    var tx = labX, ty = o.ly + fs * 0.36;
+    var tagW = 0;
+    if(isSel && role){
+      var lbl = (role === 'red') ? '正極' : '負極';
+      var rc = (role === 'red') ? RDD : OXD;
+      tagW = narrow ? 30 : 32;
+      s += '<rect x="' + tx + '" y="' + (o.ly - fs*0.72 - 2) + '" width="' + tagW + '" height="' + (fs + 4) + '" fill="' + rc + '"/>';
+      s += '<text x="' + (tx + tagW/2) + '" y="' + ty.toFixed(1) + '" text-anchor="middle" font-size="' + (fs-1.5) + '" fill="#fff">' + lbl + '</text>';
+      tagW += 6;
+    }
+    s += '<text x="' + (tx + tagW) + '" y="' + ty.toFixed(1) + '" style="font-family:var(--mono);font-variant-numeric:tabular-nums" font-size="' + fs + '" font-weight="' + (isSel?600:400) + '" fill="' + (isSel ? INK : col.t) + '">' + esc(h.c) + '</text>';
+    s += '<text x="' + (W - 4) + '" y="' + ty.toFixed(1) + '" text-anchor="end" style="font-family:var(--mono);font-variant-numeric:tabular-nums" font-size="' + fs + '" font-weight="' + (isSel?600:400) + '" fill="' + (isSel ? INK : MUTED) + '">' + (h.E>=0?'+':'−') + Math.abs(h.E).toFixed(2) + '</text>';
+  });
+
+  /* 選択2つの差 */
+  if(sc.sel.length === 2){
+    var A = H(sc.sel[0]), B = H(sc.sel[1]);
+    var hi2 = (A.E >= B.E) ? A : B, lo2 = (A.E >= B.E) ? B : A;
+    var yh = y(hi2.E), yl = y(lo2.E), bx = axX - 22;
+    s += '<line x1="' + bx + '" y1="' + yh.toFixed(1) + '" x2="' + bx + '" y2="' + yl.toFixed(1) + '" stroke="' + INK + '" stroke-width="1" stroke-dasharray="3 3"/>';
+    s += '<path d="M' + (bx-3) + ' ' + (yh+5).toFixed(1) + ' L' + bx + ' ' + yh.toFixed(1) + ' L' + (bx+3) + ' ' + (yh+5).toFixed(1) + '" fill="none" stroke="' + INK + '" stroke-width="1"/>';
+    s += '<path d="M' + (bx-3) + ' ' + (yl-5).toFixed(1) + ' L' + bx + ' ' + yl.toFixed(1) + ' L' + (bx+3) + ' ' + (yl-5).toFixed(1) + '" fill="none" stroke="' + INK + '" stroke-width="1"/>';
+    var mid = (yh + yl) / 2, dv = (hi2.E - lo2.E).toFixed(2);
+    s += '<g transform="translate(' + (bx - 7) + ',' + mid.toFixed(1) + ') rotate(-90)">';
+    s += '<rect x="-26" y="-7" width="52" height="14" fill="' + INK + '"/>';
+    s += '<text x="0" y="3.5" text-anchor="middle" style="font-family:var(--mono);font-variant-numeric:tabular-nums" font-size="10.5" fill="#fff">' + dv + ' V</text></g>';
+  }
+
+  s += '</svg>';
+  box.innerHTML = s;
+
+  var svg = box.querySelector('svg');
+  function nearest(ev){
+    var r = svg.getBoundingClientRect();
+    var yy = (ev.clientY - r.top) * (Hgt / r.height);
+    var best = null, bd = 1e9;
+    lay.forEach(function(o){
+      var d = Math.min(Math.abs(o.ty - yy), Math.abs(o.ly - yy));
+      if(d < bd){ bd = d; best = o.h; }
+    });
+    return (bd < 26) ? best : null;
+  }
+  svg.addEventListener('pointermove', function(ev){
+    var h = nearest(ev), id = h ? h.id : null;
+    if(id !== sc.hover){ sc.hover = id; renderScale(); }
+  });
+  svg.addEventListener('pointerleave', function(){
+    if(sc.hover){ sc.hover = null; renderScale(); }
+  });
+  function toggle(id){
+    var i = sc.sel.indexOf(id);
+    if(i >= 0) sc.sel.splice(i, 1);
+    else { sc.sel.push(id); if(sc.sel.length > 2) sc.sel.shift(); }
+    renderScale(); renderPair();
+  }
+  svg.addEventListener('pointerdown', function(ev){
+    var h = nearest(ev);
+    if(!h) return;
+    ev.preventDefault();
+    toggle(h.id);
+  });
+  svg.addEventListener('keydown', function(ev){
+    var k = ev.key, idx = -1;
+    for(var i = 0; i < items.length; i++) if(items[i].id === sc.hover) idx = i;
+    if(k === 'ArrowDown' || k === 'ArrowUp'){
+      ev.preventDefault();
+      idx = (idx < 0) ? 0 : idx + (k === 'ArrowDown' ? 1 : -1);
+      idx = Math.max(0, Math.min(items.length - 1, idx));
+      sc.hover = items[idx].id;
+      renderScale();
+      var ns = $('scaleBox').querySelector('svg');
+      if(ns) ns.focus();
+    } else if((k === 'Enter' || k === ' ') && idx >= 0){
+      ev.preventDefault();
+      toggle(items[idx].id);
+      var ns2 = $('scaleBox').querySelector('svg');
+      if(ns2) ns2.focus();
+    }
+  });
+}
+
+function renderPair(){
+  var out = $('pairOut');
+  if(sc.sel.length < 2){
+    out.innerHTML = '<p class="note">半反応を二つ選ぶと、電位の高いほうが正極、低いほうが負極として組まれます。' + (sc.sel.length===1 ? '（あと一つ）' : '') + '</p>';
+    return;
+  }
+  var A = H(sc.sel[0]), B = H(sc.sel[1]);
+  var cat = (A.E >= B.E) ? A : B, an = (A.E >= B.E) ? B : A;
+  var E = cat.E - an.E;
+  var N = lcm(cat.n, an.n), kc = N / cat.n, ka = N / an.n;
+  var ov = overall(cat, an);
+  var mix = (cat.m === 'acid' && an.m === 'base') || (cat.m === 'base' && an.m === 'acid');
+  var h = '';
+  h += '<h3>組んだ結果</h3>';
+  h += '<div class="eq"><span class="tag rdt">正極・還元</span> <span class="rd">' + esc(eqRed(cat, kc)) + '</span></div>';
+  h += '<div class="eq"><span class="tag oxt">負極・酸化</span> <span class="ox">' + esc(eqOx(an, ka)) + '</span></div>';
+  h += '<div class="eq big" style="margin-top:8px">全反応　' + (ov.empty ? '（打ち消し合って変化なし）' : esc(ov.text)) + '</div>';
+  h += '<div class="kv"><span class="k">起電力 E°<sub>cell</sub> = E°(正極) − E°(負極)</span><span class="v">' +
+       fixed(cat.E,2) + ' − (' + fixed(an.E,2) + ') = <b>' + fixed(E,2) + ' V</b></span></div>';
+  h += '<div class="kv"><span class="k">やりとりする電子（この係数で）</span><span class="v">' + N + ' mol</span></div>';
+  h += '<div class="kv"><span class="k">取り出せる電気エネルギー nFE°（発展）</span><span class="v">' + sig(N*F*E/1000, 3) + ' kJ</span></div>';
+  if(E <= 0){
+    h += '<div class="flag"><span class="h">CHECK</span>同じ半反応を選んでいるか、差が 0 です。別の組み合わせにしてください。</div>';
+  }
+  if(mix){
+    h += '<div class="flag"><span class="h">CONDITION</span>酸性条件の半反応と塩基性条件の半反応を組み合わせています。ひとつの溶液では両立しないので、この起電力は形式的な値です。実際には液間の pH をそろえて考えます。</div>';
+  }
+  out.innerHTML = h;
+}
+
+/* ============================================================
+   3. 電池ビューア
+   ============================================================ */
+var CELLS = [
+  {
+    id:'daniell', name:'ダニエル電池',
+    an:'Zn', cat:'Cu',
+    anMat:'Zn', catMat:'Cu',
+    sol:'左 ZnSO₄ aq ｜ 右 CuSO₄ aq', sep:'素焼き板',
+    anHint:'亜鉛が溶ける', catHint:'銅が析出',
+    anHintC:'亜鉛が析出', catHintC:'銅が溶ける',
+    cation:'Zn²⁺', anion:'SO₄²⁻',
+    rechargeable:false,
+    desc:'素焼き板は溶液を混ぜないまま、イオンだけを通します。これがないと Cu²⁺ が直接 Zn に触れ、電子が導線を通らずに移動してしまう。',
+    chargeNote:'逆向きに電流を流せば銅が溶けて亜鉛が析出しますが、実際には充電せずに使い切る一次電池です。'
+  },
+  {
+    id:'lead', name:'鉛蓄電池',
+    an:'PbSO4', cat:'PbO2',
+    anMat:'Pb', catMat:'PbO₂',
+    sol:'希硫酸 H₂SO₄ aq', sep:null,
+    anHint:'PbSO₄ になる', catHint:'PbSO₄ になる',
+    anHintC:'Pb に戻る', catHintC:'PbO₂ に戻る',
+    altEq:'Pb + PbO₂ + 2H₂SO₄ → 2PbSO₄ + 2H₂O',
+    cation:'H⁺', anion:'SO₄²⁻',
+    rechargeable:true,
+    desc:'放電すると両極とも表面が PbSO₄ で覆われ、硫酸が水に変わって薄くなります。電解液の密度を測れば残量がわかるのはこのためです。',
+    chargeNote:'外部電源をつなぐと放電の完全な逆反応が進み、PbSO₄ が Pb と PbO₂ に戻ります。二次電池として実用されています。'
+  },
+  {
+    id:'fc-acid', name:'燃料電池（リン酸型）',
+    an:'H', cat:'O2a',
+    anMat:'Pt / H₂', catMat:'Pt / O₂',
+    sol:'リン酸 H₃PO₄ aq（酸性）', sep:'隔膜',
+    anHint:'H₂ が酸化', catHint:'O₂ が還元',
+    anHintC:'H₂ が発生', catHintC:'O₂ が発生',
+    cation:'H⁺', anion:'—',
+    rechargeable:true, chargeLabel:'水の電気分解',
+    desc:'電極そのものは変化しません。水素と酸素を送り込み続けるかぎり発電が続く。生成物は水だけです。',
+    chargeNote:'この電池の逆反応が、そのまま水の電気分解です。同じ装置を逆に動かしていると考えられます。'
+  },
+  {
+    id:'fc-base', name:'燃料電池（アルカリ型）',
+    an:'H2Ob', cat:'O2b',
+    anMat:'Ni / H₂', catMat:'Ni / O₂',
+    sol:'水酸化カリウム KOH aq（塩基性）', sep:'隔膜',
+    anHint:'H₂ が酸化', catHint:'O₂ が還元',
+    anHintC:'H₂ が発生', catHintC:'O₂ が発生',
+    cation:'K⁺', anion:'OH⁻',
+    rechargeable:true, chargeLabel:'水の電気分解',
+    desc:'酸性型と半反応の書き方は違うのに、起電力も全反応も同じ 1.23 V・2H₂ + O₂ → 2H₂O になります。電位差は液性を揃えれば同じところに落ち着く、という良い例です。',
+    chargeNote:'こちらも逆反応は水の電気分解です。'
+  }
+];
+var cs = { id:'daniell', mode:'discharge' };
+
+function renderCellBtns(){
+  $('cellBtns').innerHTML = CELLS.map(function(c){
+    return '<button class="b' + (c.id===cs.id?' on':'') + '" data-id="' + c.id + '">' + esc(c.name) + '</button>';
+  }).join('');
+  Array.prototype.forEach.call($('cellBtns').querySelectorAll('button'), function(b){
+    b.addEventListener('click', function(){
+      cs.id = b.dataset.id;
+      renderCellBtns(); renderModeBtns(); renderCell(); renderCellOut();
+    });
+  });
+}
+function curCell(){
+  for(var i=0;i<CELLS.length;i++) if(CELLS[i].id===cs.id) return CELLS[i];
+  return CELLS[0];
+}
+function renderModeBtns(){
+  var c = curCell();
+  var chargeLbl = c.chargeLabel || '充電（電気分解）';
+  $('modeBtns').innerHTML =
+    '<span class="lab" style="margin:6px 4px 0 0">向き</span>' +
+    '<button class="b' + (cs.mode==='discharge'?' on':'') + '" data-m="discharge">放電（電池）</button>' +
+    '<button class="b' + (cs.mode==='charge'?' on':'') + '" data-m="charge">' + esc(chargeLbl) + '</button>';
+  Array.prototype.forEach.call($('modeBtns').querySelectorAll('button'), function(b){
+    b.addEventListener('click', function(){
+      cs.mode = b.dataset.m;
+      renderModeBtns(); renderCell(); renderCellOut();
+    });
+  });
+}
+
+/* --- 電解槽の共通SVG ---------------------------------------
+   cfg = {left:{name,sub,tag,color,hint}, right:{...},
+          dir:'LR'|'RL', device:'load'|'source', sol, sep,
+          cation, anion, volt}
+   アノード(酸化)を左、カソード(還元)を右に置く。ただし充電時は
+   極板の物質を固定したまま電子の向きだけを反転させる。
+------------------------------------------------------------ */
+function cellSVG(el, cfg){
+  var narrow = isNarrow();
+  var W = boxW(el, 280, 786);
+  var Hg   = narrow ? 262 : 288;
+  var wy   = narrow ? 32  : 40;
+  var ey   = narrow ? 76  : 90;
+  var eb   = narrow ? 198 : 224;
+  var by   = narrow ? 108 : 126;
+  var bh   = narrow ? 98  : 112;
+  var bx   = Math.round(W * 0.10), bw = Math.round(W * 0.80);
+  var lx   = Math.round(W * 0.29), rx = Math.round(W * 0.71);
+  var fs   = narrow ? 10 : 11.5;
+  var ew   = narrow ? 14 : 18;
+
+  var s = '<svg viewBox="0 0 ' + W + ' ' + Hg + '" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="電解槽の模式図">';
+
+  /* 電解液 */
+  s += '<rect x="' + bx + '" y="' + by + '" width="' + bw + '" height="' + bh + '" fill="' + PAPER + '" stroke="' + RULE + '" stroke-width="1"/>';
+  s += '<text x="' + (bx + 6) + '" y="' + (by + bh - 6) + '" font-size="' + (fs-1) + '" fill="' + MUTED + '">' + esc(cfg.sol) + '</text>';
+
+  /* 隔膜 */
+  if(cfg.sep){
+    s += '<line x1="' + Math.round(W/2) + '" y1="' + by + '" x2="' + Math.round(W/2) + '" y2="' + (by+bh) + '" stroke="' + MUTED + '" stroke-width="2"/>';
+    s += '<text x="' + Math.round(W/2) + '" y="' + (by - 5) + '" text-anchor="middle" font-size="' + (fs-1) + '" fill="' + MUTED + '">' + esc(cfg.sep) + '</text>';
+  }
+
+  /* 電極 */
+  [[lx, cfg.left], [rx, cfg.right]].forEach(function(pair){
+    var x = pair[0], e = pair[1];
+    s += '<rect x="' + (x - ew/2) + '" y="' + ey + '" width="' + ew + '" height="' + (eb - ey) + '" fill="' + e.color + '"/>';
+    s += '<text x="' + x + '" y="' + (ey - 22) + '" text-anchor="middle" font-size="' + fs + '" font-weight="600" fill="' + e.color + '">' + esc(e.tag) + '</text>';
+    s += '<text x="' + x + '" y="' + (ey - 8) + '" text-anchor="middle" style="font-family:var(--mono);font-variant-numeric:tabular-nums" font-size="' + (fs-0.5) + '" fill="' + INK + '">' + esc(e.name) + '</text>';
+    s += '<text x="' + x + '" y="' + (eb + 16) + '" text-anchor="middle" font-size="' + (fs-0.5) + '" fill="' + e.color + '">' + esc(e.hint) + '</text>';
+  });
+
+  /* 導線 */
+  var wire = 'M' + lx + ' ' + ey + ' L' + lx + ' ' + wy + ' L' + rx + ' ' + wy + ' L' + rx + ' ' + ey;
+  s += '<path d="' + wire + '" fill="none" stroke="' + INK + '" stroke-width="1.2"/>';
+
+  /* 電子 */
+  var dur = 2.6;
+  if(!REDUCE_MOTION){
+    for(var i = 0; i < 4; i++){
+      s += '<circle r="3.2" fill="' + INK + '">';
+      s += '<animateMotion dur="' + dur + 's" repeatCount="indefinite" begin="-' + (i*dur/4).toFixed(2) + 's" calcMode="linear" keyPoints="' + (cfg.dir==='LR' ? '0;1' : '1;0') + '" keyTimes="0;1" path="' + wire + '"/>';
+      s += '</circle>';
+    }
+  } else {
+    var ax = cfg.dir === 'LR' ? (lx + rx)/2 - 40 : (lx + rx)/2 + 40;
+    var d2 = cfg.dir === 'LR' ? 1 : -1;
+    s += '<path d="M' + (ax - 6*d2) + ' ' + (wy-5) + ' L' + (ax + 6*d2) + ' ' + wy + ' L' + (ax - 6*d2) + ' ' + (wy+5) + '" fill="' + INK + '"/>';
+  }
+  var elx = cfg.dir === 'LR' ? lx + 28 : rx - 28;
+  s += '<text x="' + elx + '" y="' + (wy - 8) + '" text-anchor="middle" style="font-family:var(--mono);font-variant-numeric:tabular-nums" font-size="' + fs + '" fill="' + INK + '">' + (cfg.dir === 'LR' ? 'e⁻ →' : '← e⁻') + '</text>';
+
+  /* 素子 */
+  var mx = Math.round((lx + rx) / 2);
+  if(cfg.device === 'load'){
+    s += '<rect x="' + (mx-22) + '" y="' + (wy-9) + '" width="44" height="18" fill="#fff" stroke="' + INK + '" stroke-width="1.2"/>';
+    s += '<text x="' + mx + '" y="' + (wy + 4) + '" text-anchor="middle" font-size="' + (fs-1) + '" fill="' + INK + '">負荷</text>';
+  } else {
+    s += '<rect x="' + (mx-26) + '" y="' + (wy-12) + '" width="52" height="24" fill="#fff" stroke="none"/>';
+    s += '<line x1="' + (mx-10) + '" y1="' + (wy-11) + '" x2="' + (mx-10) + '" y2="' + (wy+11) + '" stroke="' + INK + '" stroke-width="1.6"/>';
+    s += '<line x1="' + (mx-3)  + '" y1="' + (wy-6)  + '" x2="' + (mx-3)  + '" y2="' + (wy+6)  + '" stroke="' + INK + '" stroke-width="1.6"/>';
+    s += '<line x1="' + (mx+4)  + '" y1="' + (wy-11) + '" x2="' + (mx+4)  + '" y2="' + (wy+11) + '" stroke="' + INK + '" stroke-width="1.6"/>';
+    s += '<line x1="' + (mx+11) + '" y1="' + (wy-6)  + '" x2="' + (mx+11) + '" y2="' + (wy+6)  + '" stroke="' + INK + '" stroke-width="1.6"/>';
+    var pL = (cfg.dir === 'LR');
+    s += '<text x="' + (mx-16) + '" y="' + (wy - 14) + '" text-anchor="middle" style="font-family:var(--mono);font-variant-numeric:tabular-nums" font-size="' + fs + '" fill="' + INK + '">' + (pL?'＋':'−') + '</text>';
+    s += '<text x="' + (mx+17) + '" y="' + (wy - 14) + '" text-anchor="middle" style="font-family:var(--mono);font-variant-numeric:tabular-nums" font-size="' + fs + '" fill="' + INK + '">' + (pL?'−':'＋') + '</text>';
+    s += '<text x="' + mx + '" y="' + (wy + 24) + '" text-anchor="middle" font-size="' + (fs-1) + '" fill="' + MUTED + '">直流電源</text>';
+  }
+
+  /* イオンの動き（陽イオンはカソードへ、陰イオンはアノードへ） */
+  var cathodeRight = (cfg.dir === 'LR');
+  var iy1 = by + Math.round(bh * 0.30), iy2 = by + Math.round(bh * 0.58);
+  function ion(y, label, toRight, color){
+    var cx = Math.round(W/2), len = narrow ? 30 : 40;
+    var x1 = toRight ? cx - len/2 : cx + len/2;
+    var x2 = toRight ? cx + len/2 : cx - len/2;
+    var d = toRight ? 1 : -1;
+    var o = '<line x1="' + x1 + '" y1="' + y + '" x2="' + (x2 - 4*d) + '" y2="' + y + '" stroke="' + color + '" stroke-width="1"/>';
+    o += '<path d="M' + (x2 - 5*d) + ' ' + (y-3.2) + ' L' + x2 + ' ' + y + ' L' + (x2 - 5*d) + ' ' + (y+3.2) + '" fill="' + color + '"/>';
+    o += '<text x="' + (toRight ? x1 - 5 : x1 + 5) + '" y="' + (y + 3.5) + '" text-anchor="' + (toRight?'end':'start') + '" style="font-family:var(--mono);font-variant-numeric:tabular-nums" font-size="' + (fs-0.5) + '" fill="' + color + '">' + esc(label) + '</text>';
+    return o;
+  }
+  if(cfg.cation && cfg.cation !== '—') s += ion(iy1, cfg.cation, cathodeRight, RDD);
+  if(cfg.anion  && cfg.anion  !== '—') s += ion(iy2, cfg.anion, !cathodeRight, OXD);
+
+  /* 電圧表示 */
+  if(cfg.volt){
+    s += '<text x="' + (W - 4) + '" y="' + (wy + 4) + '" text-anchor="end" style="font-family:var(--mono);font-variant-numeric:tabular-nums" font-size="' + (fs+0.5) + '" fill="' + INK + '">' + esc(cfg.volt) + '</text>';
+  }
+  s += '</svg>';
+  el.innerHTML = s;
+}
+
+function renderCell(){
+  var c = curCell();
+  var an = H(c.an), cat = H(c.cat);
+  var E = cat.E - an.E;
+  var discharge = (cs.mode === 'discharge');
+  /* 極板の物質は固定。放電では左＝負極(酸化)、充電では左＝陰極(還元) */
+  var left = {
+    name: c.anMat,
+    tag: discharge ? '負極' : '陰極',
+    color: discharge ? OXD : RDD,
+    hint: discharge ? c.anHint : (c.anHintC || '逆向きに進む')
+  };
+  var right = {
+    name: c.catMat,
+    tag: discharge ? '正極' : '陽極',
+    color: discharge ? RDD : OXD,
+    hint: discharge ? c.catHint : (c.catHintC || '逆向きに進む')
+  };
+  cellSVG($('cellBox'), {
+    left:left, right:right,
+    dir: discharge ? 'LR' : 'RL',
+    device: discharge ? 'load' : 'source',
+    sol: c.sol, sep: c.sep,
+    cation: c.cation, anion: c.anion,
+    volt: discharge ? ('E° = ' + fixed(E,2) + ' V') : ('必要 ' + fixed(E,2) + ' V 超')
+  });
+}
+
+function renderCellOut(){
+  var c = curCell(), an = H(c.an), cat = H(c.cat);
+  var N = lcm(an.n, cat.n), ka = N/an.n, kc = N/cat.n;
+  var E = cat.E - an.E;
+  var ov = overall(cat, an);
+  var discharge = (cs.mode === 'discharge');
+  var h = '';
+  if(discharge){
+    h += '<h3>放電のとき</h3>';
+    h += '<div class="eq"><span class="tag oxt">負極・酸化</span> <span class="ox">' + esc(eqOx(an, ka)) + '</span></div>';
+    h += '<div class="eq"><span class="tag rdt">正極・還元</span> <span class="rd">' + esc(eqRed(cat, kc)) + '</span></div>';
+    h += '<div class="eq big" style="margin-top:8px">全体　' + esc(ov.text) + '</div>';
+    if(c.altEq) h += '<div class="eq" style="color:' + MUTED + '">硫酸の形で書くと　' + esc(c.altEq) + '</div>';
+    h += '<div class="kv"><span class="k">起電力 E°<sub>cell</sub></span><span class="v">' + fixed(cat.E,2) + ' − (' + fixed(an.E,2) + ') = <b>' + fixed(E,2) + ' V</b></span></div>';
+  } else {
+    h += '<h3>' + esc(c.chargeLabel || '充電') + 'のとき</h3>';
+    h += '<div class="eq"><span class="tag rdt">陰極・還元</span> <span class="rd">' + esc(eqRed(an, ka)) + '</span></div>';
+    h += '<div class="eq"><span class="tag oxt">陽極・酸化</span> <span class="ox">' + esc(eqOx(cat, kc)) + '</span></div>';
+    h += '<div class="eq big" style="margin-top:8px">全体　' + esc(reverseText(ov.text)) + '</div>';
+    if(c.altEq) h += '<div class="eq" style="color:' + MUTED + '">硫酸の形で書くと　' + esc(reverseText(c.altEq)) + '</div>';
+    h += '<div class="kv"><span class="k">かける電圧の下限</span><span class="v">' + fixed(E,2) + ' V を超える必要あり</span></div>';
+    h += '<p class="note">' + esc(c.chargeNote) + '</p>';
+  }
+  h += '<div class="kv"><span class="k">この式でやりとりする電子</span><span class="v">' + N + ' mol</span></div>';
+  h += '<p class="note">' + esc(c.desc) + '</p>';
+  if(c.id === 'fc-acid' || c.id === 'fc-base'){
+    h += '<div class="flag"><span class="h">実際とのずれ</span>計算上の起電力は 1.23 V ですが、動作中の電圧は 0.7〜0.9 V 程度に下がります。酸素の還元には電位差以上の余分な電圧が要る（過電圧）ことと、内部抵抗による損失が主な理由です。高校の計算では E° の差をそのまま起電力として扱って構いません。</div>';
+  }
+  if(c.id === 'lead'){
+    h += '<div class="flag"><span class="h">数値の扱い</span>E° の差は 2.05 V ですが、実際の1セルの端子電圧は約 2.0 V として扱われます。自動車用は6セルを直列にして約 12 V。</div>';
+  }
+  $('cellOut').innerHTML = h;
+}
+function reverseText(t){
+  if(!t) return '';
+  var p = t.split(' → ');
+  return p.length === 2 ? (p[1] + ' → ' + p[0]) : t;
+}
+
+/* ============================================================
+   4. 電気分解
+   ============================================================ */
+var SOLS = [
+  {id:'CuCl2',  label:'CuCl₂ aq',  full:'塩化銅(Ⅱ)水溶液',      ph:'中性',   cat:'Cu²⁺', an:'Cl⁻'},
+  {id:'CuSO4',  label:'CuSO₄ aq',  full:'硫酸銅(Ⅱ)水溶液',      ph:'中性',   cat:'Cu²⁺', an:'SO₄²⁻'},
+  {id:'AgNO3',  label:'AgNO₃ aq',  full:'硝酸銀水溶液',          ph:'中性',   cat:'Ag⁺',  an:'NO₃⁻'},
+  {id:'NaCl',   label:'NaCl aq',   full:'塩化ナトリウム水溶液',  ph:'中性',   cat:'Na⁺',  an:'Cl⁻'},
+  {id:'KI',     label:'KI aq',     full:'ヨウ化カリウム水溶液',  ph:'中性',   cat:'K⁺',   an:'I⁻'},
+  {id:'Na2SO4', label:'Na₂SO₄ aq', full:'硫酸ナトリウム水溶液',  ph:'中性',   cat:'Na⁺',  an:'SO₄²⁻'},
+  {id:'H2SO4',  label:'H₂SO₄ aq',  full:'希硫酸',                ph:'酸性',   cat:'H⁺',   an:'SO₄²⁻'},
+  {id:'NaOH',   label:'NaOH aq',   full:'水酸化ナトリウム水溶液',ph:'塩基性', cat:'Na⁺',  an:'OH⁻'}
+];
+var MATS = [
+  {id:'Pt', label:'白金 Pt', diss:null},
+  {id:'C',  label:'炭素 C',  diss:null},
+  {id:'Cu', label:'銅 Cu',   diss:'Cu'},
+  {id:'Ag', label:'銀 Ag',   diss:'Ag'},
+  {id:'Fe', label:'鉄 Fe',   diss:'Fe2'}
+];
+var CATION_HALF = {'Cu²⁺':'Cu', 'Ag⁺':'Ag', 'Na⁺':'Na', 'K⁺':'K', 'H⁺':'H'};
+var ANION_HALF  = {'Cl⁻':'Cl2', 'I⁻':'I2', 'OH⁻':'O2b'};
+var es = { sol:'NaCl', anMat:'C', caMat:'Fe' };
+
+function curSol(){ for(var i=0;i<SOLS.length;i++) if(SOLS[i].id===es.sol) return SOLS[i]; return SOLS[0]; }
+function mat(id){ for(var i=0;i<MATS.length;i++) if(MATS[i].id===id) return MATS[i]; return MATS[0]; }
+
+function renderElBtns(){
+  $('solBtns').innerHTML = SOLS.map(function(s){
+    return '<button class="b' + (s.id===es.sol?' on':'') + '" data-id="' + s.id + '"><span class="mono">' + esc(s.label) + '</span></button>';
+  }).join('');
+  $('anMatBtns').innerHTML = MATS.map(function(m){
+    return '<button class="b' + (m.id===es.anMat?' on':'') + '" data-id="' + m.id + '">' + esc(m.label) + '</button>';
+  }).join('');
+  $('caMatBtns').innerHTML = MATS.map(function(m){
+    return '<button class="b' + (m.id===es.caMat?' on':'') + '" data-id="' + m.id + '">' + esc(m.label) + '</button>';
+  }).join('');
+  function bind(box, key){
+    Array.prototype.forEach.call($(box).querySelectorAll('button'), function(b){
+      b.addEventListener('click', function(){
+        es[key] = b.dataset.id;
+        renderElBtns(); renderEl(); renderElOut();
+      });
+    });
+  }
+  bind('solBtns','sol'); bind('anMatBtns','anMat'); bind('caMatBtns','caMat');
+}
+
+/* 陰極の候補（還元される側）: E° が大きいものが勝つ */
+function cathodeCands(){
+  var s = curSol(), out = [];
+  var cid = CATION_HALF[s.cat];
+  if(cid && cid !== 'H') out.push({h:H(cid), why:'溶液中の陽イオン'});
+  if(s.ph === '酸性') out.push({h:H('H'), why:'酸の H⁺'});
+  else out.push({h:H('H2Ob'), why:'水そのもの'});
+  out.sort(function(a,b){ return b.h.E - a.h.E; });
+  return out;
+}
+/* 陽極の候補（酸化される側）: E° が小さいものが勝つ */
+function anodeCands(){
+  var s = curSol(), m = mat(es.anMat), out = [];
+  if(m.diss) out.push({h:H(m.diss), why:'電極そのものが溶ける'});
+  var aid = ANION_HALF[s.an];
+  if(aid && !(aid === 'O2b' && s.ph !== '塩基性')) out.push({h:H(aid), why:'溶液中の陰イオン'});
+  if(s.ph === '塩基性'){ if(!aid || aid !== 'O2b') out.push({h:H('O2b'), why:'塩基性の OH⁻'}); }
+  else out.push({h:H('O2a'), why:'水そのもの'});
+  out.sort(function(a,b){ return a.h.E - b.h.E; });
+  return out;
+}
+/* 電位順の予測がくつがえる組み合わせ */
+function anodeOverride(pred){
+  var s = curSol(), m = mat(es.anMat);
+  if(m.diss) return null;
+  if((s.id === 'NaCl' || s.id === 'CuCl2') && pred.h.id === 'O2a'){
+    return {
+      id:'Cl2',
+      text:'電位だけを見れば水が酸化されて O₂ が出るはずですが、実際に発生するのは Cl₂ です。気体の発生には電位差以上の電圧が必要で、その余分（過電圧）が酸素でとくに大きいこと、塩化物イオンの濃度が高いことが効いています。中性では水の酸化はさらに起こりやすい側へずれるので、標準値の比較はむしろ差を小さく見せています。'
+    };
+  }
+  return null;
+}
+
+function renderEl(){
+  var s = curSol();
+  var ca = cathodeCands(), an = anodeCands();
+  var caW = ca[0], anPred = an[0], ov = anodeOverride(anPred);
+  var anW = ov ? {h:H(ov.id), why:anPred.why} : anPred;
+  var anMat = mat(es.anMat), caMat = mat(es.caMat);
+  var dissolving = !!(anMat.diss && anW.h.id === anMat.diss);
+  var prod = productHint(caW.h, 'cathode');
+  cellSVG($('elBox'), {
+    left:  {name:anMat.label.split(' ')[1] || anMat.id, tag:'陽極', color:OXD, hint: dissolving ? '電極が溶ける' : productHint(anW.h,'anode')},
+    right: {name:caMat.label.split(' ')[1] || caMat.id, tag:'陰極', color:RDD, hint: prod},
+    dir:'LR', device:'source',
+    sol: s.full + '（' + s.ph + '）', sep:null,
+    cation: s.cat, anion: s.an,
+    volt:''
+  });
+}
+function productHint(h, side){
+  var m = {
+    'Cu':'銅が析出', 'Ag':'銀が析出', 'H':'H₂ が発生', 'H2Ob':'H₂ が発生',
+    'O2a':'O₂ が発生', 'O2b':'O₂ が発生', 'Cl2':'Cl₂ が発生', 'I2':'I₂ が生成',
+    'Fe2':'鉄が溶ける', 'Na':'Na が析出', 'K':'K が析出'
+  };
+  return m[h.id] || (side === 'anode' ? '酸化される' : '還元される');
+}
+
+function candList(list, winner, kind, tag){
+  var h = '<ul class="cand">';
+  list.forEach(function(o){
+    var win = (o.h.id === winner.h.id);
+    h += '<li class="' + (win ? 'win' : 'dim') + '">';
+    h += '<span class="rx">' + esc(kind === 'cathode' ? eqRed(o.h) : eqOx(o.h)) + '<br><span style="font-family:var(--sans);font-size:11px;color:' + MUTED + '">' + esc(o.why) + '</span></span>';
+    h += '<span class="e">' + (o.h.E>=0?'+':'−') + Math.abs(o.h.E).toFixed(2) + ' V' + (win ? ' <span class="tag fill">' + esc(tag || 'これ') + '</span>' : '') + '</span>';
+    h += '</li>';
+  });
+  h += '</ul>';
+  return h;
+}
+
+function renderElOut(){
+  var s = curSol(), anMat = mat(es.anMat), caMat = mat(es.caMat);
+  var ca = cathodeCands(), an = anodeCands();
+  var caW = ca[0], anPred = an[0], ov = anodeOverride(anPred);
+  var anW = ov ? {h:H(ov.id), why:anPred.why} : anPred;
+  var h = '';
+
+  h += '<div class="row"><div class="col">';
+  h += '<h3 class="rd">陰極（' + esc(caMat.label) + '）— 電位が最大のものが還元される</h3>';
+  h += candList(ca, caW, 'cathode', 'これ');
+  h += '<p class="note">陰極の材料そのものは反応しません。還元される相手は溶液のなかにいます。</p>';
+  h += '</div><div class="col">';
+  h += '<h3 class="ox">陽極（' + esc(anMat.label) + '）— 電位が最小のものが酸化される</h3>';
+  h += candList(an, ov ? anPred : anW, 'anode', ov ? '電位順の予測' : 'これ');
+  if(s.an === 'SO₄²⁻' || s.an === 'NO₃⁻'){
+    h += '<p class="note">' + esc(s.an) + ' は硫黄（窒素）がすでに最高酸化数まで上がっているので、これ以上酸化されません。候補にも入りません。</p>';
+  }
+  h += '</div></div>';
+
+  if(ov){
+    h += '<div class="flag"><span class="h">予測と実際のずれ</span>' + esc(ov.text) +
+         '<br><span class="mono" style="font-size:12px">実際に起こる反応　' + esc(eqOx(H(ov.id))) + '</span></div>';
+  }
+
+  var res = overall(caW.h, anW.h);
+  h += '<h3>まとめ</h3>';
+  h += '<div class="eq"><span class="tag oxt">陽極</span> <span class="ox">' + esc(eqOx(anW.h)) + '</span></div>';
+  h += '<div class="eq"><span class="tag rdt">陰極</span> <span class="rd">' + esc(eqRed(caW.h)) + '</span></div>';
+  if(res.empty){
+    h += '<div class="eq big" style="margin-top:8px">全体　溶液の組成は変わらない</div>';
+    h += '<p class="note">陽極で溶けた金属が、そのまま陰極に析出します。溶液の組成は変わらず、物質が右から左へ移るだけ。電解精錬とめっきはこの状態を利用しています。</p>';
+  } else {
+    h += '<div class="eq big" style="margin-top:8px">全体　' + esc(res.text) + '</div>';
+  }
+
+  /* 実用例 */
+  var use = null;
+  if(s.id==='NaCl' && !anMat.diss && (es.caMat==='Fe'||es.caMat==='C'||es.caMat==='Pt')) use = 'イオン交換膜法。陽極で Cl₂、陰極で H₂ を得ながら、陰極側に NaOH が濃縮されます。Na⁺ だけを通す膜で仕切るのは、生じた OH⁻ が陽極側へ回って Cl₂ と反応するのを防ぐためです。';
+  if(s.id==='CuSO4' && es.anMat==='Cu' && es.caMat==='Cu') use = '銅の電解精錬。陽極を粗銅、陰極を純銅にします。銅より卑な鉄やニッケルはイオンになって溶液に残り、貴な金や銀は溶けずに陽極の下へ沈む（陽極泥）。電圧を上げすぎると卑な金属まで析出してしまうので、低い電圧で流します。';
+  if(s.id==='AgNO3' && es.anMat==='Ag' && es.caMat==='Fe') use = '銀めっき。析出させたい金属のイオンを含む溶液に、めっきしたい品物を陰極として浸します。';
+  if(s.id==='H2SO4' && !anMat.diss) use = '水の電気分解。硫酸は電気を通すために入れてあるだけで、SO₄²⁻ 自体は反応しません。陰極と陽極から H₂ と O₂ が体積比 2 : 1 で出ます。';
+  if(use) h += '<p class="note"><b>実用例</b>　' + esc(use) + '</p>';
+
+  /* 水溶液では取り出せない金属 */
+  if(s.cat === 'Na⁺' || s.cat === 'K⁺'){
+    h += '<p class="note">陰極の候補に Na⁺（−2.71 V）や K⁺（−2.93 V）が挙がっても、水（−0.83 V）に遠く及びません。水溶液からアルカリ金属は取り出せない。Na や Al をつくるのに融解塩電解を使うのはこのためです。</p>';
+  }
+
+  /* 分解電圧について */
+  h += '<div class="flag"><span class="h">計算の限界</span>陰極と陽極の E° を引き算して分解電圧を出す、というのはやってはいけません。表の値はどれも H⁺ 濃度 1 mol/L での値で、中性や塩基性の溶液ではその分だけずれます。同じ電極内で候補を比べるぶんには問題ありませんが、両極をまたいだ引き算には pH の補正（ネルンストの式）が要ります。高校の範囲では、どちらが起こるかの判定だけに使ってください。</div>';
+
+  $('elOut').innerHTML = h;
+}
+
+/* ============================================================
+   5. ファラデーの法則
+   ============================================================ */
+var PRODS = [
+  {id:'Cu', name:'Cu',  eq:'Cu²⁺ + 2e⁻ → Cu',        z:2, M:63.5, gas:false, el:'陰極'},
+  {id:'Ag', name:'Ag',  eq:'Ag⁺ + e⁻ → Ag',          z:1, M:108,  gas:false, el:'陰極'},
+  {id:'H2', name:'H₂',  eq:'2H⁺ + 2e⁻ → H₂',         z:2, M:2.0,  gas:true,  el:'陰極'},
+  {id:'O2', name:'O₂',  eq:'2H₂O → O₂ + 4H⁺ + 4e⁻',  z:4, M:32.0, gas:true,  el:'陽極'},
+  {id:'Cl2',name:'Cl₂', eq:'2Cl⁻ → Cl₂ + 2e⁻',       z:2, M:71.0, gas:true,  el:'陽極'},
+  {id:'I2', name:'I₂',  eq:'2I⁻ → I₂ + 2e⁻',         z:2, M:254,  gas:false, el:'陽極'},
+  {id:'Al', name:'Al',  eq:'Al³⁺ + 3e⁻ → Al',        z:3, M:27.0, gas:false, el:'陰極（融解塩）'},
+  {id:'Na', name:'Na',  eq:'Na⁺ + e⁻ → Na',          z:1, M:23.0, gas:false, el:'陰極（融解塩）'}
+];
+var UNITS = [{id:'s', label:'秒', k:1}, {id:'min', label:'分', k:60}, {id:'h', label:'時間', k:3600}];
+var fs_ = { prod:'Cu', I:1.0, t:60, unit:'min' };
+
+function renderFarBtns(){
+  $('prodBtns').innerHTML = '<span class="lab" style="margin:6px 4px 0 0">生成物</span>' + PRODS.map(function(p){
+    return '<button class="b' + (p.id===fs_.prod?' on':'') + '" data-id="' + p.id + '"><span class="mono">' + esc(p.name) + '</span></button>';
+  }).join('');
+  Array.prototype.forEach.call($('prodBtns').querySelectorAll('button'), function(b){
+    b.addEventListener('click', function(){ fs_.prod = b.dataset.id; renderFarBtns(); renderFar(); });
+  });
+  $('unitBtns').innerHTML = UNITS.map(function(u){
+    return '<button class="b' + (u.id===fs_.unit?' on':'') + '" data-id="' + u.id + '">' + u.label + '</button>';
+  }).join('');
+  Array.prototype.forEach.call($('unitBtns').querySelectorAll('button'), function(b){
+    b.addEventListener('click', function(){ fs_.unit = b.dataset.id; renderFarBtns(); renderFar(); });
+  });
+}
+function curProd(){ for(var i=0;i<PRODS.length;i++) if(PRODS[i].id===fs_.prod) return PRODS[i]; return PRODS[0]; }
+function curUnit(){ for(var i=0;i<UNITS.length;i++) if(UNITS[i].id===fs_.unit) return UNITS[i]; return UNITS[1]; }
+
+function bindFarInputs(){
+  var cR = $('curR'), cN = $('curN'), tR = $('timR'), tN = $('timN');
+  function setI(v, from){
+    v = Math.max(0.1, Math.min(200, isFinite(v) ? v : 1));
+    fs_.I = v;
+    if(from !== 'r') cR.value = Math.min(20, v);
+    if(from !== 'n') cN.value = Number(v.toFixed(2));
+    renderFar();
+  }
+  function setT(v, from){
+    v = Math.max(1, Math.min(100000, isFinite(v) ? Math.round(v) : 60));
+    fs_.t = v;
+    if(from !== 'r') tR.value = Math.min(600, v);
+    if(from !== 'n') tN.value = v;
+    renderFar();
+  }
+  cR.addEventListener('input', function(){ setI(parseFloat(cR.value), 'r'); });
+  cN.addEventListener('input', function(){ setI(parseFloat(cN.value), 'n'); });
+  tR.addEventListener('input', function(){ setT(parseFloat(tR.value), 'r'); });
+  tN.addEventListener('input', function(){ setT(parseFloat(tN.value), 'n'); });
+}
+
+function renderFar(){
+  var p = curProd(), u = curUnit();
+  var tsec = fs_.t * u.k;
+  var Q = fs_.I * tsec;
+  var ne = Q / F;
+  var nx = ne / p.z;
+  var mass = nx * p.M;
+  var vol = nx * 22.4;
+
+  /* 連鎖図 */
+  var box = $('farBox'), narrow = isNarrow();
+  var W = boxW(box, 280, 786);
+  var steps = [
+    {t:'電気量 Q', f:'Q = I × t', v:sig(Q,3) + ' C'},
+    {t:'電子の物質量', f:'n(e⁻) = Q / F', v:sig(ne,3) + ' mol'},
+    {t:p.name + ' の物質量', f:'n = n(e⁻) / ' + p.z, v:sig(nx,3) + ' mol'},
+    {t: p.gas ? '体積（0 ℃, 1.013×10⁵ Pa）' : '質量', f: p.gas ? 'V = n × 22.4' : 'm = n × ' + p.M, v: p.gas ? (sig(vol,3) + ' L') : (sig(mass,3) + ' g')}
+  ];
+  var s;
+  if(narrow){
+    var bh = 58, gap = 20, Hg = steps.length * bh + (steps.length-1) * gap + 8;
+    s = '<svg viewBox="0 0 ' + W + ' ' + Hg + '" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="ファラデーの法則の計算の流れ">';
+    steps.forEach(function(st, i){
+      var y = i * (bh + gap) + 4;
+      s += '<rect x="0" y="' + y + '" width="' + W + '" height="' + bh + '" fill="' + (i===steps.length-1 ? PAPER : '#fff') + '" stroke="' + RULE + '"/>';
+      s += '<text x="8" y="' + (y+17) + '" font-size="10.5" fill="' + MUTED + '">' + esc(st.t) + '</text>';
+      s += '<text x="8" y="' + (y+33) + '" style="font-family:var(--mono);font-variant-numeric:tabular-nums" font-size="10.5" fill="' + MUTED + '">' + esc(st.f) + '</text>';
+      s += '<text x="' + (W-8) + '" y="' + (y+48) + '" text-anchor="end" style="font-family:var(--mono);font-variant-numeric:tabular-nums" font-size="15" font-weight="600" fill="' + INK + '">' + esc(st.v) + '</text>';
+      if(i < steps.length-1){
+        var ay = y + bh;
+        s += '<line x1="' + (W/2) + '" y1="' + ay + '" x2="' + (W/2) + '" y2="' + (ay+gap-5) + '" stroke="' + INK + '" stroke-width="1"/>';
+        s += '<path d="M' + (W/2-3.5) + ' ' + (ay+gap-7) + ' L' + (W/2) + ' ' + (ay+gap-2) + ' L' + (W/2+3.5) + ' ' + (ay+gap-7) + '" fill="' + INK + '"/>';
+      }
+    });
+    s += '</svg>';
+  } else {
+    var gapx = 22, bwid = (W - gapx*3) / 4, Hh = 78;
+    s = '<svg viewBox="0 0 ' + W + ' ' + Hh + '" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="ファラデーの法則の計算の流れ">';
+    steps.forEach(function(st, i){
+      var x = i * (bwid + gapx);
+      s += '<rect x="' + x + '" y="4" width="' + bwid + '" height="66" fill="' + (i===steps.length-1 ? PAPER : '#fff') + '" stroke="' + RULE + '"/>';
+      s += '<text x="' + (x+9) + '" y="21" font-size="10.5" fill="' + MUTED + '">' + esc(st.t) + '</text>';
+      s += '<text x="' + (x+9) + '" y="36" style="font-family:var(--mono);font-variant-numeric:tabular-nums" font-size="10.5" fill="' + MUTED + '">' + esc(st.f) + '</text>';
+      s += '<text x="' + (x+bwid-9) + '" y="60" text-anchor="end" style="font-family:var(--mono);font-variant-numeric:tabular-nums" font-size="16" font-weight="600" fill="' + INK + '">' + esc(st.v) + '</text>';
+      if(i < 3){
+        var ax = x + bwid;
+        s += '<line x1="' + ax + '" y1="37" x2="' + (ax+gapx-6) + '" y2="37" stroke="' + INK + '" stroke-width="1"/>';
+        s += '<path d="M' + (ax+gapx-8) + ' 33.5 L' + (ax+gapx-2) + ' 37 L' + (ax+gapx-8) + ' 40.5" fill="' + INK + '"/>';
+      }
+    });
+    s += '</svg>';
+  }
+  box.innerHTML = s;
+
+  var h = '';
+  h += '<div class="eq" style="margin-top:8px"><span class="tag ' + (p.el.indexOf('陽')===0?'oxt':'rdt') + '">' + esc(p.el) + '</span> <span class="' + (p.el.indexOf('陽')===0?'ox':'rd') + '">' + esc(p.eq) + '</span></div>';
+  h += '<div class="kv"><span class="k">通電時間</span><span class="v">' + sig(tsec,4) + ' s</span></div>';
+  h += '<div class="kv"><span class="k">' + esc(p.name) + ' 1 mol あたりに必要な電子</span><span class="v">' + p.z + ' mol</span></div>';
+  h += '<div class="kv"><span class="k">生成量</span><span class="v">' +
+       (p.gas ? (sig(vol,3) + ' L　（' + sig(mass,3) + ' g）') : (sig(mass,3) + ' g　（' + sig(nx,3) + ' mol）')) + '</span></div>';
+  if(p.id === 'Al' || p.id === 'Na'){
+    h += '<p class="note">この金属は水溶液の電気分解では得られません。融解塩電解での量的関係として扱ってください。</p>';
+  }
+  if(p.gas){
+    h += '<p class="note">実際に捕集できる体積は、水に溶ける分だけ計算値より小さくなります。とくに Cl₂ は水によく溶けるので、飽和食塩水を使って溶解を抑えます。</p>';
+  }
+  $('farOut').innerHTML = h;
+}
+
+/* ============================================================
+   6. 起動
+   ============================================================ */
+function renderAll(){
+  renderScale(); renderCell(); renderEl(); renderFar();
+}
+renderScaleBtns();
+renderPresetBtns();
+sc.sel = ['Zn','Cu'];
+renderScale();
+renderPair();
+renderCellBtns();
+renderModeBtns();
+renderCell();
+renderCellOut();
+renderElBtns();
+renderEl();
+renderElOut();
+renderFarBtns();
+bindFarInputs();
+renderFar();
+
+var rt = null, lastW = window.innerWidth;
+window.addEventListener('resize', function(){
+  clearTimeout(rt);
+  rt = setTimeout(function(){
+    if(Math.abs(window.innerWidth - lastW) < 2) return;
+    lastW = window.innerWidth;
+    renderAll();
+  }, 160);
+});
+
+})();
+</script>
+</body>
+</html>

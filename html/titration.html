@@ -1,0 +1,695 @@
+<!doctype html>
+<html lang="ja">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>滴定曲線シミュレータ</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500;600&family=IBM+Plex+Sans+JP:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+:root{--ink:#16232B;--muted:#5E6E76;--paper:#EDF1EF;--surface:#FFFFFF;--rule:#D6DDDA;--rule-soft:#E8EDEB}
+*{box-sizing:border-box}
+html,body{margin:0;padding:0}
+body{background:var(--paper);color:var(--ink);
+  font-family:"IBM Plex Sans JP","Hiragino Sans","Yu Gothic UI",system-ui,sans-serif;
+  font-size:15px;line-height:1.7;-webkit-text-size-adjust:100%}
+.wrap{max-width:820px;margin:0 auto;padding:26px 16px 56px}
+.mono{font-family:"IBM Plex Mono",ui-monospace,SFMono-Regular,Menlo,monospace;font-variant-numeric:tabular-nums}
+header{margin-bottom:16px}
+.eyebrow{font-family:"IBM Plex Mono",monospace;font-size:11.5px;letter-spacing:.14em;color:var(--muted);
+  display:flex;align-items:center;gap:10px;margin-bottom:8px}
+.eyebrow::after{content:"";flex:1;height:1px;background:var(--rule)}
+h1{font-size:22px;line-height:1.45;font-weight:600;margin:0 0 6px;letter-spacing:.01em}
+.sub{color:var(--muted);font-size:13.5px;margin:0}
+.card{background:var(--surface);border:1px solid var(--rule);border-radius:3px;padding:16px;margin-bottom:14px}
+.grp{display:flex;flex-wrap:wrap;gap:6px;align-items:center;margin-bottom:11px}
+.grp:last-child{margin-bottom:0}
+.glab{font-family:"IBM Plex Mono",monospace;font-size:10.5px;letter-spacing:.1em;color:var(--muted);width:100%}
+.readtop{display:flex;align-items:flex-end;gap:16px;margin-bottom:14px;flex-wrap:wrap}
+.phbox{line-height:1}
+.phlab{font-family:"IBM Plex Mono",monospace;font-size:11px;letter-spacing:.16em;color:var(--muted)}
+.phnum{font-family:"IBM Plex Mono",monospace;font-size:44px;font-weight:500;letter-spacing:-.02em;font-variant-numeric:tabular-nums}
+.vnum{font-family:"IBM Plex Mono",monospace;font-size:22px;font-weight:500;font-variant-numeric:tabular-nums}
+.stage{padding-bottom:7px;font-size:13px;color:var(--muted);margin-left:auto;text-align:right}
+.stage b{color:var(--ink);font-weight:600}
+.bar{display:flex;height:22px;border:1px solid var(--rule);border-radius:2px;overflow:hidden;background:#F6F8F7}
+.bar span{display:block;height:100%}
+table{width:100%;border-collapse:collapse;margin-top:12px;font-size:13.5px}
+th{font-family:"IBM Plex Mono",monospace;font-size:10.5px;letter-spacing:.1em;color:var(--muted);
+  font-weight:400;text-align:right;padding:0 0 6px;border-bottom:1px solid var(--rule)}
+th:first-child{text-align:left}
+td{padding:6px 0;border-bottom:1px solid var(--rule-soft);text-align:right;font-variant-numeric:tabular-nums}
+td:first-child{text-align:left}
+tr:last-child td{border-bottom:none}
+.sw{display:inline-block;width:9px;height:9px;border-radius:1px;margin-right:8px;vertical-align:1px}
+.form{font-size:14px}
+.lead td{font-weight:600}
+.num{font-family:"IBM Plex Mono",monospace;font-size:12.5px}
+.conc{color:var(--muted)}
+.ok{color:#0D6A53;font-weight:600}
+.ng{color:#8A5A0C}
+#chart{width:100%;touch-action:pan-y;cursor:crosshair;user-select:none}
+#chart svg{display:block;width:100%;height:auto}
+.gridline{stroke:var(--rule-soft);stroke-width:1}
+.axis{stroke:var(--rule);stroke-width:1}
+.tick{fill:var(--muted);font-family:"IBM Plex Mono",monospace}
+.eqline{stroke:#7C8B91;stroke-width:1}
+.halfline{stroke:#9AA8AD;stroke-width:1;stroke-dasharray:2 4}
+.marklab{fill:#77858B;font-family:"IBM Plex Mono",monospace}
+.curve{fill:none;stroke-width:2.3;stroke-linejoin:round;stroke-linecap:round}
+.acurve{fill:none;stroke-width:1.9;stroke-linejoin:round;stroke-linecap:round}
+.cursor{stroke:var(--ink);stroke-width:1.2}
+.chip{fill:var(--ink)}
+.chiptx{fill:#fff;font-family:"IBM Plex Mono",monospace;font-weight:500}
+.peaklab{font-family:"IBM Plex Sans JP",sans-serif;font-weight:600}
+.ctl{display:flex;flex-direction:column;gap:12px}
+input[type=range]{width:100%;margin:0;accent-color:var(--ink);height:26px}
+button{font-family:inherit;font-size:12.5px;color:var(--ink);background:#fff;
+  border:1px solid var(--rule);border-radius:2px;padding:6px 11px;cursor:pointer;line-height:1.3}
+button:hover{border-color:#A9B5B9}
+button:focus-visible{outline:2px solid var(--ink);outline-offset:2px}
+button[aria-pressed=true]{background:var(--ink);color:#fff;border-color:var(--ink)}
+button .mn{font-family:"IBM Plex Mono",monospace;color:var(--muted);margin-left:6px;font-size:11.5px}
+button[aria-pressed=true] .mn{color:#B9C4C8}
+.notes{font-size:13px;color:var(--muted);line-height:1.85}
+.notes h2{font-size:13px;font-weight:600;color:var(--ink);margin:0 0 8px}
+.notes p{margin:0 0 10px}
+.notes p:last-child{margin-bottom:0}
+.eq{font-family:"IBM Plex Mono",monospace;font-size:12.5px;color:var(--ink);display:block;
+  margin:6px 0 10px;overflow-x:auto;white-space:nowrap;padding-bottom:3px}
+@media (max-width:430px){
+  .wrap{padding:18px 12px 44px}
+  h1{font-size:19px}.phnum{font-size:36px}.vnum{font-size:19px}
+  .card{padding:13px}table{font-size:12.5px}.num{font-size:11.5px}.form{font-size:13px}
+  button{padding:6px 9px;font-size:12px}
+  .stage{margin-left:0;width:100%;text-align:left;padding-bottom:0}
+}
+</style>
+</head>
+<body>
+<div class="wrap">
+
+<header>
+  <div class="eyebrow" id="eyebrow"></div>
+  <h1>滴定曲線と分布曲線は、同じ平衡の別の見方</h1>
+  <p class="sub">グラフを横になぞるか、下のつまみを動かすと、その滴下量での組成が出ます。フラスコは 10.0 mL 固定。</p>
+</header>
+
+<div class="card" id="picker"></div>
+
+<div class="card" id="cond"></div>
+
+<div class="card">
+  <div class="readtop">
+    <div class="phbox"><div class="phlab">滴下量 / mL</div><div class="vnum mono" id="vnum">0.00</div></div>
+    <div class="phbox"><div class="phlab">中和率</div><div class="vnum mono" id="anum">0.00</div></div>
+    <div class="phbox"><div class="phlab">pH</div><div class="phnum mono" id="phnum">7.00</div></div>
+    <div class="stage" id="stage"></div>
+  </div>
+  <div class="bar" id="bar"></div>
+  <table><thead><tr><th>化学種</th><th>電荷</th><th>存在率</th><th>濃度 / mol L⁻¹</th></tr></thead><tbody id="tb"></tbody></table>
+</div>
+
+<div class="card"><div id="chart"></div></div>
+
+<div class="card ctl">
+  <input type="range" id="slider" min="0" max="100" step="0.05" value="0" aria-label="滴下量">
+  <div class="grp"><span class="glab">横軸</span>
+    <button id="xVol" aria-pressed="true">滴下量 mL</button>
+    <button id="xRat" aria-pressed="false">中和率</button>
+  </div>
+  <div class="grp" id="indrow"><span class="glab">指示薬（変色域を重ねる）</span></div>
+</div>
+
+<div class="card" id="verdict"></div>
+
+<div class="card notes" id="notes"></div>
+
+</div>
+
+<script>
+/* ============================================================
+   equilibrium-core.js の内容をそのまま埋め込んでいる。
+   単体ファイル版は equilibrium-core.js を参照。
+   ============================================================ */
+var EqCore=(function(){
+"use strict";
+var KW=1e-14;
+function fractions(Ka,pH){
+  var h=Math.pow(10,-pH),t=[1],prod=1,D=1,k,v;
+  for(k=1;k<=Ka.length;k++){prod*=Ka[k-1];v=prod/Math.pow(h,k);t.push(v);D+=v;}
+  for(k=0;k<t.length;k++)t[k]=t[k]/D;
+  return t;
+}
+function nbar(Ka,pH){var a=fractions(Ka,pH),s=0;for(var k=0;k<a.length;k++)s+=k*a[k];return s;}
+function pK(Ka,i){return -Math.log10(Ka[i]);}
+function solveMonotonic(f,lo,hi,iter){
+  lo=(lo==null?-2:lo);hi=(hi==null?16:hi);iter=iter||90;
+  for(var i=0;i<iter;i++){var m=(lo+hi)/2;if(f(m)>0)lo=m;else hi=m;}
+  return (lo+hi)/2;
+}
+function titrantCharge(t,Ct,h){
+  if(!t||!Ct)return 0;
+  if(t.type==='base')return Ct*h/(h+(t.Ka||0));
+  return -Ct*t.Ka/(h+t.Ka);
+}
+function balance(o,pH){
+  var h=Math.pow(10,-pH);
+  return h-KW/h+o.Ca*(o.m0-nbar(o.Ka,pH))+titrantCharge(o.titrant,o.Ct,h);
+}
+function pHofMixture(o){return solveMonotonic(function(p){return balance(o,p);});}
+function pHofSolution(Ka,C,m){return pHofMixture({Ka:Ka,Ca:C,m0:m,Ct:0,titrant:null});}
+function pHofTitration(s,V){
+  var f=1/(s.Va+V);
+  return pHofMixture({Ka:s.Ka,Ca:s.Ca*s.Va*f,m0:s.m0,Ct:s.Ct*V*f,titrant:s.titrant});
+}
+function stepCount(s){return (s.titrant.type==='base')?(s.Ka.length-s.m0):s.m0;}
+function equivalenceVolumes(s){
+  var unit=s.Ca*s.Va/s.Ct,out=[],cnt=stepCount(s);
+  for(var j=1;j<=cnt;j++)out.push(j*unit);
+  return out;
+}
+function halfEquivalences(s){
+  var unit=s.Ca*s.Va/s.Ct,out=[],cnt=stepCount(s),j,idx;
+  for(j=1;j<=cnt;j++){
+    idx=(s.titrant.type==='base')?(s.m0+j-1):(s.m0-j);
+    out.push({V:(j-0.5)*unit,pKa:pK(s.Ka,idx),index:idx});
+  }
+  return out;
+}
+function sampleVolumes(s,Vmax,steps){
+  var Vs=[],i,p,d;
+  for(i=0;i<=steps;i++)Vs.push(i/steps*Vmax);
+  equivalenceVolumes(s).forEach(function(ve){
+    if(ve>Vmax)return;
+    Vs.push(ve);
+    for(p=0.3;p<=4.5;p+=0.15){
+      d=ve*Math.pow(10,-p);
+      if(ve-d>0)Vs.push(ve-d);
+      if(ve+d<Vmax)Vs.push(ve+d);
+    }
+  });
+  Vs.sort(function(a,b){return a-b;});
+  var out=[Vs[0]];
+  for(i=1;i<Vs.length;i++)if(Vs[i]-out[out.length-1]>1e-12)out.push(Vs[i]);
+  return out;
+}
+function titrationCurve(s,Vmax,steps){
+  return sampleVolumes(s,Vmax,steps||300).map(function(V){
+    var p=pHofTitration(s,V);
+    return {V:V,pH:p,alpha:fractions(s.Ka,p)};
+  });
+}
+function jumpRange(s,Veq,rel){
+  rel=rel||0.001;
+  var a=pHofTitration(s,Veq*(1-rel)),b=pHofTitration(s,Veq*(1+rel));
+  return {lo:Math.min(a,b),hi:Math.max(a,b)};
+}
+function indicatorFits(ind,jump){var m=(ind.lo+ind.hi)/2;return m>=jump.lo&&m<=jump.hi;}
+function indicatorUsable(ind,pHeq){return pHeq>=ind.lo&&pHeq<=ind.hi;}
+function indicatorGrade(ind,jump,pHeq){
+  if(indicatorFits(ind,jump))return 2;
+  if(indicatorUsable(ind,pHeq))return 1;
+  return 0;
+}
+var SUP={'-':'⁻','0':'⁰','1':'¹','2':'²','3':'³','4':'⁴','5':'⁵','6':'⁶','7':'⁷','8':'⁸','9':'⁹'};
+var SUB={1:'₁',2:'₂',3:'₃',4:'₄',5:'₅',6:'₆'};
+function sup(n){return String(n).split('').map(function(c){return SUP[c]||c;}).join('');}
+function sci(x,d){
+  if(!(x>0))return '0';
+  var e=Math.floor(Math.log10(x)),m=x/Math.pow(10,e);
+  if(m>=9.995){m=m/10;e=e+1;}
+  return m.toFixed(d==null?2:d)+'×10'+sup(e);
+}
+function pct(a){
+  var p=a*100;
+  if(p>=10)return p.toFixed(1)+' %';
+  if(p>=0.1)return p.toFixed(2)+' %';
+  if(p>=1e-3)return p.toFixed(4)+' %';
+  if(p<=0)return '0 %';
+  return sci(p,1)+' %';
+}
+return {KW:KW,SUB:SUB,fractions:fractions,nbar:nbar,pK:pK,solveMonotonic:solveMonotonic,
+  pHofMixture:pHofMixture,pHofSolution:pHofSolution,pHofTitration:pHofTitration,
+  stepCount:stepCount,equivalenceVolumes:equivalenceVolumes,halfEquivalences:halfEquivalences,
+  titrationCurve:titrationCurve,jumpRange:jumpRange,indicatorFits:indicatorFits,
+  indicatorUsable:indicatorUsable,indicatorGrade:indicatorGrade,
+  sup:sup,sci:sci,pct:pct};
+})();
+
+(function(){
+"use strict";
+var E=EqCore;
+
+/* ---------------- 分析種 ---------------- */
+var SYSTEMS=[
+{cat:'強酸・強塩基',name:'塩酸',formula:'HCl',Ka:[1e6],
+ species:[{f:'HCl',z:'0'},{f:'Cl⁻',z:'−1'}]},
+{cat:'1価の弱酸',name:'酢酸',formula:'CH₃COOH',Ka:[1.8e-5],
+ species:[{f:'CH₃COOH',z:'0'},{f:'CH₃COO⁻',z:'−1'}]},
+{cat:'1価の弱酸',name:'ギ酸',formula:'HCOOH',Ka:[1.8e-4],
+ species:[{f:'HCOOH',z:'0'},{f:'HCOO⁻',z:'−1'}]},
+{cat:'1価の弱酸',name:'安息香酸',formula:'C₆H₅COOH',Ka:[6.3e-5],
+ species:[{f:'C₆H₅COOH',z:'0'},{f:'C₆H₅COO⁻',z:'−1'}]},
+{cat:'1価の弱酸',name:'次亜塩素酸',formula:'HClO',Ka:[3.0e-8],
+ species:[{f:'HClO',z:'0'},{f:'ClO⁻',z:'−1'}]},
+{cat:'1価の弱酸',name:'フェノール',formula:'C₆H₅OH',Ka:[1.3e-10],
+ species:[{f:'C₆H₅OH',z:'0'},{f:'C₆H₅O⁻',z:'−1'}]},
+{cat:'2価の酸',name:'炭酸',formula:'H₂CO₃',Ka:[4.5e-7,4.7e-11],
+ species:[{f:'H₂CO₃',z:'0'},{f:'HCO₃⁻',z:'−1'},{f:'CO₃²⁻',z:'−2'}]},
+{cat:'2価の酸',name:'シュウ酸',formula:'H₂C₂O₄',Ka:[5.4e-2,5.4e-5],
+ species:[{f:'H₂C₂O₄',z:'0'},{f:'HC₂O₄⁻',z:'−1'},{f:'C₂O₄²⁻',z:'−2'}]},
+{cat:'2価の酸',name:'亜硫酸',formula:'H₂SO₃',Ka:[1.4e-2,6.3e-8],
+ species:[{f:'H₂SO₃',z:'0'},{f:'HSO₃⁻',z:'−1'},{f:'SO₃²⁻',z:'−2'}]},
+{cat:'3価以上',name:'リン酸',formula:'H₃PO₄',Ka:[7.5e-3,6.2e-8,4.8e-13],
+ species:[{f:'H₃PO₄',z:'0'},{f:'H₂PO₄⁻',z:'−1'},{f:'HPO₄²⁻',z:'−2'},{f:'PO₄³⁻',z:'−3'}]},
+{cat:'3価以上',name:'クエン酸',formula:'H₃Cit',Ka:[7.4e-4,1.7e-5,4.0e-7],
+ species:[{f:'H₃Cit',z:'0'},{f:'H₂Cit⁻',z:'−1'},{f:'HCit²⁻',z:'−2'},{f:'Cit³⁻',z:'−3'}]},
+{cat:'3価以上',name:'EDTA',formula:'H₄Y',Ka:[1.0e-2,2.1e-3,6.9e-7,5.5e-11],
+ species:[{f:'H₄Y',z:'0'},{f:'H₃Y⁻',z:'−1'},{f:'H₂Y²⁻',z:'−2'},{f:'HY³⁻',z:'−3'},{f:'Y⁴⁻',z:'−4'}]},
+{cat:'塩基',name:'アンモニア',formula:'NH₃',Ka:[5.6e-10],base:true,
+ species:[{f:'NH₄⁺',z:'+1'},{f:'NH₃',z:'0'}]},
+{cat:'塩基',name:'メチルアミン',formula:'CH₃NH₂',Ka:[2.3e-11],base:true,
+ species:[{f:'CH₃NH₃⁺',z:'+1'},{f:'CH₃NH₂',z:'0'}]},
+{cat:'塩基',name:'アニリン',formula:'C₆H₅NH₂',Ka:[2.5e-5],base:true,
+ species:[{f:'C₆H₅NH₃⁺',z:'+1'},{f:'C₆H₅NH₂',z:'0'}]},
+{cat:'アミノ酸',name:'グリシン',formula:'Gly',Ka:[4.5e-3,1.7e-10],
+ species:[{f:'H₃N⁺CH₂COOH',z:'+1',s:'陽イオン'},{f:'H₃N⁺CH₂COO⁻',z:'0',s:'双性イオン'},{f:'H₂NCH₂COO⁻',z:'−1',s:'陰イオン'}]},
+{cat:'アミノ酸',name:'グルタミン酸',formula:'Glu',Ka:[6.5e-3,5.6e-5,2.1e-10],
+ species:[{f:'H₃Glu⁺',z:'+1'},{f:'H₂Glu',z:'0',s:'双性イオン'},{f:'HGlu⁻',z:'−1'},{f:'Glu²⁻',z:'−2'}]},
+{cat:'アミノ酸',name:'リシン',formula:'Lys',Ka:[6.6e-3,1.1e-9,3.0e-11],
+ species:[{f:'H₃Lys²⁺',z:'+2'},{f:'H₂Lys⁺',z:'+1'},{f:'HLys',z:'0',s:'双性イオン'},{f:'Lys⁻',z:'−1'}]},
+{cat:'アミノ酸',name:'ヒスチジン',formula:'His',Ka:[1.5e-2,1.0e-6,6.8e-10],
+ species:[{f:'H₃His²⁺',z:'+2'},{f:'H₂His⁺',z:'+1'},{f:'HHis',z:'0',s:'双性イオン'},{f:'His⁻',z:'−1'}]}
+];
+
+var TITRANTS=[
+ {id:'naoh',short:'NaOH',name:'水酸化ナトリウム',type:'base',Ka:0,strong:true},
+ {id:'nh3', short:'NH₃', name:'アンモニア',      type:'base',Ka:5.6e-10,strong:false},
+ {id:'hcl', short:'HCl', name:'塩酸',            type:'acid',Ka:1e10,strong:true},
+ {id:'acoh',short:'CH₃COOH',name:'酢酸',         type:'acid',Ka:1.8e-5,strong:false}
+];
+
+var INDICATORS=[
+ {name:'メチルオレンジ',short:'MO', lo:3.1,hi:4.4, hex:'#C4562A'},
+ {name:'メチルレッド',  short:'MR', lo:4.2,hi:6.2, hex:'#B03A3A'},
+ {name:'リトマス',      short:'litmus',lo:5.0,hi:8.0,hex:'#7A4E8C'},
+ {name:'BTB',           short:'BTB',lo:6.0,hi:7.6, hex:'#2457A6'},
+ {name:'フェノールフタレイン',short:'PP',lo:8.0,hi:9.8,hex:'#A82A6A'},
+ {name:'チモールフタレイン',short:'TP',lo:9.3,hi:10.5,hex:'#2A5A8C'}
+];
+
+var PAL=[{hex:'#B87A16',tx:'#8A5A0C'},{hex:'#158A6D',tx:'#0D6A53'},{hex:'#2457A6',tx:'#1B4380'},
+         {hex:'#6E3AA7',tx:'#572D85'},{hex:'#A82A6A',tx:'#831F52'},{hex:'#3B6E1E',tx:'#2A5215'}];
+var CONC=[1.0,0.10,0.010];
+var VA=10.0;
+
+/* ---------------- 状態 ---------------- */
+var sys=SYSTEMS[0], tit=TITRANTS[0], m0=0, Ca=0.10, Ct=0.10;
+var V=0, xMode='vol', indSel=null, geo=null, dragging=false;
+var setup=null, curve=null, eqs=[], halves=[], Vmax=20, unit=10;
+
+function defaultM0(s){
+  if(s.cat==='塩基') return s.Ka.length;
+  if(s.cat==='アミノ酸'){ for(var i=0;i<s.species.length;i++) if(s.species[i].z==='0') return i; }
+  return 0;
+}
+function label(i){ return sys.species[i].s || sys.species[i].f; }
+
+function rebuild(){
+  setup={Ka:sys.Ka,Ca:Ca,Va:VA,m0:m0,Ct:Ct,titrant:tit};
+  eqs=E.equivalenceVolumes(setup);
+  halves=E.halfEquivalences(setup);
+  unit=Ca*VA/Ct;
+  Vmax = eqs.length ? eqs[eqs.length-1]*1.5 : VA*2;
+  curve=E.titrationCurve(setup,Vmax,300);
+  var sl=document.getElementById('slider');
+  sl.max=Vmax.toFixed(3); sl.step=(Vmax/2000).toFixed(5);
+  if(V>Vmax) V=Vmax;
+  sl.value=V;
+}
+
+/* ---------------- 分析種パネル ---------------- */
+(function(){
+  var p=document.getElementById('picker'), cats=[];
+  SYSTEMS.forEach(function(s){ if(cats.indexOf(s.cat)<0) cats.push(s.cat); });
+  cats.forEach(function(cat){
+    var g=document.createElement('div');
+    g.className='grp';
+    g.innerHTML='<span class="glab">'+cat+'</span>';
+    SYSTEMS.forEach(function(s){
+      if(s.cat!==cat) return;
+      var b=document.createElement('button');
+      b.textContent=s.name;
+      b.addEventListener('click',function(){ selectSystem(s); });
+      s._btn=b; g.appendChild(b);
+    });
+    p.appendChild(g);
+  });
+  var g2=document.createElement('div');
+  g2.className='grp';
+  g2.innerHTML='<span class="glab">定番の組み合わせ</span>';
+  [['強酸×強塩基','塩酸','naoh'],['弱酸×強塩基','酢酸','naoh'],
+   ['強酸×弱塩基','塩酸','nh3'],['弱酸×弱塩基','酢酸','nh3'],
+   ['弱塩基×強酸','アンモニア','hcl'],['二段滴定','炭酸','naoh']].forEach(function(c){
+    var b=document.createElement('button');
+    b.textContent=c[0];
+    b.addEventListener('click',function(){
+      var s=SYSTEMS.filter(function(x){return x.name===c[1];})[0];
+      sys=s; m0=defaultM0(s); tit=TITRANTS.filter(function(t){return t.id===c[2];})[0];
+      V=0; indSel=null; refreshAll();
+    });
+    g2.appendChild(b);
+  });
+  p.appendChild(g2);
+})();
+
+function selectSystem(s){
+  sys=s; m0=defaultM0(s);
+  tit = (m0>=s.Ka.length) ? TITRANTS[2] : TITRANTS[0];
+  V=0; indSel=null;
+  refreshAll();
+}
+
+/* ---------------- 条件パネル ---------------- */
+function buildCond(){
+  var c=document.getElementById('cond'), h='';
+  h+='<div class="grp"><span class="glab">フラスコに入れる形（m₀）</span>';
+  sys.species.forEach(function(sp,i){
+    h+='<button data-m0="'+i+'" aria-pressed="'+(i===m0)+'">'+label(i)+'</button>';
+  });
+  h+='</div><div class="grp"><span class="glab">滴定剤</span>';
+  TITRANTS.forEach(function(t){
+    h+='<button data-tit="'+t.id+'" aria-pressed="'+(t.id===tit.id)+'">'+t.short+
+       '<span class="mn">'+(t.strong?(t.type==='base'?'強塩基':'強酸'):(t.type==='base'?'弱塩基':'弱酸'))+'</span></button>';
+  });
+  h+='</div><div class="grp"><span class="glab">分析種の濃度 C(分析)</span>';
+  CONC.forEach(function(v){ h+='<button data-ca="'+v+'" aria-pressed="'+(Math.abs(v-Ca)<1e-12)+'">'+v.toFixed(v>=1?1:(v>=0.1?2:3))+' M</button>'; });
+  h+='</div><div class="grp"><span class="glab">滴定剤の濃度 C(滴定)</span>';
+  CONC.forEach(function(v){ h+='<button data-ct="'+v+'" aria-pressed="'+(Math.abs(v-Ct)<1e-12)+'">'+v.toFixed(v>=1?1:(v>=0.1?2:3))+' M</button>'; });
+  h+='</div>';
+  c.innerHTML=h;
+  c.querySelectorAll('[data-m0]').forEach(function(b){
+    b.addEventListener('click',function(){
+      m0=parseInt(b.getAttribute('data-m0'),10);
+      if(m0>=sys.Ka.length && tit.type==='base') tit=TITRANTS[2];
+      if(m0===0 && tit.type==='acid') tit=TITRANTS[0];
+      V=0; refreshAll();
+    });
+  });
+  c.querySelectorAll('[data-tit]').forEach(function(b){
+    b.addEventListener('click',function(){
+      tit=TITRANTS.filter(function(t){return t.id===b.getAttribute('data-tit');})[0];
+      V=0; refreshAll();
+    });
+  });
+  c.querySelectorAll('[data-ca]').forEach(function(b){
+    b.addEventListener('click',function(){ Ca=parseFloat(b.getAttribute('data-ca')); V=0; refreshAll(); });
+  });
+  c.querySelectorAll('[data-ct]').forEach(function(b){
+    b.addEventListener('click',function(){ Ct=parseFloat(b.getAttribute('data-ct')); V=0; refreshAll(); });
+  });
+}
+
+/* ---------------- 表 ---------------- */
+function buildTable(){
+  var bar=document.getElementById('bar'), tb=document.getElementById('tb');
+  bar.innerHTML=''; tb.innerHTML='';
+  sys.species.forEach(function(sp,i){
+    var sg=document.createElement('span');
+    sg.id='b'+i; sg.style.background=PAL[i%PAL.length].hex;
+    bar.appendChild(sg);
+    var tr=document.createElement('tr');
+    tr.id='r'+i;
+    tr.innerHTML='<td class="form"><span class="sw" style="background:'+PAL[i%PAL.length].hex+'"></span>'+sp.f+'</td>'+
+                 '<td class="num" style="color:'+PAL[i%PAL.length].tx+'">'+sp.z+'</td>'+
+                 '<td class="num" id="p'+i+'"></td><td class="num conc" id="c'+i+'"></td>';
+    tb.appendChild(tr);
+  });
+}
+
+/* ---------------- 指示薬 ---------------- */
+function buildIndicators(){
+  var row=document.getElementById('indrow');
+  row.innerHTML='<span class="glab">指示薬（変色域を重ねる）</span>';
+  INDICATORS.forEach(function(ind,i){
+    var b=document.createElement('button');
+    b.innerHTML=ind.name+'<span class="mn">'+ind.lo.toFixed(1)+'–'+ind.hi.toFixed(1)+'</span>';
+    b.setAttribute('aria-pressed', indSel===i?'true':'false');
+    b.addEventListener('click',function(){ indSel=(indSel===i?null:i); buildIndicators(); build(); });
+    row.appendChild(b);
+  });
+}
+
+function buildVerdict(){
+  var el=document.getElementById('verdict');
+  if(!eqs.length){ el.innerHTML='<div class="glab">指示薬の判定</div><p style="color:var(--muted);font-size:13px;margin:8px 0 0">この組み合わせには当量点がありません。</p>'; return; }
+  var jumps=eqs.map(function(v){ return E.jumpRange(setup,v); });
+  var peqs=eqs.map(function(v){ return E.pHofTitration(setup,v); });
+  var h='<div class="glab">指示薬の判定</div>';
+  h+='<p style="font-size:12.5px;color:var(--muted);margin:8px 0 2px">'+
+     '<b style="color:#0D6A53">◎</b> 変色域の中点が ±0.1 % の跳びに入る（誤差 0.1 % 以内で終点が取れる）　'+
+     '<b style="color:#1B4380">○</b> 当量点の pH が変色域に入る（実用上は使える）　'+
+     '<b style="color:#8A5A0C">×</b> 使えない</p>';
+  h+='<table><thead><tr><th>指示薬</th><th>変色域</th>';
+  eqs.forEach(function(v,i){ h+='<th>第'+(i+1)+'当量点</th>'; });
+  h+='</tr></thead><tbody>';
+  INDICATORS.forEach(function(ind){
+    h+='<tr><td class="form">'+ind.name+'</td><td class="num">'+ind.lo.toFixed(1)+'–'+ind.hi.toFixed(1)+'</td>';
+    jumps.forEach(function(j,i){
+      var g=E.indicatorGrade(ind,j,peqs[i]);
+      h+='<td class="'+(g===2?'ok':(g===1?'':'ng'))+'" style="'+(g===1?'color:#1B4380;font-weight:600':'')+'">'+
+         (g===2?'◎':(g===1?'○':'×'))+'</td>';
+    });
+    h+='</tr>';
+  });
+  h+='</tbody></table>';
+  h+='<table style="margin-top:10px"><thead><tr><th>当量点</th><th>滴下量 / mL</th><th>pH</th><th>±0.1 % での跳び</th></tr></thead><tbody>';
+  eqs.forEach(function(v,i){
+    var j=jumps[i], w=(j.hi-j.lo);
+    h+='<tr><td class="form">第'+(i+1)+'</td><td class="num">'+v.toFixed(2)+'</td>'+
+       '<td class="num">'+peqs[i].toFixed(2)+'</td>'+
+       '<td class="num '+(w<1?'ng':'')+'">'+j.lo.toFixed(2)+' → '+j.hi.toFixed(2)+'（幅 '+w.toFixed(2)+'）</td></tr>';
+  });
+  h+='</tbody></table>';
+  el.innerHTML=h;
+}
+
+/* ---------------- 注記 ---------------- */
+function buildNotes(){
+  var n=sys.Ka.length, kl=[];
+  for(var i=0;i<n;i++) kl.push('pK'+E.SUB[i+1]+' = '+E.pK(sys.Ka,i).toFixed(2));
+  var msg='';
+  if(halves.length){
+    var bad=halves.filter(function(x){ return Math.abs(E.pHofTitration(setup,x.V)-x.pKa)>0.15; });
+    if(bad.length) msg='<p>半当量点の pH が pKa からずれている段があります。Ka が大きくて希釈が効く場合（第1段）や、水の電離が効く場合（最終段）に起こります。pH = pKa はあくまで両側の化学種が等量になる点で、そこに水の電離や希釈が加わると一致しなくなります。</p>';
+  }
+  document.getElementById('notes').innerHTML=
+   '<h2>計算に使っている式</h2>'+
+   '<p>分布曲線も滴定曲線も、電荷収支から出る同じ1本の式を解いているだけです。</p>'+
+   '<span class="eq">h − Kw/h + C(分析)(m₀ − n̄(h)) + T(h) = 0</span>'+
+   '<p>n̄(h) は平均して外れているプロトン数 Σ k·α_k、m₀ はフラスコに入れた化学種の段数、T(h) は滴定剤の電荷寄与です。強塩基は共役酸の Ka を 0 とみなすと h/(h+0) = 1 になり、弱塩基と同じ式に畳めます。強酸も Ka を十分大きくとれば同じ扱いになります。</p>'+
+   '<p>この f(pH) は pH について単調減少なので、二分法が必ず収束します。滴下量ごとに希釈を入れて解き直しているだけで、近似式は使っていません。</p>'+
+   '<p>'+sys.formula+'　'+kl.join('　')+'</p>'+ msg +
+   '<p>半当量点で pH が pKa に一致するのは、その段の両側の化学種が等量になるためです。分布曲線側で2本が交差しているのが同じことを示しています。当量点が中性からずれるのは、そこにできた塩が加水分解するからで、生じた塩がどの化学種かは下段の帯を見れば分かります。</p>';
+}
+
+/* ---------------- グラフ ---------------- */
+var chart=document.getElementById('chart');
+function xVal(v){ return xMode==='vol' ? v : v/unit; }
+function xMaxVal(){ return xVal(Vmax); }
+
+function niceStep(range){
+  var raw=range/6, p=Math.pow(10,Math.floor(Math.log10(raw))), r=raw/p;
+  return (r<1.5?1:r<3?2:r<7?5:10)*p;
+}
+
+function build(){
+  var W=chart.clientWidth||340;
+  var narrow=W<430;
+  var m={l:narrow?32:44,r:narrow?12:16,t:narrow?16:20,b:narrow?30:34};
+  var hT=narrow?168:224, gap=narrow?20:24, hD=narrow?92:120;
+  var H=m.t+hT+gap+hD+m.b;
+  var pw=W-m.l-m.r;
+  var yT0=m.t, yD0=m.t+hT+gap;
+  var XM=xMaxVal();
+  function X(v){ return m.l+xVal(v)/XM*pw; }
+  function YT(p){ return yT0+(1-p/14)*hT; }
+  function YD(a){ return yD0+(1-a)*hD; }
+  geo={W:W,m:m,pw:pw,XM:XM,yT0:yT0,hT:hT,yD0:yD0,hD:hD,X:X,YT:YT,YD:YD,narrow:narrow};
+
+  var s='',i,j,x,y,fs=narrow?9:10.5;
+
+  /* 指示薬の帯 */
+  if(indSel!==null){
+    var ind=INDICATORS[indSel];
+    s+='<rect x="'+m.l+'" y="'+YT(ind.hi).toFixed(1)+'" width="'+pw+'" height="'+(YT(ind.lo)-YT(ind.hi)).toFixed(1)+
+       '" fill="'+ind.hex+'" opacity="0.12"/>';
+    s+='<line x1="'+m.l+'" y1="'+YT(ind.hi).toFixed(1)+'" x2="'+(m.l+pw)+'" y2="'+YT(ind.hi).toFixed(1)+'" stroke="'+ind.hex+'" stroke-width="1" stroke-dasharray="3 3" opacity="0.55"/>';
+    s+='<line x1="'+m.l+'" y1="'+YT(ind.lo).toFixed(1)+'" x2="'+(m.l+pw)+'" y2="'+YT(ind.lo).toFixed(1)+'" stroke="'+ind.hex+'" stroke-width="1" stroke-dasharray="3 3" opacity="0.55"/>';
+    s+='<text x="'+(m.l+pw-4)+'" y="'+(YT(ind.hi)-4).toFixed(1)+'" text-anchor="end" font-size="'+fs+
+       '" font-family="IBM Plex Mono, monospace" fill="'+ind.hex+'">'+ind.name+'</text>';
+  }
+
+  /* 縦軸グリッド */
+  [0,2,4,6,8,10,12,14].forEach(function(v){
+    y=YT(v);
+    s+='<line class="gridline" x1="'+m.l+'" y1="'+y.toFixed(1)+'" x2="'+(m.l+pw)+'" y2="'+y.toFixed(1)+'"/>';
+    s+='<text class="tick" x="'+(m.l-6)+'" y="'+(y+3.5).toFixed(1)+'" text-anchor="end" font-size="'+fs+'">'+v+'</text>';
+  });
+  [0,0.5,1].forEach(function(v){
+    y=YD(v);
+    s+='<line class="gridline" x1="'+m.l+'" y1="'+y.toFixed(1)+'" x2="'+(m.l+pw)+'" y2="'+y.toFixed(1)+'"/>';
+    s+='<text class="tick" x="'+(m.l-6)+'" y="'+(y+3.5).toFixed(1)+'" text-anchor="end" font-size="'+fs+'">'+(v*100)+'</text>';
+  });
+
+  /* 横軸 */
+  var step=niceStep(XM), t;
+  for(t=0;t<=XM+1e-9;t+=step){
+    x=m.l+t/XM*pw;
+    s+='<line class="gridline" x1="'+x.toFixed(1)+'" y1="'+yT0+'" x2="'+x.toFixed(1)+'" y2="'+(yT0+hT)+'"/>';
+    s+='<line class="gridline" x1="'+x.toFixed(1)+'" y1="'+yD0+'" x2="'+x.toFixed(1)+'" y2="'+(yD0+hD)+'"/>';
+    s+='<text class="tick" x="'+x.toFixed(1)+'" y="'+(yD0+hD+(narrow?14:16))+'" text-anchor="middle" font-size="'+fs+'">'+
+       (step<1?t.toFixed(1):t.toFixed(0))+'</text>';
+  }
+  s+='<line class="axis" x1="'+m.l+'" y1="'+(yT0+hT)+'" x2="'+(m.l+pw)+'" y2="'+(yT0+hT)+'"/>';
+  s+='<line class="axis" x1="'+m.l+'" y1="'+(yD0+hD)+'" x2="'+(m.l+pw)+'" y2="'+(yD0+hD)+'"/>';
+  s+='<line class="axis" x1="'+m.l+'" y1="'+yT0+'" x2="'+m.l+'" y2="'+(yT0+hT)+'"/>';
+  s+='<line class="axis" x1="'+m.l+'" y1="'+yD0+'" x2="'+m.l+'" y2="'+(yD0+hD)+'"/>';
+  s+='<text class="tick" x="'+m.l+'" y="'+(yT0-7)+'" text-anchor="start" font-size="'+(narrow?9:10)+'" letter-spacing="1">pH</text>';
+  s+='<text class="tick" x="'+m.l+'" y="'+(yD0-7)+'" text-anchor="start" font-size="'+(narrow?9:10)+'" letter-spacing="1">存在率 / %</text>';
+  s+='<text class="tick" x="'+(m.l+pw)+'" y="'+(yD0+hD+(narrow?27:30))+'" text-anchor="end" font-size="'+(narrow?9:10)+
+     '" letter-spacing="1">'+(xMode==='vol'?'滴下量 / mL':'中和率')+'</text>';
+
+  /* 当量点・半当量点 */
+  eqs.forEach(function(v,i){
+    if(v>Vmax) return;
+    x=X(v);
+    s+='<line class="eqline" x1="'+x.toFixed(1)+'" y1="'+yT0+'" x2="'+x.toFixed(1)+'" y2="'+(yD0+hD)+'"/>';
+    if(!narrow) s+='<text class="marklab" x="'+(x+4).toFixed(1)+'" y="'+(yT0+11)+'" font-size="10">第'+(i+1)+'当量点</text>';
+  });
+  halves.forEach(function(hf){
+    if(hf.V>Vmax || hf.pKa<0 || hf.pKa>14) return;
+    x=X(hf.V); y=YT(hf.pKa);
+    s+='<line class="halfline" x1="'+x.toFixed(1)+'" y1="'+yT0+'" x2="'+x.toFixed(1)+'" y2="'+(yT0+hT)+'"/>';
+    s+='<line class="halfline" x1="'+m.l+'" y1="'+y.toFixed(1)+'" x2="'+x.toFixed(1)+'" y2="'+y.toFixed(1)+'"/>';
+    s+='<circle cx="'+x.toFixed(1)+'" cy="'+y.toFixed(1)+'" r="3" fill="none" stroke="#7C8B91" stroke-width="1.3"/>';
+    if(!narrow) s+='<text class="marklab" x="'+(x+5).toFixed(1)+'" y="'+(y-5).toFixed(1)+'" font-size="10">pK'+E.sup(hf.index+1)+' '+hf.pKa.toFixed(2)+'</text>';
+  });
+
+  /* 滴定曲線 */
+  var d='';
+  curve.forEach(function(pt,i){ d+=(i?'L':'M')+X(pt.V).toFixed(1)+' '+YT(pt.pH).toFixed(1)+' '; });
+  s+='<path class="curve" d="'+d+'" stroke="#16232B"/>';
+
+  /* 分布曲線 */
+  for(j=0;j<sys.species.length;j++){
+    d='';
+    curve.forEach(function(pt,i){ d+=(i?'L':'M')+X(pt.V).toFixed(1)+' '+YD(pt.alpha[j]).toFixed(1)+' '; });
+    s+='<path class="acurve" d="'+d+'" stroke="'+PAL[j%PAL.length].hex+'"/>';
+  }
+  if(!narrow){
+    for(j=0;j<sys.species.length;j++){
+      var best=0,bv=-1;
+      curve.forEach(function(pt,i){ if(pt.alpha[j]>bv){bv=pt.alpha[j];best=i;} });
+      if(bv<0.25) continue;
+      var lx=X(curve[best].V), ly=YD(bv)-7;
+      var anch = lx<m.l+34?'start':(lx>m.l+pw-34?'end':'middle');
+      s+='<text class="peaklab" x="'+lx.toFixed(1)+'" y="'+Math.max(yD0+10,ly).toFixed(1)+'" text-anchor="'+anch+
+         '" font-size="11.5" fill="'+PAL[j%PAL.length].tx+'">'+label(j)+'</text>';
+    }
+  }
+
+  s+='<g id="dyn"></g>';
+  chart.innerHTML='<svg viewBox="0 0 '+W+' '+H+'" width="'+W+'" height="'+H+
+    '" role="img" aria-label="'+sys.name+'の滴定曲線と分布曲線">'+s+'</svg>';
+  attach();
+  drawCursor();
+}
+
+function drawCursor(){
+  if(!geo) return;
+  var dyn=document.getElementById('dyn'); if(!dyn) return;
+  var p=E.pHofTitration(setup,V), a=E.fractions(sys.Ka,p);
+  var x=geo.X(V), s='';
+  s+='<line class="cursor" x1="'+x.toFixed(1)+'" y1="'+geo.yT0+'" x2="'+x.toFixed(1)+'" y2="'+(geo.yD0+geo.hD)+'"/>';
+  s+='<circle cx="'+x.toFixed(1)+'" cy="'+geo.YT(p).toFixed(1)+'" r="4.6" fill="#16232B" stroke="#fff" stroke-width="1.6"/>';
+  for(var j=0;j<a.length;j++){
+    s+='<circle cx="'+x.toFixed(1)+'" cy="'+geo.YD(a[j]).toFixed(1)+'" r="3.6" fill="'+PAL[j%PAL.length].hex+'" stroke="#fff" stroke-width="1.5"/>';
+  }
+  var w=46, cx=Math.max(geo.m.l+w/2, Math.min(geo.m.l+geo.pw-w/2, x));
+  s+='<rect class="chip" x="'+(cx-w/2).toFixed(1)+'" y="'+(geo.yD0+geo.hD+2)+'" width="'+w+'" height="17" rx="2"/>';
+  s+='<text class="chiptx" x="'+cx.toFixed(1)+'" y="'+(geo.yD0+geo.hD+14)+'" text-anchor="middle" font-size="11">'+
+     (xMode==='vol'?V.toFixed(2):(V/unit).toFixed(3))+'</text>';
+  dyn.innerHTML=s;
+}
+
+function sync(){
+  var p=E.pHofTitration(setup,V), a=E.fractions(sys.Ka,p);
+  var Ctot=Ca*VA/(VA+V), best=0, i;
+  for(i=1;i<a.length;i++) if(a[i]>a[best]) best=i;
+  document.getElementById('vnum').textContent=V.toFixed(2);
+  document.getElementById('anum').textContent=(V/unit).toFixed(3);
+  document.getElementById('phnum').textContent=p.toFixed(2);
+  var st='主役は <b style="color:'+PAL[best%PAL.length].tx+'">'+sys.species[best].f+'</b>';
+  var near=null;
+  eqs.forEach(function(v,i){ if(Math.abs(V-v)<unit*0.01) near='第'+(i+1)+'当量点'; });
+  halves.forEach(function(hf,i){ if(Math.abs(V-hf.V)<unit*0.01 && hf.pKa>=0 && hf.pKa<=14) near='第'+(i+1)+'半当量点　pH ≒ pK'+E.sup(hf.index+1); });
+  if(near) st+='<br>'+near;
+  document.getElementById('stage').innerHTML=st;
+  for(i=0;i<a.length;i++){
+    document.getElementById('b'+i).style.width=(a[i]*100)+'%';
+    document.getElementById('p'+i).textContent=E.pct(a[i]);
+    document.getElementById('c'+i).textContent=a[i]*Ctot>1e-99?E.sci(a[i]*Ctot,2):'—';
+    document.getElementById('r'+i).className=(i===best?'lead':'');
+  }
+  drawCursor();
+}
+
+function setV(v){
+  V=Math.max(0,Math.min(Vmax,v));
+  document.getElementById('slider').value=V;
+  sync();
+}
+
+function attach(){
+  var svg=chart.querySelector('svg');
+  function fromEvent(e){
+    var r=svg.getBoundingClientRect();
+    var px=(e.clientX-r.left)*(geo.W/r.width);
+    setV((px-geo.m.l)/geo.pw*Vmax);
+  }
+  svg.addEventListener('pointerdown',function(e){
+    dragging=true;
+    try{svg.setPointerCapture(e.pointerId);}catch(err){}
+    fromEvent(e);
+  });
+  svg.addEventListener('pointermove',function(e){ if(dragging) fromEvent(e); });
+  svg.addEventListener('pointerup',function(){dragging=false;});
+  svg.addEventListener('pointercancel',function(){dragging=false;});
+}
+
+function refreshAll(){
+  SYSTEMS.forEach(function(x){ x._btn.setAttribute('aria-pressed', x===sys?'true':'false'); });
+  document.getElementById('eyebrow').innerHTML=
+    sys.formula+' &nbsp;/&nbsp; 滴定剤 '+tit.short+' &nbsp;/&nbsp; フラスコ '+VA.toFixed(1)+' mL &nbsp;/&nbsp; 25 ℃';
+  buildCond(); buildTable(); rebuild(); buildIndicators(); buildVerdict(); buildNotes();
+  build(); sync();
+}
+
+document.getElementById('slider').addEventListener('input',function(e){
+  V=parseFloat(e.target.value); sync();
+});
+var xV=document.getElementById('xVol'), xR=document.getElementById('xRat');
+xV.addEventListener('click',function(){ xMode='vol'; xV.setAttribute('aria-pressed','true'); xR.setAttribute('aria-pressed','false'); build(); });
+xR.addEventListener('click',function(){ xMode='rat'; xR.setAttribute('aria-pressed','true'); xV.setAttribute('aria-pressed','false'); build(); });
+
+var rt;
+window.addEventListener('resize',function(){ clearTimeout(rt); rt=setTimeout(build,120); });
+
+refreshAll();
+})();
+</script>
+</body>
+</html>

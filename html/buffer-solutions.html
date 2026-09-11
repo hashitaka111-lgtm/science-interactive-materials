@@ -1,0 +1,863 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>緩衝溶液 — ヘンダーソン・ハッセルバルヒ、緩衝能、滴定曲線上での位置</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500&family=IBM+Plex+Sans+JP:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+:root{
+  --ink:#16232B;
+  --muted:#5E6E76;
+  --paper:#EDF1EF;
+  --surface:#FFFFFF;
+  --rule:#D6DDDA;
+  --rule-soft:#E8EDEB;
+}
+*{box-sizing:border-box}
+html{-webkit-text-size-adjust:100%}
+body{
+  margin:0;background:var(--paper);color:var(--ink);
+  font-family:"IBM Plex Sans JP","Hiragino Sans","Yu Gothic UI",system-ui,sans-serif;
+  font-size:14px;line-height:1.8;font-feature-settings:"palt" 1;
+}
+.mono{font-family:"IBM Plex Mono",ui-monospace,SFMono-Regular,Menlo,monospace;font-variant-numeric:tabular-nums}
+.wrap{max-width:820px;margin:0 auto;padding:22px 14px 68px}
+.card{background:var(--surface);border:1px solid var(--rule);border-radius:3px;padding:16px;margin-bottom:14px}
+.eyebrow{display:flex;align-items:center;gap:10px;font-family:"IBM Plex Mono",ui-monospace,monospace;font-size:11.5px;letter-spacing:.14em;color:var(--muted);line-height:1.4}
+.eyebrow::after{content:"";flex:1 1 auto;height:1px;background:var(--rule)}
+h1{font-size:22px;font-weight:600;letter-spacing:.01em;line-height:1.5;margin:12px 0 8px}
+h2{font-size:14.5px;font-weight:600;letter-spacing:.01em;margin:0}
+p{margin:0 0 10px}
+p:last-child{margin-bottom:0}
+.lead{color:var(--muted);font-size:12.5px;line-height:1.75;margin:0}
+.small{font-size:12.5px;color:var(--muted);line-height:1.75}
+.small b{color:var(--ink);font-weight:500}
+.sep{height:1px;background:var(--rule-soft);margin:14px 0}
+
+.eq{font-family:"IBM Plex Mono",ui-monospace,monospace;font-variant-numeric:tabular-nums;
+  font-size:12.5px;line-height:2;background:var(--paper);border:1px solid var(--rule-soft);
+  border-radius:2px;padding:10px 12px;margin:10px 0;overflow-x:auto;white-space:pre}
+
+.row{display:flex;flex-wrap:wrap;gap:6px;align-items:center}
+button{font-family:inherit}
+.chip{display:inline-flex;align-items:center;gap:7px;font-size:12.5px;
+  padding:5px 10px;border:1px solid var(--rule);border-radius:2px;background:var(--surface);
+  color:var(--ink);cursor:pointer;line-height:1.5}
+.chip[aria-pressed="true"]{background:var(--ink);color:#fff;border-color:var(--ink)}
+.chip .cf{font-family:"IBM Plex Mono",ui-monospace,monospace;font-size:11.5px;opacity:.72}
+.sw{width:8px;height:8px;flex:0 0 8px;border:1px solid var(--rule);background:transparent}
+.chip[aria-pressed="true"] .sw{border-color:transparent}
+
+.sl{display:flex;align-items:center;gap:12px;margin-top:14px}
+.sl label{font-family:"IBM Plex Mono",ui-monospace,monospace;font-size:11.5px;letter-spacing:.1em;color:var(--muted);white-space:nowrap;min-width:52px}
+input[type=range]{-webkit-appearance:none;appearance:none;flex:1 1 auto;height:22px;background:transparent;margin:0}
+input[type=range]::-webkit-slider-runnable-track{height:1px;background:var(--rule)}
+input[type=range]::-webkit-slider-thumb{-webkit-appearance:none;width:13px;height:13px;background:var(--ink);border:0;border-radius:2px;margin-top:-6px}
+input[type=range]::-moz-range-track{height:1px;background:var(--rule)}
+input[type=range]::-moz-range-thumb{width:13px;height:13px;background:var(--ink);border:0;border-radius:2px}
+.slval{font-family:"IBM Plex Mono",ui-monospace,monospace;font-variant-numeric:tabular-nums;
+  font-size:12.5px;text-align:right;min-width:124px}
+
+.chartbox{margin:2px -4px 0}
+svg.chart{display:block;width:100%;height:auto;touch-action:pan-y;cursor:crosshair;user-select:none;-webkit-user-select:none}
+
+.where{display:inline-block;font-family:"IBM Plex Mono",ui-monospace,monospace;font-size:11.5px;
+  letter-spacing:.06em;background:var(--ink);color:#fff;padding:3px 9px;border-radius:2px;margin-bottom:12px}
+.grid{display:grid;grid-template-columns:repeat(3,1fr);gap:2px 16px}
+.cell{display:flex;justify-content:space-between;align-items:baseline;gap:8px;
+  border-bottom:1px solid var(--rule-soft);padding:3px 0}
+.cell .lab{font-size:11.5px;color:var(--muted);white-space:nowrap}
+.cell .val{font-family:"IBM Plex Mono",ui-monospace,monospace;font-variant-numeric:tabular-nums;
+  font-size:12.5px;text-align:right;white-space:nowrap}
+.spec{margin-top:14px}
+.spec .st{font-family:"IBM Plex Mono",ui-monospace,monospace;font-size:10.5px;letter-spacing:.08em;color:var(--muted);margin-bottom:4px}
+.bar{display:flex;height:8px;border:1px solid var(--rule);border-radius:1px;overflow:hidden}
+.bar i{display:block;height:100%}
+.barlab{display:flex;flex-wrap:wrap;gap:4px 14px;margin-top:5px}
+.barlab span{display:inline-flex;align-items:center;gap:5px;
+  font-family:"IBM Plex Mono",ui-monospace,monospace;font-variant-numeric:tabular-nums;
+  font-size:11px;color:var(--muted);line-height:1.5}
+.barlab i{width:7px;height:7px;display:inline-block}
+
+table.k{width:100%;border-collapse:collapse;font-size:12.5px;margin-top:4px}
+table.k th,table.k td{border-bottom:1px solid var(--rule-soft);padding:6px 4px;text-align:left;vertical-align:top}
+table.k th{font-size:11px;letter-spacing:.08em;color:var(--muted);font-weight:400;
+  font-family:"IBM Plex Mono",ui-monospace,monospace}
+table.k td.n{font-family:"IBM Plex Mono",ui-monospace,monospace;font-variant-numeric:tabular-nums;text-align:right;white-space:nowrap}
+.cmp{display:grid;grid-template-columns:1fr auto auto auto;gap:2px 12px;margin-top:8px}
+.cmp>div{border-bottom:1px solid var(--rule-soft);padding:4px 0;font-size:12.5px}
+.cmp .h{font-family:"IBM Plex Mono",ui-monospace,monospace;font-size:11px;letter-spacing:.08em;color:var(--muted);border-bottom-color:var(--rule)}
+.cmp .n{font-family:"IBM Plex Mono",ui-monospace,monospace;font-variant-numeric:tabular-nums;text-align:right;white-space:nowrap}
+
+@media (max-width:430px){
+  body{font-size:13.5px}
+  .wrap{padding:16px 11px 52px}
+  .card{padding:13px}
+  h1{font-size:19px}
+  .grid{grid-template-columns:repeat(2,1fr);gap:2px 12px}
+  .eq{font-size:10.5px;line-height:1.95;padding:9px 10px}
+  .slval{min-width:106px;font-size:12px}
+  .sl label{min-width:44px;font-size:11px}
+  .cmp{grid-template-columns:1fr auto auto;gap:2px 8px}
+  .cmp .hide-n{display:none}
+  .chip{font-size:12px;padding:5px 8px;gap:6px}
+}
+</style>
+</head>
+<body>
+<div class="wrap">
+
+<div class="card">
+  <div class="eyebrow">BUFFER SOLUTIONS &middot; 03</div>
+  <h1>緩衝溶液<br>ヘンダーソン・ハッセルバルヒ、緩衝能、滴定曲線上での位置</h1>
+  <p class="lead">滴定曲線を pH の側から閉じた形で解き、緩衝能を Cb の中心差分で求めます。HH 式との差、水そのものの緩衝能、当量点でのテーマ2との接続を同じ画面で確認できます。医学部受験向け。</p>
+</div>
+
+<div class="card">
+  <div class="eyebrow">EXACT FORMULATION</div>
+  <div style="height:12px"></div>
+  <h2>厳密式</h2>
+  <p class="small" style="margin:8px 0 0">弱酸を全濃度 C_T で溶かし、強塩基を Cb 加えた系。テーマ2の塩の式に Cb の項が付いただけです。</p>
+<div class="eq">質量収支  C_T = [HA] + [A⁻]
+電荷収支  Cb + [H⁺] = [A⁻] + [OH⁻]
+
+g(h) = Cb + h − Kw/h − C_T·Ka/(Ka + h) = 0</div>
+  <div class="sep"></div>
+  <h2>HH 式が捨てているもの</h2>
+  <p class="small" style="margin:8px 0 0">Ka = h[A⁻]/[HA] は定義なので、対数をとった形には近似が入っていません。近似はその先、[A⁻] を Cb に、[HA] を Ca に置き換えるところにあります。</p>
+<div class="eq">[A⁻] = Cb + h − Kw/h        [HA] = Ca − h + Kw/h
+
+pH = pKa + log( (Cb + h − Kw/h) / (Ca − h + Kw/h) )</div>
+  <p class="small">補正項 (h − Kw/h) は、酸が自分で電離した分と塩基が加水分解した分の差。Ca と Cb の両方がこれより十分大きければ HH 式が使えます。<b>pKa が中性から遠い緩衝液ほど早く壊れる</b>のは、h が大きいぶん補正が効き始めるのが早いためです。</p>
+  <div class="sep"></div>
+  <h2>滴定曲線は逆向きに解く</h2>
+  <p class="small" style="margin:8px 0 0">滴下量から pH を求めると毎回二分法が要りますが、逆は閉じた形で書けます。</p>
+<div class="eq">f = z̄(h) + (Kw/h − h) / C_T      f は滴定率（酸 1 mol あたりの塩基の当量数）</div>
+  <p class="small">f は h について単調なので、pH を細かく振って (f, pH) を並べればそれが滴定曲線そのもの。pH 側を等間隔にサンプルするので、当量点の急峻な立ち上がりも自然に細かく描けます。</p>
+  <div class="sep"></div>
+  <h2>緩衝能</h2>
+<div class="eq">β = dCb/dpH        Cb = C_T·z̄(h) + Kw/h − h
+
+β = 2.303 ( Kw/h + h + C_T·Var(j) )
+
+Var(j) は結合プロトン数の分散。1価なら Var = α₀·α₁ = Ka·h/(Ka + h)²
+h = Ka で最大 1/4 をとるので   β_max = 2.303·C_T/4 = 0.576·C_T</div>
+  <p class="small">分散という形にしておくと多価がそのまま乗ります。クエン酸のように pKa が 1.5 ずつしか離れていない系では隣の山と重なり、ピークが単独の酸より 18% 高くなる。緩衝剤としてクエン酸が重宝される理由がここに出ています。</p>
+  <p class="small">このページでは定義どおり Cb の中心差分（ΔpH = 0.004）で計算しています。上の解析式とは小数第6位まで一致します。</p>
+  <div class="sep"></div>
+  <h2>滴定曲線上の5つの位置</h2>
+<div class="eq">f = 0       弱酸単独                              → テーマ1
+0 &lt; f &lt; 1   緩衝域                                → HH 式
+f = 0.5     半当量点   pH = pKa、緩衝能が最大
+f = 1       当量点     pH = 7 + ½pKa + ½log C_T     → テーマ2
+f &gt; 1       強塩基の過剰  pH = 14 + log((f−1)·C_T)</div>
+  <p class="small">酢酸 0.1 mol/L の当量点を厳密に解くと 8.879 で、テーマ2で 0.1 mol/L の酢酸ナトリウムを解いた値と一致します。3つのテーマは1本の滴定曲線の別々の点を見ていただけ、というのがこのシリーズの落としどころです。</p>
+</div>
+
+<div class="card">
+  <div class="eyebrow">SELECT SYSTEM</div>
+  <div style="height:12px"></div>
+  <div class="row" id="chips"></div>
+  <div class="sl">
+    <label>C_T</label>
+    <input type="range" id="ct" min="0" max="5" step="0.02" value="1" aria-label="緩衝系の全濃度">
+    <span class="slval" id="ctv"></span>
+  </div>
+  <div class="sl">
+    <label>滴定率 f</label>
+    <input type="range" id="ff" min="0" max="1.5" step="0.002" value="0.5" aria-label="滴定率">
+    <span class="slval" id="ffv"></span>
+  </div>
+  <p class="small" style="margin:12px 0 0">f は酸1 mol あたりに加えた強塩基の当量数。希釈は考えず、体積一定で塩基だけを加えるモデルです。アンモニウム系は f = 1 が 0.1 mol/L のアンモニア水にあたるので、アンモニアを塩酸で滴定する場合は f を 1 から 0 へ動かして読んでください。</p>
+</div>
+
+<div class="card">
+  <div class="eyebrow">TITRATION CURVE</div>
+  <div style="height:10px"></div>
+  <h2>滴定曲線</h2>
+  <p class="small" style="margin:8px 0 10px">太い線が厳密解、細い線が HH 式。破線の縦線は半当量点と当量点、横線は pKa。3つのグラフはすべて連動します。</p>
+  <div class="chartbox"><svg class="chart" id="ch1"></svg></div>
+</div>
+
+<div class="card">
+  <div class="eyebrow">BUFFER CAPACITY</div>
+  <div style="height:10px"></div>
+  <h2>緩衝能</h2>
+  <p class="small" style="margin:8px 0 10px">太い線が全体の β、細い線が水だけの寄与 2.303(h + Kw/h)。細い線より上に出ている高さが緩衝剤の働きです。両端で細い線が跳ね上がり、緩衝剤の山を追い越すところが見どころ。</p>
+  <div class="chartbox"><svg class="chart" id="ch2"></svg></div>
+</div>
+
+<div class="card">
+  <div class="eyebrow">WHICH BUFFER FOR WHICH pH</div>
+  <div style="height:10px"></div>
+  <h2>緩衝剤の使い分け</h2>
+  <p class="small" style="margin:8px 0 10px">縦軸は β を 2.303·C_T で割った規格化緩衝能で、濃度によりません。1価の酸なら必ず 0.25 が上限。クエン酸だけ山が重なって 0.29 まで届きます。</p>
+  <div class="chartbox"><svg class="chart" id="ch3"></svg></div>
+</div>
+
+<div class="card">
+  <div class="eyebrow">READOUT</div>
+  <div style="height:12px"></div>
+  <div id="readout"></div>
+</div>
+
+<div class="card">
+  <div class="eyebrow">KEY POINTS OF THIS SYSTEM</div>
+  <div style="height:12px"></div>
+  <h2>この系の特異点</h2>
+  <p class="small" style="margin:8px 0 0">現在の濃度での値。半当量点と当量点は厳密解、括弧内は高校流の式による値です。</p>
+  <table class="k" id="ptable"></table>
+</div>
+
+<div class="card">
+  <div class="eyebrow">WHERE THE APPROXIMATION BREAKS</div>
+  <div style="height:12px"></div>
+  <h2>近似が壊れる4か所</h2>
+  <div class="cmp" id="cmp"></div>
+  <p class="small" style="margin:12px 0 0">薄い緩衝液と、pKa が中性から離れた緩衝液が弱い。0.01 mol/L の酢酸緩衝液のピークが 0.0058 なのに対し、水そのものの緩衝能は pH 2 でも pH 12 でも 0.023 あります。<b>強酸性・強塩基性の領域に緩衝剤を入れてもほとんど意味がない</b>、というのがこの表の帰結です。</p>
+</div>
+
+<div class="card">
+  <div class="eyebrow">PLASMA CARBONATE SYSTEM</div>
+  <div style="height:12px"></div>
+  <h2>血漿の炭酸緩衝系</h2>
+  <p class="small" style="margin:8px 0 10px">pH 7.40 で HCO₃⁻ と溶存 CO₂ の比が 20:1。見かけの pKa′ = 6.1 を使って 6.1 + log 20 = 7.40 になります。この 6.1 は 37 ℃・生理的イオン強度のもとで pCO₂ から換算した値で、このページが使っている 25 ℃ 純水の pKa₁ = 6.35 とは別の数字です。どちらを使うかは問題文の指定に従ってください。</p>
+  <p class="small">比が 20:1 なら f(1−f) = 0.045 で、緩衝能はピークの 18% しかありません。それでも血漿が pH を保てるのは、CO₂ を呼吸で系外へ捨てられる開放系だから。試験管の中の緩衝液とは別の原理が効いています。</p>
+</div>
+
+<div class="card">
+  <div class="eyebrow">CONSTANTS &middot; ADOPTED VALUES</div>
+  <div style="height:12px"></div>
+  <h2>採用した定数と注記</h2>
+  <p class="small" style="margin:8px 0 12px">25 ℃、Kw = 1.00×10⁻¹⁴。塩基系は共役酸の Ka（= Kw/Kb）に換算して扱っています。</p>
+  <table class="k" id="ktable"></table>
+</div>
+
+<div class="card">
+  <p class="small" style="margin:0">高校化学インタラクティブ教材 03 / 03。分布曲線シリーズ デザインセット準拠。</p>
+</div>
+
+</div>
+
+<script>
+"use strict";
+
+const KW = 1.0e-14;
+const LN10 = Math.LN10;
+
+const PAL = [
+  {f:'#B87A16', t:'#8A5A0C'},
+  {f:'#158A6D', t:'#0D6A53'},
+  {f:'#2457A6', t:'#1B4380'},
+  {f:'#6E3AA7', t:'#572D85'},
+  {f:'#A82A6A', t:'#831F52'},
+  {f:'#3B6E1E', t:'#2A5215'}
+];
+
+/* ===== 緩衝系のデータ =====
+   K  : 親酸の Ka 配列（塩基系は共役酸の Ka に換算済み）
+   sp : プロトンが多い順の化学種名
+   行を1つ足せばチップ・3つのグラフ・表すべてに反映される。 */
+const SYS = [
+  {id:'chloroacetate', jp:'クロロ酢酸系', f:'ClCH₂COOH / ClCH₂COO⁻', K:[1.36e-3],
+   sp:['ClCH₂COOH','ClCH₂COO⁻'], pk:'2.87', ci:4,
+   note:'pKa 2.87。中性から遠いぶん HH 式の破綻が早く、0.1 mol/L の 1:1 でもすでに 0.022 ずれる。'},
+  {id:'formate', jp:'ギ酸系', f:'HCOOH / HCOO⁻', K:[1.8e-4],
+   sp:['HCOOH','HCOO⁻'], pk:'3.74', ci:5,
+   note:'pKa 3.74。pH 3 台の緩衝液としてよく使う。'},
+  {id:'acetate', jp:'酢酸系', f:'CH₃COOH / CH₃COO⁻', K:[1.75e-5],
+   sp:['CH₃COOH','CH₃COO⁻'], pk:'4.76', ci:0,
+   note:'25 ℃ の実測値 Ka = 1.75×10⁻⁵（pKa 4.757）を採用。入試の問題文では 1.8 / 2.0 / 2.7×10⁻⁵ とばらつくので、与えられた値があればそちらを使うこと。'},
+  {id:'citrate', jp:'クエン酸系', f:'H₃Cit / H₂Cit⁻ / HCit²⁻ / Cit³⁻', K:[7.4e-4, 1.7e-5, 4.0e-7],
+   sp:['H₃Cit','H₂Cit⁻','HCit²⁻','Cit³⁻'], pk:'3.13, 4.77, 6.40', ci:3,
+   note:'pKa が 1.5 ずつしか離れていないため3つの山が重なり、pH 3〜6.5 を連続的にカバーする。規格化緩衝能のピークは 0.29 で、1価の酸の上限 0.25 を超える。'},
+  {id:'carbonate', jp:'炭酸系', f:'H₂CO₃ / HCO₃⁻ / CO₃²⁻', K:[4.5e-7, 4.7e-11],
+   sp:['H₂CO₃','HCO₃⁻','CO₃²⁻'], pk:'6.35, 10.33', ci:2,
+   note:'Ka₁ = 4.5×10⁻⁷ は溶存 CO₂ の全量を H₂CO₃ とみなした見かけの値。血漿では 37 ℃・生理的イオン強度のもとで pKa′ = 6.1 を使うので、この値とは別物。'},
+  {id:'phosphate', jp:'リン酸系', f:'H₃PO₄ / H₂PO₄⁻ / HPO₄²⁻ / PO₄³⁻', K:[7.1e-3, 6.3e-8, 4.5e-13],
+   sp:['H₃PO₄','H₂PO₄⁻','HPO₄²⁻','PO₄³⁻'], pk:'2.15, 7.20, 12.35', ci:1,
+   note:'2段目の pKa 7.20 が中性付近にあるため、細胞内緩衝と実験用リン酸緩衝液の主役になる。Ka₃ は文献で 10⁻¹² 〜 10⁻¹³ と揺れる。'},
+  {id:'tris', jp:'トリス系', f:'TrisH⁺ / Tris', K:[8.51e-9],
+   sp:['TrisH⁺','Tris'], pk:'8.07', ci:3,
+   note:'生化学の標準緩衝液。25 ℃ で pKa 8.07 だが温度係数が −0.028/℃ と大きく、37 ℃ では 7.7 前後まで下がる。高校範囲外だが参考として収録。'},
+  {id:'ammonium', jp:'アンモニウム系', f:'NH₄⁺ / NH₃', K:[1.0e-14/1.8e-5],
+   sp:['NH₄⁺','NH₃'], pk:'9.25', ci:2,
+   note:'Kb(NH₃) = 1.8×10⁻⁵ から Ka = Kw/Kb = 5.6×10⁻¹⁰ に換算。f = 0 が塩化アンモニウム、f = 1 がアンモニア水にあたる。'}
+];
+
+/* ===== 数値計算 ===== */
+function weights(K, h){
+  const u = [1];
+  for(let j=0;j<K.length;j++){
+    let next = u[j]*K[j]/h;
+    if(!isFinite(next) || next > 1e150){
+      for(let m=0;m<u.length;m++) u[m] *= 1e-150;
+      next = u[j]*K[j]/h;
+    }
+    u.push(next);
+  }
+  return u;
+}
+function fracs(K, h){
+  const u = weights(K,h);
+  let s=0; for(let j=0;j<u.length;j++) s+=u[j];
+  const r=[]; for(let j=0;j<u.length;j++) r.push(u[j]/s);
+  return r;
+}
+function zbar(K, h){
+  const f = fracs(K,h);
+  let z=0; for(let j=0;j<f.length;j++) z += j*f[j];
+  return z;
+}
+/* 滴定率と塩基添加量は h から閉じた形で出る。二分法は f → pH のときだけ */
+function fOf(K, CT, h){ return zbar(K,h) + (KW/h - h)/CT; }
+function CbOf(K, CT, h){ return CT*zbar(K,h) + KW/h - h; }
+function phAtF(K, CT, f){
+  let lo = -2, hi = 16;
+  for(let i=0;i<80;i++){
+    const m = (lo+hi)/2;
+    if(fOf(K, CT, Math.pow(10,-m)) > f) hi = m; else lo = m;
+  }
+  return (lo+hi)/2;
+}
+/* 緩衝能は定義どおり Cb の中心差分で出す */
+function betaAt(K, CT, ph){
+  const d = 0.002;
+  return (CbOf(K, CT, Math.pow(10,-(ph+d))) - CbOf(K, CT, Math.pow(10,-(ph-d)))) / (2*d);
+}
+function betaWater(ph){
+  const h = Math.pow(10,-ph);
+  return LN10*(h + KW/h);
+}
+/* 規格化緩衝能 = Var(j)。濃度に依存しない */
+function varJ(K, h){
+  const f = fracs(K,h);
+  let m1=0, m2=0;
+  for(let j=0;j<f.length;j++){ m1 += j*f[j]; m2 += j*j*f[j]; }
+  return m2 - m1*m1;
+}
+/* 高校流 */
+function hhPH(K, f){
+  const n = K.length;
+  if(f <= 1e-9 || f >= n-1e-9) return NaN;
+  const i = Math.min(n, Math.max(1, Math.ceil(f)));
+  const a = f - (i-1), b = i - f;
+  if(a <= 0 || b <= 0) return NaN;
+  return -Math.log10(K[i-1]) + Math.log10(a/b);
+}
+function hhBeta(K, CT, f){
+  const n = K.length;
+  if(f <= 0 || f >= n) return NaN;
+  const i = Math.min(n, Math.max(1, Math.ceil(f)));
+  const a = f - (i-1), b = i - f;
+  return LN10 * CT * a * b;
+}
+
+/* ===== 書式 ===== */
+const SUPMAP = {'-':'⁻','−':'⁻','0':'⁰','1':'¹','2':'²','3':'³','4':'⁴','5':'⁵','6':'⁶','7':'⁷','8':'⁸','9':'⁹'};
+function sup(n){ return String(n).split('').map(function(c){ return SUPMAP[c]||c; }).join(''); }
+function sci(x, d){
+  d = (d===undefined) ? 2 : d;
+  if(!isFinite(x)) return '—';
+  if(x === 0) return '0';
+  const e = Math.floor(Math.log10(Math.abs(x)));
+  const m = x/Math.pow(10,e);
+  if(e >= -3 && e <= 2) return x.toPrecision(3).replace(/(\.\d*?)0+$/,'$1').replace(/\.$/,'');
+  return m.toFixed(d) + '×10' + sup(e);
+}
+function esc(s){ return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;'); }
+function setSVG(el, str){
+  const doc = new DOMParser().parseFromString(
+    '<svg xmlns="http://www.w3.org/2000/svg">' + str + '</svg>', 'image/svg+xml');
+  el.replaceChildren.apply(el, Array.prototype.slice.call(doc.documentElement.childNodes));
+}
+
+/* ===== 状態 ===== */
+let CUR = 'acetate';
+let PCT = 1;      // C_T = 10^-PCT
+let F = 0.5;      // 滴定率
+let NARROW = false;
+let TCURVE = [];  // 厳密な滴定曲線 [{f, ph}]
+
+function $(id){ return document.getElementById(id); }
+function sysOf(id){ for(let i=0;i<SYS.length;i++) if(SYS[i].id===id) return SYS[i]; return SYS[0]; }
+function cur(){ return sysOf(CUR); }
+function col(){ return PAL[cur().ci % PAL.length]; }
+function CT(){ return Math.pow(10, -PCT); }
+function fMax(){ return cur().K.length + 0.5; }
+
+/* ===== チップ ===== */
+function renderChips(){
+  let html = '';
+  for(let i=0;i<SYS.length;i++){
+    const S = SYS[i];
+    const on = (S.id === CUR);
+    const sw = on ? '<span class="sw" style="background:'+PAL[S.ci % PAL.length].f+'"></span>'
+                  : '<span class="sw"></span>';
+    html += '<button class="chip" data-id="'+S.id+'" aria-pressed="'+on+'">'+sw+
+            '<span>'+esc(S.jp)+'</span><span class="cf">pKa '+esc(S.pk)+'</span></button>';
+  }
+  $('chips').innerHTML = html;
+}
+
+/* ===== チャート基盤 ===== */
+function geom(){
+  return {
+    w: NARROW ? 360 : 760,
+    ml: NARROW ? 36 : 46,
+    mr: NARROW ? 12 : 18,
+    mt: 12,
+    mb: NARROW ? 30 : 34
+  };
+}
+function mkChart(elId, cfg){
+  const g = geom();
+  const h = cfg.height || (NARROW ? 248 : 300);
+  const X = function(v){ return g.ml + (v-cfg.xMin)/(cfg.xMax-cfg.xMin)*(g.w-g.ml-g.mr); };
+  const Y = function(v){ return g.mt + (cfg.yMax-v)/(cfg.yMax-cfg.yMin)*(h-g.mt-g.mb); };
+  const fs = NARROW ? 9.5 : 10.5;
+  let s = '';
+
+  for(let i=0;i<cfg.xTicks.length;i++){
+    const x = X(cfg.xTicks[i].v).toFixed(1);
+    s += '<line x1="'+x+'" y1="'+g.mt+'" x2="'+x+'" y2="'+(h-g.mb)+'" stroke="var(--rule-soft)" stroke-width="1"/>';
+  }
+  for(let i=0;i<cfg.yTicks.length;i++){
+    const y = Y(cfg.yTicks[i].v).toFixed(1);
+    s += '<line x1="'+g.ml+'" y1="'+y+'" x2="'+(g.w-g.mr)+'" y2="'+y+'" stroke="var(--rule-soft)" stroke-width="1"/>';
+  }
+  s += '<line x1="'+g.ml+'" y1="'+(h-g.mb)+'" x2="'+(g.w-g.mr)+'" y2="'+(h-g.mb)+'" stroke="var(--rule)" stroke-width="1"/>';
+  s += '<line x1="'+g.ml+'" y1="'+g.mt+'" x2="'+g.ml+'" y2="'+(h-g.mb)+'" stroke="var(--rule)" stroke-width="1"/>';
+
+  for(let i=0;i<cfg.xTicks.length;i++){
+    if(!cfg.xTicks[i].label) continue;
+    s += '<text x="'+X(cfg.xTicks[i].v).toFixed(1)+'" y="'+(h-g.mb+15)+'" text-anchor="middle" font-family="IBM Plex Mono, monospace" font-size="'+fs+'" fill="var(--muted)">'+cfg.xTicks[i].label+'</text>';
+  }
+  for(let i=0;i<cfg.yTicks.length;i++){
+    if(!cfg.yTicks[i].label) continue;
+    s += '<text x="'+(g.ml-6)+'" y="'+(Y(cfg.yTicks[i].v)+3.4).toFixed(1)+'" text-anchor="end" font-family="IBM Plex Mono, monospace" font-size="'+fs+'" fill="var(--muted)">'+cfg.yTicks[i].label+'</text>';
+  }
+  s += '<text x="'+(g.w-g.mr)+'" y="'+(h-2)+'" text-anchor="end" font-family="IBM Plex Mono, monospace" font-size="'+fs+'" fill="var(--muted)">'+cfg.xLabel+'</text>';
+  s += '<text x="'+g.ml+'" y="'+(h-2)+'" text-anchor="start" font-family="IBM Plex Mono, monospace" font-size="'+fs+'" fill="var(--muted)">'+cfg.yLabel+'</text>';
+
+  return {g:g, h:h, X:X, Y:Y, fs:fs, s:s};
+}
+function pathOf(pts, X, Y, yMin, yMax){
+  let d = '', pen = false;
+  for(let k=0;k<pts.length;k++){
+    const v = pts[k][1];
+    if(!isFinite(v) || !isFinite(pts[k][0])){ pen = false; continue; }
+    if(v < yMin || v > yMax){ pen = false; continue; }
+    d += (pen ? 'L' : 'M') + X(pts[k][0]).toFixed(1) + ' ' + Y(v).toFixed(1);
+    pen = true;
+  }
+  return d;
+}
+function finish(elId, c, extra, cursorId){
+  const el = $(elId);
+  el.setAttribute('viewBox', '0 0 ' + c.g.w + ' ' + c.h);
+  el.setAttribute('preserveAspectRatio', 'xMidYMid meet');
+  setSVG(el, c.s + extra + '<g id="'+cursorId+'"></g>');
+  el._c = c; el._cursorId = cursorId;
+}
+
+/* ===== チャート1: 滴定曲線 ===== */
+function computeTitration(){
+  const S = cur(), C = CT();
+  TCURVE = [];
+  const N = NARROW ? 700 : 1200;
+  for(let k=0;k<=N;k++){
+    const ph = -1.5 + (16.5+1.5)*k/N;
+    TCURVE.push({f: fOf(S.K, C, Math.pow(10,-ph)), ph: ph});
+  }
+}
+function drawCh1(){
+  const S = cur(), n = S.K.length, xMax = fMax();
+  const xT = [];
+  for(let v=0; v<=xMax+1e-9; v+=0.5) xT.push({v:v, label:(NARROW && (Math.round(v*2)%2===1)) ? '' : v.toFixed(1)});
+  const yT = [];
+  for(let v=0; v<=14; v+=2) yT.push({v:v, label:String(v)});
+  const c = mkChart('ch1', {xMin:0, xMax:xMax, yMin:-1, yMax:15, xTicks:xT, yTicks:yT,
+                            xLabel:'滴定率 f', yLabel:'pH'});
+  let s = '';
+  // 特異点の破線
+  for(let i=1;i<=n;i++){
+    const pk = -Math.log10(S.K[i-1]);
+    if(pk >= -1 && pk <= 15){
+      s += '<line x1="'+c.g.ml+'" y1="'+c.Y(pk).toFixed(1)+'" x2="'+(c.g.w-c.g.mr)+'" y2="'+c.Y(pk).toFixed(1)+
+           '" stroke="'+col().f+'" stroke-width="1" stroke-dasharray="3 3" opacity="0.4"/>';
+    }
+    const xh = c.X(i-0.5).toFixed(1);
+    s += '<line x1="'+xh+'" y1="'+c.g.mt+'" x2="'+xh+'" y2="'+(c.h-c.g.mb)+
+         '" stroke="'+col().f+'" stroke-width="1" stroke-dasharray="3 3" opacity="0.4"/>';
+    const xe = c.X(i).toFixed(1);
+    s += '<line x1="'+xe+'" y1="'+c.g.mt+'" x2="'+xe+'" y2="'+(c.h-c.g.mb)+
+         '" stroke="var(--muted)" stroke-width="1" stroke-dasharray="4 3" opacity="0.5"/>';
+  }
+  // HH 近似（細線）
+  for(let i=1;i<=n;i++){
+    const pts = [];
+    for(let k=0;k<=120;k++){
+      const f = (i-1) + 0.02 + (0.96)*k/120;
+      pts.push([f, hhPH(S.K, f)]);
+    }
+    const d = pathOf(pts, c.X, c.Y, -1, 15);
+    if(d) s += '<path d="'+d+'" fill="none" stroke="var(--muted)" stroke-width="1" opacity="0.75"/>';
+  }
+  // 厳密解
+  const pts = [];
+  for(let k=0;k<TCURVE.length;k++) pts.push([TCURVE[k].f, TCURVE[k].ph]);
+  const d = pathOf(pts.filter(function(p){ return p[0] >= -0.02 && p[0] <= xMax+0.02; }), c.X, c.Y, -1, 15);
+  if(d) s += '<path d="'+d+'" fill="none" stroke="'+col().f+'" stroke-width="1.7" stroke-linejoin="round" stroke-linecap="round"/>';
+  // 凡例
+  s += '<rect x="'+(c.g.ml+6)+'" y="'+(c.g.mt+4.5)+'" width="7" height="7" fill="'+col().f+'"/>';
+  s += '<text x="'+(c.g.ml+17)+'" y="'+(c.g.mt+11.5)+'" font-family="IBM Plex Mono, monospace" font-size="'+(NARROW?9.5:10.5)+'" fill="'+col().t+'">厳密解</text>';
+  s += '<rect x="'+(c.g.ml+66)+'" y="'+(c.g.mt+4.5)+'" width="7" height="7" fill="var(--muted)"/>';
+  s += '<text x="'+(c.g.ml+77)+'" y="'+(c.g.mt+11.5)+'" font-family="IBM Plex Mono, monospace" font-size="'+(NARROW?9.5:10.5)+'" fill="var(--muted)">HH 式</text>';
+  finish('ch1', c, s, 'cur1');
+}
+
+/* ===== チャート2: 緩衝能 ===== */
+function drawCh2(){
+  const S = cur(), C = CT();
+  const xT = [];
+  for(let v=0; v<=14; v+=2) xT.push({v:v, label:String(v)});
+  const yT = [];
+  for(let v=-7; v<=0; v+=1) yT.push({v:v, label:(v===0)?'1':('10'+sup(v))});
+  const c = mkChart('ch2', {xMin:0, xMax:14, yMin:-7, yMax:0.6, xTicks:xT, yTicks:yT,
+                            xLabel:'pH', yLabel:'β'});
+  let s = '';
+  for(let i=1;i<=S.K.length;i++){
+    const pk = -Math.log10(S.K[i-1]);
+    if(pk < 0 || pk > 14) continue;
+    s += '<line x1="'+c.X(pk).toFixed(1)+'" y1="'+c.g.mt+'" x2="'+c.X(pk).toFixed(1)+'" y2="'+(c.h-c.g.mb)+
+         '" stroke="'+col().f+'" stroke-width="1" stroke-dasharray="3 3" opacity="0.4"/>';
+  }
+  const N = NARROW ? 280 : 560;
+  const tot = [], wat = [];
+  for(let k=0;k<=N;k++){
+    const ph = 14*k/N;
+    const b = betaAt(S.K, C, ph);
+    tot.push([ph, (b>0) ? Math.log10(b) : NaN]);
+    wat.push([ph, Math.log10(betaWater(ph))]);
+  }
+  let d = pathOf(wat, c.X, c.Y, -7, 0.6);
+  if(d) s += '<path d="'+d+'" fill="none" stroke="var(--muted)" stroke-width="1" opacity="0.8"/>';
+  d = pathOf(tot, c.X, c.Y, -7, 0.6);
+  if(d) s += '<path d="'+d+'" fill="none" stroke="'+col().f+'" stroke-width="1.7" stroke-linejoin="round"/>';
+  s += '<rect x="'+(c.g.ml+6)+'" y="'+(c.g.mt+4.5)+'" width="7" height="7" fill="'+col().f+'"/>';
+  s += '<text x="'+(c.g.ml+17)+'" y="'+(c.g.mt+11.5)+'" font-family="IBM Plex Mono, monospace" font-size="'+(NARROW?9.5:10.5)+'" fill="'+col().t+'">全体</text>';
+  s += '<rect x="'+(c.g.ml+58)+'" y="'+(c.g.mt+4.5)+'" width="7" height="7" fill="var(--muted)"/>';
+  s += '<text x="'+(c.g.ml+69)+'" y="'+(c.g.mt+11.5)+'" font-family="IBM Plex Mono, monospace" font-size="'+(NARROW?9.5:10.5)+'" fill="var(--muted)">水のみ</text>';
+  finish('ch2', c, s, 'cur2');
+}
+
+/* ===== チャート3: 規格化緩衝能の比較 ===== */
+function drawCh3(){
+  const xT = [];
+  for(let v=0; v<=14; v+=2) xT.push({v:v, label:String(v)});
+  const yT = [{v:0,label:'0'},{v:0.1,label:'0.10'},{v:0.2,label:'0.20'},{v:0.3,label:'0.30'}];
+  const c = mkChart('ch3', {xMin:0, xMax:14, yMin:0, yMax:0.34, xTicks:xT, yTicks:yT,
+                            xLabel:'pH', yLabel:'β / 2.303C_T', height: NARROW ? 230 : 270});
+  let s = '', labels = '';
+  const N = NARROW ? 280 : 560;
+  for(let i=0;i<SYS.length;i++){
+    const S = SYS[i];
+    const on = (S.id === CUR);
+    const pts = [];
+    let best = -1, bph = 0;
+    for(let k=0;k<=N;k++){
+      const ph = 14*k/N;
+      const v = varJ(S.K, Math.pow(10,-ph));
+      pts.push([ph, v]);
+      if(v > best){ best = v; bph = ph; }
+    }
+    const d = pathOf(pts, c.X, c.Y, 0, 0.34);
+    if(d) s += '<path d="'+d+'" fill="none" stroke="'+(on ? col().f : 'var(--rule)')+
+               '" stroke-width="'+(on ? 1.7 : 1)+'"/>';
+    if(!NARROW || on){
+      const anchor = (bph > 11) ? 'end' : ((bph < 3) ? 'start' : 'middle');
+      labels += '<text x="'+c.X(bph).toFixed(1)+'" y="'+(c.Y(best)-6).toFixed(1)+'" text-anchor="'+anchor+
+                '" font-family="IBM Plex Mono, monospace" font-size="'+(NARROW?9.5:10)+'" fill="'+
+                (on ? col().t : 'var(--muted)')+'">'+esc(S.jp.replace('系',''))+'</text>';
+    }
+  }
+  finish('ch3', c, s + labels, 'cur3');
+}
+
+/* ===== カーソル ===== */
+function drawCursors(){
+  const S = cur(), C = CT();
+  const ph = phAtF(S.K, C, F);
+  const h = Math.pow(10,-ph);
+
+  // ch1
+  let el = $('ch1');
+  if(el && el._c){
+    const c = el._c;
+    const x = c.X(F);
+    let s = '<line x1="'+x.toFixed(1)+'" y1="'+c.g.mt+'" x2="'+x.toFixed(1)+'" y2="'+(c.h-c.g.mb)+'" stroke="var(--ink)" stroke-width="1" opacity="0.34"/>';
+    if(ph >= -1 && ph <= 15){
+      const y = c.Y(ph);
+      s += '<circle cx="'+x.toFixed(1)+'" cy="'+y.toFixed(1)+'" r="3.1" fill="'+col().f+'"/>';
+      if(!NARROW){
+        const left = x > c.g.w - c.g.mr - 46;
+        s += '<text x="'+(left ? x-7 : x+7).toFixed(1)+'" y="'+(y-6).toFixed(1)+'" text-anchor="'+(left?'end':'start')+
+             '" font-family="IBM Plex Mono, monospace" font-size="10.5" fill="'+col().t+'">'+ph.toFixed(2)+'</text>';
+      }
+    }
+    s += chip(c, x, 'f = ' + F.toFixed(3));
+    setSVG(el.querySelector('#cur1'), s);
+  }
+  // ch2 / ch3
+  const b = betaAt(S.K, C, ph);
+  [['ch2','cur2', Math.log10(Math.max(b,1e-30)), Math.log10(betaWater(ph))],
+   ['ch3','cur3', varJ(S.K, h), null]].forEach(function(spec){
+    const el2 = $(spec[0]);
+    if(!el2 || !el2._c) return;
+    const c = el2._c;
+    if(ph < c.xMinV) return;
+    const x = c.X(Math.max(0, Math.min(14, ph)));
+    let s = '<line x1="'+x.toFixed(1)+'" y1="'+c.g.mt+'" x2="'+x.toFixed(1)+'" y2="'+(c.h-c.g.mb)+'" stroke="var(--ink)" stroke-width="1" opacity="0.34"/>';
+    const v1 = spec[2];
+    if(isFinite(v1)){
+      const y = c.Y(Math.max(c.yMinV, Math.min(c.yMaxV, v1)));
+      s += '<circle cx="'+x.toFixed(1)+'" cy="'+y.toFixed(1)+'" r="3.1" fill="'+col().f+'"/>';
+    }
+    if(spec[3] !== null && isFinite(spec[3])){
+      const y2 = c.Y(Math.max(c.yMinV, Math.min(c.yMaxV, spec[3])));
+      s += '<circle cx="'+x.toFixed(1)+'" cy="'+y2.toFixed(1)+'" r="2.6" fill="var(--muted)"/>';
+    }
+    s += chip(c, x, 'pH ' + ph.toFixed(2));
+    setSVG(el2.querySelector('#'+spec[1]), s);
+  });
+}
+function chip(c, x, label){
+  const fs = NARROW ? 9.5 : 10.5;
+  const cw = label.length * (NARROW ? 5.7 : 6.3) + 12;
+  let cx = x - cw/2;
+  if(cx < c.g.ml) cx = c.g.ml;
+  if(cx + cw > c.g.w - c.g.mr) cx = c.g.w - c.g.mr - cw;
+  return '<rect x="'+cx.toFixed(1)+'" y="'+(c.h-c.g.mb+3)+'" width="'+cw.toFixed(1)+'" height="15" fill="var(--ink)"/>'
+       + '<text x="'+(cx+cw/2).toFixed(1)+'" y="'+(c.h-c.g.mb+13.6)+'" text-anchor="middle" font-family="IBM Plex Mono, monospace" font-size="'+fs+'" fill="#fff">'+label+'</text>';
+}
+
+/* ===== 読み値 ===== */
+function whereLabel(S, f){
+  const n = S.K.length;
+  if(f < 0.015) return '弱酸のみ（テーマ1の状態）';
+  for(let i=1;i<=n;i++){
+    if(Math.abs(f-(i-0.5)) < 0.015) return '半当量点（第'+i+'段）— pH ≈ pKa'+(n>1?String(i):'')+'、緩衝能が最大';
+    if(Math.abs(f-i) < 0.015) return '当量点（第'+i+'段）— テーマ2の塩の状態';
+  }
+  if(f > n) return '強塩基の過剰';
+  const st = Math.ceil(f);
+  return '緩衝域（第'+st+'段）';
+}
+function cell(lab, val){
+  return '<div class="cell"><span class="lab">'+lab+'</span><span class="val">'+val+'</span></div>';
+}
+function renderReadout(){
+  const S = cur(), C = CT();
+  const ph = phAtF(S.K, C, F);
+  const h = Math.pow(10,-ph);
+  const hh = hhPH(S.K, F);
+  const b = betaAt(S.K, C, ph);
+  const bw = betaWater(ph);
+  const bs = hhBeta(S.K, C, F);
+
+  let html = '<div class="where">'+esc(whereLabel(S, F))+'</div>'
+    + '<div class="grid">'
+    + cell('pH 厳密', ph.toFixed(3))
+    + cell('pH（HH 式）', isFinite(hh) ? hh.toFixed(3) : '—')
+    + cell('ΔpH', isFinite(hh) ? ((hh-ph>=0?'+':'') + (hh-ph).toFixed(3)) : '—')
+    + cell('β 厳密', sci(b,2))
+    + cell('β（HH 式）', isFinite(bs) ? sci(bs,2) : '—')
+    + cell('うち水の寄与', (100*bw/b).toFixed(1)+'%')
+    + '</div>'
+    + '<div class="grid" style="margin-top:2px">'
+    + cell('加えた強塩基 Cb', sci(CbOf(S.K, C, h),2))
+    + cell('[H⁺]', sci(h,2))
+    + cell('[OH⁻]', sci(KW/h,2))
+    + '</div>';
+
+  const fr = fracs(S.K, h);
+  let bars = '', labs = '';
+  for(let j=0;j<fr.length;j++){
+    const pct = fr[j]*100;
+    if(pct <= 0) continue;
+    bars += '<i style="width:'+pct.toFixed(3)+'%;background:'+PAL[j % PAL.length].f+'"></i>';
+    if(pct >= 0.05){
+      labs += '<span><i style="background:'+PAL[j % PAL.length].f+'"></i>'+esc(S.sp[j])+' '+
+              (pct >= 1 ? pct.toFixed(1)+'%' : pct.toPrecision(2)+'%')+'</span>';
+    }
+  }
+  html += '<div class="spec"><div class="st">化学種の分布</div><div class="bar">'+bars+'</div><div class="barlab">'+labs+'</div></div>';
+  $('readout').innerHTML = html;
+}
+
+/* ===== 特異点テーブル ===== */
+function renderPoints(){
+  const S = cur(), C = CT(), n = S.K.length;
+  let html = '<tr><th>位置</th><th>f</th><th>pH 厳密</th><th>高校流</th><th>β</th></tr>';
+  const rows = [];
+  rows.push({name:'未滴定（弱酸のみ）', f:0});
+  for(let i=1;i<=n;i++){
+    rows.push({name:'半当量点 '+i, f:i-0.5, sch:-Math.log10(S.K[i-1])});
+    rows.push({name:'当量点 '+i, f:i,
+               sch:(i===1 && n===1) ? (7 + 0.5*(-Math.log10(S.K[0])) + 0.5*Math.log10(C)) : NaN});
+  }
+  rows.push({name:'塩基 '+(n+0.5)+' 当量', f:n+0.5, sch:14 + Math.log10(0.5*C)});
+  for(let r=0;r<rows.length;r++){
+    const ph = phAtF(S.K, C, rows[r].f);
+    const b = betaAt(S.K, C, ph);
+    let sch = rows[r].sch;
+    if(rows[r].f === 0 && n === 1) sch = 0.5*((-Math.log10(S.K[0])) - Math.log10(C));
+    html += '<tr><td>'+esc(rows[r].name)+'</td>'
+          + '<td class="n">'+rows[r].f.toFixed(1)+'</td>'
+          + '<td class="n">'+ph.toFixed(3)+'</td>'
+          + '<td class="n" style="color:var(--muted)">'+(isFinite(sch) ? sch.toFixed(3) : '—')+'</td>'
+          + '<td class="n">'+sci(b,2)+'</td></tr>';
+  }
+  html += '<tr><td>緩衝能の上限 0.576·C_T</td><td class="n">—</td><td class="n">—</td><td class="n" style="color:var(--muted)">—</td><td class="n">'+sci(0.5757*C,2)+'</td></tr>';
+  $('ptable').innerHTML = html;
+}
+
+/* ===== 破綻の実例 ===== */
+function renderCmp(){
+  const AC = sysOf('acetate').K, CL = sysOf('chloroacetate').K;
+  const cases = [
+    {K:AC, C:1.0e-3, f:0.5, name:'酢酸 1:1', why:'補正項 (h − Kw/h) が Ca、Cb に対して無視できなくなる'},
+    {K:AC, C:1.0e-5, f:0.5, name:'酢酸 1:1', why:'酸がほとんど自分で電離してしまい、緩衝液として成立しない'},
+    {K:CL, C:1.0e-1, f:0.5, name:'クロロ酢酸 1:1', why:'pKa 2.87 だと h が大きく、0.1 mol/L でも補正が効く'},
+    {K:AC, C:1.0e-1, f:0.99, name:'酢酸 99:1 側', why:'当量点直前は残った酸が少なく、比の近似が崩れる'}
+  ];
+  let html = '<div class="h">系</div><div class="h n">pH 厳密</div><div class="h n">pH（HH）</div><div class="h n hide-n">Δ</div>';
+  for(let i=0;i<cases.length;i++){
+    const cs = cases[i];
+    const ph = phAtF(cs.K, cs.C, cs.f);
+    const hh = hhPH(cs.K, cs.f);
+    html += '<div>'+esc(cs.name)+' <span class="mono">C_T = '+sci(cs.C,1)+'</span>'
+          + '<br><span class="small" style="font-size:11.5px">'+esc(cs.why)+'</span></div>'
+          + '<div class="n">'+ph.toFixed(3)+'</div>'
+          + '<div class="n">'+hh.toFixed(3)+'</div>'
+          + '<div class="n hide-n">'+((hh-ph)>=0?'+':'')+(hh-ph).toFixed(3)+'</div>';
+  }
+  $('cmp').innerHTML = html;
+}
+
+/* ===== 定数表 ===== */
+function renderTable(){
+  let html = '<tr><th>系</th><th>pKa</th><th>注記</th></tr>';
+  for(let i=0;i<SYS.length;i++){
+    const S = SYS[i];
+    html += '<tr><td><span style="font-weight:500">'+esc(S.jp)+'</span><br>'
+          + '<span class="mono" style="font-size:11px;color:var(--muted)">'+esc(S.f)+'</span></td>'
+          + '<td class="n" style="font-size:11.5px">'+esc(S.pk)+'</td>'
+          + '<td style="font-size:12px;color:var(--muted)">'+esc(S.note)+'</td></tr>';
+  }
+  $('ktable').innerHTML = html;
+}
+
+/* ===== 更新 ===== */
+function redrawAll(){
+  computeTitration();
+  drawCh1(); drawCh2(); drawCh3();
+  ['ch1','ch2','ch3'].forEach(function(id){
+    const el = $(id);
+    if(el && el._c){
+      el._c.xMinV = (id === 'ch1') ? 0 : 0;
+      el._c.yMinV = (id === 'ch1') ? -1 : ((id === 'ch2') ? -7 : 0);
+      el._c.yMaxV = (id === 'ch1') ? 15 : ((id === 'ch2') ? 0.6 : 0.34);
+    }
+  });
+  drawCursors();
+  renderReadout();
+  renderPoints();
+  updateSliders();
+}
+function updateSliders(){
+  $('ctv').textContent = sci(CT(),2) + ' mol/L';
+  $('ct').value = String(PCT);
+  $('ff').max = String(fMax());
+  $('ff').value = String(F);
+  const S = cur(), ph = phAtF(S.K, CT(), F);
+  $('ffv').textContent = F.toFixed(3) + '  pH ' + ph.toFixed(2);
+}
+function setF(v){
+  F = Math.max(0, Math.min(fMax(), v));
+  drawCursors();
+  renderReadout();
+  updateSliders();
+}
+
+/* ===== ポインタ操作 ===== */
+function attachPointer(elId, mode){
+  const el = $(elId);
+  let tracking = false;
+  function apply(e){
+    if(!el._c) return;
+    const c = el._c;
+    const r = el.getBoundingClientRect();
+    const px = (e.clientX - r.left) / r.width * c.g.w;
+    const t = (px - c.g.ml) / (c.g.w - c.g.ml - c.g.mr);
+    if(mode === 'f'){
+      setF(t * fMax());
+    } else {
+      const ph = Math.max(0, Math.min(14, t*14));
+      setF(fOf(cur().K, CT(), Math.pow(10,-ph)));
+    }
+  }
+  el.addEventListener('pointerdown', function(e){ tracking = true; apply(e); });
+  el.addEventListener('pointermove', function(e){ if(tracking || e.pointerType === 'mouse') apply(e); });
+  el.addEventListener('pointerup', function(){ tracking = false; });
+  el.addEventListener('pointercancel', function(){ tracking = false; });
+  el.addEventListener('pointerleave', function(){ tracking = false; });
+}
+
+/* ===== イベント ===== */
+$('chips').addEventListener('click', function(e){
+  const b = e.target.closest('.chip');
+  if(!b) return;
+  CUR = b.getAttribute('data-id');
+  F = Math.min(F, fMax());
+  renderChips(); redrawAll();
+});
+$('ct').addEventListener('input', function(){
+  PCT = parseFloat(this.value);
+  computeTitration(); drawCh1(); drawCh2();
+  ['ch1','ch2'].forEach(function(id){
+    const el = $(id);
+    if(el && el._c){
+      el._c.xMinV = 0;
+      el._c.yMinV = (id === 'ch1') ? -1 : -7;
+      el._c.yMaxV = (id === 'ch1') ? 15 : 0.6;
+    }
+  });
+  drawCursors(); renderReadout(); renderPoints(); updateSliders();
+});
+$('ff').addEventListener('input', function(){ setF(parseFloat(this.value)); });
+
+const mq = window.matchMedia('(max-width: 430px)');
+function onMQ(){
+  if(mq.matches === NARROW) return;
+  NARROW = mq.matches;
+  redrawAll();
+}
+if(mq.addEventListener) mq.addEventListener('change', onMQ); else mq.addListener(onMQ);
+
+/* ===== 起動 ===== */
+NARROW = mq.matches;
+renderChips();
+redrawAll();
+renderCmp();
+renderTable();
+attachPointer('ch1','f');
+attachPointer('ch2','ph');
+attachPointer('ch3','ph');
+</script>
+</body>
+</html>

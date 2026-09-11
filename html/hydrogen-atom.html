@@ -1,0 +1,1900 @@
+<!doctype html>
+<html lang="ja">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>水素原子インタラクティブ</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500&family=IBM+Plex+Sans+JP:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+*{box-sizing:border-box}
+:root{
+  --ink:#16232B; --muted:#5E6E76; --paper:#EDF1EF; --surface:#FFFFFF;
+  --rule:#D6DDDA; --rule-soft:#E8EDEB;
+  --c0:#B87A16; --c0t:#8A5A0C;
+  --c1:#158A6D; --c1t:#0D6A53;
+  --c2:#2457A6; --c2t:#1B4380;
+  --c3:#6E3AA7; --c3t:#572D85;
+  --c4:#A82A6A; --c4t:#831F52;
+  --c5:#3B6E1E; --c5t:#2A5215;
+  --mono:"IBM Plex Mono",ui-monospace,SFMono-Regular,Menlo,monospace;
+}
+html,body{margin:0;padding:0}
+body{
+  background:var(--paper); color:var(--ink);
+  font-family:"IBM Plex Sans JP","Hiragino Sans","Yu Gothic UI",system-ui,sans-serif;
+  font-size:13.5px; line-height:1.75; -webkit-text-size-adjust:100%;
+}
+.mono{font-family:var(--mono);font-variant-numeric:tabular-nums}
+.wrap{max-width:820px;margin:0 auto;padding:20px 14px 72px}
+.card{background:var(--surface);border:1px solid var(--rule);border-radius:3px;padding:14px;margin-bottom:14px}
+.eyebrow{display:flex;align-items:center;gap:10px;font-family:var(--mono);font-size:11.5px;letter-spacing:.14em;color:var(--muted)}
+.eyebrow::after{content:"";flex:1;height:1px;background:var(--rule)}
+h1{font-size:22px;font-weight:600;letter-spacing:.01em;margin:8px 0 2px}
+h2{font-size:13.5px;font-weight:600;margin:14px 0 6px;letter-spacing:.01em}
+h2:first-child{margin-top:0}
+p{margin:0 0 8px}
+p:last-child{margin-bottom:0}
+.note{color:var(--muted);font-size:12px;line-height:1.7}
+.sub{color:var(--muted);font-size:11.5px;font-family:var(--mono);letter-spacing:.06em}
+hr{border:none;border-top:1px solid var(--rule-soft);margin:12px 0}
+
+.btn{font:inherit;font-size:12.5px;line-height:1.4;border:1px solid var(--rule);background:#fff;color:var(--ink);border-radius:2px;padding:6px 10px;cursor:pointer}
+.btn:hover{border-color:#B4C0BC}
+.btn.on{background:var(--ink);color:#fff;border-color:var(--ink)}
+.btn:focus-visible{outline:2px solid var(--c2);outline-offset:1px}
+.btn.sm{padding:4px 8px;font-size:11.5px}
+.btn.dim{color:var(--muted)}
+.btnrow{display:flex;flex-wrap:wrap;gap:6px}
+.ctl{display:flex;flex-wrap:wrap;align-items:center;gap:8px;margin-top:10px}
+.ctl .lab{font-family:var(--mono);font-size:11px;letter-spacing:.1em;color:var(--muted);white-space:nowrap}
+.ctl .val{font-family:var(--mono);font-variant-numeric:tabular-nums;font-size:12.5px;min-width:96px}
+
+.viewer{position:relative;border:1px solid var(--rule-soft);border-radius:3px;background:#FBFCFB;overflow:hidden;margin-top:10px}
+svg.stage{display:block;width:100%;height:auto;touch-action:none}
+svg.stage.grab{cursor:crosshair}
+
+.legend{display:flex;flex-wrap:wrap;gap:4px 14px;margin-top:9px;font-size:11.5px;color:var(--muted)}
+.sw{display:inline-block;width:10px;height:10px;border-radius:50%;margin-right:5px;vertical-align:-1px}
+.swl{display:inline-block;width:14px;height:0;border-top:2px solid;margin-right:5px;vertical-align:3px}
+
+table{width:100%;border-collapse:collapse;font-size:12.5px}
+th{font-weight:500;color:var(--muted);text-align:left;border-bottom:1px solid var(--rule);padding:5px 6px;font-size:11px;letter-spacing:.06em;font-family:var(--mono)}
+td{border-bottom:1px solid var(--rule-soft);padding:5px 6px;vertical-align:top}
+.num{text-align:right;font-family:var(--mono);font-variant-numeric:tabular-nums}
+tr.hi td{background:#FAFBFA;font-weight:600}
+tr.cur td{background:#F2F6FA}
+tr.off td{color:#93A1A6}
+caption{caption-side:top;text-align:left;font-size:11.5px;color:var(--muted);padding:0 6px 6px}
+
+.stats{display:grid;grid-template-columns:1fr 1fr;gap:0 18px}
+.stat{display:flex;justify-content:space-between;align-items:baseline;gap:10px;border-bottom:1px solid var(--rule-soft);padding:6px 0}
+.stat .k{font-size:12px;color:var(--muted);white-space:nowrap}
+.stat .v{font-family:var(--mono);font-variant-numeric:tabular-nums;font-size:13px;text-align:right}
+
+.grid2{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.grid3{display:grid;grid-template-columns:repeat(3,1fr);gap:10px}
+input[type=range]{width:100%;max-width:220px;accent-color:#16232B;height:22px}
+
+.step{border-left:2px solid var(--rule);padding:1px 0 1px 11px;margin-bottom:10px}
+.step:last-child{margin-bottom:0;border-left-color:var(--ink)}
+.step .lbl{font-family:var(--mono);font-size:10.5px;letter-spacing:.12em;color:var(--muted)}
+.step .eq{font-family:var(--mono);font-size:12.5px;line-height:1.95;word-break:break-word}
+.step .eq sup{font-size:.78em}
+
+.warn{color:var(--c4t);font-size:11.5px;line-height:1.7}
+ul.tight{margin:0;padding-left:1.1em}
+ul.tight li{margin-bottom:5px}
+
+.fx{font-family:var(--mono);font-size:16px;line-height:2.2;padding:4px 0 2px;letter-spacing:.01em}
+.fx.small{font-size:13px;line-height:2}
+.fx .sym{cursor:pointer;padding:2px 3px;border-radius:2px;border-bottom:1px dashed var(--rule);-webkit-tap-highlight-color:transparent;touch-action:manipulation}
+.fx .sym:hover{background:#F6EEDC}
+.fx .sym.on{background:#F6E3BC;border-bottom:1px solid var(--c0);font-weight:500}
+.symdesc{font-size:12px;color:var(--muted);border-left:2px solid var(--c0);padding:2px 0 2px 10px;margin-top:4px;min-height:3.4em;line-height:1.7}
+.symdesc b{color:var(--ink);font-weight:600}
+
+.frac{display:inline-flex;flex-direction:column;vertical-align:middle;text-align:center;margin:0 5px;line-height:1.42}
+.frac .n{padding:0 7px 2px}
+.frac .d{padding:2px 7px 0;border-top:1.4px solid var(--ink)}
+.cV{color:var(--c2t)} .cW{color:var(--c1t)} .cO{color:var(--c3t)} .cS{color:var(--c4t)} .cF{color:var(--c0t)}
+
+.tag{display:inline-block;font-family:var(--mono);font-size:10.5px;letter-spacing:.08em;border:1px solid var(--rule);border-radius:2px;padding:0 5px;color:var(--muted)}
+.tag.lit{border-color:var(--c0);background:#F6E3BC;color:var(--c0t)}
+.tag.bad{border-color:var(--c4);background:#F5DCE8;color:var(--c4t)}
+
+.qgrid{display:grid;grid-template-columns:repeat(4,1fr);gap:7px;margin-top:11px}
+.qc{border:1px solid var(--rule);border-radius:3px;padding:7px 8px 8px;background:#fff}
+.qc .qk{font-family:var(--mono);font-size:10px;letter-spacing:.09em;color:var(--muted);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.qc .qv{font-family:var(--mono);font-variant-numeric:tabular-nums;font-size:13.5px;line-height:1.4;margin-top:2px;word-break:break-all}
+.qc .qw{font-size:10.5px;line-height:1.55;color:var(--muted);margin-top:4px}
+.qc.up{background:#FAEDF3;border-color:#DFAFC8}
+.qc.up .qv{color:var(--c4t)}
+.qc.dn{background:#ECF1F8;border-color:#B2C5E0}
+.qc.dn .qv{color:var(--c2t)}
+.qc.flat{background:#F4F6F5}
+.qc.flat .qv{color:var(--muted)}
+.qc.ok{background:#EAF4F0;border-color:#A9CFC2}
+.qc.ok .qv{color:var(--c1t)}
+.qc.lock{background:#F6EEDC;border-color:#E0C68A}
+.qc.lock .qv{color:var(--c0t)}
+
+.chip{display:inline-flex;align-items:center;gap:5px}
+.chip .dot{width:9px;height:9px;border-radius:50%;display:inline-block}
+
+.bigrow{display:flex;align-items:baseline;flex-wrap:wrap;gap:6px 20px;border:1px solid var(--rule);border-radius:3px;background:#FAFBFA;padding:9px 12px;margin-top:10px}
+.bigrow .bk{font-family:var(--mono);font-size:10.5px;letter-spacing:.1em;color:var(--muted);display:block}
+.bigrow .bv{font-family:var(--mono);font-variant-numeric:tabular-nums;font-size:25px;line-height:1.25;display:block}
+.bigrow .bu{font-size:11px;color:var(--muted);display:block}
+
+.cmprow{margin-top:12px}
+.cmprow:first-of-type{margin-top:6px}
+.cmptitle{font-family:var(--mono);font-size:10.5px;letter-spacing:.12em;color:var(--muted);padding-bottom:5px;border-bottom:1px solid var(--rule);margin-bottom:8px}
+.cmp{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.cmp .col{border:1px solid var(--rule);border-radius:3px;padding:9px 11px 10px}
+.cmp .col.cl{background:#FAEDF3;border-color:#DFAFC8}
+.cmp .col.ob{background:#EAF4F0;border-color:#A9CFC2}
+.cmp .hd{font-family:var(--mono);font-size:10px;letter-spacing:.1em;margin-bottom:5px}
+.cmp .col.cl .hd{color:var(--c4t)}
+.cmp .col.ob .hd{color:var(--c1t)}
+.cmp .t{font-size:12.5px;font-weight:600;line-height:1.6}
+.cmp .d{font-size:11.5px;line-height:1.68;color:var(--muted);margin-top:3px}
+.cmp .n{font-family:var(--mono);font-variant-numeric:tabular-nums;font-size:14px;margin-top:6px}
+.cmp .col.cl .n{color:var(--c4t)}
+.cmp .col.ob .n{color:var(--c1t)}
+
+@media (max-width:430px){
+  body{font-size:13px}
+  .wrap{padding:14px 10px 56px}
+  .card{padding:11px}
+  h1{font-size:19px}
+  .grid2,.grid3,.stats,.cmp{grid-template-columns:1fr}
+  table{font-size:12px}
+  th,td{padding:4px 4px}
+  .btn{padding:6px 8px;font-size:12px}
+  input[type=range]{max-width:none;flex:1 1 100%}
+  .step .eq{font-size:11.5px}
+  .ctl .val{min-width:0}
+  .fx{font-size:14px;line-height:2.3}
+  .fx.small{font-size:11.5px}
+  .symdesc{min-height:5em}
+  .qgrid{grid-template-columns:repeat(2,1fr);gap:6px}
+  .qc .qv{font-size:13px}
+  .bigrow{gap:6px 14px}
+  .bigrow .bv{font-size:20px}
+  .cmp .col{padding:8px 9px}
+}
+</style>
+</head>
+<body>
+<div class="wrap">
+
+<header>
+  <div class="eyebrow">HYDROGEN ATOM</div>
+  <h1>水素原子インタラクティブ</h1>
+  <p class="note">陽子1個と電子1個。それだけの系なのに、出てくる答えは実験と小数点以下いくつも合う。ここでは準位図を叩いて遷移を起こし、放出または吸収される光の波長がスペクトルのどこに立つかを見る。ボーアの量子条件は円軌道上のド・ブロイ波の定在波として描いた。2本目の「波の重ね合わせ」で扱った弦の定常波と同じ絵で、端が固定されているか一周してつながっているかだけが違う。リュードベリ定数は h, m, e, &epsilon;<sub>0</sub> から実際に計算して実測値と突き合わせる。準位のエネルギーはボーアの式だけでなく、シュレーディンガー方程式をヌメロフ法で解いた結果も並べてある。</p>
+</header>
+
+<div class="card">
+  <div class="eyebrow">ENERGY LEVELS</div>
+  <h2>準位図をタップして遷移を起こす</h2>
+  <p class="note">準位を2つタップすると、その間の遷移が選ばれる。上から下なら光が出て、下から上なら光を吸う。いちばん上の線は n = &infin;、電子が原子から離れた状態。</p>
+  <div class="ctl"><span class="lab">原子</span><span class="btnrow" id="spsel"></span></div>
+  <div class="ctl"><span class="lab">縦軸</span><span class="btnrow" id="axsel"></span></div>
+  <div class="grid2" style="margin-top:4px" id="levsliders"></div>
+  <div class="viewer"><svg class="stage grab" id="sv-lev" role="img" aria-label="水素原子のエネルギー準位図と選ばれた遷移"><g id="lev-g"></g></svg></div>
+  <p class="note" id="levhint" style="margin-top:7px"></p>
+  <div class="bigrow" id="bigrow"></div>
+  <div class="qgrid" id="qgrid"></div>
+  <p class="note" id="levnote" style="margin-top:10px"></p>
+  <p class="warn" id="levwarn" style="margin-top:6px"></p>
+</div>
+
+<div class="card">
+  <div class="eyebrow">TRANSITION</div>
+  <h2>準位差がそのまま光子1個のエネルギー</h2>
+  <p class="note">式は引き算ひとつ。記号をタップすると中身が出る。</p>
+  <div class="fx" id="fx1"></div>
+  <div class="symdesc" id="fx1d">記号をタップすると説明が出る。</div>
+  <div class="viewer"><svg class="stage" id="sv-tr" role="img" aria-label="遷移で放出または吸収される光子"><g id="tr-g"></g></svg></div>
+  <div class="stats" id="trstats" style="margin-top:10px"></div>
+  <p class="note" id="trnote" style="margin-top:9px"></p>
+  <h2>リュードベリの形に直す</h2>
+  <div class="fx small" id="fx2"></div>
+  <p class="note" id="fx2note"></p>
+  <h2>この系列の線を並べる</h2>
+  <div id="sertab" style="margin-top:4px"></div>
+  <p class="note" id="sertabnote" style="margin-top:9px"></p>
+</div>
+
+<div class="card">
+  <div class="eyebrow">SPECTRUM</div>
+  <h2>系列ごとに色を分けて並べる</h2>
+  <p class="note">横軸は波長の対数。真ん中の色帯が可視光の範囲で、そこに入る線だけが目に見える。バルマー系列の頭の数本だけが帯の中に落ちているのが読み取れるはず。図の上をドラッグすると、いちばん近い線が選ばれる。</p>
+  <div class="ctl"><span class="lab">表示する系列</span><span class="btnrow" id="sersel"></span></div>
+  <div class="viewer"><svg class="stage grab" id="sv-spec" role="img" aria-label="水素の輝線スペクトルと可視光の帯"><g id="spec-g"></g></svg></div>
+  <div class="legend" id="specleg"></div>
+  <p class="note" id="specnote" style="margin-top:9px"></p>
+  <h2>可視域に入る線だけ抜き出す</h2>
+  <div id="vistab" style="margin-top:4px"></div>
+  <p class="note" id="vistabnote" style="margin-top:9px"></p>
+</div>
+
+<div class="card">
+  <div class="eyebrow">BOHR CONDITION</div>
+  <h2>量子条件は円軌道上の定在波</h2>
+  <p class="note">&mu;vr = n&#8463; の両辺を &#8463; で割ると 2&pi;r = n&lambda;。軌道1周がド・ブロイ波長の整数倍という条件になる。n を半端な値にすると、一周して戻ってきた波が自分自身とずれる。下の帯は円を切り開いて直線に伸ばしたもので、2本目で描いた弦の定常波とまったく同じ絵になる。</p>
+  <div class="grid2" style="margin-top:4px" id="wavesliders"></div>
+  <div class="ctl"><span class="lab">表示</span><span class="btnrow" id="wavemode"></span><span class="btnrow" id="waveplay"></span></div>
+  <div class="viewer"><svg class="stage" id="sv-wave" role="img" aria-label="円軌道上のド・ブロイ波と切り開いた定在波"><g id="wave-g"></g></svg></div>
+  <div class="stats" id="wavestats" style="margin-top:10px"></div>
+  <p class="note" id="wavenote" style="margin-top:9px"></p>
+  <h2>何周も重ねると整数のところだけ生き残る</h2>
+  <p class="note">同じ波を K 周ぶん足し合わせたときに残る振幅は |sin(&pi;&nu;K) / (K sin(&pi;&nu;))| になる。&nu; が整数なら 1、それ以外は K を増やすほど 0 に落ちる。量子数が整数に限られるのは、この打ち消し合いの結果でしかない。</p>
+  <div class="viewer"><svg class="stage" id="sv-dir" role="img" aria-label="周回を重ねたときに残る振幅"><g id="dir-g"></g></svg></div>
+  <div id="dirtab" style="margin-top:10px"></div>
+  <p class="note" id="dirnote" style="margin-top:9px"></p>
+</div>
+
+<div class="card">
+  <div class="eyebrow">RYDBERG CONSTANT</div>
+  <h2>4つの定数だけから組み立てる</h2>
+  <p class="note">リュードベリ定数は測って決めた値ではなく、質量と電荷と h と &epsilon;<sub>0</sub> の組み合わせで出てくる。実際に計算して、分光で測った値と突き合わせる。</p>
+  <div id="rysteps"></div>
+  <div class="bigrow" id="ryrow"></div>
+  <div id="rytab" style="margin-top:10px"></div>
+  <p class="note" id="rynote" style="margin-top:9px"></p>
+  <h2>定数を丸めるとどこから崩れるか</h2>
+  <p class="note">R は e の4乗と h の3乗で効くので、入力を丸めた誤差が増幅される。有効数字を落としてみると、どの桁から答えが信用できなくなるかが見える。</p>
+  <div class="grid2" style="margin-top:4px" id="rysliders"></div>
+  <div class="viewer"><svg class="stage" id="sv-ry" role="img" aria-label="定数の有効数字とリュードベリ定数の誤差"><g id="ry-g"></g></svg></div>
+  <div id="rndtab" style="margin-top:10px"></div>
+  <p class="note" id="rndnote" style="margin-top:9px"></p>
+</div>
+
+<div class="card">
+  <div class="eyebrow">IONIZATION &amp; CONTINUUM</div>
+  <h2>系列の端から先は線ではなく帯になる</h2>
+  <p class="note">n を上げていくと準位の間隔が詰まり、n = &infin; で 0 に収束する。そこが系列限界。それより短い波長の光は電子を原子から完全にはじき出し、余った分が電子の運動エネルギーになる。運動エネルギーは連続の値を取れるので、限界の外側は線ではなく途切れのない帯になる。</p>
+  <div class="grid2" style="margin-top:4px" id="contsliders"></div>
+  <div class="viewer"><svg class="stage grab" id="sv-cont" role="img" aria-label="系列限界と連続スペクトル"><g id="cont-g"></g></svg></div>
+  <div class="stats" id="contstats" style="margin-top:10px"></div>
+  <p class="note" id="contnote" style="margin-top:9px"></p>
+  <div id="limtab" style="margin-top:10px"></div>
+  <p class="note" id="limnote" style="margin-top:9px"></p>
+</div>
+
+<div class="card">
+  <div class="eyebrow">NUMERICS</div>
+  <h2>シュレーディンガー方程式を解いて答え合わせをする</h2>
+  <p class="note">ボーアの模型は円軌道を仮定して、角運動量を n&#8463; と置いた。それでもエネルギーは合う。本当に合っているのかを、模型を使わずに動径方程式を数値で解いて確かめる。外向きに積分した波動関数が遠方で発散する向きは、エネルギーが固有値をまたぐたびに反転する。その符号の変わり目を二分法で追い込んだ。</p>
+  <div class="fx small" id="fx3"></div>
+  <div class="grid2" style="margin-top:4px" id="numsliders"></div>
+  <div class="viewer"><svg class="stage" id="sv-rad" role="img" aria-label="数値的に解いた動径波動関数"><g id="rad-g"></g></svg></div>
+  <div class="legend" id="radleg"></div>
+  <p class="note" id="radnote" style="margin-top:9px"></p>
+  <h2>ボーアの式と数値解を突き合わせる</h2>
+  <div id="numtab" style="margin-top:4px"></div>
+  <p class="note" id="numnote" style="margin-top:9px"></p>
+  <h2>刻み幅を変えると誤差がどう動くか</h2>
+  <div id="convtab" style="margin-top:4px"></div>
+  <p class="note" id="convnote" style="margin-top:9px"></p>
+</div>
+
+<div class="card">
+  <div class="eyebrow">MEDICAL</div>
+  <h2>同じ水素原子でも、見ている準位が8桁違う</h2>
+  <p class="note">MRI が叩いているのも水素原子だが、相手は電子ではなく陽子のスピン。磁場の中で上下2つに割れた準位の差はごくわずかで、電波で足りてしまう。同じ原子の中に、エネルギーの桁がまるで違う準位が同居している。</p>
+  <div class="grid2" style="margin-top:4px" id="medsliders"></div>
+  <div class="viewer"><svg class="stage" id="sv-med" role="img" aria-label="水素にまつわるエネルギーの桁比較"><g id="med-g"></g></svg></div>
+  <div class="stats" id="medstats" style="margin-top:10px"></div>
+  <p class="note" id="mednote" style="margin-top:9px"></p>
+  <h2>PET の陽電子は消える前に水素もどきを作る</h2>
+  <p class="note" id="petnote"></p>
+  <h2>スペクトル線は元素の指紋として使われている</h2>
+  <p class="note" id="aasnote"></p>
+</div>
+
+<div class="card">
+  <div class="eyebrow">NOTES</div>
+  <h2>原子ごとの換算質量と準位</h2>
+  <div id="sptable"></div>
+  <p class="note" id="spnote" style="margin-top:8px"></p>
+  <h2>どの近似がどこで効くか</h2>
+  <div id="apptable" style="margin-top:4px"></div>
+  <p class="note" id="appnote" style="margin-top:8px"></p>
+  <h2>使った定数</h2>
+  <div id="consttable" style="margin-top:4px"></div>
+  <p class="note" id="constnote" style="margin-top:8px"></p>
+  <h2>取り違えやすいところ</h2>
+  <ul class="tight note" id="misslist"></ul>
+</div>
+
+</div>
+<script>
+"use strict";
+const TAU=Math.PI*2;
+const INK='#16232B',MUT='#5E6E76',RULE='#D6DDDA',SOFT='#E8EDEB',PAPER='#EDF1EF';
+const CGOLD='#B87A16',CGRN='#158A6D',CBLU='#2457A6',CPUR='#6E3AA7',CCRM='#A82A6A',COLV='#3B6E1E';
+const CGOLDT='#8A5A0C',CGRNT='#0D6A53',CBLUT='#1B4380',CPURT='#572D85',CCRMT='#831F52',COLVT='#2A5215';
+
+/* ---------- 定数（データ駆動） ---------- */
+const HP=6.62607015e-34;         /* プランク定数 [J s] SI 定義値（2019 改定） */
+const QE=1.602176634e-19;        /* 素電荷 [C] SI 定義値 */
+const CL=299792458;              /* 光速 [m/s] 定義値 */
+const ME=9.1093837015e-31;       /* 電子質量 [kg] CODATA 2018 */
+const EPS0=8.8541878128e-12;     /* 真空の誘電率 [F/m] CODATA 2018。2019 以降は測定量 */
+const UAMU=1.66053906660e-27;    /* 統一原子質量単位 [kg] CODATA 2018 */
+const MEU=5.48579909065e-4;      /* 電子質量 [u] */
+const HBAR=HP/(2*Math.PI);
+const HCNM=HP*CL/QE*1e9;         /* hc = 1239.8419843 eV nm */
+const A0=EPS0*HP*HP/(Math.PI*ME*QE*QE);      /* ボーア半径 [m] */
+const ALPHA=QE*QE/(4*Math.PI*EPS0*HBAR*CL);  /* 微細構造定数 */
+const RINF=ME*Math.pow(QE,4)/(8*EPS0*EPS0*Math.pow(HP,3)*CL); /* R∞ [1/m] */
+const RY_INF=ME*Math.pow(QE,4)/(8*EPS0*EPS0*HP*HP)/QE;        /* 13.6057 eV */
+const RINF_CODATA=1.0973731568160e7;   /* 実測（CODATA 2018） */
+const ION_MEAS=13.598434599702;        /* 水素のイオン化エネルギー 実測 [eV] NIST */
+const GAMMA_P=42.577478518e6;          /* 陽子の磁気回転比 /2π [Hz/T] */
+const VIS_LO=380, VIS_HI=780;          /* 可視域の目安 [nm] */
+
+/* ---------- 原子（データ駆動） ----------
+   Z    : 核電荷
+   mnu  : 原子核の質量 [u]（中性原子の質量から電子ぶんを引いた値）
+   換算質量 μ = me·M/(me+M) が準位を 0.05% 単位で動かす。ここがボーア模型で唯一
+   「原子核が有限の重さである」ことを入れる場所になる。                          */
+const SPECIES=[
+  {id:'H',  sym:'H',      nm:'水素 \u00B9H',       Z:1, mnu:1.00727646688, col:CCRM, colt:CCRMT,
+   note:'陽子1個と電子1個。換算質量は電子質量の 0.99946 倍で、無限質量とみなした場合より準位が 0.054% 浅くなる'},
+  {id:'D',  sym:'D',      nm:'重水素 \u00B2H',     Z:1, mnu:2.01355321,    col:CGOLD,colt:CGOLDT,
+   note:'1932 年にユーリーがバルマー線のわずかなずれから見つけた。H\u03B1 に対して 0.179 nm 短波長側に出る。この差は換算質量だけで説明がつく'},
+  {id:'T',  sym:'T',      nm:'三重水素 \u00B3H',   Z:1, mnu:3.01550071,    col:COLV, colt:COLVT,
+   note:'核が重いぶん換算質量が電子質量に近づき、準位は無限質量の極限へさらに寄る'},
+  {id:'He1',sym:'He\u207A',nm:'ヘリウムイオン',    Z:2, mnu:4.00150618,    col:CBLU, colt:CBLUT,
+   note:'電子1個の水素様イオン。Z\u00B2 で準位が4倍深くなるので、線は全部そのぶん短波長へ動く。n=4\u21923 の 468.6 nm は星のスペクトルでよく見る線'},
+  {id:'Li2',sym:'Li\u00B2\u207A',nm:'リチウムイオン',Z:3, mnu:7.01435766,  col:CPUR, colt:CPURT,
+   note:'準位が9倍深い。バルマーに相当する系列まで紫外へ抜ける'},
+  {id:'Be3',sym:'Be\u00B3\u207A',nm:'ベリリウムイオン',Z:4, mnu:9.0099888, col:CGRN, colt:CGRNT,
+   note:'16倍。基底状態のイオン化エネルギーが 217.7 eV に達し、軟X線の領域に入る'},
+  {id:'Ps', sym:'Ps',     nm:'ポジトロニウム',     Z:1, mnu:MEU,           col:CGOLD,colt:CGOLDT,
+   note:'電子と陽電子の束縛状態。核にあたるものが電子と同じ重さなので換算質量がちょうど半分になり、準位も波数も全部半分。PET で陽電子が消える直前に一瞬これができる'},
+  {id:'INF',sym:'\u221E', nm:'無限質量の水素',     Z:1, mnu:1e12,          col:MUT,  colt:MUT,
+   note:'原子核を動かないものとした極限。教科書の 13.6 eV と R\u221E はこの値。実在しないが、換算質量の効きを測る基準として置いてある'}
+];
+
+/* ---------- 系列（データ駆動） ---------- */
+const SERIES=[
+  {nf:1, nm:'ライマン',   en:'Lyman',     yr:1906, col:CPUR, colt:CPURT, band:'紫外',       on:true},
+  {nf:2, nm:'バルマー',   en:'Balmer',    yr:1885, col:CCRM, colt:CCRMT, band:'可視〜紫外', on:true},
+  {nf:3, nm:'パッシェン', en:'Paschen',   yr:1908, col:CGOLD,colt:CGOLDT,band:'近赤外',     on:true},
+  {nf:4, nm:'ブラケット', en:'Brackett',  yr:1922, col:CGRN, colt:CGRNT, band:'赤外',       on:false},
+  {nf:5, nm:'プント',     en:'Pfund',     yr:1924, col:CBLU, colt:CBLUT, band:'赤外',       on:false}
+];
+/* バルマー系列の慣用名。データ駆動なので行を足せば増える */
+const LINENAME={'2-3':'H\u03B1','2-4':'H\u03B2','2-5':'H\u03B3','2-6':'H\u03B4','2-7':'H\u03B5','2-8':'H\u03B6',
+                '1-2':'Ly\u03B1','1-3':'Ly\u03B2','1-4':'Ly\u03B3','3-4':'Pa\u03B1','3-5':'Pa\u03B2','3-6':'Pa\u03B3'};
+
+const CONSTS=[
+  ['プランク定数 h','6.62607015&times;10<sup>&minus;34</sup> J&middot;s','SI 定義値（2019 改定）','R &prop; 1/h&sup3; なので、h の丸めが3倍に増幅されて効く'],
+  ['素電荷 e','1.602176634&times;10<sup>&minus;19</sup> C','SI 定義値','R &prop; e&#8308;。4乗で効くので、ここを丸めるといちばん痛い'],
+  ['電子質量 m<sub>e</sub>','9.1093837015&times;10<sup>&minus;31</sup> kg','CODATA 2018','定義値ではない。相対不確かさは 3&times;10<sup>&minus;10</sup>'],
+  ['真空の誘電率 &epsilon;<sub>0</sub>','8.8541878128&times;10<sup>&minus;12</sup> F/m','CODATA 2018','2019 の改定で定義値から測定量に変わった。&epsilon;<sub>0</sub> = e&sup2;/(2&alpha;hc) なので不確かさは微細構造定数のもの'],
+  ['光速 c','299792458 m/s','SI 定義値','&lambda; = c/&nu; と hc の換算に使う'],
+  ['hc','1239.8419843 eV&middot;nm','定義値の組合せ','&lambda;[nm] = 1239.84 / &Delta;E[eV]。暗算に使える形'],
+  ['ボーア半径 a<sub>0</sub>','5.29177210903&times;10<sup>&minus;11</sup> m','&epsilon;<sub>0</sub>h&sup2;/(&pi;m<sub>e</sub>e&sup2;)','n=1 の軌道半径。実際には 1s の動径分布が最大になる距離であって、電子がそこを回っているわけではない'],
+  ['微細構造定数 &alpha;','1/137.035999','e&sup2;/(4&pi;&epsilon;<sub>0</sub>&#8463;c)','n=1 の軌道速度は &alpha;c。相対論補正の大きさが &alpha;&sup2; = 5.3&times;10<sup>&minus;5</sup> 程度になる根拠'],
+  ['R<sub>&infin;</sub>（計算値）','1.09737315681&times;10<sup>7</sup> m<sup>&minus;1</sup>','m<sub>e</sub>e&#8308;/(8&epsilon;<sub>0</sub>&sup2;h&sup3;c)','上の定数から組み立てた値'],
+  ['R<sub>&infin;</sub>（実測）','1.0973731568160&times;10<sup>7</sup> m<sup>&minus;1</sup>','CODATA 2018','物理定数のなかで最も精密に測られているもののひとつ。相対不確かさ 1.9&times;10<sup>&minus;12</sup>'],
+  ['R<sub>H</sub>（水素）','1.0967758&times;10<sup>7</sup> m<sup>&minus;1</sup>','R<sub>&infin;</sub>&middot;&mu;/m<sub>e</sub>','このページで波長を出すのに採用した値。高校の教科書の 1.10&times;10<sup>7</sup> はこれより 0.29% 大きい'],
+  ['イオン化エネルギー','13.598434599702 eV','NIST 実測','ボーアの式が出す 13.598287 eV とは 1.47&times;10<sup>&minus;4</sup> eV 違う。差の中身は微細構造とラムシフト'],
+  ['陽子の磁気回転比 &gamma;<sub>p</sub>/2&pi;','42.5774785 MHz/T','CODATA 2018','MRI の共鳴周波数。1.5 T で 63.9 MHz'],
+  ['空気の屈折率（可視域）','1.000276 前後','Ciddor の式','分光学の慣習で 200 nm 以上の線は空気中の波長で表を作る。真空波長との差は 0.028%']
+];
+
+const APPROX=[
+  ['原子核を無限に重いとみなす','準位の絶対値','水素で 0.054%。イオン化エネルギーが 13.6057 eV から 13.5983 eV へ下がる。重水素との差 0.179 nm はこの効果そのもの。このページでは換算質量を入れた値を採用している'],
+  ['非相対論（微細構造を無視）','5桁目以降','n=1 で &minus;1.81&times;10<sup>&minus;4</sup> eV。効きの大きさは &alpha;&sup2; = 5.3&times;10<sup>&minus;5</sup> 程度。H&alpha; 線は実際には 0.022 nm の幅に分裂している'],
+  ['量子電磁力学の効果（ラムシフト）を無視','6桁目','1s で +3.38&times;10<sup>&minus;5</sup> eV。ボーア模型でもディラック方程式でも出てこない。微細構造と足すと、実測とのずれ 1.47&times;10<sup>&minus;4</sup> eV をほぼ説明できる'],
+  ['核スピンを無視（超微細構造）','9桁目','基底状態で 5.87&times;10<sup>&minus;6</sup> eV。電波天文で有名な波長 21 cm の線がこれ。MRI が使っているのは、この構造を磁場でさらに割ったもの'],
+  ['円軌道だけを考える','角運動量','エネルギーは正しく出るが角運動量は間違う。ボーア模型の基底状態は &#8463; を持つが、実際の 1s の軌道角運動量は 0。エネルギーだけが偶然合っている'],
+  ['電子を点として軌道に載せる','電子の居場所','実際は確率の雲。a<sub>0</sub> は 1s の動径分布が最大になる距離で、平均距離は 1.5a<sub>0</sub>'],
+  ['真空中の波長で表示','4桁目','空気中の波長は 0.028% 短い。H&alpha; は真空 656.47 nm、空気中 656.28 nm。表では両方出している'],
+  ['核を点電荷とみなす','10桁目以降','陽子の電荷半径 0.84 fm の効きは 10<sup>&minus;9</sup> 級。ただし電子をミューオンに置き換えると換算質量が 186 倍になり、この効果が測れるところまで拡大する'],
+  ['ヌメロフ法の刻みと打ち切り','数値解','刻みを半分にすると誤差が 1/16 になる（4次精度）。ただし 4&times;10<sup>&minus;7</sup> あたりで頭打ちになり、そこからは r の打ち切り位置が誤差を決める'],
+  ['二分法の打ち切り','数値解','&nu; = Z/&radic;(&minus;2E) の空間で 52 回まで割っている。刻みによる誤差のほうがはるかに大きいので、ここは効かない']
+];
+
+const MISS=[
+  'E<sub>n</sub> が負なのは、電子が無限遠で静止している状態を 0 に取っているから。値が小さいほど深く束縛されている。基底状態がいちばん「低い」。',
+  'n が大きいほど準位の間隔は狭くなる。だから系列の短波長側で線が詰まり、最後は限界に貼りつく。等間隔だと思っているとスペクトルの形が説明できない。',
+  '発光と吸収は同じ準位差を使う。同じ気体の輝線と吸収線は同じ波長に立つ。太陽スペクトルの暗線が実験室の輝線と一致するのはこのため。',
+  'バルマー系列だから可視、ではない。n<sub>f</sub>=2 の系列のうち帯に入るのは頭の4本ほどで、H&epsilon; から先と系列限界の 364.7 nm は紫外。',
+  'リュードベリ定数は波数（1/&lambda;）の次元を持つ。エネルギーではない。エネルギーにするには hc を掛けて Rhc = 13.6 eV。',
+  '2&pi;r = n&lambda; は全波長の整数倍。弦の固定端は L = n(&lambda;/2) で半波長の整数倍。境界条件が違うので係数も違う。同じ「定在波の条件」でも中身を取り違えやすい。',
+  'ボーア半径は電子の軌道の半径ではない。1s の動径分布が最大になる距離で、平均距離はその 1.5 倍。',
+  'ボーア模型の角運動量 n&#8463; は基底状態で間違っている。正しくは 0。エネルギーが合うことと模型が正しいことは別。',
+  '水素原子のスペクトルと水素分子 H&#8322; のスペクトルは別物。分子は振動と回転が加わるので、線ではなく帯になる。放電管で見ているのはたいてい両方の混合。',
+  '&lambda; = hc/&Delta;E の hc = 1240 eV&middot;nm を覚えておくと、2 eV なら 620 nm と即座に出る。',
+  '系列限界より短い波長の光は「吸収されない」のではなく、電子を叩き出して連続的に吸収される。限界の外側は線ではなく帯。',
+  'He&#8314; や Li&sup2;&#8314; は電子が1個なので同じ式が使える。ただし中性のヘリウムは電子が2個あり、この式は使えない。'
+];
+
+/* ---------- 小道具 ---------- */
+const clamp=(v,a,b)=>v<a?a:(v>b?b:v);
+const f1=v=>(Math.round(v*100)/100).toString();
+function fmtCore(v,sig,inf,exa,exb){
+  sig=sig||4;
+  if(!isFinite(v)) return inf;
+  if(v===0) return '0';
+  const av=Math.abs(v);
+  if(av>=1e-3&&av<1e6){
+    const dec=clamp(sig-1-Math.floor(Math.log10(av)),0,17);
+    let s=v.toFixed(dec);
+    if(s.indexOf('.')>=0) s=s.replace(/0+$/,'').replace(/\.$/,'');
+    return s.replace('-','\u2212');
+  }
+  let e=Math.floor(Math.log10(av));
+  let m=v/Math.pow(10,e);
+  if(Math.abs(+m.toFixed(sig-1))>=10){ m/=10; e++; }
+  return m.toFixed(sig-1).replace('-','\u2212')+exa+String(e).replace('-','\u2212')+exb;
+}
+function fmt(v,sig){ return fmtCore(v,sig,'&infin;','&times;10<sup>','</sup>'); }
+function expo(v,d){
+  if(v===0) return '0';
+  if(!isFinite(v)) return '&infin;';
+  const parts=v.toExponential(d===undefined?2:d).split('e');
+  return parts[0].replace('-','\u2212')+'&times;10<sup>'+String(parseInt(parts[1],10)).replace('-','\u2212')+'</sup>';
+}
+function mn(v){ return String(v).replace(/-/g,'\u2212'); }
+const PFX=[[1e-15,'f'],[1e-12,'p'],[1e-9,'n'],[1e-6,'\u00B5'],[1e-3,'m'],[1,''],[1e3,'k'],[1e6,'M'],[1e9,'G'],[1e12,'T'],[1e15,'P']];
+function fmtU(v,u,sig){
+  if(!isFinite(v)) return '&infin;';
+  if(v===0) return '0 '+u;
+  const a=Math.abs(v);
+  let best=PFX[0];
+  for(const p of PFX) if(a>=p[0]*0.9999) best=p;
+  return fmt(v/best[0],sig||4)+' '+best[1]+u;
+}
+function niceCeil(v){
+  if(v<=0) return 1;
+  const e=Math.floor(Math.log10(v)), m=v/Math.pow(10,e);
+  const lad=[1,1.2,1.5,2,2.5,3,4,5,6,8,10];
+  for(const q of lad) if(m<=q+1e-12) return q*Math.pow(10,e);
+  return 10*Math.pow(10,e);
+}
+/* 有効数字 k 桁に丸める */
+function roundSig(v,k){
+  if(v===0||!isFinite(v)) return v;
+  const e=Math.floor(Math.log10(Math.abs(v)));
+  const p=Math.pow(10,k-1-e);
+  return Math.round(v*p)/p;
+}
+
+/* ---------- SVG 組み立て ---------- */
+function LN(x1,y1,x2,y2,c,w,dash,op){
+  return '<line x1="'+f1(x1)+'" y1="'+f1(y1)+'" x2="'+f1(x2)+'" y2="'+f1(y2)+'" stroke="'+c+'" stroke-width="'+(w||1)+'"'+
+    (dash?' stroke-dasharray="'+dash+'"':'')+(op!==undefined?' opacity="'+op+'"':'')+' stroke-linecap="round"/>';
+}
+function svgTxt(s){
+  return String(s).replace(/<sup>/g,'^').replace(/<\/sup>/g,'').replace(/<sub>/g,'_').replace(/<\/sub>/g,'')
+                  .replace(/<[^>]*>/g,'');
+}
+function TX(x,y,s,c,size,anchor,weight,op){
+  s=svgTxt(s);
+  return '<text x="'+f1(x)+'" y="'+f1(y)+'" fill="'+c+'" font-family="IBM Plex Mono, monospace" font-size="'+(size||10)+'"'+
+    (anchor?' text-anchor="'+anchor+'"':'')+(weight?' font-weight="'+weight+'"':'')+(op!==undefined?' opacity="'+op+'"':'')+'>'+s+'</text>';
+}
+function TXJ(x,y,s,c,size,anchor,weight,op){
+  s=svgTxt(s);
+  return '<text x="'+f1(x)+'" y="'+f1(y)+'" fill="'+c+'" font-family="IBM Plex Sans JP, sans-serif" font-size="'+(size||10)+'"'+
+    (anchor?' text-anchor="'+anchor+'"':'')+(weight?' font-weight="'+weight+'"':'')+(op!==undefined?' opacity="'+op+'"':'')+'>'+s+'</text>';
+}
+function PL(pts,c,w,dash,op){
+  if(pts.length<2) return '';
+  let d='M'+f1(pts[0][0])+' '+f1(pts[0][1]);
+  for(let i=1;i<pts.length;i++) d+='L'+f1(pts[i][0])+' '+f1(pts[i][1]);
+  return '<path d="'+d+'" fill="none" stroke="'+c+'" stroke-width="'+(w||1.6)+'"'+
+    (dash?' stroke-dasharray="'+dash+'"':'')+(op!==undefined?' opacity="'+op+'"':'')+' stroke-linejoin="round" stroke-linecap="round"/>';
+}
+function PLF(pts,fill,op){
+  if(pts.length<3) return '';
+  let d='M'+f1(pts[0][0])+' '+f1(pts[0][1]);
+  for(let i=1;i<pts.length;i++) d+='L'+f1(pts[i][0])+' '+f1(pts[i][1]);
+  return '<path d="'+d+'Z" fill="'+fill+'" stroke="none"'+(op!==undefined?' opacity="'+op+'"':'')+'/>';
+}
+function POLY(pts,fill,stroke,sw,op){
+  if(pts.length<3) return '';
+  let s='';
+  for(const p of pts) s+=f1(p[0])+','+f1(p[1])+' ';
+  return '<polygon points="'+s.trim()+'" fill="'+(fill||'none')+'"'+
+    (stroke?' stroke="'+stroke+'" stroke-width="'+(sw||1)+'"':'')+(op!==undefined?' opacity="'+op+'"':'')+'/>';
+}
+function AR(x1,y1,x2,y2,c,w,hs,op){
+  const dx=x2-x1, dy=y2-y1, len=Math.hypot(dx,dy);
+  if(len<0.6) return '';
+  hs=hs||6;
+  const ux=dx/len, uy=dy/len, px=-uy, py=ux;
+  const bx=x2-ux*hs, by=y2-uy*hs;
+  return LN(x1,y1,bx,by,c,w||1.6,null,op)+
+    '<polygon points="'+f1(x2)+','+f1(y2)+' '+f1(bx+px*hs*0.42)+','+f1(by+py*hs*0.42)+' '+f1(bx-px*hs*0.42)+','+f1(by-py*hs*0.42)+'" fill="'+c+'"'+(op!==undefined?' opacity="'+op+'"':'')+'/>';
+}
+function CIRC(x,y,r,fill,stroke,sw,dash,op){
+  return '<circle cx="'+f1(x)+'" cy="'+f1(y)+'" r="'+f1(r)+'" fill="'+(fill||'none')+'"'+
+    (stroke?' stroke="'+stroke+'" stroke-width="'+(sw||1)+'"':'')+(dash?' stroke-dasharray="'+dash+'"':'')+(op!==undefined?' opacity="'+op+'"':'')+'/>';
+}
+function RECT(x,y,w,h,fill,stroke,sw,dash,op,rx){
+  return '<rect x="'+f1(x)+'" y="'+f1(y)+'" width="'+f1(Math.max(0,w))+'" height="'+f1(Math.max(0,h))+'" fill="'+(fill||'none')+'"'+
+    (stroke?' stroke="'+stroke+'" stroke-width="'+(sw||1)+'"':'')+(dash?' stroke-dasharray="'+dash+'"':'')+
+    (op!==undefined?' opacity="'+op+'"':'')+(rx?' rx="'+rx+'"':'')+'/>';
+}
+function setVB(id,w,h){ const s=document.getElementById(id); if(s) s.setAttribute('viewBox','0 0 '+w+' '+h); }
+function put(id,s){ const e=document.getElementById(id); if(e) e.innerHTML=s; }
+function stt(k,v){ return '<div class="stat"><span class="k">'+k+'</span><span class="v">'+v+'</span></div>'; }
+
+function mkPlot(x,y,w,h,xmin,xmax,ymin,ymax,xt,yt,xlab,ylab,fx,fy){
+  const X=v=>x+(v-xmin)/(xmax-xmin)*w;
+  const Y=v=>y+h-(v-ymin)/(ymax-ymin)*h;
+  let s=RECT(x,y,w,h,'#fff',SOFT,1);
+  for(const t of xt){ s+=LN(X(t),y,X(t),y+h,SOFT,1); s+=TX(X(t),y+h+12,(fx?fx(t):f1(t)),MUT,9,'middle'); }
+  for(const t of yt){ s+=LN(x,Y(t),x+w,Y(t),SOFT,1); s+=TX(x-5,Y(t)+3,(fy?fy(t):f1(t)),MUT,9,'end'); }
+  s+=LN(x,y,x,y+h,RULE,1.2)+LN(x,y+h,x+w,y+h,RULE,1.2);
+  if(xlab) s+=TX(x+w,y+h+24,xlab,MUT,9.5,'end');
+  if(ylab) s+=TX(x,y-7,ylab,MUT,9.5,'start');
+  return {s:s,X:X,Y:Y};
+}
+function ticks(a,b,n){
+  const stp=niceCeil((b-a)/n), out=[];
+  const st=Math.ceil(a/stp-1e-9)*stp;
+  for(let v=st;v<=b+1e-9;v+=stp) out.push(Math.abs(v)<stp*1e-9?0:v);
+  return out;
+}
+/* 波長から色を作る（Bruton の近似）。可視域の外は灰色寄りに落とす */
+function wl2rgb(nm){
+  if(nm<380) return '#4A3E7A';
+  if(nm>780) return '#5C2E2E';
+  let r=0,g=0,b=0;
+  if(nm<440){ r=-(nm-440)/60; b=1; }
+  else if(nm<490){ g=(nm-440)/50; b=1; }
+  else if(nm<510){ g=1; b=-(nm-510)/20; }
+  else if(nm<580){ r=(nm-510)/70; g=1; }
+  else if(nm<645){ r=1; g=-(nm-645)/65; }
+  else { r=1; }
+  let f=1;
+  if(nm<420) f=0.3+0.7*(nm-380)/40;
+  else if(nm>700) f=0.3+0.7*(780-nm)/80;
+  const c8=v=>Math.round(255*Math.pow(Math.max(0,Math.min(1,v))*f,0.8));
+  return 'rgb('+c8(r)+','+c8(g)+','+c8(b)+')';
+}
+
+let narrow=window.innerWidth<=430;
+
+/* ---------- スライダー登録 ---------- */
+const SLREG=[];
+function addSlider(host,id,lab,min,max,step,getv,setv,fmtf,unit,cb,dispf){
+  const h=document.getElementById(host); if(!h) return;
+  const row=document.createElement('div'); row.className='ctl';
+  row.innerHTML='<span class="lab">'+lab+'</span><input type="range" id="sl-'+id+'" min="'+min+'" max="'+max+'" step="'+step+'"><span class="val mono" id="vv-'+id+'"></span>';
+  h.appendChild(row);
+  const el=row.querySelector('input');
+  el.addEventListener('input',function(){ setv(+el.value); (cb||onParam)(); });
+  SLREG.push({id:id,getv:getv,fmtf:fmtf,unit:unit,el:el,row:row,dispf:dispf});
+}
+function syncOne(r){
+  const raw=clamp(Math.round(r.getv()),+r.el.min,+r.el.max);
+  if(+r.el.value!==raw) r.el.value=raw;
+  const box=document.getElementById('vv-'+r.id);
+  if(box) box.innerHTML=(r.dispf?r.dispf():r.fmtf(raw))+(r.unit?' '+r.unit:'');
+}
+function syncSliders(){ for(const r of SLREG) syncOne(r); }
+function syncSlider(id){ for(const r of SLREG) if(r.id===id) syncOne(r); }
+function mkBtnRow(host,items,isOn,onPick){
+  const box=document.getElementById(host); if(!box) return;
+  box.innerHTML='';
+  for(const it of items){
+    const b=document.createElement('button');
+    b.className='btn sm'+(isOn(it)?' on':'')+(it.cls?' '+it.cls:''); b.innerHTML=it.nm;
+    b.addEventListener('click',function(){ onPick(it); });
+    box.appendChild(b);
+  }
+}
+
+/* ---------- 状態 ---------- */
+const NINF=999;   /* n = ∞ を表す番号 */
+const ST={
+  sp:'H',
+  na:3,          /* 遷移の始状態 */
+  nb:2,          /* 遷移の終状態 */
+  pick:0,        /* 次のタップが na と nb のどちらを動かすか */
+  nmax:6,        /* 準位図に描く最大の n */
+  ax:'E',        /* 縦軸 'E'=エネルギーの実寸, 'n'=量子数で等間隔 */
+  ser:[1,1,1,0,0],
+  nu:3.0,        /* ド・ブロイ図の量子数（連続値） */
+  laps:6,        /* 重ねる周回数 */
+  wmode:'ring',
+  play:1,
+  sig:4,         /* 定数の有効数字 */
+  cnf:1,         /* 連続スペクトル図で見る系列 */
+  Ekin:2.0,      /* 電離後の電子の運動エネルギー [eV] */
+  hstep:0.02,    /* ヌメロフの刻み [a0] */
+  lq:0,          /* 数値解で見る方位量子数 */
+  B:1.5          /* MRI の磁場 [T] */
+};
+
+/* ---------- 物理量 ---------- */
+function sp(){ for(const s of SPECIES) if(s.id===ST.sp) return s; return SPECIES[0]; }
+function muRatio(s){ const M=s.mnu/MEU; return M/(1+M); }         /* μ/m_e */
+function ryOf(s){ return RY_INF*muRatio(s)*s.Z*s.Z; }             /* [eV] */
+function Rof(s){ return ryOf(s)/HCNM*1e9; }                       /* [1/m] */
+function En(s,n){ return n>=NINF?0:-ryOf(s)/(n*n); }              /* [eV] */
+function dEof(s,nf,ni){ return En(s,ni)-En(s,nf); }               /* [eV] 正なら吸収に要るエネルギー */
+function lamVac(dE){ return dE>0?HCNM/dE:Infinity; }              /* [nm] */
+function radiusOf(s,n){ return A0/muRatio(s)/s.Z*n*n; }           /* [m] */
+function speedOf(s,n){ return ALPHA*CL*s.Z/n; }                   /* [m/s] */
+function deBroglie(s,n){ return HP/(muRatio(s)*ME*speedOf(s,n)); }/* [m] */
+/* 空気の屈折率（Ciddor 系の近似、200 nm〜2 µm で有効） */
+function nAir(lnm){
+  if(!(lnm>185&&lnm<2100)) return NaN;
+  const s=1/(lnm*1e-3), s2=s*s;
+  return 1+0.05792105/(238.0185-s2)+0.00167917/(57.362-s2);
+}
+function lamAir(lnm){ const n=nAir(lnm); return isFinite(n)?lnm/n:NaN; }
+function lineName(nf,ni){ return LINENAME[nf+'-'+ni]||''; }
+function serOf(nf){ for(const s of SERIES) if(s.nf===nf) return s; return null; }
+function serOn(nf){ for(let i=0;i<SERIES.length;i++) if(SERIES[i].nf===nf) return !!ST.ser[i]; return false; }
+function nLabel(n){ return n>=NINF?'\u221E':String(n); }
+
+/* ---------- 準位図 ---------- */
+const LEV={ys:[],xa:0,xb:0};
+function levList(){
+  const out=[];
+  for(let n=1;n<=ST.nmax;n++) out.push(n);
+  out.push(NINF);
+  return out;
+}
+function levY(n,ytop,ybot){
+  const gh=ybot-ytop;
+  let u;
+  if(ST.ax==='E') u=(n>=NINF)?1:(1-1/(n*n));
+  else u=(n>=NINF)?1:(n-1)/ST.nmax;
+  return ybot-u*gh;
+}
+function drawLev(){
+  const W=narrow?360:740, H=narrow?350:336;
+  setVB('sv-lev',W,H);
+  const s=sp(), Ry=ryOf(s);
+  const ytop=narrow?40:36, ybot=H-(narrow?34:32);
+  const xa=narrow?40:68, xb=W-(narrow?60:104);
+  LEV.xa=xa; LEV.xb=xb; LEV.ys=[]; LEV.ytop=ytop; LEV.ybot=ybot;
+  const lanes=[];
+  for(const se of SERIES) if(serOn(se.nf)&&se.nf<ST.nmax) lanes.push(se);
+  const lane0=xa+(narrow?24:44), laneW=(xb-(narrow?58:118)-lane0)/Math.max(1,lanes.length);
+  let o='';
+  /* 連続領域 */
+  o+=RECT(xa,ytop-(narrow?16:14),xb-xa,(narrow?16:14),'#ECF1F8',null,0,null,0.85);
+  o+=TXJ(xa+4,ytop-(narrow?5:4),'ここから上は連続（電子は自由）',CBLUT,narrow?9:9.5,'start');
+  /* 準位線 */
+  let lastLab=-99;
+  for(const n of levList()){
+    const y=levY(n,ytop,ybot);
+    LEV.ys.push({n:n,y:y});
+    const inf=(n>=NINF);
+    const on=(n===ST.na||n===ST.nb);
+    o+=LN(xa,y,xb,y,on?INK:(inf?INK:RULE),on?2.2:(inf?1.6:1.2),inf?'6 3':null,on?1:0.9);
+    if(y<lastLab-10.5||lastLab<-90){
+      o+=TX(xa-4,y+3.5,'n='+nLabel(n),on?INK:MUT,on?11:9.5,'end',on?'600':null);
+      o+=TX(xb+4,y+3.5,inf?'0':mn(En(s,n).toFixed(3)),on?INK:MUT,on?10.5:9,'start',on?'600':null);
+      lastLab=y;
+    }
+  }
+  o+=TX(xb+4,ytop-(narrow?20:18),'E [eV]',MUT,9,'start');
+  /* 系列ごとの遷移矢印 */
+  for(let k=0;k<lanes.length;k++){
+    const se=lanes[k], yf=levY(se.nf,ytop,ybot);
+    const nA=narrow?3:4;
+    const cw=Math.min(narrow?9:14,laneW/(nA+0.6));
+    for(let j=0;j<nA;j++){
+      const ni=se.nf+1+j;
+      if(ni>ST.nmax) break;
+      const x=lane0+k*laneW+6+j*cw;
+      const yi=levY(ni,ytop,ybot);
+      if(Math.abs(yi-yf)<3) continue;
+      o+=AR(x,yi,x,yf+2,se.col,1.1,4.5,0.5);
+    }
+    o+=TXJ(lane0+k*laneW+4,yf+13,se.nm,se.colt,narrow?9:10,'start','600');
+  }
+  /* n=1 と n=2 の落差がどれだけ大きいかの注記 */
+  if(ST.ax==='E'&&ST.nmax>=2){
+    const y1=levY(1,ytop,ybot), y2=levY(2,ytop,ybot);
+    if(y1-y2>70){
+      const bxr=xb-(narrow?18:30);
+      o+=LN(bxr,y2+6,bxr,y1-6,MUT,1,'3 3',0.7);
+      o+=TXJ(bxr-5,(y1+y2)/2-4,'この1段だけで',MUT,narrow?9:10,'end');
+      o+=TXJ(bxr-5,(y1+y2)/2+8,'イオン化エネルギーの 75%',MUT,narrow?9:10,'end');
+    }
+  }
+  /* 選ばれた遷移 */
+  const na=ST.na, nb=ST.nb;
+  const xt=xb-(narrow?46:96);
+  if(na!==nb){
+    const ya=levY(na,ytop,ybot), yb2=levY(nb,ytop,ybot);
+    const emit=(En(s,na)>En(s,nb));
+    const dE=Math.abs(En(s,na)-En(s,nb));
+    const lam=lamVac(dE);
+    const col=isFinite(lam)?wl2rgb(lam):INK;
+    o+=AR(xt,ya,xt,yb2+(yb2>ya?-3:3),emit?col:CBLU,3,9);
+    const yc=clamp((ya+yb2)/2,ytop+22,ybot-16);
+    const lb1=(emit?'放出 ':'吸収 ')+fmt(dE,4)+' eV';
+    const lb2=isFinite(lam)?('\u03BB = '+fmt(lam,5)+' nm'):'\u2014';
+    const wpx=Math.max(lb1.length,lb2.length)*(narrow?5.6:6.2)+8;
+    o+=RECT(xt-8-wpx,yc-15,wpx,28,'#fff',SOFT,1,null,0.94,2);
+    o+=TXJ(xt-12,yc-3,lb1,emit?CCRMT:CBLUT,narrow?10:10.5,'end','600');
+    o+=TX(xt-12,yc+10,lb2,MUT,narrow?9.5:10,'end');
+  } else {
+    o+=TXJ(xt,(ytop+ybot)/2,'同じ準位を2回選んでいる',MUT,narrow?10:11,'end');
+  }
+  /* 選択マーカー */
+  for(const n of [na,nb]){
+    const y=levY(n,ytop,ybot);
+    o+=CIRC(xa+(xb-xa)*0.02,y,3.4,n===na?CCRM:CBLU,'#fff',1.3);
+  }
+  o+=TXJ(xa,H-(narrow?8:6),s.nm+'　'+(ST.ax==='E'?'縦軸はエネルギーの実寸':'縦軸は量子数で等間隔'),MUT,narrow?9:10,'start');
+  put('lev-g',o);
+  put('levhint','いま選ばれているのは n = '+nLabel(na)+' と n = '+nLabel(nb)+'。次にタップした準位が '+
+    (ST.pick===0?'始状態':'終状態')+'に入る。'+
+    (ST.ax==='E'?'エネルギーの実寸で描いているので、n が大きい準位は上に貼りついて見分けがつかなくなる。これが系列限界に線が詰まる理由そのもの。等間隔で見たいときは縦軸を切り替える。'
+                :'量子数で等間隔に並べてあるので操作しやすいが、本当の準位はこれほど離れていない。エネルギーの実寸に切り替えると詰まり方が見える。'));
+}
+
+/* ---------- ダッシュボード ---------- */
+function drawBig(){
+  const s=sp(), na=ST.na, nb=ST.nb;
+  const dE=Math.abs(En(s,na)-En(s,nb));
+  const lam=lamVac(dE);
+  const emit=(En(s,na)>En(s,nb));
+  put('bigrow',
+    '<span><span class="bk">遷移</span><span class="bv">'+nLabel(na)+'\u2192'+nLabel(nb)+'</span><span class="bu">'+(na===nb?'選び直してほしい':(emit?'光を放出':'光を吸収'))+'</span></span>'+
+    '<span><span class="bk">光子のエネルギー</span><span class="bv">'+(dE>0?fmt(dE,5):'0')+'</span><span class="bu">eV</span></span>'+
+    '<span><span class="bk">真空中の波長</span><span class="bv">'+(isFinite(lam)?fmt(lam,5):'\u2014')+'</span><span class="bu">nm'+
+      (isFinite(lam)&&isFinite(lamAir(lam))?('　空気中 '+fmt(lamAir(lam),5)+' nm'):'')+'</span></span>'+
+    '<span><span class="bk">イオン化エネルギー</span><span class="bv">'+fmt(ryOf(s),6)+'</span><span class="bu">eV（n=1 から）</span></span>');
+}
+function drawQ(){
+  const s=sp(), na=ST.na, nb=ST.nb;
+  const dE=Math.abs(En(s,na)-En(s,nb));
+  const lam=lamVac(dE);
+  const nlo=Math.min(na,nb), nhi=Math.max(na,nb);
+  const se=serOf(nlo);
+  const vis=(isFinite(lam)&&lam>=VIS_LO&&lam<=VIS_HI);
+  const nam=lineName(nlo,nhi);
+  const items=[
+    {k:'原子',v:s.sym+' / Z = '+s.Z,cls:'flat',w:s.nm+'　\u03BC/m_e = '+fmt(muRatio(s),7)},
+    {k:'リュードベリ定数',v:fmt(Rof(s)/1e7,7)+'\u00D710\u2077',cls:'flat',w:'m\u207B\u00B9　R\u221E の '+fmt(muRatio(s)*s.Z*s.Z,7)+' 倍'},
+    {k:'始状態 E',v:mn(En(s,na).toFixed(4))+' eV',cls:'dn',w:'n = '+nLabel(na)},
+    {k:'終状態 E',v:mn(En(s,nb).toFixed(4))+' eV',cls:'dn',w:'n = '+nLabel(nb)},
+    {k:'\u0394E',v:dE>0?fmt(dE,5)+' eV':'0',cls:dE>0?'ok':'flat',w:dE>0?(En(s,na)>En(s,nb)?'この分の光が出る':'この分の光を吸う'):'差がない'},
+    {k:'波長 \u03BB（真空）',v:isFinite(lam)?fmt(lam,5)+' nm':'\u2014',cls:vis?'lock':'flat',w:vis?'可視域の中':'可視域の外'},
+    {k:'振動数 \u03BD',v:dE>0?fmt(dE*QE/HP,4)+' Hz':'\u2014',cls:'flat',w:dE>0?fmt(dE*QE/HP/1e12,4)+' THz':''},
+    {k:'系列',v:se?se.nm:'\u2014',cls:'flat',w:se?(se.en+' '+se.yr+'　'+se.band):'n\u2081 が大きすぎて名前がない'},
+    {k:'線の名前',v:nam||'\u2014',cls:nam?'ok':'flat',w:nam?'慣用名がついている':'慣用名はない'},
+    {k:'軌道半径 r',v:fmt(radiusOf(s,Math.min(na,NINF-1))*1e12,4)+' pm',cls:'flat',w:'n = '+nLabel(Math.min(na,ST.nmax))+' の円軌道　a\u2080 = 52.9 pm'},
+    {k:'軌道速度 v',v:fmt(speedOf(s,Math.min(na,ST.nmax))/1e3,4)+' km/s',cls:'flat',w:'v/c = '+fmt(speedOf(s,Math.min(na,ST.nmax))/CL,3)},
+    {k:'ド・ブロイ波長',v:fmt(deBroglie(s,Math.min(na,ST.nmax))*1e12,4)+' pm',cls:'flat',w:'軌道1周のちょうど 1/'+nLabel(Math.min(na,ST.nmax))}
+  ];
+  let h='';
+  for(const x of items) h+='<div class="qc '+x.cls+'"><div class="qk">'+x.k+'</div><div class="qv">'+x.v+'</div><div class="qw">'+x.w+'</div></div>';
+  put('qgrid',h);
+  put('levnote','準位の深さは Z\u00B2 と換算質量で決まる。'+s.nm+'ではイオン化エネルギーが '+fmt(ryOf(s),6)+
+    ' eV で、水素の '+fmt(ryOf(SPECIES[0]),6)+' eV の '+fmt(ryOf(s)/ryOf(SPECIES[0]),5)+' 倍。'+
+    '間隔が n\u207B\u00B2 で詰まっていくので、n = 1 と 2 の差だけで全体の 75% を占める。'+
+    'n = 5 より上をいくら足しても、イオン化エネルギーの残り 4% にしかならない。');
+  const warn=[];
+  if(na===nb) warn.push('始状態と終状態が同じなので遷移になっていない。別の準位をタップしてほしい。');
+  if(na>=NINF&&nb>=NINF) warn.push('両方が n = \u221E になっている。');
+  if(s.id==='INF') warn.push('無限質量の水素は実在しない。教科書の 13.6 eV と R\u221E がどこから来ているかを見るための設定。実在の水素は H を選ぶ。');
+  if(s.id==='Ps') warn.push('ポジトロニウムには「原子核」がない。電子と陽電子が互いのまわりを回っているだけなので、換算質量が電子質量のちょうど半分になり、準位も波長も水素の半分と2倍になる。');
+  put('levwarn',warn.join(' '));
+}
+
+/* ---------- 遷移カード ---------- */
+const FX1=[
+  {k:'En',t:'<b>準位のエネルギー</b>　E<sub>n</sub> = &minus;R<sub>y</sub>Z&sup2;/n&sup2;。無限遠で静止した電子を 0 に取っているので値は負。n = 1 がいちばん深い'},
+  {k:'dE',t:'<b>準位差</b>　これがそのまま光子1個ぶんのエネルギーになる。分けて持つことも余らせることもできない'},
+  {k:'hnu',t:'<b>光子のエネルギー</b>　h&nu; = hc/&lambda;。hc = 1239.84 eV&middot;nm を覚えておくと、eV から nm への換算が割り算ひとつで済む'},
+  {k:'nf',t:'<b>下側の準位</b>　この番号が系列の名前を決める。1 ならライマン、2 ならバルマー、3 ならパッシェン'},
+  {k:'ni',t:'<b>上側の準位</b>　同じ系列の中でこれを大きくしていくと、線は短波長側へ詰まっていき、n<sub>i</sub> = &infin; で系列限界に貼りつく'},
+  {k:'R',t:'<b>リュードベリ定数</b>　波数（1/&lambda;）の次元を持つ。水素では 1.0967758&times;10&#8311; m&#8315;&sup1;。エネルギーにするには hc を掛ける'},
+  {k:'Z',t:'<b>核電荷</b>　電子が1個しかない系なら、この2乗で準位が深くなる。He&#8314; は水素の4倍、Li&sup2;&#8314; は9倍'},
+  {k:'mu',t:'<b>換算質量</b>　&mu; = m<sub>e</sub>M/(m<sub>e</sub>+M)。原子核も動くことを入れた質量。水素で電子質量の 0.99946 倍。ここだけで重水素とのずれ 0.179 nm が出る'}
+];
+function buildFx(){
+  put('fx1','<span class="sym" data-k="hnu">h\u03BD</span> = <span class="sym" data-k="dE">\u0394E</span> = '+
+    '<span class="sym" data-k="En">E<sub>n\u1D62</sub> \u2212 E<sub>n_f</sub></span>'+
+    '　　E<sub>n</sub> = \u2212<span class="frac"><span class="n"><span class="sym" data-k="mu">\u03BC</span><span class="sym" data-k="Z">Z</span>\u00B2e\u2074</span><span class="d">8\u03B5\u2080\u00B2h\u00B2</span></span>\u00B7<span class="frac"><span class="n">1</span><span class="d">n\u00B2</span></span>');
+  const box=document.getElementById('fx1');
+  if(box) box.addEventListener('click',function(e){
+    const t=e.target.closest?e.target.closest('.sym'):null; if(!t) return;
+    const all=box.querySelectorAll('.sym');
+    for(let i=0;i<all.length;i++) all[i].classList.remove('on');
+    t.classList.add('on');
+    const k=t.getAttribute('data-k');
+    const d=FX1.filter(x=>x.k===k)[0];
+    put('fx1d',d?d.t:'');
+  });
+  put('fx2','<span class="frac"><span class="n">1</span><span class="d">\u03BB</span></span> = '+
+    '<span class="sym" data-k="R">R</span>Z\u00B2 ( <span class="frac"><span class="n">1</span><span class="d"><span class="sym" data-k="nf">n<sub>f</sub></span>\u00B2</span></span> \u2212 '+
+    '<span class="frac"><span class="n">1</span><span class="d"><span class="sym" data-k="ni">n<sub>i</sub></span>\u00B2</span></span> )'+
+    '　　R = <span class="frac"><span class="n">\u03BCe\u2074</span><span class="d">8\u03B5\u2080\u00B2h\u00B3c</span></span>');
+  put('fx3','u\u2033(r) = [ l(l+1)/r\u00B2 \u2212 2Z/r \u2212 2E ] u(r)　　（原子単位、u = rR(r)）<br>'+
+    'ヌメロフ法： u\u1D62\u208A\u2081 = [ 2(1 \u2212 5h\u00B2f\u1D62/12)u\u1D62 \u2212 (1 + h\u00B2f\u1D62\u208B\u2081/12)u\u1D62\u208B\u2081 ] / (1 + h\u00B2f\u1D62\u208A\u2081/12)　　f = 2E + 2Z/r \u2212 l(l+1)/r\u00B2');
+}
+function drawTr(){
+  const W=narrow?360:740, H=narrow?206:184;
+  setVB('sv-tr',W,H);
+  const s=sp(), na=ST.na, nb=ST.nb;
+  const dE=Math.abs(En(s,na)-En(s,nb));
+  const lam=lamVac(dE);
+  const emit=(En(s,na)>En(s,nb));
+  const cx=narrow?70:130, cy=H/2;
+  const col=isFinite(lam)?wl2rgb(lam):MUT;
+  let o='';
+  /* 原子核と軌道 */
+  const rmax=narrow?46:56;
+  const nshow=[Math.min(na,ST.nmax),Math.min(nb,ST.nmax)];
+  const nbig=Math.max(nshow[0],nshow[1]);
+  for(let n=1;n<=ST.nmax;n++){
+    const r=rmax*n/ST.nmax;
+    const act=(n===nshow[0]||n===nshow[1]);
+    o+=CIRC(cx,cy,r,'none',act?INK:RULE,act?1.6:1,act?null:'2 3',act?0.9:0.55);
+  }
+  o+=CIRC(cx,cy,3.6,CCRM,'#fff',1.2);
+  const ra=rmax*nshow[0]/ST.nmax, rb=rmax*nshow[1]/ST.nmax;
+  o+=CIRC(cx+ra*0.72,cy-ra*0.69,3.6,CBLU,'#fff',1.2);
+  o+=AR(cx+ra*0.72,cy-ra*0.69,cx+rb*0.72,cy-rb*0.69,INK,1.6,6,0.9);
+  o+=TXJ(cx,cy+rmax+(narrow?16:18),'n='+nLabel(na)+' \u2192 n='+nLabel(nb),INK,narrow?10:11,'middle','600');
+  o+=TXJ(cx,cy+rmax+(narrow?29:31),'半径は n に比例させて描いた（実際は n\u00B2 に比例）',MUT,narrow?8.5:9,'middle');
+  /* 光子の波 */
+  const px0=cx+rmax+(narrow?18:34), px1=W-(narrow?14:24);
+  const amp=narrow?11:14, wl=narrow?21:26;
+  const pxe=px1-(narrow?24:30);
+  const pts=[];
+  for(let i=0;i<=180;i++){
+    const t=i/180, x=px0+(pxe-px0)*t;
+    const env=Math.sin(Math.PI*t);
+    pts.push([x,cy-amp*env*Math.sin((x-px0)/wl*TAU)]);
+  }
+  if(dE>0){
+    o+=PL(pts,col,2.2);
+    if(emit) o+=AR(pxe+2,cy,px1,cy,col,2,8);
+    else     o+=AR(px1,cy,pxe+2,cy,CBLU,2,8);
+    o+=TXJ((px0+px1)/2,cy-(narrow?26:32),emit?'放出される光子':'吸収される光子',emit?CCRMT:CBLUT,narrow?10.5:12,'middle','600');
+    o+=TX((px0+px1)/2,cy+(narrow?28:34),fmt(dE,5)+' eV',INK,narrow?10.5:12,'middle','600');
+    o+=TX((px0+px1)/2,cy+(narrow?42:50),'\u03BB = '+fmt(lam,5)+' nm',MUT,narrow?9.5:11,'middle');
+    if(isFinite(lamAir(lam))) o+=TX((px0+px1)/2,cy+(narrow?54:64),'（空気中 '+fmt(lamAir(lam),5)+' nm）',MUT,narrow?9:10,'middle');
+  } else {
+    o+=TXJ((px0+px1)/2,cy,'準位差がないので光は出入りしない',MUT,narrow?10:12,'middle');
+  }
+  put('tr-g',o);
+  const nlo=Math.min(na,nb), nhi=Math.max(na,nb);
+  put('trstats',
+    stt('始状態 E<sub>n\u1D62</sub>',mn(En(s,na).toFixed(5))+' eV')+
+    stt('終状態 E<sub>n_f</sub>',mn(En(s,nb).toFixed(5))+' eV')+
+    stt('準位差 \u0394E',dE>0?fmt(dE,6)+' eV':'0')+
+    stt('真空中の波長',isFinite(lam)?fmt(lam,6)+' nm':'\u2014')+
+    stt('空気中の波長',(isFinite(lam)&&isFinite(lamAir(lam)))?fmt(lamAir(lam),6)+' nm':'\u2014（空気が吸収する領域）')+
+    stt('波数 1/\u03BB',isFinite(lam)?fmt(1e9/lam/1e6,5)+'\u00D710\u2076 m\u207B\u00B9':'\u2014'));
+  const nm2=lineName(nlo,nhi);
+  put('trnote',(dE>0
+    ? ('この遷移は '+(serOf(nlo)?serOf(nlo).nm+'系列':'n\u1D66 = '+nLabel(nlo)+' の系列')+
+       (nm2?('の '+nm2+' 線'):'の1本')+'。'+
+       (isFinite(lam)&&lam>=VIS_LO&&lam<=VIS_HI?'可視域に入るので、放電管を覗くとこの色の線として見える。':
+        (lam<VIS_LO?'紫外なので目には見えない。写真乾板か紫外用の検出器がいる。':'赤外なので目には見えない。'))+
+       ' 空気中の波長が真空中より短いのは、空気の屈折率が 1 より大きいから。分光の表は 200 nm 以上を空気中の値で載せる慣習があり、教科書の 656.3 nm もその流儀。'
+       )
+    : '同じ準位を2回選んでいるので差がゼロ。準位図で別の線をタップしてほしい。')+
+    ' 上の式の記号をタップすると、それぞれが何を指しているかが出る。');
+  put('fx2note','この形にすると、系列ごとに n<sub>f</sub> を固定して n<sub>i</sub> を動かすだけで線が並ぶ。'+
+    'バルマーが 1885 年に先に見つけたのは、可視域に落ちた n<sub>f</sub> = 2 の4本を経験式に当てはめたものだった。'+
+    'リュードベリがそれを一般化し、ボーアが 1913 年に R を h と m と e と \u03B5\u2080 から導いた。'+
+    'このページの RYDBERG のカードで、その組み立てを実際に計算している。');
+  /* 系列の一覧表 */
+  const se=serOf(nlo);
+  const nf=se?se.nf:nlo;
+  let tb='<table><caption>'+(se?se.nm+'系列':'n\u1D66 = '+nf+' の系列')+'（'+s.nm+'）　真空中の波長で並べた</caption>'+
+    '<thead><tr><th>遷移</th><th>名前</th><th>\u0394E</th><th>\u03BB（真空）</th><th>\u03BB（空気中）</th><th>領域</th></tr></thead><tbody>';
+  for(let k=1;k<=7;k++){
+    const ni=(k<=6)?nf+k:NINF;
+    const d=dEof(s,nf,ni), L=lamVac(d);
+    const cur=(nlo===nf&&nhi===ni);
+    const band=L<VIS_LO?'紫外':(L>VIS_HI?'赤外':'可視');
+    const la=lamAir(L);
+    tb+='<tr'+(cur?' class="cur"':'')+'><td class="num">'+ni2(nf,ni)+'</td><td>'+(ni>=NINF?'系列限界':(lineName(nf,ni)||'\u2014'))+
+      '</td><td class="num">'+fmt(d,5)+' eV</td><td class="num">'+fmt(L,6)+' nm</td>'+
+      '<td class="num">'+(isFinite(la)?fmt(la,6)+' nm':'\u2014')+'</td>'+
+      '<td>'+(ni>=NINF?'ここから先は連続':band)+'</td></tr>';
+  }
+  tb+='</tbody></table>';
+  put('sertab',tb);
+  const lim=lamVac(dEof(s,nf,NINF));
+  put('sertabnote','n\u1D62 を上げていくと \u0394E は '+fmt(dEof(s,nf,nf+1),4)+' eV から '+fmt(dEof(s,nf,NINF),4)+
+    ' eV へ、頭打ちになりながら近づいていく。波長でいうと '+fmt(lamVac(dEof(s,nf,nf+1)),5)+' nm から '+fmt(lim,5)+
+    ' nm へ詰まる。最後の系列限界は n\u1D62 = \u221E、つまり電子を無限遠まで運び去るのに必要なエネルギーで、'+
+    'この波長より短い光は線ではなく連続的に吸収される。'+
+    (nf===2?'バルマー系列で可視域に残るのは H\u03B1 から H\u03B4 あたりまでで、H\u03B5 より先と限界の 364.7 nm は紫外。「バルマー = 可視」と丸暗記していると、ここでつまずく。':''));
+}
+function ni2(nf,ni){ return nLabel(ni)+'\u2192'+nLabel(nf); }
+
+/* ---------- スペクトル ---------- */
+const SPEC={x0:0,x1:0,llo:1,lhi:2,lines:[]};
+function specLines(){
+  const s=sp(), out=[];
+  for(const se of SERIES){
+    if(!serOn(se.nf)) continue;
+    for(let k=1;k<=12;k++){
+      const ni=se.nf+k;
+      const d=dEof(s,se.nf,ni), L=lamVac(d);
+      if(!isFinite(L)) continue;
+      out.push({nf:se.nf,ni:ni,lam:L,dE:d,se:se,k:k,nm:lineName(se.nf,ni)});
+    }
+    const dl=dEof(s,se.nf,NINF);
+    out.push({nf:se.nf,ni:NINF,lam:lamVac(dl),dE:dl,se:se,k:99,nm:'限界',limit:true});
+  }
+  return out;
+}
+function drawSpec(){
+  const W=narrow?360:740, H=narrow?302:302;
+  setVB('sv-spec',W,H);
+  const s=sp();
+  const lines=specLines();
+  SPEC.lines=lines;
+  if(!lines.length){
+    put('spec-g',TXJ(W/2,H/2,'表示する系列がひとつも選ばれていない',MUT,12,'middle'));
+    put('specleg','<span>上のボタンで系列を選ぶと線が出る</span>');
+    put('vistab','<p class="note">系列がひとつも選ばれていないので、可視域に入る線を数えようがない。</p>');
+    put('vistabnote','上のボタンでライマン・バルマー・パッシェンのどれかを選ぶと表が出る。');
+    put('specnote','系列をひとつ以上選ぶと、そのスペクトルが描かれる。'); return;
+  }
+  let lmin=Infinity,lmax=0;
+  for(const L of lines){ if(L.lam<lmin) lmin=L.lam; if(L.lam>lmax) lmax=L.lam; }
+  const llo=Math.log10(lmin*0.72), lhi=Math.log10(lmax*1.45);
+  SPEC.llo=llo; SPEC.lhi=lhi;
+  const bx=narrow?16:34, bw=W-bx-(narrow?12:20);
+  SPEC.x0=bx; SPEC.x1=bx+bw;
+  const X=l=>bx+(Math.log10(l)-llo)/(lhi-llo)*bw;
+  const y1=narrow?26:26, h1=narrow?36:40;          /* 見える色の帯 */
+  const y2=y1+h1+(narrow?42:42), h2=narrow?120:112; /* 棒グラフ */
+  let o='';
+  /* 帯の背景 */
+  o+=RECT(bx,y1,bw,h1,'#14161A',null,0,null,1);
+  /* 可視域を色で塗る */
+  const vx0=X(VIS_LO), vx1=X(VIS_HI);
+  let stops='';
+  for(let i=0;i<=40;i++) stops+='<stop offset="'+f1(i/40*100)+'%" stop-color="'+wl2rgb(VIS_LO+(VIS_HI-VIS_LO)*i/40)+'"/>';
+  o+='<defs><linearGradient id="visgrad" x1="0" y1="0" x2="1" y2="0">'+stops+'</linearGradient></defs>';
+  if(vx1>bx&&vx0<bx+bw){
+    const a=Math.max(bx,vx0), b=Math.min(bx+bw,vx1);
+    o+=RECT(a,y1,b-a,h1,'url(#visgrad)',null,0,null,0.22);
+    o+=RECT(a,y1,b-a,h1,'none','#FFFFFF',1,'3 3',0.5);
+    if(b-a>70) o+=TXJ((a+b)/2,y1-6,'可視光 380\u2013780 nm',INK,narrow?9.5:10.5,'middle','600');
+    else o+=TXJ(b+4,y1-6,'可視光',INK,narrow?9.5:10.5,'start','600');
+  }
+  /* 連続領域（系列限界より短波長）を系列ごとに段で描く */
+  const conOn=SERIES.filter(se=>serOn(se.nf));
+  const ch=Math.min(narrow?6:7,(narrow?18:22)/Math.max(1,conOn.length));
+  for(let ci=0;ci<conOn.length;ci++){
+    const se=conOn[ci];
+    const lim=lamVac(dEof(s,se.nf,NINF));
+    const xl=X(lim);
+    if(xl>bx+2){
+      const a=Math.max(bx,X(Math.pow(10,llo)));
+      o+='<defs><linearGradient id="cg'+se.nf+'" x1="1" y1="0" x2="0" y2="0">'+
+         '<stop offset="0%" stop-color="'+se.col+'" stop-opacity="0.45"/>'+
+         '<stop offset="100%" stop-color="'+se.col+'" stop-opacity="0.05"/></linearGradient></defs>';
+      o+=RECT(a,y2+h2+32+ci*(ch+1),xl-a,ch,'url(#cg'+se.nf+')',null,0,null,1);
+    }
+  }
+  o+=TXJ(bx,y2+h2+32+conOn.length*(ch+1)+10,'細い帯は連続吸収（系列限界より短波長側）。線ではなく途切れずに続く',MUT,narrow?8.5:9.5,'start');
+  /* 線 */
+  const sel=selLine();
+  for(const L of lines){
+    const x=X(L.lam);
+    if(x<bx-1||x>bx+bw+1) continue;
+    const vis=(L.lam>=VIS_LO&&L.lam<=VIS_HI);
+    /* 帯の中の輝線 */
+    o+=LN(x,y1+2,x,y1+h1-2,vis?wl2rgb(L.lam):'#8A9096',vis?2.2:1,null,vis?0.98:0.30);
+    /* 棒 */
+    const hh=L.limit?h2*0.30:h2*(0.30+0.70/Math.pow(L.k,0.75));
+    const on=(sel&&sel.nf===L.nf&&sel.ni===L.ni);
+    o+=LN(x,y2+h2,x,y2+h2-hh,L.se.col,on?2.8:(L.limit?1.2:1.4),L.limit?'3 2':null,on?1:0.72);
+    if(on){
+      o+=CIRC(x,y2+h2-hh,3.6,L.se.col,'#fff',1.4);
+      o+=TX(clamp(x,bx+30,bx+bw-30),y2+h2-hh-8,fmt(L.lam,5)+' nm',INK,narrow?9.5:10.5,'middle','600');
+    }
+    if(L.nm&&!L.limit&&L.k<=3&&!on) o+=TX(x,y2+h2-hh-6,L.nm,L.se.colt,narrow?8.5:9.5,'middle');
+  }
+  /* 軸 */
+  o+=LN(bx,y2+h2,bx+bw,y2+h2,RULE,1.3);
+  const tickVals=[];
+  for(let e=-1;e<=5;e++){
+    for(const m of [1,1.5,2,3,5,7]){
+      const v=m*Math.pow(10,e);
+      if(Math.log10(v)>=llo&&Math.log10(v)<=lhi) tickVals.push(v);
+    }
+  }
+  for(const t of tickVals){
+    o+=LN(X(t),y2+h2,X(t),y2+h2+4,RULE,1);
+    o+=TX(X(t),y2+h2+15,t>=1000?fmt(t/1000,2)+'\u00B5':String(t),MUT,9,'middle');
+    o+=LN(X(t),y1,X(t),y1+h1,'#3A4046',0.6,null,0.5);
+  }
+  o+=TX(bx+bw,y2+h2+27,'\u03BB [nm]（対数）',MUT,9.5,'end');
+  o+=TXJ(bx,y1-6,'見え方',MUT,narrow?9.5:10,'start');
+  if(!narrow) o+=TXJ(bx,y2-6,'系列ごとの線と系列限界',MUT,10,'start');
+  put('spec-g',o);
+  let lg='';
+  for(const se of SERIES){
+    if(!serOn(se.nf)) continue;
+    lg+='<span><span class="swl" style="border-color:'+se.col+'"></span>'+se.nm+'（n\u1D66='+se.nf+'、'+se.band+'）</span>';
+  }
+  lg+='<span><span class="swl" style="border-color:'+MUT+';border-top-style:dashed"></span>破線は系列限界</span>';
+  put('specleg',lg);
+  const lyLim=lamVac(dEof(s,1,NINF)), baLim=lamVac(dEof(s,2,NINF)), paLim=lamVac(dEof(s,3,NINF));
+  put('specnote','系列限界は'+(serOn(1)?('ライマンが '+fmt(lyLim,5)+' nm、'):'')+
+    (serOn(2)?('バルマーが '+fmt(baLim,5)+' nm、'):'')+(serOn(3)?('パッシェンが '+fmt(paLim,5)+' nm'):'')+
+    '。系列が上がるほど限界も長波長へずれ、系列どうしが重なりはじめる。'+
+    'パッシェン系列の頭は 1875 nm で、ブラケット系列の限界 1459 nm より長い。'+
+    '「系列ごとにきれいに波長域が分かれている」わけではない。'+
+    ' 図をドラッグすると、いちばん近い線が選ばれて上のカードに反映される。');
+  /* 可視域の表 */
+  const vis=lines.filter(L=>L.lam>=VIS_LO&&L.lam<=VIS_HI).sort((a,b)=>a.lam-b.lam);
+  let tb='<table><caption>可視域（380\u2013780 nm）に入る線（'+s.nm+'）</caption><thead><tr><th>遷移</th><th>名前</th><th>\u03BB（真空）</th><th>\u03BB（空気中）</th><th>\u0394E</th><th>色</th></tr></thead><tbody>';
+  if(!vis.length) tb+='<tr><td colspan="6">この設定では可視域に落ちる線がひとつもない。</td></tr>';
+  for(const L of vis){
+    const la=lamAir(L.lam);
+    tb+='<tr><td class="num">'+ni2(L.nf,L.ni)+'</td><td>'+(L.nm||'\u2014')+'</td><td class="num">'+fmt(L.lam,6)+' nm</td>'+
+      '<td class="num">'+(isFinite(la)?fmt(la,6)+' nm':'\u2014')+'</td><td class="num">'+fmt(L.dE,5)+' eV</td>'+
+      '<td><span class="chip"><span class="dot" style="background:'+wl2rgb(L.lam)+'"></span>'+colName(L.lam)+'</span></td></tr>';
+  }
+  tb+='</tbody></table>';
+  put('vistab',tb);
+  put('vistabnote',(s.id==='H'||s.id==='D'||s.id==='T')
+    ? '水素の放電管が赤紫に見えるのは、いちばん強い H\u03B1 の赤と、H\u03B2 の青緑・H\u03B3 の紫が混ざるから。'+
+      'H\u03B1 の空気中の値 656.28 nm が教科書に載っている数字で、真空中の 656.47 nm とは 0.19 nm 違う。'+
+      '有効数字5桁で答えを合わせにいくときは、どちらの慣習で書かれた値かを見ておく必要がある。'
+    : '水素以外では準位が Z\u00B2 で深くなるので、可視域に残る線の顔ぶれが変わる。'+
+      'He\u207A の 468.6 nm（n=4\u21923）は高温の星のスペクトルで見える線で、'+
+      '水素のバルマー系列と紛らわしい位置に出るため、かつて誤同定の原因になった。');
+}
+function colName(nm){
+  if(nm<430) return '紫';
+  if(nm<460) return '青紫';
+  if(nm<490) return '青';
+  if(nm<510) return '青緑';
+  if(nm<550) return '緑';
+  if(nm<580) return '黄緑';
+  if(nm<595) return '黄';
+  if(nm<620) return '橙';
+  return '赤';
+}
+function selLine(){
+  const nlo=Math.min(ST.na,ST.nb), nhi=Math.max(ST.na,ST.nb);
+  if(nlo===nhi) return null;
+  return {nf:nlo,ni:nhi};
+}
+
+/* ---------- ボーアの量子条件とド・ブロイ波 ---------- */
+let waveT=0;
+function lapSum(nu,th,K){
+  let sx=0;
+  for(let k=0;k<K;k++) sx+=Math.sin(nu*(th+TAU*k));
+  return sx/K;
+}
+function dirichlet(nu,K){
+  const d=Math.sin(Math.PI*nu);
+  if(Math.abs(d)<1e-12) return 1;
+  return Math.abs(Math.sin(Math.PI*nu*K)/(K*d));
+}
+function drawWave(){
+  const W=narrow?360:740, H=narrow?368:392;
+  setVB('sv-wave',W,H);
+  const s=sp(), nu=ST.nu, K=ST.laps;
+  const cx=narrow?W/2:206, cy=narrow?130:150;
+  const R=narrow?90:104, A=R*0.24;
+  const ph=Math.cos(waveT);
+  const near=Math.abs(nu-Math.round(nu));
+  const okCol=near<0.02?CGRN:(near<0.12?CGOLD:CCRM);
+  let o='';
+  /* 原子核と基準円 */
+  o+=CIRC(cx,cy,R,'none',RULE,1.2,'4 3',0.9);
+  o+=CIRC(cx,cy,3.4,CCRM,'#fff',1.2);
+  o+=TX(cx,cy+15,'核',MUT,9,'middle');
+  const NP=narrow?260:420;
+  if(ST.wmode==='ring'){
+    const pts=[];
+    for(let i=0;i<=NP;i++){
+      const th=TAU*i/NP;
+      const r=R+A*Math.sin(nu*th)*ph;
+      pts.push([cx+r*Math.cos(th-Math.PI/2),cy+r*Math.sin(th-Math.PI/2)]);
+    }
+    o+=PL(pts,INK,2.1);
+    /* 出発点と一周後の食い違い */
+    const r0=R+A*Math.sin(0)*ph, r1=R+A*Math.sin(nu*TAU)*ph;
+    const p0=[cx+r0*Math.cos(-Math.PI/2),cy+r0*Math.sin(-Math.PI/2)];
+    const p1=[cx+r1*Math.cos(-Math.PI/2),cy+r1*Math.sin(-Math.PI/2)];
+    o+=CIRC(p0[0],p0[1],3.6,CGRN,'#fff',1.3);
+    if(Math.abs(r1-r0)>0.7){
+      o+=LN(p0[0],p0[1],p1[0],p1[1],CCRM,3);
+      o+=CIRC(p1[0],p1[1],3.6,CCRM,'#fff',1.3);
+      o+=TXJ(cx+8,cy-R-(narrow?16:20),'一周して戻ると '+fmt(Math.abs(r1-r0)/A*100,3)+'% ずれる',CCRMT,narrow?10:11,'start','600');
+    } else {
+      o+=TXJ(cx+8,cy-R-(narrow?16:20),'一周してぴたりとつながる',CGRNT,narrow?10:11,'start','600');
+    }
+    o+=TXJ(cx-8,cy-R-(narrow?16:20),'出発点',CGRNT,narrow?10:11,'end','600');
+  } else {
+    for(let k=0;k<K;k++){
+      const pts=[];
+      for(let i=0;i<=NP;i++){
+        const th=TAU*i/NP;
+        const r=R+A*Math.sin(nu*(th+TAU*k))*ph;
+        pts.push([cx+r*Math.cos(th-Math.PI/2),cy+r*Math.sin(th-Math.PI/2)]);
+      }
+      o+=PL(pts,INK,1.3,null,0.16+0.5*(k===0?1:0.2));
+    }
+    const pts=[];
+    for(let i=0;i<=NP;i++){
+      const th=TAU*i/NP;
+      const r=R+A*lapSum(nu,th,K)*ph;
+      pts.push([cx+r*Math.cos(th-Math.PI/2),cy+r*Math.sin(th-Math.PI/2)]);
+    }
+    o+=PL(pts,okCol,2.6);
+    o+=TXJ(cx,cy-R-(narrow?16:20),K+' 周ぶんを足した結果',okCol===CGRN?CGRNT:(okCol===CGOLD?CGOLDT:CCRMT),narrow?10:11,'middle','600');
+  }
+  /* 右側の説明（広幅のみ） */
+  if(!narrow){
+    const tx=cx+R+34;
+    const ls=['2\u03C0r = n\u03BB','','軌道1周の長さが','ド・ブロイ波長の整数倍。','','n が整数からずれると、','一周した波が自分自身と','位相のそろわない場所に戻る。','','何周も重ねると打ち消し合って','振幅が消えるので、','半端な n は状態として残れない。'];
+    for(let i=0;i<ls.length;i++) o+=TXJ(tx,cy-R+8+i*17,ls[i],i===0?INK:MUT,i===0?13:10.5,'start',i===0?'600':null);
+  }
+  /* 切り開いた定在波 */
+  const sy=narrow?278:296, sh=narrow?60:64;
+  const sx0=narrow?18:44, sx1=W-(narrow?14:24);
+  o+=RECT(sx0,sy,sx1-sx0,sh,'#fff',SOFT,1);
+  o+=LN(sx0,sy+sh/2,sx1,sy+sh/2,RULE,1,'3 3',0.8);
+  const SA=sh*0.40;
+  const upts=[];
+  for(let i=0;i<=NP;i++){
+    const th=TAU*i/NP;
+    const v=(ST.wmode==='ring')?Math.sin(nu*th):lapSum(nu,th,K);
+    upts.push([sx0+(sx1-sx0)*i/NP,sy+sh/2-SA*v*ph]);
+  }
+  o+=PL(upts,ST.wmode==='ring'?INK:okCol,2.1);
+  /* 節の位置 */
+  if(ST.wmode==='ring'){
+    for(let m=0;m<=Math.floor(nu*2)+1;m++){
+      const th=Math.PI*m/nu;
+      if(th>TAU+1e-9) break;
+      const x=sx0+(sx1-sx0)*th/TAU;
+      o+=LN(x,sy+sh/2-4,x,sy+sh/2+4,MUT,1,null,0.7);
+    }
+    const vEnd=Math.sin(nu*TAU);
+    if(Math.abs(vEnd)>0.02){
+      o+=LN(sx1,sy+sh/2,sx1,sy+sh/2-SA*vEnd*ph,CCRM,3);
+      o+=CIRC(sx1,sy+sh/2-SA*vEnd*ph,3.4,CCRM,'#fff',1.3);
+      o+=TXJ(sx1-4,sy-6,'右端が左端に戻らない',CCRMT,narrow?9.5:10.5,'end','600');
+    } else {
+      o+=TXJ(sx1-4,sy-6,'右端と左端がそろう',CGRNT,narrow?9.5:10.5,'end','600');
+    }
+    o+=CIRC(sx0,sy+sh/2,3.4,CGRN,'#fff',1.3);
+  }
+  o+=TXJ(sx0,sy-6,'円を切り開いて直線に伸ばしたところ',MUT,narrow?9.5:10.5,'start');
+  o+=TX(sx0,sy+sh+13,'\u03B8 = 0',MUT,9,'start');
+  o+=TX(sx1,sy+sh+13,'\u03B8 = 2\u03C0',MUT,9,'end');
+  o+=TX((sx0+sx1)/2,sy+sh+13,'1周の長さ 2\u03C0r = '+fmt(TAU*radiusOf(s,Math.max(1,Math.round(nu)))*1e12,4)+' pm',MUT,9,'middle');
+  put('wave-g',o);
+}
+function updWaveStats(){
+  const s=sp(), nu=ST.nu, K=ST.laps;
+  const nR=Math.max(1,Math.round(nu));
+  const r=radiusOf(s,nR), v=speedOf(s,nR), lam=deBroglie(s,nR);
+  const amp=dirichlet(nu,K);
+  put('wavestats',
+    stt('いまの \u03BD（連続値）',fmt(nu,4))+
+    stt('いちばん近い整数 n',String(nR))+
+    stt('一周に入る波の数',fmt(nu,4)+' 個')+
+    stt('K = '+K+' 周で残る振幅',fmt(amp*100,4)+' %')+
+    stt('軌道半径 r（n = '+nR+'）',fmt(r*1e12,5)+' pm')+
+    stt('ド・ブロイ波長 \u03BB',fmt(lam*1e12,5)+' pm')+
+    stt('2\u03C0r',fmt(TAU*r*1e12,5)+' pm')+
+    stt('2\u03C0r / \u03BB',fmt(TAU*r/lam,6))+
+    stt('軌道速度 v',fmt(v/1e3,5)+' km/s')+
+    stt('1周にかかる時間',fmtU(TAU*r/v,'s',4)));
+  const near=Math.abs(nu-Math.round(nu));
+  put('wavenote',
+    (near<0.01
+      ? '\u03BD がほぼ整数なので、波は一周してぴたりと自分自身に重なる。何周重ねても形が変わらないから、この状態は残る。'
+      : '\u03BD = '+fmt(nu,4)+' は整数から '+fmt(near,3)+' ずれている。一周した波は元の位置で違う高さに戻り、'+
+        K+' 周ぶん重ねると振幅が '+fmt(amp*100,3)+' % まで落ちる。周回数を増やせばさらに消える。')+
+    ' 下の帯を見てほしい。両端がつながる条件を課した定在波というだけで、'+
+    '2本目で扱った弦の定常波と描いている絵は同じ。違うのは境界条件で、'+
+    '弦は両端が固定されているので L = n(\u03BB/2)、つまり半波長の整数倍。'+
+    '円軌道には端がなく、一周して自分につながればいいので 2\u03C0r = n\u03BB、全波長の整数倍になる。'+
+    'この係数の違いは丸暗記でつまずきやすいが、境界条件の違いから出ていると思えば取り違えない。'+
+    ' 2\u03C0r/\u03BB の欄がぴったり整数になっているのは、r を n\u00B2a\u2080/Z、v を Z\u03B1c/n として計算しているから。'+
+    '量子条件を入れた時点でそうなるように決まっていて、丸め誤差の範囲でしか整数からずれない。');
+}
+function drawDir(){
+  const W=narrow?360:740, H=narrow?240:232;
+  setVB('sv-dir',W,H);
+  const K=ST.laps;
+  const bx=narrow?42:56, by=22, bw=W-bx-(narrow?14:20), bh=H-by-58;
+  const nlo=0.5, nhi=6.5;
+  const P=mkPlot(bx,by,bw,bh,nlo,nhi,0,1.05,ticks(nlo,nhi,6),[0,0.25,0.5,0.75,1],
+    '\u03BD（連続値の量子数）',null);
+  let o=P.s;
+  o+=TXJ(bx,by+bh+40,'縦軸は K = '+K+' 周ぶんを足し合わせたあとに残る振幅',MUT,narrow?9:10,'start');
+  const pts=[];
+  const NS=narrow?520:900;
+  for(let i=0;i<=NS;i++){
+    const v=nlo+(nhi-nlo)*i/NS;
+    pts.push([P.X(v),P.Y(dirichlet(v,K))]);
+  }
+  o+=PL(pts,CBLU,1.8);
+  for(let n=1;n<=6;n++){
+    o+=LN(P.X(n),by,P.X(n),by+bh,CGRN,1,'3 3',0.5);
+    o+=CIRC(P.X(n),P.Y(1),3.4,CGRN,'#fff',1.3);
+    o+=TX(P.X(n),by-6,'n='+n,CGRNT,9.5,'middle','600');
+  }
+  const cur=dirichlet(ST.nu,K);
+  o+=LN(P.X(ST.nu),by,P.X(ST.nu),by+bh,INK,1.3,'2 3',0.85);
+  o+=CIRC(P.X(ST.nu),P.Y(cur),4.4,INK,'#fff',1.6);
+  o+=TX(clamp(P.X(ST.nu),bx+50,bx+bw-140),by+bh+26,'\u03BD = '+fmt(ST.nu,4)+' \u2192 '+fmt(cur*100,3)+' %',INK,narrow?9.5:10.5,'middle','600');
+  put('dir-g',o);
+  let tb='<table><caption>整数からのずれと、残る振幅（K = '+K+' 周）</caption><thead><tr><th>\u03BD</th><th>整数からのずれ</th><th>K=4</th><th>K='+K+'</th><th>K=40</th></tr></thead><tbody>';
+  for(const d of [0,0.02,0.05,0.10,0.25,0.5]){
+    const v=3+d;
+    tb+='<tr'+(Math.abs(ST.nu-v)<0.011?' class="cur"':'')+'><td class="num">'+v.toFixed(2)+'</td><td class="num">'+d.toFixed(2)+
+      '</td><td class="num">'+fmt(dirichlet(v,4)*100,4)+' %</td><td class="num">'+fmt(dirichlet(v,K)*100,4)+
+      ' %</td><td class="num">'+fmt(dirichlet(v,40)*100,4)+' %</td></tr>';
+  }
+  tb+='</tbody></table>';
+  put('dirtab',tb);
+  const Tlap=TAU*radiusOf(sp(),3)/speedOf(sp(),3);
+  const Kns=1e-9/Tlap;
+  put('dirnote','K を大きくするほど山が鋭くなり、整数のまわりに残る幅はおよそ 1/(2K) まで狭まる。'+
+    'ここが効いてくる。電子は 1 周を '+fmtU(Tlap,'s',3)+' で回るので、'+
+    'たった 1 ns のあいだに '+expo(Kns,3)+' 周する。K をその値にすると、生き残れる \u03BD の幅は '+
+    expo(1/(2*Kns),2)+' しかない。'+
+    '整数から 100 万分の 1 ずれているだけでも、ナノ秒のうちに消えてしまう。'+
+    '「量子数が整数に限られる」というのは、そのくらい容赦のない条件として効いている。'+
+    ' この形はディリクレ核と呼ばれるもので、回折格子のすじが鋭くなる理由とまったく同じ計算になっている。'+
+    'たくさんの寄与を足したとき、位相がそろう場所だけが残って他は消える、という一点だけで両方とも説明がつく。');
+}
+
+/* ---------- リュードベリ定数 ---------- */
+function buildRySteps(){
+  const s=sp();
+  const rows=[
+    ['1　クーロン力が向心力になる','<span class="cV">Z e\u00B2</span> / (4\u03C0\u03B5\u2080 r\u00B2) = \u03BC v\u00B2 / r'],
+    ['2　量子条件（ド・ブロイ波が一周でつながる）','\u03BC v r = n\u0127　　\u21D4　　2\u03C0r = n\u00B7(h/\u03BCv) = n\u03BB'],
+    ['3　v を消すと半径が決まる','r<sub>n</sub> = (4\u03C0\u03B5\u2080\u0127\u00B2 / \u03BC Z e\u00B2)\u00B7n\u00B2 = (a\u2080/Z)(m<sub>e</sub>/\u03BC)\u00B7n\u00B2'],
+    ['4　円軌道では位置エネルギーの半分が運動エネルギー','E = K + U = \u2212U/2 + U = U/2 = \u2212Z e\u00B2/(8\u03C0\u03B5\u2080 r)'],
+    ['5　r<sub>n</sub> を入れる','E<sub>n</sub> = \u2212 <span class="cW">\u03BC Z\u00B2 e\u2074</span> / (8 \u03B5\u2080\u00B2 h\u00B2) \u00B7 1/n\u00B2'],
+    ['6　波数に直すと R が現れる','1/\u03BB = (E<sub>n\u1D62</sub>\u2212E<sub>n_f</sub>)/hc = <span class="cS">R</span> Z\u00B2 (1/n<sub>f</sub>\u00B2 \u2212 1/n<sub>i</sub>\u00B2)　　R = \u03BC e\u2074 / (8 \u03B5\u2080\u00B2 h\u00B3 c)']
+  ];
+  let h='';
+  for(const r of rows) h+='<div class="step"><div class="lbl">'+r[0]+'</div><div class="eq">'+r[1]+'</div></div>';
+  put('rysteps',h);
+}
+function Rfrom(m,e,eps,hh){ return m*Math.pow(e,4)/(8*eps*eps*Math.pow(hh,3)*CL); }
+function drawRy(){
+  const s=sp();
+  const Rcalc=RINF, Rsp=Rof(s), RH=Rof(SPECIES[0]);
+  put('ryrow',
+    '<span><span class="bk">R\u221E（計算値）</span><span class="bv">'+fmt(Rcalc/1e7,9)+'</span><span class="bu">\u00D710\u2077 m\u207B\u00B9</span></span>'+
+    '<span><span class="bk">R\u221E（実測 CODATA）</span><span class="bv">'+fmt(RINF_CODATA/1e7,9)+'</span><span class="bu">\u00D710\u2077 m\u207B\u00B9　ずれ '+
+      mn(((Rcalc/RINF_CODATA-1)*1e9).toFixed(2))+'\u00D710\u207B\u2079</span></span>'+
+    '<span><span class="bk">R\u2095（水素、換算質量入り）</span><span class="bv">'+fmt(RH/1e7,8)+'</span><span class="bu">\u00D710\u2077 m\u207B\u00B9</span></span>'+
+    '<span><span class="bk">教科書の 1.10\u00D710\u2077</span><span class="bv">'+mn(((1.10e7/RH-1)*100).toFixed(3))+'</span><span class="bu">% ずれている</span></span>');
+  let tb='<table><caption>リュードベリ定数と基底状態のエネルギー</caption><thead><tr><th>値</th><th>大きさ</th><th>基底状態の深さ</th><th>ライマン\u03B1 の波長</th><th>出どころ</th></tr></thead><tbody>';
+  const rows=[
+    ['R\u221E（この式で計算）',RINF,RY_INF,'m<sub>e</sub>e\u2074/(8\u03B5\u2080\u00B2h\u00B3c) にそのまま代入'],
+    ['R\u221E（CODATA 実測）',RINF_CODATA,RINF_CODATA*HCNM*1e-9,'分光の実測。相対不確かさ 1.9\u00D710<sup>\u221212</sup>'],
+    ['R\u2095（水素）',Rof(SPECIES[0]),ryOf(SPECIES[0]),'R\u221E に \u03BC/m<sub>e</sub> = 0.9994557 を掛けた'],
+    ['R\u1d30（重水素）',Rof(SPECIES[1]),ryOf(SPECIES[1]),'核が重いぶん R\u221E に近づく'],
+    ['教科書の丸めた値',1.10e7,1.10e7*HCNM*1e-9,'有効数字3桁。R\u2095 より 0.29% 大きい']
+  ];
+  for(const r of rows){
+    const lam=1/(r[1]*(1-0.25))*1e9;
+    tb+='<tr'+(Math.abs(r[1]-Rsp)<1?' class="cur"':'')+'><td>'+r[0]+'</td><td class="num">'+fmt(r[1]/1e7,9)+'\u00D710\u2077 m\u207B\u00B9</td>'+
+      '<td class="num">'+fmt(r[2],8)+' eV</td><td class="num">'+fmt(lam,7)+' nm</td><td>'+r[3]+'</td></tr>';
+  }
+  tb+='</tbody></table>';
+  put('rytab',tb);
+  put('rynote','計算値と実測値が 10 桁一致する。R\u221E は物理定数のなかでもとりわけ精密に測られていて、'+
+    '相対不確かさは 2\u00D710\u207B\u00B9\u00B2。ここでの一致がこれ以上よくならないのは、'+
+    '代入した m<sub>e</sub> と \u03B5\u2080 を 11 桁で打ち切っているからで、式が間違っているからではない。'+
+    ' なお h と e と c は 2019 年の SI 改定で定義値になったので、いま不確かさを持ち込んでいるのは m<sub>e</sub> と \u03B5\u2080 だけ。'+
+    '\u03B5\u2080 = e\u00B2/(2\u03B1hc) なので、その不確かさの正体は微細構造定数 \u03B1 の測定精度になる。'+
+    ' 高校の教科書が使う 1.10\u00D710\u2077 m\u207B\u00B9 は有効数字3桁に丸めた値で、水素の実測 R\u2095 より 0.29% 大きい。'+
+    'このページは波長を R\u2095 で出しているので、教科書の値で計算した答えとは4桁目から合わない。'+
+    'どちらが間違いというわけではなく、桁を揃えて比べる必要があるというだけ。');
+  /* 丸めの効き */
+  const W=narrow?360:740, H=narrow?250:236;
+  setVB('sv-ry',W,H);
+  const bx=narrow?48:60, by=24, bw=W-bx-(narrow?14:20), bh=H-by-42;
+  const P=mkPlot(bx,by,bw,bh,2,10,-11,0,[2,3,4,5,6,7,8,9,10],[-11,-9,-7,-5,-3,-1],
+    '有効数字の桁数','log\u2081\u2080 |\u0394R/R|',t=>String(t),t=>mn(String(t)));
+  let o=P.s;
+  const CURVES=[
+    {nm:'h だけ丸める',col:CBLU,ct:CBLUT,f:(k)=>Rfrom(ME,QE,EPS0,roundSig(HP,k))},
+    {nm:'e だけ丸める',col:CCRM,ct:CCRMT,f:(k)=>Rfrom(ME,roundSig(QE,k),EPS0,HP)},
+    {nm:'m だけ丸める',col:CGRN,ct:CGRNT,f:(k)=>Rfrom(roundSig(ME,k),QE,EPS0,HP)},
+    {nm:'\u03B5\u2080 だけ丸める',col:CGOLD,ct:CGOLDT,f:(k)=>Rfrom(ME,QE,roundSig(EPS0,k),HP)},
+    {nm:'全部まとめて丸める',col:INK,ct:MUT,f:(k)=>Rfrom(roundSig(ME,k),roundSig(QE,k),roundSig(EPS0,k),roundSig(HP,k))}
+  ];
+  const order=[4,0,1,2,3];
+  for(const oi of order){
+    const cv=CURVES[oi];
+    const pts=[];
+    for(let k=2;k<=10;k++){
+      const r=cv.f(k);
+      const err=Math.abs(r/RINF-1);
+      pts.push([P.X(k),P.Y(clamp(Math.log10(Math.max(err,1e-11)),-11,0))]);
+    }
+    const big=(oi===4);
+    o+=PL(pts,cv.col,big?5:1.6,null,big?0.28:0.95);
+    if(!big) for(const p of pts) o+=CIRC(p[0],p[1],2.2,cv.col,'#fff',0.8);
+  }
+  o+=LN(P.X(ST.sig),by,P.X(ST.sig),by+bh,INK,1.3,'2 3',0.85);
+  o+=TXJ(bx+bw-4,by+13,'下ほど正確',MUT,narrow?9:10,'end');
+  let lx=bx+4, ly=by+bh-8;
+  for(let i=0;i<CURVES.length;i++){
+    o+=LN(lx,ly-3.5,lx+12,ly-3.5,CURVES[i].col,i===4?5:2,null,i===4?0.28:1);
+    o+=TXJ(lx+16,ly,CURVES[i].nm,CURVES[i].ct,narrow?9:10,'start');
+    if(narrow){ ly-=13; } else { lx+=112; }
+  }
+  put('ry-g',o);
+  const k=ST.sig;
+  const Rr=Rfrom(roundSig(ME,k),roundSig(QE,k),roundSig(EPS0,k),roundSig(HP,k));
+  let rt='<table><caption>有効数字 '+k+' 桁に丸めた定数で R\u221E を組み立てる</caption><thead><tr><th>定数</th><th>丸めた値</th><th>相対誤差</th><th>R への効き（指数）</th><th>R への寄与</th></tr></thead><tbody>';
+  const ent=[['m<sub>e</sub>',ME,1],['e',QE,4],['\u03B5\u2080',EPS0,-2],['h',HP,-3]];
+  let tot=0;
+  for(const en of ent){
+    const rv=roundSig(en[1],k), d=rv/en[1]-1;
+    tot+=en[2]*d;
+    rt+='<tr><td>'+en[0]+'</td><td class="num">'+expo(rv,Math.min(9,k-1))+'</td><td class="num">'+
+      (d===0?'0':mn((d*1e9).toFixed(2))+'\u00D710\u207B\u2079')+'</td><td class="num">'+(en[2]>0?'+':'')+en[2]+
+      '</td><td class="num">'+(en[2]*d===0?'0':mn((en[2]*d*1e9).toFixed(2))+'\u00D710\u207B\u2079')+'</td></tr>';
+  }
+  rt+='<tr class="hi"><td>合計（1次の見積り）</td><td class="num">\u2014</td><td class="num">\u2014</td><td class="num">\u2014</td><td class="num">'+
+    mn((tot*1e9).toFixed(2))+'\u00D710\u207B\u2079</td></tr>';
+  rt+='<tr class="hi"><td>実際に計算した R\u221E</td><td class="num">'+fmt(Rr/1e7,10)+'\u00D710\u2077</td><td class="num">'+
+    mn(((Rr/RINF-1)*1e9).toFixed(2))+'\u00D710\u207B\u2079</td><td class="num">\u2014</td><td class="num">\u2014</td></tr>';
+  rt+='</tbody></table>';
+  put('rndtab',rt);
+  put('rndnote','R = m e\u2074/(8\u03B5\u2080\u00B2h\u00B3c) を対数微分すると \u0394R/R = \u0394m/m + 4\u0394e/e \u2212 2\u0394\u03B5\u2080/\u03B5\u2080 \u2212 3\u0394h/h。'+
+    'e の丸めが4倍、h の丸めが3倍に増幅される。表の「R への寄与」を足した値と、実際に計算した誤差が合っているのが確認できる。'+
+    ' 有効数字3桁で計算すると R は '+fmt(Math.abs(Rfrom(roundSig(ME,3),roundSig(QE,3),roundSig(EPS0,3),roundSig(HP,3))/RINF-1)*100,3)+
+    '% 狂う。水素の 656 nm でいうと '+fmt(Math.abs(Rfrom(roundSig(ME,3),roundSig(QE,3),roundSig(EPS0,3),roundSig(HP,3))/RINF-1)*656,3)+
+    ' nm ぶん。有効数字3桁の定数から4桁の波長は出てこない、という当たり前のことがここで効いてくる。');
+}
+
+/* ---------- イオン化と連続スペクトル ---------- */
+const CONT={x0:0,x1:0,elo:0,ehi:1};
+function drawCont(){
+  const W=narrow?360:740, H=narrow?280:262;
+  setVB('sv-cont',W,H);
+  const s=sp(), nf=ST.cnf, Ry=ryOf(s);
+  const lim=Ry/(nf*nf);
+  const ehi=lim*1.85, elo=lim*0.55;
+  CONT.elo=elo; CONT.ehi=ehi;
+  const bx=narrow?42:56, by=26, bw=W-bx-(narrow?14:20), bh=H-by-48;
+  CONT.x0=bx; CONT.x1=bx+bw;
+  const X=e=>bx+(e-elo)/(ehi-elo)*bw;
+  let o=RECT(bx,by,bw,bh,'#fff',SOFT,1);
+  /* 連続領域 */
+  o+='<defs><linearGradient id="contg" x1="0" y1="0" x2="1" y2="0">'+
+     '<stop offset="0%" stop-color="'+CBLU+'" stop-opacity="0.34"/>'+
+     '<stop offset="100%" stop-color="'+CBLU+'" stop-opacity="0.06"/></linearGradient></defs>';
+  o+=RECT(X(lim),by,bx+bw-X(lim),bh,'url(#contg)',null,0,null,1);
+  o+=LN(X(lim),by,X(lim),by+bh,INK,1.8,'5 3');
+  /* 線 */
+  for(let k=1;k<=30;k++){
+    const ni=nf+k, d=dEof(s,nf,ni);
+    const hh=bh*(0.30+0.68/Math.pow(k,0.7));
+    o+=LN(X(d),by+bh,X(d),by+bh-hh,CCRM,k<=6?1.7:1,null,k<=6?0.9:0.55);
+    if(k<=3) o+=TX(X(d),by+bh-hh-6,nLabel(ni)+'\u2192'+nf,CCRMT,narrow?8.5:9.5,'middle');
+  }
+  o+=TXJ(X(lim)-5,by+14,'系列限界 '+fmt(lim,5)+' eV',INK,narrow?9.5:10.5,'end','600');
+  o+=TXJ(X(lim)+5,by+14,'ここから先は連続',CBLUT,narrow?9.5:10.5,'start','600');
+  /* 電子の運動エネルギー */
+  const Eph=lim+ST.Ekin;
+  if(Eph<=ehi){
+    o+=LN(X(Eph),by,X(Eph),by+bh,CGRN,2);
+    o+=CIRC(X(Eph),by+bh,4,CGRN,'#fff',1.4);
+    o+=AR(X(lim),by+bh-14,X(Eph),by+bh-14,CGRN,1.6,6);
+    const kl='あまりが電子の運動エネルギー '+fmt(ST.Ekin,4)+' eV';
+    const kw=kl.length*(narrow?9:10)+10;
+    o+=RECT(clamp((X(lim)+X(Eph))/2,bx+kw/2,bx+bw-kw/2)-kw/2,by+bh-32,kw,17,'#fff',SOFT,1,null,0.94,2);
+    o+=TXJ(clamp((X(lim)+X(Eph))/2,bx+kw/2,bx+bw-kw/2),by+bh-20,kl,CGRNT,narrow?9.5:10.5,'middle','600');
+    o+=TX(X(Eph),by-6,'入射光子 '+fmt(Eph,5)+' eV\u00B7'+fmt(lamVac(Eph),5)+' nm',CGRNT,narrow?9.5:10.5,
+      X(Eph)>bx+bw*0.7?'end':'start','600');
+  }
+  for(const t of ticks(elo,ehi,5)){
+    o+=LN(X(t),by+bh,X(t),by+bh+4,RULE,1);
+    o+=TX(X(t),by+bh+15,f1(t),MUT,9,'middle');
+  }
+  o+=LN(bx,by+bh,bx+bw,by+bh,RULE,1.3);
+  o+=TX(bx+bw,by+bh+42,'光子のエネルギー [eV]',MUT,9.5,'end');
+  put('cont-g',o);
+  const v=Math.sqrt(2*ST.Ekin*QE/ME);
+  put('contstats',
+    stt('基準の準位',' n = '+nf)+
+    stt('そこからのイオン化エネルギー',fmt(lim,6)+' eV')+
+    stt('系列限界の波長',fmt(lamVac(lim),6)+' nm')+
+    stt('入射光子のエネルギー',fmt(lim+ST.Ekin,6)+' eV')+
+    stt('入射光子の波長',fmt(lamVac(lim+ST.Ekin),6)+' nm')+
+    stt('飛び出す電子の速さ',fmt(v/1e3,5)+' km/s（v/c = '+fmt(v/CL,3)+'）'));
+  put('contnote','n = '+nf+' にいる電子を原子から完全に引き離すのに要るのが '+fmt(lim,5)+
+    ' eV。それより大きいエネルギーの光子が来ると、余った分がそのまま電子の運動エネルギーになる。'+
+    '運動エネルギーは飛び飛びではないので、限界より短波長側の吸収は線ではなく途切れのない帯になる。'+
+    'ここは7本目で扱った光電効果とまったく同じ構造をしていて、'+
+    '仕事関数のかわりにイオン化エネルギーが入り、金属の表面ではなく原子1個から電子が出る、という違いしかない。'+
+    ' 逆向きの過程、つまり自由電子が原子に捕まって光を出すのが再結合放射で、'+
+    'こちらも電子が持っていた運動エネルギーが連続だから、系列限界から短波長側へ連続的に伸びる放射になる。');
+  let tb='<table><caption>系列限界（'+s.nm+'）</caption><thead><tr><th>系列</th><th>n\u1D66</th><th>限界のエネルギー</th><th>限界の波長</th><th>系列の先頭</th><th>領域</th></tr></thead><tbody>';
+  for(const se of SERIES){
+    const l2=Ry/(se.nf*se.nf);
+    const first=dEof(s,se.nf,se.nf+1);
+    tb+='<tr'+(se.nf===nf?' class="cur"':'')+'><td><span class="chip"><span class="dot" style="background:'+se.col+'"></span>'+se.nm+'</span></td>'+
+      '<td class="num">'+se.nf+'</td><td class="num">'+fmt(l2,6)+' eV</td><td class="num">'+fmt(lamVac(l2),6)+' nm</td>'+
+      '<td class="num">'+fmt(lamVac(first),6)+' nm</td><td>'+se.band+'</td></tr>';
+  }
+  tb+='</tbody></table>';
+  put('limtab',tb);
+  const T=ryOf(s)*QE/1.380649e-23;
+  put('limnote','基底状態からのイオン化エネルギー '+fmt(ryOf(s),6)+' eV は、温度に直すと '+expo(T,3)+
+    ' K に相当する。太陽の表面が 5800 K しかないのに水素のバルマー線が見えるのは、'+
+    '全部の原子が励起される必要はなく、分布の裾にいるごく一部が n = 2 にいれば線が立つから。'+
+    ' 可視光の光子1個は 2 eV 前後しかないので、基底状態の水素を1個の可視光子で電離させることはできない。'+
+    '必要なのは '+fmt(lamVac(ryOf(s)),5)+' nm より短い紫外線で、これは空気中では酸素と窒素にほぼ全部吸われてしまう。'+
+    '地上の実験室で水素のライマン系列を撮るのに真空紫外の装置がいるのは、この事情による。');
+}
+
+/* ---------- 動径方程式の数値解（ヌメロフ法） ----------
+   原子単位（長さ a0、エネルギー 2Ry、質量 μ）で
+     u''(r) = [ l(l+1)/r^2 - 2Z/r - 2E ] u(r),  u = rR(r)
+   原点近傍は級数 u = r^(l+1)(1 + a1 r + a2 r^2) から始める。
+   外向きに積分すると遠方で発散し、その符号は E が固有値をまたぐたびに反転する。
+   そこで nu = Z/sqrt(-2E) の空間を歩いて符号の変わり目を挟み、二分法で追い込む。 */
+function numOut(E,l,Z,h,rmax,keep){
+  const N=Math.max(50,Math.round(rmax/h));
+  const a1=-Z/(l+1), a2=(-2*Z*a1-2*E)/(4*l+6);
+  const us=rr=>Math.pow(rr,l+1)*(1+a1*rr+a2*rr*rr);
+  const ff=rr=>2*E+2*Z/rr-l*(l+1)/(rr*rr);
+  let um=us(h), uc=us(2*h), fm=ff(h), fc=ff(2*h);
+  const arr=keep?[[0,0],[h,um],[2*h,uc]]:null;
+  const h2=h*h;
+  for(let i=2;i<N;i++){
+    const rp=(i+1)*h, fp=ff(rp);
+    const up=((2-10*h2*fc/12)*uc-(1+h2*fm/12)*um)/(1+h2*fp/12);
+    um=uc; uc=up; fm=fc; fc=fp;
+    if(keep) arr.push([rp,uc]);
+    if(Math.abs(uc)>1e150){ um*=1e-150; uc*=1e-150; if(keep){ for(let q=0;q<arr.length;q++) arr[q][1]*=1e-150; } }
+  }
+  return keep?{s:(uc>0?1:-1),arr:arr}:{s:(uc>0?1:-1)};
+}
+function rmaxFor(n,Z){ return Math.max(40,3.2*n*(n+2))/Z; }
+const EIGC={};
+function eigOne(n,l,Z,h){
+  const key=n+'|'+l+'|'+Z+'|'+h;
+  if(EIGC[key]!==undefined) return EIGC[key];
+  const rmax=rmaxFor(n,Z);
+  const Eof=v=>-Z*Z/(2*v*v);
+  let a=n-0.42, b=n+0.42;
+  const sa=numOut(Eof(a),l,Z,h,rmax).s, sb=numOut(Eof(b),l,Z,h,rmax).s;
+  if(sa===sb){ EIGC[key]=null; return null; }
+  for(let i=0;i<46;i++){
+    const m=0.5*(a+b);
+    if(numOut(Eof(m),l,Z,h,rmax).s===sa) a=m; else b=m;
+  }
+  const E=Eof(0.5*(a+b));
+  EIGC[key]=E;
+  return E;
+}
+function hartreeEV(s){ return 2*RY_INF*muRatio(s); }
+/* 表示用の波動関数。発散しはじめる手前で切って規格化する */
+function radialU(n,l,Z,h){
+  const E=eigOne(n,l,Z,h);
+  if(E===null) return null;
+  const rmax=rmaxFor(n,Z);
+  const res=numOut(E,l,Z,h,rmax,true);
+  const arr=res.arr;
+  const rt=(l>0)?((Z+Math.sqrt(Z*Z+2*E*l*(l+1)))/(-2*E)):(-Z/E);
+  let imin=arr.length-1, best=Infinity;
+  for(let i=0;i<arr.length;i++){
+    if(arr[i][0]<rt*1.05) continue;
+    const a2=Math.abs(arr[i][1]);
+    if(a2<best){ best=a2; imin=i; }
+  }
+  let mx=0;
+  for(let i=0;i<=imin;i++) mx=Math.max(mx,Math.abs(arr[i][1]));
+  const out=[];
+  for(let i=0;i<=imin;i++) out.push([arr[i][0],mx>0?arr[i][1]/mx:0]);
+  return {E:E,u:out,rcut:arr[imin][0]};
+}
+const HSTEPS=[0.08,0.04,0.02,0.01];
+function drawRad(){
+  const W=narrow?360:740, H=narrow?280:268;
+  setVB('sv-rad',W,H);
+  const s=sp(), Z=s.Z, l=ST.lq, h=ST.hstep;
+  const ns=[];
+  for(let n=l+1;n<=Math.min(l+4,5);n++) ns.push(n);
+  const cols=[CCRM,CBLU,CGRN,CGOLD];
+  let rmax=0;
+  const sols=[];
+  for(let i=0;i<ns.length;i++){
+    const so=radialU(ns[i],l,Z,h);
+    sols.push(so);
+    if(so) rmax=Math.max(rmax,so.rcut);
+  }
+  if(!rmax){ put('rad-g',TXJ(W/2,H/2,'この設定では解が見つからない',MUT,12,'middle')); put('radleg',''); return; }
+  const bx=narrow?40:56, by=26, bw=W-bx-(narrow?14:20), bh=H-by-44;
+  const P=mkPlot(bx,by,bw,bh,0,rmax,-1.1,1.1,ticks(0,rmax,5),[-1,-0.5,0,0.5,1],
+    'r [a\u2080/Z]','u(r) = rR(r)（最大値で規格化）',t=>f1(t));
+  let o=P.s;
+  o+=LN(bx,P.Y(0),bx+bw,P.Y(0),RULE,1.2);
+  for(let i=0;i<ns.length;i++){
+    const so=sols[i];
+    if(!so) continue;
+    const pts=[];
+    for(let k=0;k<so.u.length;k+=Math.max(1,Math.round(so.u.length/(narrow?260:420)))){
+      pts.push([P.X(so.u[k][0]),P.Y(clamp(so.u[k][1],-1.1,1.1))]);
+    }
+    o+=PL(pts,cols[i%4],1.9,null,0.95);
+    let nod=0;
+    for(let k=1;k<so.u.length;k++) if(so.u[k][1]*so.u[k-1][1]<0&&Math.abs(so.u[k][1])>1e-6) nod++;
+    o+=TX(bx+bw-4,by+13+i*14,'n='+ns[i]+'　節 '+nod+' 個',cols[i%4],narrow?9.5:10.5,'end','600');
+  }
+  o+=TXJ(bx+4,by+bh-8,'l = '+l+'　刻み h = '+h+' a\u2080　節の数は n \u2212 l \u2212 1',MUT,narrow?9.5:10.5,'start');
+  put('rad-g',o);
+  let lg='';
+  for(let i=0;i<ns.length;i++) lg+='<span><span class="swl" style="border-color:'+cols[i%4]+'"></span>n = '+ns[i]+'</span>';
+  put('radleg',lg);
+  put('radnote','節（ゼロを横切る回数）が n \u2212 l \u2212 1 個になっているのが読み取れる。'+
+    'これは解いた結果として出てくるもので、あらかじめ入れた条件ではない。'+
+    'ボーア模型には節という考え方そのものがなく、電子は決まった半径の円をまわっているだけだった。'+
+    ' 曲線が右端で切れているのは、外向きに積分した解が遠方で必ず発散するため、'+
+    '振幅がいちばん小さくなった点から先を捨てているから。'+
+    '本物の解はそこから指数関数的にゼロへ落ちていく。');
+}
+function drawNumTab(){
+  const s=sp(), Z=s.Z, l=ST.lq, h=ST.hstep, He=hartreeEV(s);
+  let tb='<table><caption>ヌメロフ法の固有値とボーアの式（'+s.nm+'、l = '+l+'、刻み h = '+h+' a\u2080）</caption>'+
+    '<thead><tr><th>n</th><th>数値解 [原子単位]</th><th>厳密 \u2212Z\u00B2/2n\u00B2</th><th>相対誤差</th><th>数値解 [eV]</th><th>ボーアの式 [eV]</th></tr></thead><tbody>';
+  for(let n=l+1;n<=5;n++){
+    const E=eigOne(n,l,Z,h);
+    const ex=-Z*Z/(2*n*n);
+    const bohr=En(s,n);
+    tb+='<tr><td class="num">'+n+'</td><td class="num">'+(E===null?'\u2014':mn(E.toFixed(9)))+'</td><td class="num">'+mn(ex.toFixed(9))+
+      '</td><td class="num">'+(E===null?'\u2014':expo(Math.abs(E/ex-1),2))+'</td><td class="num">'+(E===null?'\u2014':mn((E*He).toFixed(6)))+
+      '</td><td class="num">'+mn(bohr.toFixed(6))+'</td></tr>';
+  }
+  tb+='</tbody></table>';
+  put('numtab',tb);
+  const e1=eigOne(Math.max(1,l+1),l,Z,h);
+  put('numnote','角運動量をどこにも入れていないのに、l を 0 にしても 1 にしても 2 にしても同じ E<sub>n</sub> が出る。'+
+    'この縮退はクーロンポテンシャルに特有のもので、1/r からわずかでもずれると崩れる。'+
+    '多電子原子で s 軌道と p 軌道のエネルギーが分かれるのは、内側の電子が核の電荷を遮蔽して、'+
+    '外側の電子が感じるポテンシャルが純粋な 1/r でなくなるから。'+
+    ' ボーア模型はこの縮退を説明できないどころか、そもそも l という量を持っていない。'+
+    '基底状態の角運動量を \u0127 としてしまうが、正しくは 0。'+
+    'エネルギーだけが合っているという言い方が、どれくらい限定的な意味なのかがここでわかる。'+
+    ' 数値解を eV に直すときは、原子単位のエネルギー 1 = 2R<sub>y</sub>\u03BC/m<sub>e</sub> = '+fmt(He,8)+
+    ' eV を掛けている。ボーアの式と最後の2列が一致するのは当然で、比べるべきは3列目と4列目。');
+  /* 刻み依存 */
+  let ct='<table><caption>刻み幅を変えたときの相対誤差（'+s.nm+'、l = 0）</caption><thead><tr><th>h [a\u2080]</th>';
+  for(let n=1;n<=4;n++) ct+='<th>n = '+n+'</th>';
+  ct+='<th>1つ前との比</th></tr></thead><tbody>';
+  let prev=null;
+  for(const hh of HSTEPS){
+    ct+='<tr'+(Math.abs(hh-h)<1e-9?' class="cur"':'')+'><td class="num">'+hh+'</td>';
+    let e2=null;
+    for(let n=1;n<=4;n++){
+      const E=eigOne(n,0,Z,hh);
+      const ex=-Z*Z/(2*n*n);
+      const er=(E===null)?null:Math.abs(E/ex-1);
+      if(n===2) e2=er;
+      ct+='<td class="num">'+(er===null?'\u2014':expo(er,2))+'</td>';
+    }
+    ct+='<td class="num">'+((prev===null||e2===null)?'\u2014':fmt(prev/e2,3)+' 倍')+'</td></tr>';
+    prev=e2;
+  }
+  ct+='</tbody></table>';
+  put('convtab',ct);
+  put('convnote','刻みを半分にすると誤差が 16 分の1 になっている。ヌメロフ法が 4 次精度だからで、'+
+    '表の右端の列がそのまま証拠になっている。'+
+    'ただし n が大きい状態では 4\u00D710\u207B\u2077 あたりで下げ止まる。'+
+    'そこから先は刻みではなく、r をどこで打ち切ったかが誤差を決めるようになるため。'+
+    '波動関数の裾が積分の終端まで届いてしまうと、切った位置の影響が残る。'+
+    ' 二分法は \u03BD = Z/\u221A(\u22122E) の空間で 46 回割っている。'+
+    '探索の窓は \u03BD = n \u00B1 0.42 で、固有値どうしは \u03BD で 1 だけ離れているので窓の中に入る解はひとつしかない。'+
+    '窓の位置にボーアの答えを使ってはいるが、窓の中のどこに解があるかは計算が決めている。');
+}
+
+/* ---------- 医療 ---------- */
+const MEDROWS=[
+  {nm:'超微細構造（21 cm 線）',v:5.8743e-6, d:'陽子と電子のスピンの向きの差。電波天文で銀河の水素を数えるのに使う',col:CGOLD,ct:CGOLDT},
+  {nm:'MRI の陽子スピン',v:null,          d:'磁場で割った核スピンの準位差。下のスライダーで動く',col:CCRM,ct:CCRMT},
+  {nm:'水素の H\u03B1（n=3\u21922）',v:1.8891,d:'バルマー系列の先頭。可視の赤',col:CGRN,ct:CGRNT},
+  {nm:'ポジトロニウムの束縛',v:6.8028,     d:'換算質量が半分なので水素のちょうど半分',col:CGOLD,ct:CGOLDT},
+  {nm:'水素のイオン化',v:13.5984,          d:'電子を無限遠まで引き離すのに要るエネルギー',col:CPUR,ct:CPURT},
+  {nm:'診断用 X 線',v:60e3,                d:'管電圧 100 kVp あたりの実効エネルギー',col:CBLU,ct:CBLUT},
+  {nm:'消滅光子（PET）',v:511e3,           d:'電子の静止エネルギー m<sub>e</sub>c\u00B2。陽電子と対消滅して2本出る',col:CCRM,ct:CCRMT}
+];
+function mriDE(){ return HP*GAMMA_P*ST.B/QE; }
+function drawMed(){
+  const W=narrow?360:740, H=narrow?236:206;
+  setVB('sv-med',W,H);
+  const rows=MEDROWS.map(r=>({nm:r.nm,v:(r.v===null?mriDE():r.v),d:r.d,col:r.col,ct:r.ct,live:r.v===null}));
+  const lo=-8, hi=6;
+  const bx=narrow?24:40, bw=W-bx-(narrow?16:24), ay=narrow?124:112;
+  const X=e=>bx+(e-lo)/(hi-lo)*bw;
+  let o=LN(bx,ay,bx+bw,ay,RULE,1.4);
+  for(let e=lo;e<=hi;e+=2){
+    o+=LN(X(e),ay-4,X(e),ay+4,RULE,1);
+    o+=TX(X(e),ay+16,'10'+mn(String(e)),MUT,8.5,'middle');
+  }
+  o+=TXJ(bx,14,'エネルギー [eV]（対数）',MUT,9.5,'start');
+  rows.sort((a,b)=>a.v-b.v);
+  const YR=narrow?[38,74,ay+38,ay+76]:[34,68,ay+38,ay+72];
+  const lastX=[-1e9,-1e9,-1e9,-1e9];
+  for(const r of rows){
+    const x=X(clamp(Math.log10(r.v),lo,hi));
+    const need=Math.max(58,svgTxt(r.nm).length*(narrow?8:9.5));
+    let row=-1;
+    for(let i=0;i<4;i++) if(x-lastX[i]>need){ row=i; break; }
+    if(row<0){ row=0; for(let i=1;i<4;i++) if(lastX[i]<lastX[row]) row=i; }
+    lastX[row]=x;
+    const y=YR[row], up=(row<2);
+    o+=LN(x,ay,x,up?y+9:y-12,r.col,r.live?2.2:1.5,null,0.9);
+    o+=CIRC(x,ay,r.live?5:4,r.col,'#fff',1.5);
+    const an=x>bx+bw*0.78?'end':(x<bx+bw*0.18?'start':'middle');
+    o+=TXJ(x,y,r.nm,r.ct,narrow?9.5:11,an,'600');
+    o+=TX(x,y+13,fmt(r.v,4)+' eV',MUT,9,an);
+  }
+  put('med-g',o);
+  const dE=mriDE(), f=GAMMA_P*ST.B;
+  const kT=1.380649e-23*310/QE;
+  put('medstats',
+    stt('磁場 B',fmt(ST.B,3)+' T')+
+    stt('共鳴周波数 \u03B3<sub>p</sub>B/2\u03C0',fmt(f/1e6,6)+' MHz')+
+    stt('準位差 \u0394E',expo(dE,3)+' eV')+
+    stt('波長（自由空間）',fmt(CL/f,4)+' m')+
+    stt('体温での k<sub>B</sub>T',fmt(kT*1000,4)+' meV')+
+    stt('\u0394E / k<sub>B</sub>T',expo(dE/kT,3)));
+  put('mednote','MRI が叩いているのは電子の準位ではなく、陽子のスピンが磁場の中で上下2つに割れた準位。'+
+    '1.5 T での差は '+expo(HP*GAMMA_P*1.5/QE,3)+' eV で、水素のイオン化エネルギーの 5\u00D710\u207B\u2078 倍しかない。'+
+    '同じ水素原子のなかに、8桁近く離れたエネルギースケールが同居している。'+
+    ' 差が体温の熱エネルギー '+fmt(kT*1000,3)+' meV に比べて '+expo(dE/kT,2)+
+    ' 倍しかないので、上下の準位にいる陽子の数はほとんど同じ。'+
+    '差し引きで信号に効くのは 100 万個に数個という程度で、'+
+    'それでも画像になるのは水 1 mm\u00B3 のなかに陽子が '+expo(6.7e19,2)+' 個いるから。'+
+    '磁場を上げると差が比例して開くので、3 T の装置が 1.5 T より高い信号雑音比を出せる。'+
+    ' ラーモア周波数が '+fmt(f/1e6,5)+' MHz、つまり FM ラジオと同じ帯域に落ちるのも、この準位差の小ささから来ている。');
+  put('petnote','PET で使う \u00B9\u2078F などから出た陽電子は、組織のなかで数 mm 走って減速したあと、'+
+    '電子と対消滅して 511 keV の光子を反対向きに2本出す。'+
+    'ただし消える直前のごく短い間、電子と陽電子は互いのまわりを回る束縛状態を作ることがある。'+
+    'これがポジトロニウムで、電子1個と「核」1個という構造は水素とまったく同じ。'+
+    '違うのは核にあたるものが電子と同じ重さしかないことで、換算質量がちょうど半分になる。'+
+    '結果として基底状態の深さは水素の半分の 6.80 eV、対応する波長は2倍になる。'+
+    '上の原子の選択で Ps を選ぶと、その準位図とスペクトルが出る。'+
+    ' ポジトロニウムの寿命は組織の状態で変わるので、寿命そのものを測って組織の情報を引き出す研究も進んでいる。');
+  put('aasnote','スペクトル線が元素ごとに決まっているという事実は、臨床検査でそのまま使われている。'+
+    '血中や尿中の鉛、亜鉛、銅、セレンといった金属の定量は、'+
+    '試料を高温で原子にほぐしてから、その元素の共鳴線を当てて吸収を測る原子吸光法か、'+
+    'プラズマで励起して出てくる線の強さを見る ICP 発光分析で行う。'+
+    '測っている物理は、このページの吸収線と輝線そのもの。'+
+    ' 炎色反応でナトリウムが黄色く見えるのも同じ話で、589.0 nm と 589.6 nm の2本が出ている。'+
+    '水素のスペクトルが教材として繰り返し出てくるのは、'+
+    '電子が1個しかないおかげで、この仕組みを式まで含めて最後まで追えるほとんど唯一の原子だから。');
+}
+
+/* ---------- 表 ---------- */
+function buildTables(){
+  const s0=sp();
+  let mt='<table><caption>原子ごとの換算質量と準位（すべて電子1個の系）</caption><thead><tr><th>原子</th><th>Z</th><th>核の質量 [u]</th><th>\u03BC/m<sub>e</sub></th><th>イオン化 [eV]</th><th>R [10\u2077 m\u207B\u00B9]</th><th>n=3\u21922 の \u03BB</th><th>注記</th></tr></thead><tbody>';
+  for(const s of SPECIES){
+    const L=lamVac(dEof(s,2,3));
+    mt+='<tr'+(s.id===ST.sp?' class="cur"':'')+'><td><span class="chip"><span class="dot" style="background:'+s.col+'"></span>'+s.nm+' '+s.sym+'</span></td>'+
+      '<td class="num">'+s.Z+'</td><td class="num">'+(s.mnu>1e6?'\u221E':fmt(s.mnu,9))+'</td><td class="num">'+fmt(muRatio(s),8)+'</td>'+
+      '<td class="num">'+fmt(ryOf(s),7)+'</td><td class="num">'+fmt(Rof(s)/1e7,8)+'</td><td class="num">'+fmt(L,6)+' nm</td>'+
+      '<td>'+s.note+'</td></tr>';
+  }
+  mt+='</tbody></table>';
+  put('sptable',mt);
+  const dH=lamVac(dEof(SPECIES[0],2,3)), dD=lamVac(dEof(SPECIES[1],2,3));
+  put('spnote','水素と重水素の H\u03B1 の差は '+fmt(dH-dD,4)+' nm。'+
+    '核が2倍重くなったぶん換算質量が電子質量に近づき、準位がわずかに深くなる。'+
+    'ユーリーは 1932 年にこのずれを写真乾板の上で見つけて重水素の存在を示し、2年後にノーベル賞を受けた。'+
+    '0.18 nm という差を 656 nm の線の上で見分けるのは、相対値で 2.7\u00D710\u207B\u2074。'+
+    '当時の分光器で届く精度だったからこそ発見になった。'+
+    ' 表の一番下の「無限質量の水素」は、換算質量の補正を外した架空の原子。'+
+    '教科書に載っている 13.6 eV と R\u221E はこの行の値で、実在の水素とは 0.054% 違う。'+
+    'どちらを採用しているかで4桁目から答えが変わるので、このページでは実在の水素の値を採用し、'+
+    '表で両方を並べている。');
+  let h='<table><thead><tr><th>近似</th><th>効く場所</th><th>ずれの中身</th></tr></thead><tbody>';
+  for(const r of APPROX) h+='<tr><td>'+r[0]+'</td><td>'+r[1]+'</td><td>'+r[2]+'</td></tr>';
+  h+='</tbody></table>';
+  put('apptable',h);
+  put('appnote','ボーアの式が出すイオン化エネルギーは '+fmt(ryOf(SPECIES[0]),8)+' eV、実測は '+ION_MEAS+
+    ' eV。差は '+expo(ION_MEAS-ryOf(SPECIES[0]),3)+' eV で、相対値にすると 1.1\u00D710\u207B\u2075。'+
+    'この差の中身は上の表の2行目と3行目で、微細構造が \u22121.81\u00D710\u207B\u2074 eV、ラムシフトが +3.38\u00D710\u207B\u2075 eV。'+
+    '足すと 1.472\u00D710\u207B\u2074 eV になり、観測されているずれとほぼぴったり合う。'+
+    '偶然に見えるほど古い模型が、5桁目まで正しくて6桁目で破れる。その破れ方まで説明がついている、というのがこの系のすごいところ。');
+  let c='<table><thead><tr><th>定数</th><th>採用値</th><th>出どころ</th><th>注記</th></tr></thead><tbody>';
+  for(const r of CONSTS) c+='<tr><td>'+r[0]+'</td><td class="mono">'+r[1]+'</td><td>'+r[2]+'</td><td>'+r[3]+'</td></tr>';
+  c+='</tbody></table>';
+  put('consttable',c);
+  put('constnote','教科書の値と実測値が食い違う定数がこのテーマには3つある。'+
+    '1つ目はリュードベリ定数で、教科書の 1.10\u00D710\u2077 m\u207B\u00B9 に対して水素の実測は 1.0967758\u00D710\u2077 m\u207B\u00B9。'+
+    'このページは後者を採用した。'+
+    '2つ目はイオン化エネルギーで、13.6 eV と書かれるが実測は 13.5984 eV、ボーアの式は 13.5983 eV を出す。'+
+    '表と計算はすべて換算質量を入れた値で通してある。'+
+    '3つ目は波長で、分光の慣習では空気中の値を載せるので H\u03B1 は 656.28 nm。'+
+    '真空中では 656.47 nm になる。'+
+    'このページは計算から出る真空波長を主にして、空気中の値を並記した。'+
+    '問題を解いていて4桁目が合わないときは、たいていこの3つのどれかが原因になっている。');
+  let ms='';
+  for(const s of MISS) ms+='<li>'+s+'</li>';
+  put('misslist',ms);
+}
+
+/* ---------- UI ---------- */
+function buildSpUI(){
+  mkBtnRow('spsel',SPECIES.map(s=>({id:s.id,nm:s.sym})),it=>ST.sp===it.id,it=>{ ST.sp=it.id; EIGCclear(); onParam(); });
+}
+function EIGCclear(){ for(const k in EIGC) delete EIGC[k]; }
+function buildAxUI(){
+  mkBtnRow('axsel',[{id:'E',nm:'エネルギーの実寸'},{id:'n',nm:'量子数で等間隔'}],it=>ST.ax===it.id,it=>{ ST.ax=it.id; onParam(); });
+}
+function buildSerUI(){
+  mkBtnRow('sersel',SERIES.map((se,i)=>({i:i,nm:'<span class="chip"><span class="dot" style="background:'+se.col+'"></span>'+se.nm+'</span>'})),
+    it=>!!ST.ser[it.i],it=>{ ST.ser[it.i]=ST.ser[it.i]?0:1; onParam(); });
+}
+function buildWaveUI(){
+  mkBtnRow('wavemode',[{id:'ring',nm:'1周だけ'},{id:'laps',nm:'K 周を重ねる'}],it=>ST.wmode===it.id,it=>{ ST.wmode=it.id; onWave(); });
+  mkBtnRow('waveplay',[{id:'p',nm:ST.play?'\u23F8 とめる':'\u25B6 うごかす'}],()=>false,()=>{ ST.play=ST.play?0:1; buildWaveUI(); });
+}
+function clampLev(){
+  if(ST.na<NINF) ST.na=clamp(Math.round(ST.na),1,ST.nmax);
+  if(ST.nb<NINF) ST.nb=clamp(Math.round(ST.nb),1,ST.nmax);
+}
+function buildSliders(){
+  addSlider('levsliders','nmax','描く準位の数 n\u2098\u2090\u2093',4,10,1,()=>ST.nmax,v=>{ST.nmax=v;clampLev();},v=>String(v),'');
+  addSlider('levsliders','na','始状態 n\u1D62',1,11,1,()=>ST.na>=NINF?11:ST.na,
+    v=>{ST.na=(v>ST.nmax)?NINF:v;},v=>String(v),'',null,()=>nLabel(ST.na));
+  addSlider('levsliders','nb','終状態 n\u1D66',1,11,1,()=>ST.nb>=NINF?11:ST.nb,
+    v=>{ST.nb=(v>ST.nmax)?NINF:v;},v=>String(v),'',null,()=>nLabel(ST.nb));
+  addSlider('wavesliders','nu','量子数 \u03BD（連続）',50,650,1,()=>ST.nu*100,v=>{ST.nu=v/100;},v=>(v/100).toFixed(2),'',onWave);
+  addSlider('wavesliders','laps','重ねる周回数 K',1,40,1,()=>ST.laps,v=>{ST.laps=v;},v=>String(v),'周',onWave);
+  addSlider('rysliders','sig','定数の有効数字',2,10,1,()=>ST.sig,v=>{ST.sig=v;},v=>String(v),'桁',onRy);
+  addSlider('contsliders','cnf','どの系列を見るか n\u1D66',1,5,1,()=>ST.cnf,v=>{ST.cnf=v;},v=>String(v),'',onCont);
+  addSlider('contsliders','Ekin','電離後の電子の運動エネルギー',0,1500,5,()=>ST.Ekin*100,v=>{ST.Ekin=v/100;},v=>(v/100).toFixed(2),'eV',onCont);
+  addSlider('numsliders','lq','方位量子数 l',0,3,1,()=>ST.lq,v=>{ST.lq=v;},v=>String(v),'',onNum);
+  addSlider('numsliders','hstep','ヌメロフの刻み h',0,3,1,()=>HSTEPS.indexOf(ST.hstep),v=>{ST.hstep=HSTEPS[v];},v=>String(HSTEPS[v]),'a\u2080',onNum);
+  addSlider('medsliders','B','磁場 B',2,70,1,()=>ST.B*10,v=>{ST.B=v/10;},v=>(v/10).toFixed(1),'T',onMed);
+}
+
+/* ---------- ポインタ操作 ---------- */
+function bindDrag(svgId,onMove,tapOnly){
+  const sv=document.getElementById(svgId);
+  if(!sv) return;
+  let on=false;
+  const pos=function(e){
+    const r=sv.getBoundingClientRect();
+    const vb=sv.viewBox.baseVal;
+    const w=(vb&&vb.width)?vb.width:r.width;
+    const h=(vb&&vb.height)?vb.height:r.height;
+    return [(e.clientX-r.left)/r.width*w,(e.clientY-r.top)/(r.height||1)*h];
+  };
+  sv.addEventListener('pointerdown',function(e){
+    on=true;
+    try{ sv.setPointerCapture(e.pointerId); }catch(err){}
+    const p=pos(e); onMove(p[0],p[1]);
+  });
+  sv.addEventListener('pointermove',function(e){
+    if(!on||tapOnly) return;
+    e.preventDefault();
+    const p=pos(e); onMove(p[0],p[1]);
+  });
+  const up=function(){ on=false; };
+  sv.addEventListener('pointerup',up);
+  sv.addEventListener('pointercancel',up);
+  sv.addEventListener('pointerleave',up);
+}
+function bindAll(){
+  bindDrag('sv-lev',function(x,y){
+    if(!LEV.ys.length) return;
+    let best=null,bd=1e9;
+    for(const L of LEV.ys){ const d=Math.abs(y-L.y); if(d<bd){ bd=d; best=L; } }
+    if(!best||bd>26) return;
+    if(ST.pick===0){ ST.na=best.n; ST.pick=1; } else { ST.nb=best.n; ST.pick=0; }
+    onParam();
+  },true);
+  bindDrag('sv-spec',function(x){
+    if(!SPEC.lines.length) return;
+    let best=null,bd=1e9;
+    for(const L of SPEC.lines){
+      if(L.limit) continue;
+      const xx=SPEC.x0+(Math.log10(L.lam)-SPEC.llo)/(SPEC.lhi-SPEC.llo)*(SPEC.x1-SPEC.x0);
+      const d=Math.abs(x-xx);
+      if(d<bd){ bd=d; best=L; }
+    }
+    if(!best||bd>40) return;
+    if(best.ni>ST.nmax) ST.nmax=clamp(best.ni,4,10);
+    ST.na=best.ni; ST.nb=best.nf; ST.pick=0;
+    onParam();
+  });
+  bindDrag('sv-cont',function(x){
+    const s=sp(), lim=ryOf(s)/(ST.cnf*ST.cnf);
+    const t=(x-CONT.x0)/Math.max(1,CONT.x1-CONT.x0);
+    const E=CONT.elo+t*(CONT.ehi-CONT.elo);
+    ST.Ekin=clamp(Math.round((E-lim)*100)/100,0,15);
+    onCont();
+  });
+}
+
+/* ---------- アニメーション ---------- */
+const RAF=(typeof requestAnimationFrame==='function')?requestAnimationFrame:null;
+let frame=0, t0=0;
+function tick(ts){
+  frame++;
+  if(ST.play&&!(typeof document!=='undefined'&&document.hidden)&&(frame%2===0)){
+    if(!t0) t0=ts;
+    waveT=(ts-t0)/1000*2.4;
+    drawWave();
+  }
+  if(RAF) RAF(tick);
+}
+
+/* ---------- 更新 ---------- */
+let heavyTid=null;
+function scheduleHeavy(){
+  clearTimeout(heavyTid);
+  heavyTid=setTimeout(function(){
+    drawRy(); drawCont(); drawRad(); drawNumTab(); drawMed(); buildTables();
+  },180);
+}
+function refresh(){
+  buildSpUI(); buildAxUI(); buildSerUI(); buildWaveUI();
+  clampLev();
+  drawLev(); drawBig(); drawQ(); drawTr(); drawSpec();
+  drawWave(); updWaveStats(); drawDir();
+  buildRySteps();
+  syncSliders();
+  scheduleHeavy();
+}
+function onParam(){ refresh(); }
+function onWave(){ drawWave(); updWaveStats(); drawDir(); syncSlider('nu'); syncSlider('laps'); }
+function onRy(){ drawRy(); syncSlider('sig'); }
+function onCont(){ drawCont(); syncSlider('cnf'); syncSlider('Ekin'); }
+function onNum(){ drawRad(); drawNumTab(); syncSlider('lq'); syncSlider('hstep'); }
+function onMed(){ drawMed(); syncSlider('B'); }
+
+let rt=null;
+window.addEventListener('resize',function(){
+  clearTimeout(rt);
+  rt=setTimeout(function(){
+    const n=window.innerWidth<=430;
+    if(n!==narrow){ narrow=n; refresh(); }
+  },160);
+});
+
+/* ---------- 起動 ---------- */
+buildSliders();
+buildFx();
+bindAll();
+refresh();
+if(RAF) RAF(tick);
+</script>
+</body>
+</html>

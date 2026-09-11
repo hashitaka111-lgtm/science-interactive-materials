@@ -1,0 +1,40 @@
+{
+  "constants": {
+    "gravity": {
+      "value": 9.8,
+      "unit": "m/s^2",
+      "note": "高校物理の教科書における慣用値(有効数字2桁)。啓林館『物理基礎』ほか主要教科書で共通して採用されている値",
+      "source": "高校物理教科書(啓林館『物理基礎』等)の慣用値"
+    }
+  },
+  "modes": [
+    {
+      "id": "free-fall",
+      "label": "自由落下",
+      "v0": { "value": 0, "fixed": true },
+      "angleDeg": { "value": 90, "fixed": true },
+      "y0": { "default": 20, "min": 0, "max": 50, "step": 1 }
+    },
+    {
+      "id": "vertical-throw",
+      "label": "鉛直投げ上げ",
+      "v0": { "default": 15, "min": 0, "max": 30, "step": 1, "fixed": false },
+      "angleDeg": { "value": 90, "fixed": true },
+      "y0": { "default": 0, "min": 0, "max": 50, "step": 1 }
+    },
+    {
+      "id": "horizontal-throw",
+      "label": "水平投射",
+      "v0": { "default": 10, "min": 0, "max": 30, "step": 1, "fixed": false },
+      "angleDeg": { "value": 0, "fixed": true },
+      "y0": { "default": 20, "min": 0, "max": 50, "step": 1 }
+    },
+    {
+      "id": "oblique-throw",
+      "label": "斜方投射",
+      "v0": { "default": 20, "min": 0, "max": 30, "step": 1, "fixed": false },
+      "angleDeg": { "default": 45, "min": 0, "max": 90, "step": 1, "fixed": false },
+      "y0": { "default": 20, "min": 0, "max": 50, "step": 1 }
+    }
+  ]
+}

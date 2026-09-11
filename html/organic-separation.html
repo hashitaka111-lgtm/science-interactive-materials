@@ -1,0 +1,842 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>有機化合物の系統分離 — pKa の序列で決まる分液の論理</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500&family=IBM+Plex+Sans+JP:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+:root{
+  --ink:#16232B;
+  --muted:#5E6E76;
+  --paper:#EDF1EF;
+  --surface:#FFFFFF;
+  --rule:#D6DDDA;
+  --rule-soft:#E8EDEB;
+}
+*{box-sizing:border-box}
+html{-webkit-text-size-adjust:100%}
+body{
+  margin:0;background:var(--paper);color:var(--ink);
+  font-family:"IBM Plex Sans JP","Hiragino Sans","Yu Gothic UI",system-ui,sans-serif;
+  font-size:14px;line-height:1.8;font-feature-settings:"palt" 1;
+}
+.mono{font-family:"IBM Plex Mono",ui-monospace,SFMono-Regular,Menlo,monospace;font-variant-numeric:tabular-nums}
+.wrap{max-width:820px;margin:0 auto;padding:22px 14px 68px}
+.card{background:var(--surface);border:1px solid var(--rule);border-radius:3px;padding:16px;margin-bottom:14px}
+.eyebrow{display:flex;align-items:center;gap:10px;font-family:"IBM Plex Mono",ui-monospace,monospace;font-size:11.5px;letter-spacing:.14em;color:var(--muted);line-height:1.4}
+.eyebrow::after{content:"";flex:1 1 auto;height:1px;background:var(--rule)}
+h1{font-size:22px;font-weight:600;letter-spacing:.01em;line-height:1.5;margin:12px 0 8px}
+h2{font-size:14.5px;font-weight:600;letter-spacing:.01em;margin:0}
+p{margin:0 0 10px}
+p:last-child{margin-bottom:0}
+.lead{color:var(--muted);font-size:12.5px;line-height:1.75;margin:0}
+.small{font-size:12.5px;color:var(--muted);line-height:1.75}
+.small b{color:var(--ink);font-weight:500}
+.sep{height:1px;background:var(--rule-soft);margin:14px 0}
+
+.eq{font-family:"IBM Plex Mono",ui-monospace,monospace;font-variant-numeric:tabular-nums;
+  font-size:12.5px;line-height:2;background:var(--paper);border:1px solid var(--rule-soft);
+  border-radius:2px;padding:10px 12px;margin:10px 0;overflow-x:auto;white-space:pre}
+
+.row{display:flex;flex-wrap:wrap;gap:6px;align-items:center}
+button{font-family:inherit}
+.btn{font-family:"IBM Plex Mono",ui-monospace,monospace;font-size:11.5px;letter-spacing:.03em;
+  padding:5px 10px;border:1px solid var(--rule);border-radius:2px;background:var(--surface);
+  color:var(--ink);cursor:pointer;line-height:1.4}
+.btn:disabled{color:var(--rule);cursor:default}
+.grp{display:flex;align-items:center;gap:10px;font-family:"IBM Plex Mono",ui-monospace,monospace;
+  font-size:10.5px;letter-spacing:.1em;color:var(--muted);margin:14px 0 7px}
+.grp:first-child{margin-top:0}
+.grp::after{content:"";flex:1 1 auto;height:1px;background:var(--rule-soft)}
+.chip{display:inline-flex;align-items:center;gap:7px;font-size:12.5px;
+  padding:5px 10px;border:1px solid var(--rule);border-radius:2px;background:var(--surface);
+  color:var(--ink);cursor:pointer;line-height:1.5}
+.chip[aria-pressed="true"]{background:var(--ink);color:#fff;border-color:var(--ink)}
+.chip .cf{font-family:"IBM Plex Mono",ui-monospace,monospace;font-size:11px;opacity:.72}
+.sw{width:8px;height:8px;flex:0 0 8px;border:1px solid var(--rule);background:transparent}
+.chip[aria-pressed="true"] .sw{border-color:transparent}
+
+select{font-family:"IBM Plex Sans JP",system-ui,sans-serif;font-size:12.5px;
+  padding:5px 8px;border:1px solid var(--rule);border-radius:2px;background:var(--surface);
+  color:var(--ink);line-height:1.5;-webkit-appearance:none;appearance:none;
+  background-image:linear-gradient(45deg,transparent 50%,var(--muted) 50%),linear-gradient(135deg,var(--muted) 50%,transparent 50%);
+  background-position:calc(100% - 13px) 50%,calc(100% - 9px) 50%;
+  background-size:4px 4px,4px 4px;background-repeat:no-repeat;padding-right:24px}
+.steprow{display:flex;align-items:center;gap:8px;margin-bottom:7px}
+.steprow .no{font-family:"IBM Plex Mono",ui-monospace,monospace;font-size:11.5px;color:var(--muted);min-width:16px}
+.steprow select{flex:1 1 auto;min-width:0}
+
+.sl{display:flex;align-items:center;gap:12px;margin-top:14px}
+.sl label{font-family:"IBM Plex Mono",ui-monospace,monospace;font-size:11.5px;letter-spacing:.1em;color:var(--muted);white-space:nowrap;min-width:58px}
+input[type=range]{-webkit-appearance:none;appearance:none;flex:1 1 auto;height:22px;background:transparent;margin:0}
+input[type=range]::-webkit-slider-runnable-track{height:1px;background:var(--rule)}
+input[type=range]::-webkit-slider-thumb{-webkit-appearance:none;width:13px;height:13px;background:var(--ink);border:0;border-radius:2px;margin-top:-6px}
+input[type=range]::-moz-range-track{height:1px;background:var(--rule)}
+input[type=range]::-moz-range-thumb{width:13px;height:13px;background:var(--ink);border:0;border-radius:2px}
+.slval{font-family:"IBM Plex Mono",ui-monospace,monospace;font-variant-numeric:tabular-nums;
+  font-size:12.5px;text-align:right;min-width:104px}
+
+/* 系統分離図 */
+.flow{margin-top:6px}
+.fnode{border:1px solid var(--rule);border-radius:3px;padding:9px 11px;background:var(--paper)}
+.fnode.final{border-color:var(--ink);background:var(--surface)}
+.ftitle{font-family:"IBM Plex Mono",ui-monospace,monospace;font-size:10.5px;letter-spacing:.09em;color:var(--muted);margin-bottom:5px}
+.fseg{border-left:2px solid var(--rule);margin-left:15px;padding:9px 0 9px 15px}
+.fopbtn{display:inline-flex;align-items:center;gap:8px;font-family:"IBM Plex Mono",ui-monospace,monospace;
+  font-size:11.5px;padding:4px 10px;border:1px solid var(--rule);border-radius:2px;
+  background:var(--surface);color:var(--ink);cursor:pointer;line-height:1.5;margin-bottom:8px;
+  font-variant-numeric:tabular-nums;text-align:left}
+.fopbtn[aria-pressed="true"]{background:var(--ink);color:#fff;border-color:var(--ink)}
+.fbox{border:1px solid var(--rule);border-radius:3px;padding:8px 10px;background:var(--surface)}
+.clist{display:flex;flex-wrap:wrap;gap:3px 14px}
+.clist span{display:inline-flex;align-items:baseline;gap:6px;font-size:12px;line-height:1.6}
+.clist i{width:7px;height:7px;display:inline-block;flex:0 0 7px;position:relative;top:0}
+.clist b{font-family:"IBM Plex Mono",ui-monospace,monospace;font-variant-numeric:tabular-nums;font-weight:400;color:var(--muted)}
+.fnote{font-family:"IBM Plex Mono",ui-monospace,monospace;font-size:10.5px;color:var(--muted);margin-top:6px;font-variant-numeric:tabular-nums}
+.empty{font-size:12px;color:var(--muted)}
+
+.chartbox{margin:2px -4px 0}
+svg.chart{display:block;width:100%;height:auto;touch-action:pan-y;user-select:none;-webkit-user-select:none}
+
+.verdict{display:inline-block;font-family:"IBM Plex Mono",ui-monospace,monospace;font-size:11.5px;
+  letter-spacing:.06em;background:var(--ink);color:#fff;padding:3px 10px;border-radius:2px;margin-bottom:12px}
+table.k{width:100%;border-collapse:collapse;font-size:12.5px;margin-top:4px}
+table.k th,table.k td{border-bottom:1px solid var(--rule-soft);padding:6px 4px;text-align:left;vertical-align:top}
+table.k th{font-size:11px;letter-spacing:.08em;color:var(--muted);font-weight:400;
+  font-family:"IBM Plex Mono",ui-monospace,monospace}
+table.k td.n{font-family:"IBM Plex Mono",ui-monospace,monospace;font-variant-numeric:tabular-nums;text-align:right;white-space:nowrap}
+
+@media (max-width:430px){
+  body{font-size:13.5px}
+  .wrap{padding:16px 11px 52px}
+  .card{padding:13px}
+  h1{font-size:19px}
+  .eq{font-size:10.5px;line-height:1.95;padding:9px 10px}
+  .slval{min-width:92px;font-size:12px}
+  .sl label{min-width:48px;font-size:11px}
+  .chip{font-size:12px;padding:5px 8px;gap:6px}
+  .fseg{margin-left:9px;padding-left:11px}
+  .clist{gap:2px 10px}
+  .clist span{font-size:11.5px}
+  table.k td,table.k th{padding:5px 3px;font-size:11.5px}
+}
+</style>
+</head>
+<body>
+<div class="wrap">
+
+<div class="card">
+  <div class="eyebrow">SYSTEMATIC SEPARATION &middot; 04</div>
+  <h1>有機化合物の系統分離<br>pKa の序列で決まる分液の論理</h1>
+  <p class="lead">分液漏斗の各段階で水層の pH を電荷収支から解き、分配係数と合わせて各成分の行き先を厳密に計算します。操作の順序と試薬を入れ替えて、分離が失敗するところまで試せます。医学部受験向け。</p>
+</div>
+
+<div class="card">
+  <div class="eyebrow">THE RULE AND WHAT IT RESTS ON</div>
+  <div style="height:12px"></div>
+  <h2>教科書の判定則の中身</h2>
+  <p class="small" style="margin:8px 0 0">「加えた塩基の共役酸の pKa より強い酸だけが塩になって水層へ」という規則は、プロトン移動の平衡定数そのものです。</p>
+<div class="eq">HA + HCO₃⁻ ⇌ A⁻ + H₂CO₃
+
+K = Ka(HA) / Ka₁(H₂CO₃) = 10^(6.35 − pKa)</div>
+  <p class="small">分母に来るのが加えた塩基の共役酸の Ka。あとは指数の引き算だけです。<b>カルボン酸 4.2 とフェノール 9.9 のあいだに H₂CO₃ の 6.35 が挟まっている</b>、これが分離が成立する唯一の理由で、炭酸水素ナトリウムに特別な性質があるわけではありません。</p>
+  <p class="small">だから炭酸ナトリウムに変えると壊れます。共役酸が HCO₃⁻ になって基準が pKa 10.33 に上がり、フェノールも K = 2.4 で反応してしまう。同じ「炭酸のナトリウム塩」でも1段目を使うか2段目を使うかで基準が4桁ずれます。</p>
+  <div class="sep"></div>
+  <h2>実際に効いているのは水層の pH</h2>
+  <p class="small" style="margin:8px 0 0">平衡定数は「反応が進むか」を教えますが、何割が移るかは決めません。決めるのは水層の pH と、中性形の分配係数 P です。中性形だけがエーテルに溶け、イオン形は水層に留まる。</p>
+<div class="eq">n = [HA]水 · ( P·V有機 + (1 + Ka/h)·V水 )
+
+水層への移行率  f = (1 + Ka/h)·V水 / ( P·V有機 + (1 + Ka/h)·V水 )
+
+等体積で f = 1/2 を解くと   酸   pH₅₀ = pKa + log(P − 1)
+                          塩基  pH₅₀ = pKa(BH⁺) − log(P − 1)</div>
+  <p class="small"><b>半分が水層に移るのは pKa ではなく pKa + log P。</b>油に溶けやすい物質ほど、水層へ引き出すのに強い試薬が要ります。安息香酸（pKa 4.20、P 100）の pH₅₀ は 6.20 で、炭酸水素ナトリウムの水層 pH 7〜8 をぎりぎり下回っているにすぎません。</p>
+  <div class="sep"></div>
+  <h2>水層の pH も固定ではない</h2>
+<div class="eq">g(h) = h − Kw/h + [Na⁺] − [Cl⁻] + Σ[BH⁺] − Σ[A⁻] − C炭酸·z̄(h) = 0</div>
+  <p class="small">テーマ2の塩の式に、有機成分が分配で持ち込む [A⁻] と [BH⁺] が加わった形です。各項が h について単調なので、ここでも二分法が一意解に収束します。</p>
+  <p class="small">0.5 mol/L の炭酸水素ナトリウム 20 mL に安息香酸 1 mmol を入れると HCO₃⁻ が 1 mmol 消費され、pH は 8.34 から 7.33 へ下がる。消えた 1 mmol がそのまま発泡として見えます。フェノールを入れても泡が出ないという識別法の正体がこれです。</p>
+</div>
+
+<div class="card">
+  <div class="eyebrow">MIXTURE &middot; MAX 6</div>
+  <div style="height:8px"></div>
+  <div id="chips"></div>
+</div>
+
+<div class="card">
+  <div class="eyebrow">PROCEDURE</div>
+  <div style="height:12px"></div>
+  <h2>操作の組み立て</h2>
+  <div style="height:10px"></div>
+  <div id="steps"></div>
+  <div class="row" style="margin-top:8px">
+    <button class="btn" id="addstep">操作を追加</button>
+    <button class="btn" data-preset="std">標準手順</button>
+    <button class="btn" data-preset="order">順序ミス</button>
+    <button class="btn" data-preset="reagent">試薬ミス</button>
+    <button class="btn" data-preset="short">試薬不足</button>
+  </div>
+  <div class="sl">
+    <label>試薬濃度</label>
+    <input type="range" id="cr" min="-2.3" max="0.3" step="0.02" value="-0.301" aria-label="試薬濃度">
+    <span class="slval" id="crv"></span>
+  </div>
+  <div class="sl">
+    <label>抽出回数</label>
+    <input type="range" id="nw" min="1" max="3" step="1" value="1" aria-label="各操作での抽出回数">
+    <span class="slval" id="nwv"></span>
+  </div>
+  <p class="small" style="margin:12px 0 0">エーテル 20 mL に各成分 1.00 mmol ずつ。各操作で新しい水溶液 20 mL を使って振り、水層を捨てます。抽出回数を増やすと目的物の回収率は上がりますが、他の成分も一緒に持っていかれます。</p>
+</div>
+
+<div class="card">
+  <div class="eyebrow">SEPARATION SCHEME</div>
+  <div style="height:10px"></div>
+  <h2>系統分離図</h2>
+  <p class="small" style="margin:8px 0 12px">各操作のボタンを押すと、下の数直線と抽出曲線がその段階の水層 pH に切り替わります。表示は 0.5% 以上の成分のみ。</p>
+  <div class="flow" id="flow"></div>
+</div>
+
+<div class="card">
+  <div class="eyebrow">pKa NUMBER LINE</div>
+  <div style="height:10px"></div>
+  <h2>判定の根拠</h2>
+  <p class="small" style="margin:8px 0 10px">上段が酸、下段が塩基（共役酸の pKa）。破線が加えた塩基の共役酸の pKa で、これが教科書の判定基準。実線が実際の水層 pH です。酸は基準より左（強い酸）が、塩基は基準より右（強い塩基）が水層へ移ります。</p>
+  <div class="chartbox"><svg class="chart" id="ch1"></svg></div>
+</div>
+
+<div class="card">
+  <div class="eyebrow">EXTRACTION CURVES</div>
+  <div style="height:10px"></div>
+  <h2>水層への移行率</h2>
+  <p class="small" style="margin:8px 0 10px">縦軸は各成分が水層へ移る割合。曲線が 0.5 を横切る pH が pH₅₀ = pKa ± log(P−1) で、pKa そのものからは log P だけずれています。縦の実線が各操作の水層 pH。</p>
+  <div class="chartbox"><svg class="chart" id="ch2"></svg></div>
+</div>
+
+<div class="card">
+  <div class="eyebrow">STEP DETAIL</div>
+  <div style="height:12px"></div>
+  <div id="detail"></div>
+</div>
+
+<div class="card">
+  <div class="eyebrow">VERDICT</div>
+  <div style="height:12px"></div>
+  <div id="verdict"></div>
+</div>
+
+<div class="card">
+  <div class="eyebrow">ASSUMPTIONS &middot; ADOPTED VALUES</div>
+  <div style="height:12px"></div>
+  <h2>前提と定数の注記</h2>
+  <p class="small" style="margin:8px 0 10px"><b>密閉系として解いています。</b>実際は振ってガス抜きをするので H₂CO₃ が CO₂ として抜け、水層の pH は計算値より高く保たれて抽出効率は上がります。この計算は保守側の見積もりです。</p>
+  <p class="small" style="margin:0 0 10px"><b>分配係数はエーテル／水の概算値。</b>文献値のばらつきが大きく、桁が合っている程度の精度しかありません。入試で数値が与えられることもまずない量です。分離の向きを決めるのが pKa、効率を決めるのが P、と役割を分けて理解してください。</p>
+  <p class="small" style="margin:0 0 10px"><b>H₂O の pKa は 15.7 を採用。</b>[H₂O] = 55.5 mol/L を分母に取る有機化学の慣用値です。Kw から直接 14 とする流儀もありますが、水酸化ナトリウムの判定基準として使う限り結論は変わりません。</p>
+  <p class="small" style="margin:0 0 12px"><b>イオン形はエーテルに溶けないものとしています。</b>実際にはイオン対として少量が有機層に残ることがあり、とくに大きな有機イオンでは無視できません。</p>
+  <table class="k" id="ktable"></table>
+</div>
+
+<div class="card">
+  <p class="small" style="margin:0">高校化学インタラクティブ教材 04。分布曲線シリーズ デザインセット準拠。</p>
+</div>
+
+</div>
+
+<script>
+"use strict";
+
+const KW = 1.0e-14;
+const CARB = [4.5e-7, 4.7e-11];   // H₂CO₃ の Ka₁, Ka₂
+const V_ORG = 0.020;              // エーテル 20 mL
+const V_AQ  = 0.020;              // 各洗浄で使う水溶液 20 mL
+const N0    = 1.0e-3;             // 各成分 1.00 mmol
+
+const PAL = [
+  {f:'#B87A16', t:'#8A5A0C'},
+  {f:'#158A6D', t:'#0D6A53'},
+  {f:'#2457A6', t:'#1B4380'},
+  {f:'#6E3AA7', t:'#572D85'},
+  {f:'#A82A6A', t:'#831F52'},
+  {f:'#3B6E1E', t:'#2A5215'}
+];
+
+/* ===== 化合物 =====
+   type : 'acid'（HA として電離）/ 'base'（BH⁺ の pKa を持つ）/ 'neutral'
+   P    : 中性形のエーテル/水 分配係数（概算）
+   行を1つ足せば図・数直線・曲線・表すべてに反映される。 */
+const CPD = [
+  {id:'salicylic', jp:'サリチル酸', sh:'サリチル酸', f:'HOC₆H₄COOH', cat:'カルボン酸',
+   type:'acid', pKa:2.97, P:100,
+   note:'カルボキシ基の pKa 2.97。フェノール性 OH の pKa は 13.6 で、水酸化ナトリウムを使うと二価の陰イオンになる。'},
+  {id:'benzoic', jp:'安息香酸', sh:'安息香酸', f:'C₆H₅COOH', cat:'カルボン酸',
+   type:'acid', pKa:4.20, P:100,
+   note:'系統分離の標準例。pH₅₀ は 6.20 で、炭酸水素ナトリウムの水層 pH をぎりぎり下回る。'},
+  {id:'picric', jp:'ピクリン酸', sh:'ピクリン酸', f:'(O₂N)₃C₆H₂OH', cat:'フェノール類',
+   type:'acid', pKa:0.38, P:20,
+   note:'2,4,6-トリニトロフェノール。ニトロ基3個で pKa 0.38 まで下がり、強酸に分類される。水にもよく溶ける。'},
+  {id:'dnp', jp:'2,4-ジニトロフェノール', sh:'ジニトロフェノール', f:'(O₂N)₂C₆H₃OH', cat:'フェノール類',
+   type:'acid', pKa:4.09, P:100,
+   note:'フェノール類なのに pKa 4.09 でカルボン酸並み。炭酸水素ナトリウムに溶けるので、官能基の名前で判定すると必ず間違える。'},
+  {id:'phenol', jp:'フェノール', sh:'フェノール', f:'C₆H₅OH', cat:'フェノール類',
+   type:'acid', pKa:9.95, P:30,
+   note:'pKa 9.95。分配係数が 30 と小さいため、どの洗浄でも中性形の 3% 程度が水層へ漏れる。'},
+  {id:'cresol', jp:'p-クレゾール', sh:'クレゾール', f:'CH₃C₆H₄OH', cat:'フェノール類',
+   type:'acid', pKa:10.26, P:80,
+   note:'メチル基の電子供与でフェノールよりわずかに弱い酸。'},
+  {id:'aniline', jp:'アニリン', sh:'アニリン', f:'C₆H₅NH₂', cat:'アミン',
+   type:'base', pKa:4.60, P:40,
+   note:'共役酸アニリニウムイオンの pKa 4.60。孤立電子対が環に非局在化するため弱い塩基。pH₅₀ は 3.01。'},
+  {id:'nmeaniline', jp:'N-メチルアニリン', sh:'N-メチルアニリン', f:'C₆H₅NHCH₃', cat:'アミン',
+   type:'base', pKa:4.85, P:120,
+   note:'共役酸の pKa 4.85。アニリンより油に溶けやすく、希塩酸で抜くには濃度が要る。'},
+  {id:'benzylamine', jp:'ベンジルアミン', sh:'ベンジルアミン', f:'C₆H₅CH₂NH₂', cat:'アミン',
+   type:'base', pKa:9.34, P:10,
+   note:'窒素が環と共役していないため強い塩基で、共役酸の pKa は 9.34。水にも溶けやすい。'},
+  {id:'nitrobenzene', jp:'ニトロベンゼン', sh:'ニトロベンゼン', f:'C₆H₅NO₂', cat:'中性',
+   type:'neutral', P:2000,
+   note:'酸とも塩基とも反応しない。最後までエーテル層に残る。'},
+  {id:'naphthalene', jp:'ナフタレン', sh:'ナフタレン', f:'C₁₀H₈', cat:'中性',
+   type:'neutral', P:5000,
+   note:'極性がほとんどなく、分配係数が大きい。水層への漏れは 0.02% 程度。'},
+  {id:'toluene', jp:'トルエン', sh:'トルエン', f:'C₆H₅CH₃', cat:'中性',
+   type:'neutral', P:8000,
+   note:'中性物質。エーテルの代わりに抽出溶媒としても使う。'}
+];
+const CATS = ['カルボン酸','フェノール類','アミン','中性'];
+
+/* ===== 試薬 =====
+   na / cl : 式量あたりの Na⁺、Cl⁻（傍観イオン）
+   carb    : 炭酸系の全濃度（式量あたり）
+   pKc     : 共役酸の pKa（教科書の判定基準）。塩基を取る試薬では null */
+const RGT = [
+  {id:'water',   jp:'水',                   sh:'水',        na:0, cl:0, carb:0, pKc:null, takes:'—',
+   note:'加水分解しない。分配係数だけで漏れる分が見える。'},
+  {id:'hcl',     jp:'希塩酸',               sh:'希塩酸',    na:0, cl:1, carb:0, pKc:null, takes:'base',
+   note:'アミンを塩にして水層へ移す。共役酸は H₃O⁺（pKa −1.74）なので、事実上すべての塩基が反応する。実際の判定は水層の pH。'},
+  {id:'nahco3',  jp:'炭酸水素ナトリウム水溶液', sh:'NaHCO₃aq', na:1, cl:0, carb:1, pKc:6.35, takes:'acid',
+   note:'共役酸 H₂CO₃ の pKa₁ = 6.35 が判定基準。カルボン酸だけを取り、フェノールを残す。CO₂ の発泡が目印。'},
+  {id:'na2co3',  jp:'炭酸ナトリウム水溶液',   sh:'Na₂CO₃aq', na:2, cl:0, carb:1, pKc:10.33, takes:'acid',
+   note:'共役酸は HCO₃⁻ で pKa₂ = 10.33。基準が4桁上がるためフェノールも取ってしまい、カルボン酸と分けられない。'},
+  {id:'naoh',    jp:'水酸化ナトリウム水溶液', sh:'NaOHaq',   na:1, cl:0, carb:0, pKc:15.7, takes:'acid',
+   note:'共役酸は H₂O（pKa 15.7）。カルボン酸もフェノールも取るので、先に使うと両者が混ざる。'}
+];
+
+/* ===== 数値計算 ===== */
+function fracK(K, h){
+  const u = [1];
+  for(let j=0;j<K.length;j++) u.push(u[j]*K[j]/h);
+  let s=0; for(let j=0;j<u.length;j++) s+=u[j];
+  const r=[]; for(let j=0;j<u.length;j++) r.push(u[j]/s);
+  return r;
+}
+function zbarK(K, h){
+  const f = fracK(K,h);
+  let z=0; for(let j=0;j<f.length;j++) z += j*f[j];
+  return z;
+}
+/* 水層側の係数 (1 + イオン形/中性形) */
+function ionRatio(c, h){
+  if(c.type === 'acid') return 1 + Math.pow(10,-c.pKa)/h;
+  if(c.type === 'base') return 1 + h/Math.pow(10,-c.pKa);
+  return 1;
+}
+function fAq(c, h){
+  const r = ionRatio(c, h);
+  return r*V_AQ / (c.P*V_ORG + r*V_AQ);
+}
+/* 水層の電荷収支。items は現在エーテル層にある物質量 */
+function residual(items, rg, Cr, h){
+  let g = h - KW/h + rg.na*Cr - rg.cl*Cr;
+  const Cc = rg.carb*Cr;
+  if(Cc > 0) g -= Cc*zbarK(CARB, h);
+  for(let i=0;i<items.length;i++){
+    const c = items[i].c;
+    if(c.type === 'acid'){
+      const r = Math.pow(10,-c.pKa)/h;
+      g -= items[i].n/(c.P*V_ORG + (1+r)*V_AQ) * r;
+    } else if(c.type === 'base'){
+      const r = h/Math.pow(10,-c.pKa);
+      g += items[i].n/(c.P*V_ORG + (1+r)*V_AQ) * r;
+    }
+  }
+  return g;
+}
+/* g(h) は h について単調増加。log h 上の二分法で一意解 */
+function solvePH(items, rg, Cr){
+  let lo = -3, hi = 17;
+  for(let i=0;i<90;i++){
+    const m = (lo+hi)/2;
+    if(residual(items, rg, Cr, Math.pow(10,-m)) > 0) lo = m; else hi = m;
+  }
+  return (lo+hi)/2;
+}
+/* pH₅₀ = pKa ± log(P−1) */
+function pH50(c){
+  if(c.type === 'acid') return c.pKa + Math.log10(c.P-1);
+  if(c.type === 'base') return c.pKa - Math.log10(c.P-1);
+  return NaN;
+}
+
+/* ===== 状態 ===== */
+let MIX = ['benzoic','phenol','aniline','nitrobenzene'];
+let STEPS = ['hcl','nahco3','naoh'];
+let LCR = -0.301;   // log10(C_r) → 0.50 mol/L
+let NW = 1;
+let SELSTEP = 1;
+let NARROW = false;
+let SIM = null;
+
+function $(id){ return document.getElementById(id); }
+function cpd(id){ for(let i=0;i<CPD.length;i++) if(CPD[i].id===id) return CPD[i]; return null; }
+function rgt(id){ for(let i=0;i<RGT.length;i++) if(RGT[i].id===id) return RGT[i]; return RGT[0]; }
+function mix(){ const r=[]; for(let i=0;i<MIX.length;i++){ const c=cpd(MIX[i]); if(c) r.push(c); } return r; }
+function colOf(id){ const k = MIX.indexOf(id); return PAL[(k<0?0:k) % PAL.length]; }
+function CR(){ return Math.pow(10, LCR); }
+
+/* ===== シミュレーション ===== */
+function simulate(){
+  const items = mix().map(function(c){ return {c:c, id:c.id, n:N0}; });
+  const steps = [];
+  for(let s=0;s<STEPS.length;s++){
+    const rg = rgt(STEPS[s]);
+    const moved = {};
+    let ph = 0, co2 = 0;
+    for(let w=0;w<NW;w++){
+      ph = solvePH(items, rg, CR());
+      const h = Math.pow(10,-ph);
+      if(rg.carb > 0){
+        const phAlone = solvePH([], rg, CR());
+        const a0 = fracK(CARB, h)[0];
+        const a0Alone = fracK(CARB, Math.pow(10,-phAlone))[0];
+        co2 += Math.max(0, (a0 - a0Alone)) * rg.carb*CR() * V_AQ;
+      }
+      for(let i=0;i<items.length;i++){
+        const fr = fAq(items[i].c, h);
+        moved[items[i].id] = (moved[items[i].id]||0) + items[i].n*fr;
+        items[i].n *= (1-fr);
+      }
+    }
+    steps.push({rg:rg, ph:ph, moved:moved, co2:co2});
+  }
+  const finalAmt = {};
+  for(let i=0;i<items.length;i++) finalAmt[items[i].id] = items[i].n;
+  SIM = {steps:steps, final:finalAmt};
+  return SIM;
+}
+
+/* ===== 書式 ===== */
+const SUPMAP = {'-':'⁻','−':'⁻','0':'⁰','1':'¹','2':'²','3':'³','4':'⁴','5':'⁵','6':'⁶','7':'⁷','8':'⁸','9':'⁹'};
+function sup(n){ return String(n).split('').map(function(c){ return SUPMAP[c]||c; }).join(''); }
+function sci(x, d){
+  d = (d===undefined) ? 2 : d;
+  if(!isFinite(x)) return '—';
+  if(x === 0) return '0';
+  const e = Math.floor(Math.log10(Math.abs(x)));
+  const m = x/Math.pow(10,e);
+  if(e >= -3 && e <= 3) return x.toPrecision(3).replace(/(\.\d*?)0+$/,'$1').replace(/\.$/,'');
+  return m.toFixed(d) + '×10' + sup(e);
+}
+function pct(x){ return (x>=0.995 ? x.toFixed(1) : x.toPrecision(2)) + '%'; }
+function esc(s){ return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;'); }
+function setSVG(el, str){
+  const doc = new DOMParser().parseFromString(
+    '<svg xmlns="http://www.w3.org/2000/svg">' + str + '</svg>', 'image/svg+xml');
+  el.replaceChildren.apply(el, Array.prototype.slice.call(doc.documentElement.childNodes));
+}
+
+/* ===== 混合物チップ ===== */
+function renderChips(){
+  let html = '';
+  for(let ci=0;ci<CATS.length;ci++){
+    html += '<div class="grp">'+esc(CATS[ci])+'</div><div class="row">';
+    for(let i=0;i<CPD.length;i++){
+      const c = CPD[i];
+      if(c.cat !== CATS[ci]) continue;
+      const k = MIX.indexOf(c.id);
+      const on = k >= 0;
+      const sw = on ? '<span class="sw" style="background:'+PAL[k%PAL.length].f+'"></span>' : '<span class="sw"></span>';
+      const pk = (c.type==='neutral') ? '中性' : ((c.type==='base'?'pKa(BH⁺) ':'pKa ')+c.pKa.toFixed(2));
+      html += '<button class="chip" data-id="'+c.id+'" aria-pressed="'+on+'">'+sw+
+              '<span>'+esc(c.jp)+'</span><span class="cf">'+esc(pk)+'</span></button>';
+    }
+    html += '</div>';
+  }
+  $('chips').innerHTML = html;
+}
+
+/* ===== 手順 ===== */
+function renderSteps(){
+  let html = '';
+  for(let s=0;s<STEPS.length;s++){
+    html += '<div class="steprow"><span class="no">'+(s+1)+'</span><select data-step="'+s+'">';
+    for(let i=0;i<RGT.length;i++){
+      html += '<option value="'+RGT[i].id+'"'+(RGT[i].id===STEPS[s]?' selected':'')+'>'+esc(RGT[i].jp)+'</option>';
+    }
+    html += '</select><button class="btn" data-del="'+s+'"'+(STEPS.length<=1?' disabled':'')+'>削除</button></div>';
+  }
+  $('steps').innerHTML = html;
+  $('addstep').disabled = (STEPS.length >= 4);
+}
+
+/* ===== 系統分離図 ===== */
+function clist(amtMap, ids){
+  let out = '', any = false;
+  for(let i=0;i<ids.length;i++){
+    const v = (amtMap[ids[i]]||0)/N0*100;
+    if(v < 0.5) continue;
+    any = true;
+    out += '<span><i style="background:'+colOf(ids[i]).f+'"></i>'+esc(cpd(ids[i]).sh)+' <b>'+pct(v)+'</b></span>';
+  }
+  return any ? '<div class="clist">'+out+'</div>' : '<div class="empty">0.5% 以上の成分なし</div>';
+}
+function renderFlow(){
+  const ids = MIX.slice();
+  if(ids.length === 0){ $('flow').innerHTML = '<p class="small" style="margin:0">成分を1つ以上選んでください。</p>'; return; }
+  const start = {}; for(let i=0;i<ids.length;i++) start[ids[i]] = N0;
+  let html = '<div class="fnode"><div class="ftitle">エーテル層（出発）</div>'+clist(start, ids)+'</div>';
+  const running = {}; for(let i=0;i<ids.length;i++) running[ids[i]] = N0;
+  for(let s=0;s<SIM.steps.length;s++){
+    const st = SIM.steps[s];
+    const on = (s === SELSTEP);
+    let note = '';
+    if(st.rg.carb > 0){
+      const mmol = st.co2*1000;
+      note = (mmol > 0.05)
+        ? '発泡あり　CO₂ '+mmol.toFixed(2)+' mmol（試薬だけのときからの増分。標準状態で約 '+(mmol*22.4).toFixed(0)+' mL）'
+        : '発泡なし（CO₂ '+mmol.toFixed(3)+' mmol）';
+    }
+    html += '<div class="fseg">'
+      + '<button class="fopbtn" data-step="'+s+'" aria-pressed="'+on+'">'
+      + (s+1)+'　'+esc(st.rg.jp)+'　'+sci(CR(),2)+' M　pH '+st.ph.toFixed(2)+'　×'+NW+'回</button>'
+      + '<div class="fbox"><div class="ftitle">水層 '+(s+1)+'（分離して除く）</div>'
+      + clist(st.moved, ids)
+      + (note ? '<div class="fnote">'+esc(note)+'</div>' : '')
+      + '</div></div>';
+    for(let i=0;i<ids.length;i++) running[ids[i]] -= (st.moved[ids[i]]||0);
+    const isLast = (s === SIM.steps.length-1);
+    html += '<div class="fnode'+(isLast?' final':'')+'"><div class="ftitle">'
+          + (isLast ? 'エーテル層（最終）' : 'エーテル層')+'</div>'
+          + clist(isLast ? SIM.final : running, ids)+'</div>';
+  }
+  $('flow').innerHTML = html;
+}
+
+/* ===== チャート基盤 ===== */
+function geom(){
+  return { w: NARROW ? 360 : 760, ml: NARROW ? 34 : 44, mr: NARROW ? 12 : 18, mt: 12, mb: NARROW ? 30 : 34 };
+}
+function axisFrame(c, xTicks, yTicks, xLabel, yLabel){
+  let s = '';
+  for(let i=0;i<xTicks.length;i++){
+    const x = c.X(xTicks[i].v).toFixed(1);
+    s += '<line x1="'+x+'" y1="'+c.g.mt+'" x2="'+x+'" y2="'+(c.h-c.g.mb)+'" stroke="var(--rule-soft)" stroke-width="1"/>';
+  }
+  for(let i=0;i<yTicks.length;i++){
+    const y = c.Y(yTicks[i].v).toFixed(1);
+    s += '<line x1="'+c.g.ml+'" y1="'+y+'" x2="'+(c.g.w-c.g.mr)+'" y2="'+y+'" stroke="var(--rule-soft)" stroke-width="1"/>';
+  }
+  s += '<line x1="'+c.g.ml+'" y1="'+(c.h-c.g.mb)+'" x2="'+(c.g.w-c.g.mr)+'" y2="'+(c.h-c.g.mb)+'" stroke="var(--rule)" stroke-width="1"/>';
+  s += '<line x1="'+c.g.ml+'" y1="'+c.g.mt+'" x2="'+c.g.ml+'" y2="'+(c.h-c.g.mb)+'" stroke="var(--rule)" stroke-width="1"/>';
+  for(let i=0;i<xTicks.length;i++){
+    if(!xTicks[i].label) continue;
+    s += '<text x="'+c.X(xTicks[i].v).toFixed(1)+'" y="'+(c.h-c.g.mb+15)+'" text-anchor="middle" font-family="IBM Plex Mono, monospace" font-size="'+c.fs+'" fill="var(--muted)">'+xTicks[i].label+'</text>';
+  }
+  for(let i=0;i<yTicks.length;i++){
+    if(!yTicks[i].label) continue;
+    s += '<text x="'+(c.g.ml-6)+'" y="'+(c.Y(yTicks[i].v)+3.4).toFixed(1)+'" text-anchor="end" font-family="IBM Plex Mono, monospace" font-size="'+c.fs+'" fill="var(--muted)">'+yTicks[i].label+'</text>';
+  }
+  s += '<text x="'+(c.g.w-c.g.mr)+'" y="'+(c.h-2)+'" text-anchor="end" font-family="IBM Plex Mono, monospace" font-size="'+c.fs+'" fill="var(--muted)">'+xLabel+'</text>';
+  if(yLabel) s += '<text x="'+c.g.ml+'" y="'+(c.h-2)+'" text-anchor="start" font-family="IBM Plex Mono, monospace" font-size="'+c.fs+'" fill="var(--muted)">'+yLabel+'</text>';
+  return s;
+}
+function mkC(xMin, xMax, yMin, yMax, height){
+  const g = geom();
+  const h = height;
+  return {
+    g:g, h:h, fs: NARROW ? 9.5 : 10.5,
+    X: function(v){ return g.ml + (v-xMin)/(xMax-xMin)*(g.w-g.ml-g.mr); },
+    Y: function(v){ return g.mt + (yMax-v)/(yMax-yMin)*(h-g.mt-g.mb); }
+  };
+}
+function put(elId, c, body){
+  const el = $(elId);
+  el.setAttribute('viewBox', '0 0 ' + c.g.w + ' ' + c.h);
+  el.setAttribute('preserveAspectRatio', 'xMidYMid meet');
+  setSVG(el, body);
+}
+
+/* ===== 数直線 ===== */
+function drawLine(){
+  const X0 = -2, X1 = 17;
+  const h = NARROW ? 230 : 250;
+  const c = mkC(X0, X1, 0, 1, h);
+  const xT = [];
+  for(let v=-2;v<=16;v+=2) xT.push({v:v, label:(NARROW && ((v+2)/2)%2===1) ? '' : String(v)});
+  let s = axisFrame(c, xT, [], 'pKa', '');
+
+  const st = SIM.steps[Math.min(SELSTEP, SIM.steps.length-1)];
+  const laneA = c.g.mt + 34;      // 酸レーン
+  const laneB = c.h - c.g.mb - 40; // 塩基レーン
+
+  // レーン基準線
+  s += '<line x1="'+c.g.ml+'" y1="'+laneA+'" x2="'+(c.g.w-c.g.mr)+'" y2="'+laneA+'" stroke="var(--rule)" stroke-width="1"/>';
+  s += '<line x1="'+c.g.ml+'" y1="'+laneB+'" x2="'+(c.g.w-c.g.mr)+'" y2="'+laneB+'" stroke="var(--rule)" stroke-width="1"/>';
+  s += '<text x="'+(c.g.ml+3)+'" y="'+(laneA-24)+'" font-family="IBM Plex Mono, monospace" font-size="'+c.fs+'" fill="var(--muted)">酸（小さいほど強い）</text>';
+  s += '<text x="'+(c.g.ml+3)+'" y="'+(laneB+30)+'" font-family="IBM Plex Mono, monospace" font-size="'+c.fs+'" fill="var(--muted)">塩基（共役酸の pKa。大きいほど強い）</text>';
+
+  // 試薬の共役酸（破線）
+  if(st && st.rg.pKc !== null && st.rg.pKc >= X0 && st.rg.pKc <= X1){
+    const x = c.X(st.rg.pKc).toFixed(1);
+    s += '<line x1="'+x+'" y1="'+c.g.mt+'" x2="'+x+'" y2="'+(c.h-c.g.mb)+'" stroke="var(--muted)" stroke-width="1" stroke-dasharray="4 3"/>';
+    s += '<text x="'+x+'" y="'+(c.g.mt+10)+'" text-anchor="middle" font-family="IBM Plex Mono, monospace" font-size="'+(c.fs-0.5)+'" fill="var(--muted)">共役酸 '+st.rg.pKc.toFixed(2)+'</text>';
+  }
+  // 実際の水層 pH（実線）
+  if(st){
+    const xp = Math.max(X0, Math.min(X1, st.ph));
+    const x = c.X(xp).toFixed(1);
+    s += '<line x1="'+x+'" y1="'+c.g.mt+'" x2="'+x+'" y2="'+(c.h-c.g.mb)+'" stroke="var(--ink)" stroke-width="1" opacity="0.5"/>';
+    const label = '水層 pH '+st.ph.toFixed(2);
+    const cw = label.length*(NARROW?5.7:6.3)+12;
+    let cx = c.X(xp)-cw/2;
+    if(cx < c.g.ml) cx = c.g.ml;
+    if(cx+cw > c.g.w-c.g.mr) cx = c.g.w-c.g.mr-cw;
+    s += '<rect x="'+cx.toFixed(1)+'" y="'+(c.h-c.g.mb+3)+'" width="'+cw.toFixed(1)+'" height="15" fill="var(--ink)"/>';
+    s += '<text x="'+(cx+cw/2).toFixed(1)+'" y="'+(c.h-c.g.mb+13.6)+'" text-anchor="middle" font-family="IBM Plex Mono, monospace" font-size="'+(NARROW?9.5:10.5)+'" fill="#fff">'+label+'</text>';
+  }
+
+  // マーカー（上下にずらして重なりを避ける）
+  [['acid', laneA, -1], ['base', laneB, 1]].forEach(function(lane){
+    const list = mix().filter(function(x){ return x.type === lane[0]; })
+                      .sort(function(a,b){ return a.pKa - b.pKa; });
+    const rows = [];
+    for(let i=0;i<list.length;i++){
+      const cp = list[i];
+      const x = c.X(cp.pKa);
+      const wdt = cp.sh.length*(NARROW?5.6:6.2)+10;
+      let row = 0;
+      while(rows[row] !== undefined && x - wdt/2 < rows[row] + 3) row++;
+      rows[row] = x + wdt/2;
+      const y = lane[1] + lane[2]*(11 + row*12);
+      s += '<line x1="'+x.toFixed(1)+'" y1="'+lane[1]+'" x2="'+x.toFixed(1)+'" y2="'+(y - lane[2]*3)+'" stroke="'+colOf(cp.id).f+'" stroke-width="1"/>';
+      s += '<rect x="'+(x-3).toFixed(1)+'" y="'+(lane[1]-3)+'" width="6" height="6" fill="'+colOf(cp.id).f+'"/>';
+      s += '<text x="'+x.toFixed(1)+'" y="'+(y + (lane[2]<0?0:6))+'" text-anchor="middle" font-family="IBM Plex Mono, monospace" font-size="'+(NARROW?9:9.8)+'" fill="'+colOf(cp.id).t+'">'+esc(cp.sh)+' '+cp.pKa.toFixed(2)+'</text>';
+    }
+  });
+  put('ch1', c, s);
+}
+
+/* ===== 抽出曲線 ===== */
+function drawCurves(){
+  const h = NARROW ? 248 : 290;
+  const c = mkC(0, 14, -0.03, 1.06, h);
+  const xT = [];
+  for(let v=0;v<=14;v+=2) xT.push({v:v, label:String(v)});
+  const yT = [{v:0,label:'0'},{v:0.25,label:'0.25'},{v:0.5,label:'0.50'},{v:0.75,label:'0.75'},{v:1,label:'1.00'}];
+  let s = axisFrame(c, xT, yT, '水層の pH', 'f');
+
+  s += '<line x1="'+c.g.ml+'" y1="'+c.Y(0.5).toFixed(1)+'" x2="'+(c.g.w-c.g.mr)+'" y2="'+c.Y(0.5).toFixed(1)+
+       '" stroke="var(--muted)" stroke-width="1" stroke-dasharray="4 3" opacity="0.55"/>';
+
+  const list = mix();
+  for(let i=0;i<list.length;i++){
+    const cp = list[i];
+    let d = '';
+    for(let k=0;k<=280;k++){
+      const ph = 14*k/280;
+      const v = fAq(cp, Math.pow(10,-ph));
+      d += (k===0?'M':'L') + c.X(ph).toFixed(1) + ' ' + c.Y(v).toFixed(1);
+    }
+    s += '<path d="'+d+'" fill="none" stroke="'+colOf(cp.id).f+'" stroke-width="1.7" stroke-linejoin="round"/>';
+  }
+  // 各操作の水層 pH
+  for(let st=0;st<SIM.steps.length;st++){
+    const ph = SIM.steps[st].ph;
+    if(ph < 0 || ph > 14) continue;
+    const x = c.X(ph).toFixed(1);
+    const on = (st === SELSTEP);
+    s += '<line x1="'+x+'" y1="'+c.g.mt+'" x2="'+x+'" y2="'+(c.h-c.g.mb)+
+         '" stroke="var(--ink)" stroke-width="1" opacity="'+(on?0.55:0.22)+'"/>';
+    s += '<rect x="'+(parseFloat(x)-6.5)+'" y="'+(c.g.mt+1)+'" width="13" height="13" fill="'+(on?'var(--ink)':'var(--surface)')+'" stroke="var(--ink)" stroke-width="1" opacity="'+(on?1:0.5)+'"/>';
+    s += '<text x="'+x+'" y="'+(c.g.mt+11)+'" text-anchor="middle" font-family="IBM Plex Mono, monospace" font-size="9.5" fill="'+(on?'#fff':'var(--muted)')+'">'+(st+1)+'</text>';
+  }
+  // 凡例
+  let lx = c.g.ml+6, ly = c.h - c.g.mb - 8;
+  for(let i=0;i<list.length;i++){
+    const label = list[i].sh;
+    const wdt = label.length*(NARROW?5.6:6.2)+16;
+    if(lx + wdt > c.g.w - c.g.mr){ lx = c.g.ml+6; ly -= 13; }
+    s += '<rect x="'+lx+'" y="'+(ly-6.5)+'" width="7" height="7" fill="'+colOf(list[i].id).f+'"/>';
+    s += '<text x="'+(lx+11)+'" y="'+ly+'" font-family="IBM Plex Mono, monospace" font-size="'+(NARROW?9:9.8)+'" fill="'+colOf(list[i].id).t+'">'+esc(label)+'</text>';
+    lx += wdt;
+  }
+  put('ch2', c, s);
+}
+
+/* ===== ステップ詳細 ===== */
+function renderDetail(){
+  const idx = Math.min(SELSTEP, SIM.steps.length-1);
+  const st = SIM.steps[idx];
+  if(!st){ $('detail').innerHTML = ''; return; }
+  const h = Math.pow(10,-st.ph);
+  let html = '<h2>操作 '+(idx+1)+'　'+esc(st.rg.jp)+'</h2>'
+    + '<p class="small" style="margin:8px 0 10px">'+esc(st.rg.note)+'</p>'
+    + '<table class="k"><tr><th>成分</th><th>pKa</th><th>pH₅₀</th><th>K</th><th>移行率</th><th>判定</th></tr>';
+  const list = mix();
+  for(let i=0;i<list.length;i++){
+    const cp = list[i];
+    const fr = fAq(cp, h);
+    let K = '—';
+    if(st.rg.pKc !== null && cp.type === 'acid') {
+      const kv = Math.pow(10, st.rg.pKc - cp.pKa);
+      K = (kv >= 0.01 && kv < 1000) ? kv.toPrecision(2) : sci(kv,1);
+    }
+    const verdict = (fr >= 0.9) ? '水層へ' : ((fr >= 0.1) ? '一部が水層へ' : 'エーテル層に残る');
+    html += '<tr><td><span style="display:inline-block;width:7px;height:7px;background:'+colOf(cp.id).f+';margin-right:6px"></span>'
+          + esc(cp.jp)+'</td>'
+          + '<td class="n">'+(cp.type==='neutral' ? '—' : cp.pKa.toFixed(2))+'</td>'
+          + '<td class="n">'+(cp.type==='neutral' ? '—' : pH50(cp).toFixed(2))+'</td>'
+          + '<td class="n">'+K+'</td>'
+          + '<td class="n">'+pct(fr*100)+'</td>'
+          + '<td style="white-space:nowrap">'+verdict+'</td></tr>';
+  }
+  html += '</table>';
+  $('detail').innerHTML = html;
+}
+
+/* ===== 成否判定 ===== */
+function renderVerdict(){
+  const ids = MIX.slice();
+  if(ids.length === 0){ $('verdict').innerHTML = ''; return; }
+  const fracsList = [];
+  for(let s=0;s<SIM.steps.length;s++) fracsList.push({name:'水層 '+(s+1)+'（'+SIM.steps[s].rg.sh+'）', amt:SIM.steps[s].moved});
+  fracsList.push({name:'エーテル層（最終）', amt:SIM.final});
+
+  let minPur = 100, rows = '';
+  for(let i=0;i<fracsList.length;i++){
+    const F = fracsList[i];
+    let tot = 0, top = null, topv = -1;
+    for(let k=0;k<ids.length;k++){
+      const v = F.amt[ids[k]]||0;
+      tot += v;
+      if(v > topv){ topv = v; top = ids[k]; }
+    }
+    if(tot < N0*0.01){
+      rows += '<tr><td>'+esc(F.name)+'</td><td>—</td><td class="n">—</td><td class="n">—</td></tr>';
+      continue;
+    }
+    const pur = 100*topv/tot, rec = 100*topv/N0;
+    minPur = Math.min(minPur, pur);
+    rows += '<tr><td>'+esc(F.name)+'</td>'
+          + '<td><span style="display:inline-block;width:7px;height:7px;background:'+colOf(top).f+';margin-right:6px"></span>'+esc(cpd(top).jp)+'</td>'
+          + '<td class="n">'+rec.toFixed(1)+'%</td><td class="n">'+pur.toFixed(1)+'%</td></tr>';
+  }
+  const label = (minPur >= 90) ? '分離できている' : ((minPur >= 80) ? '混入あり' : '分離失敗');
+  $('verdict').innerHTML = '<div class="verdict">'+label+'　最低純度 '+minPur.toFixed(1)+'%</div>'
+    + '<table class="k"><tr><th>画分</th><th>主成分</th><th>回収率</th><th>純度</th></tr>'+rows+'</table>'
+    + '<p class="small" style="margin:12px 0 0">純度は各画分に占める主成分の割合、回収率はその成分の仕込み量に対する割合。'
+    + '最低純度が 90% 以上なら分離できている、80% を下回ったら失敗としています。'
+    + '教科書はどの操作も完全に進むものとして扱いますが、実際には分配係数のぶんだけ必ず漏れます。</p>';
+}
+
+/* ===== 定数表 ===== */
+function renderTable(){
+  let html = '<tr><th>物質 / 試薬</th><th>pKa</th><th>P</th><th>注記</th></tr>';
+  for(let i=0;i<CPD.length;i++){
+    const c = CPD[i];
+    html += '<tr><td><span style="font-weight:500">'+esc(c.jp)+'</span><br>'
+          + '<span class="mono" style="font-size:11px;color:var(--muted)">'+esc(c.f)+'</span></td>'
+          + '<td class="n" style="font-size:11.5px">'+(c.type==='neutral'?'—':c.pKa.toFixed(2))+'</td>'
+          + '<td class="n" style="font-size:11.5px">'+c.P+'</td>'
+          + '<td style="font-size:12px;color:var(--muted)">'+esc(c.note)+'</td></tr>';
+  }
+  for(let i=1;i<RGT.length;i++){
+    const r = RGT[i];
+    html += '<tr><td><span style="font-weight:500">'+esc(r.jp)+'</span></td>'
+          + '<td class="n" style="font-size:11.5px">'+(r.pKc===null?'—':r.pKc.toFixed(2))+'</td>'
+          + '<td class="n">—</td>'
+          + '<td style="font-size:12px;color:var(--muted)">'+esc(r.note)+'</td></tr>';
+  }
+  $('ktable').innerHTML = html;
+}
+
+/* ===== 更新 ===== */
+function redraw(){
+  if(SELSTEP >= STEPS.length) SELSTEP = STEPS.length-1;
+  simulate();
+  renderFlow();
+  drawLine();
+  drawCurves();
+  renderDetail();
+  renderVerdict();
+  $('crv').textContent = sci(CR(),2) + ' mol/L';
+  $('nwv').textContent = NW + ' 回';
+}
+
+/* ===== イベント ===== */
+$('chips').addEventListener('click', function(e){
+  const b = e.target.closest('.chip');
+  if(!b) return;
+  const id = b.getAttribute('data-id');
+  const k = MIX.indexOf(id);
+  if(k >= 0) MIX.splice(k,1);
+  else { if(MIX.length >= 6) MIX.shift(); MIX.push(id); }
+  renderChips(); redraw();
+});
+$('steps').addEventListener('change', function(e){
+  if(e.target.tagName !== 'SELECT') return;
+  STEPS[parseInt(e.target.getAttribute('data-step'),10)] = e.target.value;
+  redraw();
+});
+$('steps').addEventListener('click', function(e){
+  const b = e.target.closest('[data-del]');
+  if(!b || b.disabled) return;
+  STEPS.splice(parseInt(b.getAttribute('data-del'),10), 1);
+  renderSteps(); redraw();
+});
+$('addstep').addEventListener('click', function(){
+  if(STEPS.length >= 4) return;
+  STEPS.push('water');
+  renderSteps(); redraw();
+});
+$('flow').addEventListener('click', function(e){
+  const b = e.target.closest('.fopbtn');
+  if(!b) return;
+  SELSTEP = parseInt(b.getAttribute('data-step'),10);
+  renderFlow(); drawLine(); drawCurves(); renderDetail();
+});
+document.querySelectorAll('[data-preset]').forEach(function(b){
+  b.addEventListener('click', function(){
+    const p = b.getAttribute('data-preset');
+    if(p === 'std')      { STEPS = ['hcl','nahco3','naoh']; LCR = -0.301; }
+    if(p === 'order')    { STEPS = ['hcl','naoh','nahco3']; LCR = -0.301; }
+    if(p === 'reagent')  { STEPS = ['hcl','na2co3','naoh']; LCR = -0.301; }
+    if(p === 'short')    { STEPS = ['hcl','nahco3','naoh']; LCR = -2; }
+    SELSTEP = 1;
+    $('cr').value = String(LCR);
+    renderSteps(); redraw();
+  });
+});
+$('cr').addEventListener('input', function(){ LCR = parseFloat(this.value); redraw(); });
+$('nw').addEventListener('input', function(){ NW = parseInt(this.value,10); redraw(); });
+
+const mq = window.matchMedia('(max-width: 430px)');
+function onMQ(){
+  if(mq.matches === NARROW) return;
+  NARROW = mq.matches;
+  drawLine(); drawCurves();
+}
+if(mq.addEventListener) mq.addEventListener('change', onMQ); else mq.addListener(onMQ);
+
+/* ===== 起動 ===== */
+NARROW = mq.matches;
+renderChips();
+renderSteps();
+redraw();
+renderTable();
+</script>
+</body>
+</html>

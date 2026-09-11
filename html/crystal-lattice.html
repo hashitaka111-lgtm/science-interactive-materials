@@ -1,0 +1,859 @@
+<!doctype html>
+<html lang="ja">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>結晶格子インタラクティブ</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500&family=IBM+Plex+Sans+JP:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+*{box-sizing:border-box}
+:root{
+  --ink:#16232B; --muted:#5E6E76; --paper:#EDF1EF; --surface:#FFFFFF;
+  --rule:#D6DDDA; --rule-soft:#E8EDEB;
+  --c0:#B87A16; --c0t:#8A5A0C;
+  --c1:#158A6D; --c1t:#0D6A53;
+  --c2:#2457A6; --c2t:#1B4380;
+  --c3:#6E3AA7; --c3t:#572D85;
+  --c4:#A82A6A; --c4t:#831F52;
+  --c5:#3B6E1E; --c5t:#2A5215;
+  --mono:"IBM Plex Mono",ui-monospace,SFMono-Regular,Menlo,monospace;
+}
+html,body{margin:0;padding:0}
+body{
+  background:var(--paper); color:var(--ink);
+  font-family:"IBM Plex Sans JP","Hiragino Sans","Yu Gothic UI",system-ui,sans-serif;
+  font-size:13.5px; line-height:1.75; -webkit-text-size-adjust:100%;
+}
+.mono{font-family:var(--mono);font-variant-numeric:tabular-nums}
+.wrap{max-width:820px;margin:0 auto;padding:20px 14px 72px}
+.card{background:var(--surface);border:1px solid var(--rule);border-radius:3px;padding:14px;margin-bottom:14px}
+.eyebrow{display:flex;align-items:center;gap:10px;font-family:var(--mono);font-size:11.5px;letter-spacing:.14em;color:var(--muted)}
+.eyebrow::after{content:"";flex:1;height:1px;background:var(--rule)}
+h1{font-size:22px;font-weight:600;letter-spacing:.01em;margin:8px 0 2px}
+h2{font-size:13.5px;font-weight:600;margin:14px 0 6px;letter-spacing:.01em}
+h2:first-child{margin-top:0}
+p{margin:0 0 8px}
+p:last-child{margin-bottom:0}
+.note{color:var(--muted);font-size:12px;line-height:1.7}
+.sub{color:var(--muted);font-size:11.5px;font-family:var(--mono);letter-spacing:.06em}
+hr{border:none;border-top:1px solid var(--rule-soft);margin:12px 0}
+
+.btn{font:inherit;font-size:12.5px;line-height:1.4;border:1px solid var(--rule);background:#fff;color:var(--ink);border-radius:2px;padding:6px 10px;cursor:pointer}
+.btn:hover{border-color:#B4C0BC}
+.btn.on{background:var(--ink);color:#fff;border-color:var(--ink)}
+.btn:focus-visible{outline:2px solid var(--c2);outline-offset:1px}
+.btnrow{display:flex;flex-wrap:wrap;gap:6px}
+.ctl{display:flex;flex-wrap:wrap;align-items:center;gap:8px;margin-top:10px}
+.ctl .lab{font-family:var(--mono);font-size:11px;letter-spacing:.1em;color:var(--muted);white-space:nowrap}
+
+.viewer{position:relative;border:1px solid var(--rule-soft);border-radius:3px;background:#FBFCFB;overflow:hidden;margin-top:10px}
+svg.stage{display:block;width:100%;height:auto;touch-action:none;cursor:grab}
+svg.stage.drag{cursor:grabbing}
+.chip{position:absolute;left:0;top:0;pointer-events:none;background:var(--ink);color:#fff;font-size:11px;line-height:1.5;padding:3px 7px;border-radius:2px;white-space:nowrap;transform:translate(-50%,-150%);opacity:0;transition:opacity .1s;font-family:var(--mono);letter-spacing:.02em}
+.chip.on{opacity:1}
+.chip.below{transform:translate(-50%,50%)}
+
+.legend{display:flex;flex-wrap:wrap;gap:4px 14px;margin-top:9px;font-size:11.5px;color:var(--muted)}
+.sw{display:inline-block;width:10px;height:10px;border-radius:50%;margin-right:5px;vertical-align:-1px}
+
+table{width:100%;border-collapse:collapse;font-size:12.5px}
+th{font-weight:500;color:var(--muted);text-align:left;border-bottom:1px solid var(--rule);padding:5px 6px;font-size:11px;letter-spacing:.06em;font-family:var(--mono)}
+td{border-bottom:1px solid var(--rule-soft);padding:5px 6px;vertical-align:top}
+.num{text-align:right;font-family:var(--mono);font-variant-numeric:tabular-nums}
+tr.sub td{border-top:1px solid var(--rule);font-weight:600}
+tr.tot td{border-top:1px solid var(--rule);border-bottom:none;font-weight:600;background:#FAFBFA}
+caption{caption-side:top;text-align:left;font-size:11.5px;color:var(--muted);padding:0 6px 6px}
+
+.stats{display:grid;grid-template-columns:1fr 1fr;gap:0 18px}
+.stat{display:flex;justify-content:space-between;align-items:baseline;gap:10px;border-bottom:1px solid var(--rule-soft);padding:6px 0}
+.stat .k{font-size:12px;color:var(--muted);white-space:nowrap}
+.stat .v{font-family:var(--mono);font-variant-numeric:tabular-nums;font-size:13px;text-align:right}
+
+.bar{position:relative;height:12px;background:var(--rule-soft);border:1px solid var(--rule);border-radius:1px;margin:8px 0 4px}
+.bar .fill{height:100%;background:var(--c1)}
+.bar .mark{position:absolute;top:-4px;bottom:-4px;border-left:1px dashed var(--ink)}
+
+.grid2{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.grid3{display:grid;grid-template-columns:repeat(3,1fr);gap:10px}
+.field label{display:block;font-size:11px;color:var(--muted);letter-spacing:.05em;margin-bottom:3px;font-family:var(--mono)}
+input[type=number],input[type=text]{font-family:var(--mono);font-size:12.5px;border:1px solid var(--rule);border-radius:2px;padding:6px 7px;width:100%;background:#fff;color:var(--ink);text-align:right;font-variant-numeric:tabular-nums}
+input[readonly]{background:var(--rule-soft)}
+input:focus-visible{outline:2px solid var(--c2);outline-offset:-1px}
+input[type=range]{width:100%;max-width:220px;accent-color:#16232B;height:22px}
+
+.step{border-left:2px solid var(--rule);padding:1px 0 1px 11px;margin-bottom:10px}
+.step:last-child{margin-bottom:0;border-left-color:var(--ink)}
+.step .lbl{font-family:var(--mono);font-size:10.5px;letter-spacing:.12em;color:var(--muted)}
+.step .eq{font-family:var(--mono);font-size:12.5px;line-height:1.95;word-break:break-word}
+.step .eq sup{font-size:.78em}
+
+.warn{color:var(--c4t);font-size:11.5px;line-height:1.7}
+ul.tight{margin:0;padding-left:1.1em}
+ul.tight li{margin-bottom:5px}
+
+@media (max-width:430px){
+  body{font-size:13px}
+  .wrap{padding:14px 10px 56px}
+  .card{padding:11px}
+  h1{font-size:19px}
+  .grid2,.grid3,.stats{grid-template-columns:1fr}
+  table{font-size:12px}
+  th,td{padding:4px 4px}
+  .btn{padding:6px 8px;font-size:12px}
+  input[type=range]{max-width:none;flex:1 1 100%}
+  .step .eq{font-size:11.5px}
+}
+</style>
+</head>
+<body>
+<div class="wrap">
+
+<header>
+  <div class="eyebrow">CRYSTAL LATTICE</div>
+  <h1>結晶格子インタラクティブ</h1>
+  <p class="note">単位格子をドラッグで回しながら、原子の数え方・接触している方向・充填率・密度の計算を一続きで確かめる。原子をタップすると、その位置が何個分として数えられるかが出る。</p>
+</header>
+
+<div class="card">
+  <div class="eyebrow">STRUCTURE</div>
+  <div class="btnrow" id="sel" style="margin-top:10px"></div>
+  <p id="desc" style="margin-top:11px"></p>
+  <p class="note" id="tip"></p>
+</div>
+
+<div class="card">
+  <div class="eyebrow">UNIT CELL</div>
+  <div class="viewer" id="viewer">
+    <svg class="stage" id="stage" role="img" aria-label="単位格子の立体表示"></svg>
+    <div class="chip" id="chip"></div>
+  </div>
+  <div class="ctl">
+    <span class="lab">原子の大きさ</span>
+    <input type="range" id="rscale" min="30" max="100" value="55">
+    <button class="btn" id="b-count">数えるサイズ</button>
+    <button class="btn" id="b-touch">接触サイズ</button>
+  </div>
+  <div class="ctl">
+    <button class="btn on" id="t-contact">接触方向</button>
+    <button class="btn" id="t-coord">配位を示す</button>
+    <button class="btn on" id="t-cell">格子の枠</button>
+    <span class="lab" style="margin-left:4px">色分け</span>
+    <button class="btn on" id="m-pos">位置</button>
+    <button class="btn" id="m-sp">粒子の種類</button>
+  </div>
+  <div class="ctl">
+    <span class="lab">視点</span>
+    <button class="btn" id="v-std">標準</button>
+    <button class="btn" id="v-front">正面</button>
+    <button class="btn" id="v-top">真上</button>
+    <button class="btn" id="v-diag">体対角線</button>
+  </div>
+  <div class="legend" id="legend"></div>
+</div>
+
+<div class="card">
+  <div class="eyebrow">ATOM COUNT</div>
+  <div id="counttable" style="margin-top:10px"></div>
+  <p class="note" id="countnote" style="margin-top:9px"></p>
+</div>
+
+<div class="card">
+  <div class="eyebrow">GEOMETRY</div>
+  <div class="stats" id="stats" style="margin-top:8px"></div>
+  <h2 style="margin-top:14px">充填率</h2>
+  <div class="bar"><div class="fill" id="packfill"></div><div class="mark" id="packmark"></div></div>
+  <p class="note" id="packnote"></p>
+</div>
+
+<div class="card" id="card-ratio">
+  <div class="eyebrow">RADIUS RATIO</div>
+  <div class="ctl" style="margin-top:10px">
+    <span class="lab">r₊ / r₋</span>
+    <input type="range" id="ratio" min="150" max="1200" value="695">
+    <span class="mono" id="ratioval" style="font-size:13px"></span>
+  </div>
+  <div id="ratiobar" style="margin-top:6px"></div>
+  <p class="note" id="rationote"></p>
+</div>
+
+<div class="card">
+  <div class="eyebrow">DENSITY</div>
+  <p class="note" style="margin-top:9px">実在の物質を選ぶか、値を直接入れる。求める量を切り替えると、その量について式を解き直す。</p>
+  <div class="btnrow" id="presets" style="margin:8px 0 12px"></div>
+  <div class="grid3" id="fields"></div>
+  <div class="ctl">
+    <span class="lab">求める量</span>
+    <button class="btn on" data-t="rho">密度 ρ</button>
+    <button class="btn" data-t="M">モル質量 M</button>
+    <button class="btn" data-t="NA">アボガドロ定数 N<sub>A</sub></button>
+  </div>
+  <hr>
+  <div id="steps"></div>
+  <p class="note" id="densnote" style="margin-top:10px"></p>
+</div>
+
+<div class="card">
+  <div class="eyebrow">DERIVATION</div>
+  <h2>充填率</h2>
+  <p class="note">充填率 = Z × (4/3)πr³ ÷ V。半径 r を格子定数 a で書き直すために、どの方向で球が接しているかを先に決める。ここさえ押さえれば残りは代入。</p>
+  <table style="margin-top:8px">
+    <thead><tr><th>構造</th><th>接触する方向</th><th>r と a</th><th class="num">Z</th><th class="num">充填率</th></tr></thead>
+    <tbody>
+      <tr><td>単純立方</td><td>辺</td><td class="mono">r = a/2</td><td class="num">1</td><td class="num">52.4%</td></tr>
+      <tr><td>体心立方</td><td>体対角線</td><td class="mono">r = √3a/4</td><td class="num">2</td><td class="num">68.0%</td></tr>
+      <tr><td>面心立方</td><td>面の対角線</td><td class="mono">r = √2a/4</td><td class="num">4</td><td class="num">74.0%</td></tr>
+      <tr><td>六方最密</td><td>同じ層の中</td><td class="mono">r = a/2</td><td class="num">6</td><td class="num">74.0%</td></tr>
+      <tr><td>ダイヤモンド</td><td>体対角線の 1/4</td><td class="mono">r = √3a/8</td><td class="num">8</td><td class="num">34.0%</td></tr>
+    </tbody>
+  </table>
+  <p class="note" style="margin-top:8px">六方最密の高さは、A層の3個がつくる正三角形の重心の真上にB層が乗ることから決まる。重心までの水平距離が a/√3 なので四面体の高さは a√(2/3)、その2つ分で c = √(8/3)a ≒ 1.633a。六角柱の体積 (3√3/2)a²c に原子6個分を入れると 74.05% になり、面心立方と一致する。同じ大きさの球ではこれが上限。</p>
+
+  <h2>限界半径比</h2>
+  <p class="note">陽イオンが陰イオンと接し、かつ陰イオンどうしは接しない。この2つが同時に成り立つ瞬間が限界で、そこから比が決まる。</p>
+  <table style="margin-top:8px">
+    <thead><tr><th>配位数</th><th>すき間の形</th><th>陰イオンどうしが接する線</th><th>限界比</th><th class="num">値</th></tr></thead>
+    <tbody>
+      <tr><td>4</td><td>四面体</td><td>小立方体の面対角線</td><td class="mono">√(3/2) − 1</td><td class="num">0.225</td></tr>
+      <tr><td>6</td><td>八面体</td><td>正方形の辺</td><td class="mono">√2 − 1</td><td class="num">0.414</td></tr>
+      <tr><td>8</td><td>立方体</td><td>立方体の辺</td><td class="mono">√3 − 1</td><td class="num">0.732</td></tr>
+    </tbody>
+  </table>
+  <p class="note" style="margin-top:8px">値そのものより、正方形や立方体の対角線を引いて「陰・陽・陰が一直線に並ぶ」と読む手つきを覚えるほうが速い。なお目安であって、塩化カリウムのように比が 0.9 を超えても6配位のままという例外はある。</p>
+
+  <h2>取り違えやすいところ</h2>
+  <ul class="tight note">
+    <li>塩化セシウム型を体心立方格子と呼ばない。中心と頂点が別の粒子なので、単純立方格子が2つ組み合わさった構造として数える。</li>
+    <li>塩化ナトリウム型では、陰イオンだけを見ても陽イオンだけを見ても面心立方。単位格子に入るのは NaCl 4組で、粒子の総数は8個。</li>
+    <li>六方最密構造の単位格子は六角柱ではなくその 1/3。六角柱で数えると6個、単位格子なら2個。</li>
+    <li>密度の計算では pm を cm に直し忘れる事故が最も多い。1 pm = 10⁻¹⁰ cm。</li>
+  </ul>
+  <p class="note" style="margin-top:8px">イオン半径は 116 pm (Na⁺)、152 pm (K⁺)、181 pm (Cs⁺)、167 pm (Cl⁻)、182 pm (Br⁻) を採用した。これは Shannon の crystal radii にあたる値で、日本の教科書に載る組と揃えてある。陽イオン半径が小さめに出る別系列（Na⁺ 102 pm など）と混ぜると和が格子定数と合わなくなる。</p>
+</div>
+
+</div>
+
+<script>
+"use strict";
+const RAD=Math.PI/180, SQ2=Math.SQRT2, SQ3=Math.sqrt(3), HC=Math.sqrt(8/3);
+
+/* ---------- 位置の雛形 ---------- */
+const CORNERS=[];
+for(const x of [0,1]) for(const y of [0,1]) for(const z of [0,1]) CORNERS.push([x,y,z]);
+const FACES=[[.5,.5,0],[.5,.5,1],[.5,0,.5],[.5,1,.5],[0,.5,.5],[1,.5,.5]];
+const EDGEC=[];
+for(let ax=0;ax<3;ax++) for(const p of [0,1]) for(const q of [0,1]){
+  const c=[0,0,0]; c[ax]=.5; c[(ax+1)%3]=p; c[(ax+2)%3]=q; EDGEC.push(c);
+}
+const CUBE_EDGES=[];
+for(let i=0;i<CORNERS.length;i++) for(let j=i+1;j<CORNERS.length;j++){
+  let d=0; for(let k=0;k<3;k++) if(CORNERS[i][k]!==CORNERS[j][k]) d++;
+  if(d===1) CUBE_EDGES.push([CORNERS[i],CORNERS[j]]);
+}
+const CUBE_T=[[1,0,0],[0,1,0],[0,0,1]];
+
+/* 立方格子の座標から寄与を自動判定（0か1の成分の個数 n → 1/2ⁿ） */
+function cs(p,sp){
+  let n=0; for(const v of p) if(v===0||v===1) n++;
+  return {p:p, sp:sp, w:1/Math.pow(2,n), cls:['body','face','edge','corner'][n]};
+}
+
+/* 六方最密（六角柱） */
+function hp(deg,r,z){return [r*Math.cos(deg*RAD), r*Math.sin(deg*RAD), z];}
+const HEX_SITES=[], HEX_EDGES=[];
+for(const z of [0,HC]){
+  HEX_SITES.push({p:[0,0,z],sp:0,w:.5,cls:'face'});
+  for(let k=0;k<6;k++) HEX_SITES.push({p:hp(k*60,1,z),sp:0,w:1/6,cls:'corner'});
+}
+for(const d of [30,150,270]) HEX_SITES.push({p:hp(d,1/SQ3,HC/2),sp:0,w:1,cls:'body'});
+for(const z of [0,HC]) for(let k=0;k<6;k++) HEX_EDGES.push([hp(k*60,1,z),hp((k+1)*60,1,z)]);
+for(let k=0;k<6;k++) HEX_EDGES.push([hp(k*60,1,0),hp(k*60,1,HC)]);
+const HEX_T=[[1,0,0],[.5,SQ3/2,0],[0,0,HC]];
+
+/* ---------- 構造データ ---------- */
+const STRUCTS=[
+{
+  id:'bcc', name:'体心立方格子', en:'BODY-CENTERED CUBIC', cell:'cubic', kind:'metal',
+  spNames:['金属原子'],
+  sites:CORNERS.map(p=>cs(p,0)).concat([cs([.5,.5,.5],0)]),
+  edges:CUBE_EDGES, trans:CUBE_T, rCoef:[SQ3/4], coordCenter:[.5,.5,.5], coordSp:0,
+  contact:{seg:[[0,0,0],[1,1,1]], dir:'体対角線', rel:'√3 a = 4r', r:'r = √3a/4 ≒ 0.4330 a'},
+  desc:'頂点の8個と、立方体の中心の1個。ナトリウムやカリウムなどのアルカリ金属、常温の鉄、クロム、タングステンがこの形をとる。中心の原子は頂点の原子と体対角線上で触れ合っていて配位数は8。最密ではないぶん、すき間が3割ほど残る。',
+  tip:'中心と頂点が同じ粒子だから体心立方格子。ここが別の粒子になると塩化セシウム型で、別物として扱う。',
+  presets:[{n:'Fe 鉄',a:286.6,M:55.85,rho:7.87},{n:'Na ナトリウム',a:429.1,M:22.99,rho:0.97},{n:'W タングステン',a:316.5,M:183.84,rho:19.3}]
+},
+{
+  id:'fcc', name:'面心立方格子', en:'FACE-CENTERED CUBIC', cell:'cubic', kind:'metal',
+  spNames:['金属原子'],
+  sites:CORNERS.map(p=>cs(p,0)).concat(FACES.map(p=>cs(p,0))),
+  edges:CUBE_EDGES, trans:CUBE_T, rCoef:[SQ2/4], coordCenter:[.5,.5,0], coordSp:0,
+  contact:{seg:[[0,0,0],[1,1,0]], dir:'面の対角線', rel:'√2 a = 4r', r:'r = √2a/4 ≒ 0.3536 a'},
+  desc:'立方最密構造とも呼ぶ。頂点8個と各面の中心6個で、格子あたり4個。銅・銀・金・アルミニウムなど、たたいて延ばせる金属が多い。面の対角線上で接触して配位数12、充填率74%。',
+  tip:'一つの原子から見ると、同じ層に6個、上の層に3個、下の層に3個で12個。積み方はABCABC。',
+  presets:[{n:'Cu 銅',a:361.5,M:63.55,rho:8.96},{n:'Al アルミニウム',a:404.9,M:26.98,rho:2.70},{n:'Ag 銀',a:408.6,M:107.87,rho:10.49}]
+},
+{
+  id:'hcp', name:'六方最密構造', en:'HEXAGONAL CLOSE-PACKED', cell:'hex', kind:'metal',
+  spNames:['金属原子'],
+  sites:HEX_SITES, edges:HEX_EDGES, trans:HEX_T, rCoef:[0.5], coordCenter:[0,0,0], coordSp:0,
+  contact:{seg:[[0,0,0],[1,0,0]], dir:'同じ層の中', rel:'a = 2r', r:'r = a/2'},
+  desc:'ABABの繰り返しで積む最密構造。マグネシウム、亜鉛、チタン、コバルトなど。六角柱で数えると6個で、実際の単位格子はその1/3にあたる菱形柱、2個ぶん。配位数12・充填率74%は面心立方と同じで、違うのは積む順番だけ。',
+  tip:'六角柱の頂点は1/6個分。平面で3つの柱が共有し、それが上下2層あるから。理想的には c/a = √(8/3) ≒ 1.633。',
+  presets:[{n:'Mg マグネシウム',a:320.9,c:521.0,M:24.31,rho:1.74},{n:'Zn 亜鉛',a:266.5,c:494.7,M:65.38,rho:7.14},{n:'Ti チタン',a:295.1,c:468.4,M:47.87,rho:4.51}]
+},
+{
+  id:'dia', name:'ダイヤモンド型', en:'DIAMOND CUBIC', cell:'cubic', kind:'covalent',
+  spNames:['原子'],
+  sites:CORNERS.map(p=>cs(p,0)).concat(FACES.map(p=>cs(p,0)))
+        .concat([[.25,.25,.25],[.75,.75,.25],[.75,.25,.75],[.25,.75,.75]].map(p=>cs(p,0))),
+  edges:CUBE_EDGES, trans:CUBE_T, rCoef:[SQ3/8], coordCenter:[.25,.25,.25], coordSp:0,
+  contact:{seg:[[0,0,0],[.25,.25,.25]], ghost:[[0,0,0],[1,1,1]], dir:'体対角線の 1/4', rel:'√3 a / 4 = 2r', r:'r = √3a/8 ≒ 0.2165 a'},
+  desc:'各原子が4個の隣と共有結合し、正四面体の骨組みが空間じゅうに連なる。炭素・ケイ素・ゲルマニウム。面心立方の位置に加えて内部に4個入り、格子あたり8個。充填率34%とすき間だらけなのに硬いのは、結合に方向性があるから。',
+  tip:'内部の4個は、立方体を8等分した小立方体の互い違いの中心。頂点の原子と内部の原子は体対角線の1/4の距離で接触する。',
+  presets:[{n:'C ダイヤモンド',a:356.7,M:12.01,rho:3.51},{n:'Si ケイ素',a:543.1,M:28.09,rho:2.33}]
+},
+{
+  id:'nacl', name:'塩化ナトリウム型', en:'ROCK SALT', cell:'cubic', kind:'ionic',
+  spNames:['陰イオン Cl⁻','陽イオン Na⁺'],
+  sites:CORNERS.map(p=>cs(p,0)).concat(FACES.map(p=>cs(p,0)))
+        .concat(EDGEC.map(p=>cs(p,1))).concat([cs([.5,.5,.5],1)]),
+  edges:CUBE_EDGES, trans:CUBE_T, coordCenter:[.5,.5,.5], coordSp:1,
+  contact:{seg:[[0,0,0],[1,0,0]], dir:'立方体の辺', rel:'a = 2(r₊ + r₋)', r:'r₊ + r₋ = a/2'},
+  desc:'塩化物イオンが面心立方に並び、そのつくる八面体のすき間すべてにナトリウムイオンが入る。互いに6配位。単位格子には NaCl が4組。陽イオンだけを取り出しても面心立方に並んでいる。',
+  tip:'半径比が 0.414〜0.732 のときに有利な型。ただし塩化カリウムのように比が 0.9 を超えてもこの型をとる例外がある。',
+  presets:[{n:'NaCl',a:564.0,M:58.44,rho:2.17,x:116/167},{n:'KCl',a:629.3,M:74.55,rho:1.98,x:152/167}]
+},
+{
+  id:'cscl', name:'塩化セシウム型', en:'CESIUM CHLORIDE', cell:'cubic', kind:'ionic',
+  spNames:['陰イオン Cl⁻','陽イオン Cs⁺'],
+  sites:CORNERS.map(p=>cs(p,0)).concat([cs([.5,.5,.5],1)]),
+  edges:CUBE_EDGES, trans:CUBE_T, coordCenter:[.5,.5,.5], coordSp:1,
+  contact:{seg:[[0,0,0],[1,1,1]], dir:'体対角線', rel:'√3 a = 2(r₊ + r₋)', r:'r₊ + r₋ = √3a/2'},
+  desc:'塩化物イオンが単純立方に並び、その中心にセシウムイオンが1個。互いに8配位で、単位格子には CsCl が1組だけ。半径比が 0.732 以上の大きな陽イオンで現れる。',
+  tip:'体心立方格子ではない。中心と頂点が別のイオンなので、単純立方格子が2つ入れ子になったものとして数える。',
+  presets:[{n:'CsCl',a:411.0,M:168.36,rho:3.99,x:181/167},{n:'CsBr',a:429.5,M:212.81,rho:4.44,x:181/182}]
+}
+];
+
+/* ---------- 色 ---------- */
+const CLSCOL={corner:['#B87A16','#8A5A0C'],edge:['#2457A6','#1B4380'],face:['#158A6D','#0D6A53'],body:['#6E3AA7','#572D85']};
+const SPCOL=[['#2457A6','#1B4380'],['#A82A6A','#831F52']];
+const ATOMCOL=['#158A6D','#0D6A53'];
+const INK='#16232B', RULE='#D6DDDA', SOFT='#C8D1CE', ACC='#A82A6A';
+
+function clsLabel(cls,cell){
+  if(cell==='hex') return {corner:'六角柱の頂点',face:'上下面の中心',body:'内部',edge:'辺の中心'}[cls];
+  return {corner:'頂点',edge:'辺の中心',face:'面の中心',body:'内部'}[cls];
+}
+function fracStr(w){
+  if(Math.abs(w-1/6)<1e-9) return '1/6';
+  const m={'1':'1','0.5':'1/2','0.25':'1/4','0.125':'1/8'};
+  return m[String(w)] || w.toFixed(3);
+}
+
+/* ---------- 状態 ---------- */
+let st=null, yaw=-0.62, pitch=0.38, rscale=0.55;
+let colorMode='pos', showContact=true, showCoord=false, showCell=true;
+let ratio=0.695, target='rho', activePreset=-1;
+let narrow=window.innerWidth<=430;
+
+/* ---------- 準備 ---------- */
+function prep(s){
+  const pts=[]; for(const e of s.edges){pts.push(e[0],e[1]);}
+  const mn=[1e9,1e9,1e9], mx=[-1e9,-1e9,-1e9];
+  for(const p of pts) for(let i=0;i<3;i++){ if(p[i]<mn[i])mn[i]=p[i]; if(p[i]>mx[i])mx[i]=p[i]; }
+  s.center=[0,1,2].map(i=>(mn[i]+mx[i])/2);
+  s.R=Math.max.apply(null,pts.map(p=>Math.hypot(p[0]-s.center[0],p[1]-s.center[1],p[2]-s.center[2])));
+  const per=[0,0]; for(const q of s.sites) per[q.sp]+=q.w;
+  per[0]=Math.round(per[0]*1e6)/1e6; per[1]=Math.round(per[1]*1e6)/1e6;
+  s.per=per;
+  s.Z = s.kind==='ionic' ? per[0] : per[0]+per[1];
+  s.total = per[0]+per[1];
+  s.volUnit = s.cell==='hex' ? 3*SQ3/2*HC : 1;
+  /* 隣接粒子（周期像を含めて探索） */
+  const seen=new Set(), all=[];
+  for(let i=-1;i<=1;i++) for(let j=-1;j<=1;j++) for(let k=-1;k<=1;k++){
+    for(const q of s.sites){
+      const p=[0,1,2].map(d=>q.p[d]+i*s.trans[0][d]+j*s.trans[1][d]+k*s.trans[2][d]);
+      const key=p.map(v=>Math.round(v*1e4)).join('|');
+      if(seen.has(key)) continue; seen.add(key);
+      all.push({p:p,sp:q.sp});
+    }
+  }
+  const inside=new Set(s.sites.map(q=>q.p.map(v=>Math.round(v*1e4)).join('|')));
+  const C=s.coordCenter, want = s.kind==='ionic' ? 1-s.coordSp : null;
+  let best=1e9; const cand=[];
+  for(const q of all){
+    const d=Math.hypot(q.p[0]-C[0],q.p[1]-C[1],q.p[2]-C[2]);
+    if(d<1e-6) continue;
+    if(want!==null && q.sp!==want) continue;
+    cand.push({p:q.p,d:d,sp:q.sp});
+    if(d<best) best=d;
+  }
+  s.neigh=cand.filter(q=>q.d<best*1.02).map(q=>({
+    p:q.p, sp:q.sp, ghost:!inside.has(q.p.map(v=>Math.round(v*1e4)).join('|'))
+  }));
+  s.coordN=s.neigh.length;
+  return s;
+}
+STRUCTS.forEach(prep);
+
+/* ---------- 半径（a を 1 とした比） ---------- */
+function radii(s,x){
+  if(s.kind!=='ionic') return s.rCoef;
+  if(s.id==='nacl'){ const rm=1/(2*(1+x)); return [rm, x*rm]; }
+  const rm=SQ3/(2*(1+x)); return [rm, x*rm];
+}
+function packing(){
+  const rr=radii(st,ratio); let v=0;
+  for(const q of st.sites) v += q.w*(4/3)*Math.PI*Math.pow(rr[q.sp],3);
+  return v/st.volUnit;
+}
+
+/* ---------- 数値整形 ---------- */
+function sup(n){ return String(n).replace('-','\u2212'); }
+function fmt(v,sig){
+  sig=sig||4;
+  if(!isFinite(v)||isNaN(v)) return '—';
+  if(v===0) return '0';
+  const av=Math.abs(v);
+  if(av>=1e-3 && av<1e5){
+    let s=v.toPrecision(sig);
+    if(s.indexOf('e')<0 && s.indexOf('.')>=0) s=s.replace(/0+$/,'').replace(/\.$/,'');
+    return s;
+  }
+  const e=Math.floor(Math.log10(av));
+  const m=v/Math.pow(10,e);
+  return m.toFixed(sig-1)+'\u00d710<sup>'+sup(e)+'</sup>';
+}
+
+/* ---------- 立体表示 ---------- */
+const stage=document.getElementById('stage');
+const chip=document.getElementById('chip');
+let VBW=520, VBH=410, lastAtoms=[];
+
+function project(p,SC,DIST,CX,CY){
+  const x=p[0]-st.center[0], y=p[1]-st.center[1], z=p[2]-st.center[2];
+  const cy=Math.cos(yaw), sy=Math.sin(yaw);
+  const X=x*cy - y*sy, Y=x*sy + y*cy;
+  const cp=Math.cos(pitch), sp=Math.sin(pitch);
+  const D=Y*cp - z*sp, U=Y*sp + z*cp;
+  const k=DIST/(DIST+D);
+  return {x:CX+X*SC*k, y:CY-U*SC*k, d:D, k:k};
+}
+
+function drawStage(){
+  VBW = narrow?360:520; VBH = narrow?340:410;
+  const CX=VBW/2, CY=VBH/2;
+  const SC=(Math.min(VBW,VBH)/2 - (narrow?28:34))/(st.R+0.6);
+  const DIST=st.R*5.5;
+  const rr=radii(st,ratio);
+  const P=p=>project(p,SC,DIST,CX,CY);
+
+  const items=[];
+
+  if(showCell){
+    const SEG=10;
+    for(const e of st.edges){
+      for(let i=0;i<SEG;i++){
+        const t0=i/SEG, t1=(i+1)/SEG;
+        const A=[0,1,2].map(d=>e[0][d]+(e[1][d]-e[0][d])*t0);
+        const B=[0,1,2].map(d=>e[0][d]+(e[1][d]-e[0][d])*t1);
+        const a=P(A), b=P(B), d=(a.d+b.d)/2;
+        items.push({key:d, s:'<line x1="'+a.x.toFixed(1)+'" y1="'+a.y.toFixed(1)+'" x2="'+b.x.toFixed(1)+'" y2="'+b.y.toFixed(1)+'" stroke="'+(d>0?SOFT:INK)+'" stroke-width="'+(d>0?1:1.2)+'" stroke-linecap="round"/>'});
+      }
+    }
+  }
+
+  lastAtoms=[];
+  for(const q of st.sites){
+    const a=P(q.p);
+    const rad=rr[q.sp]*SC*a.k*rscale;
+    const col = colorMode==='pos' ? CLSCOL[q.cls]
+              : (st.kind==='ionic' ? SPCOL[q.sp] : ATOMCOL);
+    const op = a.d>0 ? 0.78 : 0.95;
+    items.push({key:a.d - rr[q.sp]*0.5, s:'<circle cx="'+a.x.toFixed(1)+'" cy="'+a.y.toFixed(1)+'" r="'+rad.toFixed(1)+'" fill="'+col[0]+'" fill-opacity="'+op+'" stroke="'+col[1]+'" stroke-width="1"/>'});
+    lastAtoms.push({x:a.x, y:a.y, r:Math.max(rad,7), d:a.d,
+      label: clsLabel(q.cls,st.cell)+' \u30fb '+fracStr(q.w)+'\u500b\u5206'+(st.kind==='ionic'?' \u30fb '+st.spNames[q.sp].split(' ')[1]:'')});
+  }
+
+  if(showCoord){
+    for(const n of st.neigh){
+      if(!n.ghost) continue;
+      const a=P(n.p);
+      const rad=rr[n.sp]*SC*a.k*rscale;
+      items.push({key:a.d - rr[n.sp]*0.5, s:'<circle cx="'+a.x.toFixed(1)+'" cy="'+a.y.toFixed(1)+'" r="'+rad.toFixed(1)+'" fill="none" stroke="'+SOFT+'" stroke-width="1" stroke-dasharray="3 3"/>'});
+    }
+  }
+
+  items.sort((A,B)=>B.key-A.key);
+  let g=items.map(i=>i.s).join('');
+
+  if(showCoord){
+    const c=P(st.coordCenter);
+    let ln='';
+    for(const n of st.neigh){
+      const a=P(n.p);
+      ln+='<line x1="'+c.x.toFixed(1)+'" y1="'+c.y.toFixed(1)+'" x2="'+a.x.toFixed(1)+'" y2="'+a.y.toFixed(1)+'" stroke="#FFFFFF" stroke-width="3" stroke-opacity=".7"/>';
+    }
+    for(const n of st.neigh){
+      const a=P(n.p);
+      ln+='<line x1="'+c.x.toFixed(1)+'" y1="'+c.y.toFixed(1)+'" x2="'+a.x.toFixed(1)+'" y2="'+a.y.toFixed(1)+'" stroke="'+INK+'" stroke-width="1.1" stroke-opacity=".8"/>';
+    }
+    g+=ln;
+    g+='<circle cx="'+c.x.toFixed(1)+'" cy="'+c.y.toFixed(1)+'" r="3" fill="'+INK+'"/>';
+    g+='<text x="'+(narrow?12:16)+'" y="'+(VBH-14)+'" font-family="IBM Plex Mono, monospace" font-size="'+(narrow?10:11)+'" fill="'+INK+'">配位数 '+st.coordN+'（破線は隣の格子の粒子）</text>';
+  }
+
+  if(showContact){
+    const cn=st.contact;
+    if(cn.ghost){
+      const a=P(cn.ghost[0]), b=P(cn.ghost[1]);
+      g+='<line x1="'+a.x.toFixed(1)+'" y1="'+a.y.toFixed(1)+'" x2="'+b.x.toFixed(1)+'" y2="'+b.y.toFixed(1)+'" stroke="'+ACC+'" stroke-width="1" stroke-opacity=".35"/>';
+    }
+    const a=P(cn.seg[0]), b=P(cn.seg[1]);
+    g+='<line x1="'+a.x.toFixed(1)+'" y1="'+a.y.toFixed(1)+'" x2="'+b.x.toFixed(1)+'" y2="'+b.y.toFixed(1)+'" stroke="#FFFFFF" stroke-width="4" stroke-opacity=".75" stroke-linecap="round"/>';
+    g+='<line x1="'+a.x.toFixed(1)+'" y1="'+a.y.toFixed(1)+'" x2="'+b.x.toFixed(1)+'" y2="'+b.y.toFixed(1)+'" stroke="'+ACC+'" stroke-width="2" stroke-linecap="round"/>';
+    g+='<circle cx="'+a.x.toFixed(1)+'" cy="'+a.y.toFixed(1)+'" r="2.6" fill="'+ACC+'"/><circle cx="'+b.x.toFixed(1)+'" cy="'+b.y.toFixed(1)+'" r="2.6" fill="'+ACC+'"/>';
+    g+='<text x="'+(narrow?12:16)+'" y="'+(narrow?20:22)+'" font-family="IBM Plex Mono, monospace" font-size="'+(narrow?10:11)+'" fill="'+ACC+'">'+cn.dir+'  '+cn.rel+'</text>';
+  }
+
+  stage.setAttribute('viewBox','0 0 '+VBW+' '+VBH);
+  stage.innerHTML=g;
+}
+
+/* ---------- ドラッグ回転 ---------- */
+let dragging=false, moved=0, lastPt=[0,0], raf=0;
+function schedule(){ if(raf) return; raf=requestAnimationFrame(()=>{raf=0; drawStage();}); }
+stage.addEventListener('pointerdown',e=>{
+  dragging=true; moved=0; lastPt=[e.clientX,e.clientY];
+  stage.setPointerCapture(e.pointerId); stage.classList.add('drag'); hideChip();
+});
+stage.addEventListener('pointermove',e=>{
+  if(dragging){
+    const dx=e.clientX-lastPt[0], dy=e.clientY-lastPt[1];
+    lastPt=[e.clientX,e.clientY]; moved+=Math.abs(dx)+Math.abs(dy);
+    yaw+=dx*0.011;
+    pitch=Math.max(-1.45,Math.min(1.45,pitch+dy*0.011));
+    schedule();
+  } else hover(e);
+});
+stage.addEventListener('pointerup',e=>{
+  if(dragging && moved<=4) hover(e);
+  dragging=false; stage.classList.remove('drag');
+});
+stage.addEventListener('pointercancel',()=>{dragging=false;stage.classList.remove('drag');});
+stage.addEventListener('pointerleave',()=>{ if(!dragging) hideChip(); });
+
+function hover(e){
+  const r=stage.getBoundingClientRect();
+  const sx=(e.clientX-r.left)*VBW/r.width, sy=(e.clientY-r.top)*VBH/r.height;
+  let hit=null;
+  for(const a of lastAtoms){
+    if(Math.hypot(a.x-sx,a.y-sy)<=a.r){ if(!hit||a.d<hit.d) hit=a; }
+  }
+  if(!hit){ hideChip(); return; }
+  chip.textContent=hit.label;
+  const py=hit.y*r.height/VBH;
+  chip.style.left=(hit.x*r.width/VBW)+'px';
+  chip.style.top=py+'px';
+  chip.classList.toggle('below', py<34);
+  chip.classList.add('on');
+}
+function hideChip(){ chip.classList.remove('on'); }
+
+/* ---------- 凡例 ---------- */
+function drawLegend(){
+  const el=document.getElementById('legend');
+  let h='';
+  if(colorMode==='pos'){
+    const used=[];
+    for(const q of st.sites) if(used.indexOf(q.cls)<0) used.push(q.cls);
+    const order={corner:0,edge:1,face:2,body:3};
+    used.sort((a,b)=>order[a]-order[b]);
+    for(const c of used){
+      const w=st.sites.filter(q=>q.cls===c)[0].w;
+      h+='<span><span class="sw" style="background:'+CLSCOL[c][0]+'"></span>'+clsLabel(c,st.cell)+' '+fracStr(w)+'個分</span>';
+    }
+  }else{
+    if(st.kind==='ionic'){
+      h+='<span><span class="sw" style="background:'+SPCOL[0][0]+'"></span>'+st.spNames[0]+'</span>';
+      h+='<span><span class="sw" style="background:'+SPCOL[1][0]+'"></span>'+st.spNames[1]+'</span>';
+    }else{
+      h+='<span><span class="sw" style="background:'+ATOMCOL[0]+'"></span>'+st.spNames[0]+'</span>';
+    }
+  }
+  h+='<span style="color:'+ACC+'">接触方向</span>';
+  el.innerHTML=h;
+}
+
+/* ---------- 数え方の表 ---------- */
+function drawCount(){
+  const groups=[];
+  for(const q of st.sites){
+    let g=null;
+    for(const t of groups) if(t.sp===q.sp && t.cls===q.cls) g=t;
+    if(!g){ g={sp:q.sp,cls:q.cls,w:q.w,n:0}; groups.push(g); }
+    g.n++;
+  }
+  const order={corner:0,edge:1,face:2,body:3};
+  groups.sort((a,b)=> a.sp-b.sp || order[a.cls]-order[b.cls]);
+  const ionic = st.kind==='ionic';
+  let h='<table><thead><tr>';
+  if(ionic) h+='<th>粒子</th>';
+  h+='<th>位置</th><th class="num">個数</th><th class="num">1個の寄与</th><th class="num">小計</th></tr></thead><tbody>';
+  let prevSp=-1, subtotal=0;
+  groups.forEach((g,i)=>{
+    if(ionic && prevSp!==-1 && g.sp!==prevSp){
+      h+='<tr class="sub"><td></td><td>'+st.spNames[prevSp]+' 小計</td><td class="num"></td><td class="num"></td><td class="num">'+subtotal+'</td></tr>';
+      subtotal=0;
+    }
+    const col = colorMode==='pos' ? CLSCOL[g.cls][0] : (ionic?SPCOL[g.sp][0]:ATOMCOL[0]);
+    h+='<tr>';
+    if(ionic) h+='<td>'+(g.sp!==prevSp?st.spNames[g.sp].split(' ')[1]:'')+'</td>';
+    h+='<td><span class="sw" style="background:'+col+'"></span>'+clsLabel(g.cls,st.cell)+'</td>';
+    h+='<td class="num">'+g.n+'</td><td class="num">'+fracStr(g.w)+'</td><td class="num">'+(+(g.n*g.w).toFixed(3))+'</td></tr>';
+    subtotal=Math.round((subtotal+g.n*g.w)*1e6)/1e6; prevSp=g.sp;
+  });
+  if(ionic){
+    h+='<tr class="sub"><td></td><td>'+st.spNames[prevSp]+' 小計</td><td class="num"></td><td class="num"></td><td class="num">'+subtotal+'</td></tr>';
+    h+='<tr class="tot"><td colspan="4">組成式 '+(st.id==='nacl'?'NaCl':'CsCl')+' として</td><td class="num">'+st.Z+' 組</td></tr>';
+  }else{
+    h+='<tr class="tot"><td colspan="3">単位格子に含まれる原子</td><td class="num">'+st.Z+' 個</td></tr>';
+  }
+  h+='</tbody></table>';
+  document.getElementById('counttable').innerHTML=h;
+
+  let note='';
+  if(st.cell==='hex') note='六角柱で数えているので6個。入試で「単位格子」と書かれたら六角柱の1/3を指すことがあり、その場合は2個になる。どちらを問われているか設問の図で確かめる。';
+  else if(st.kind==='ionic') note='粒子の総数は'+st.total+'個だが、組成式の単位数としては'+st.Z+'。密度の計算に使う M は式量なので、Z は組の数のほうを取る。';
+  else note='0か1の座標がいくつあるかで寄与が決まる。3つなら頂点で1/8、2つなら辺で1/4、1つなら面で1/2、0なら内部で1。';
+  document.getElementById('countnote').textContent=note;
+}
+
+/* ---------- 幾何パラメータ ---------- */
+function drawStats(){
+  const rr=radii(st,ratio);
+  const a=VAL.a;
+  const pk=packing();
+  const rows=[];
+  rows.push(['配位数', st.coordN + (st.kind==='ionic'?' : '+st.coordN:'')]);
+  rows.push(['単位格子あたり', st.Z + (st.kind==='ionic'?' 組':' 個')]);
+  rows.push(['接触する方向', st.contact.dir]);
+  rows.push(['接触の条件', st.contact.rel]);
+  if(st.kind==='ionic'){
+    rows.push(['r₊ + r₋', st.contact.r]);
+    rows.push(['r₋（a = '+a+' pm）', (rr[0]*a).toFixed(1)+' pm']);
+    rows.push(['r₊', (rr[1]*a).toFixed(1)+' pm']);
+  }else{
+    rows.push(['半径と格子定数', st.contact.r]);
+    rows.push(['r（a = '+a+' pm）', (rr[0]*a).toFixed(1)+' pm']);
+  }
+  rows.push(['充填率', (pk*100).toFixed(1)+' %']);
+  document.getElementById('stats').innerHTML=rows.map(r=>
+    '<div class="stat"><span class="k">'+r[0]+'</span><span class="v">'+r[1]+'</span></div>').join('');
+
+  document.getElementById('packfill').style.width=(pk*100).toFixed(2)+'%';
+  document.getElementById('packmark').style.left='74.05%';
+  let pn='破線は同じ大きさの球で到達できる上限 74.05%。';
+  if(st.id==='hcp'||st.id==='fcc') pn+=' この構造はちょうど上限に乗っている。';
+  else if(st.id==='dia') pn+=' 共有結合の方向性を優先した結果、半分にも届かない。';
+  else if(st.kind==='ionic') pn+=' 大小2種類の球なので上限の意味が変わる。半径比を動かすと値も動く。';
+  else pn+=' 体対角線だけで接触しているぶん、面心立方より6ポイント低い。';
+  document.getElementById('packnote').textContent=pn;
+}
+
+/* ---------- 限界半径比 ---------- */
+function drawRatio(){
+  const card=document.getElementById('card-ratio');
+  if(st.kind!=='ionic'){ card.style.display='none'; return; }
+  card.style.display='';
+  document.getElementById('ratioval').textContent=ratio.toFixed(3);
+  const W=narrow?360:500, H=76;
+  const x0=narrow?26:34, x1=W-(narrow?14:20), XMAX=1.2;
+  const X=v=>x0+(x1-x0)*v/XMAX;
+  const bands=[[0,0.225,'3配位','#B87A16'],[0.225,0.414,'4配位','#158A6D'],[0.414,0.732,'6配位','#2457A6'],[0.732,1.2,'8配位','#A82A6A']];
+  let g='';
+  for(const b of bands){
+    g+='<rect x="'+X(b[0]).toFixed(1)+'" y="20" width="'+(X(b[1])-X(b[0])).toFixed(1)+'" height="20" fill="'+b[3]+'" fill-opacity=".14"/>';
+    g+='<text x="'+((X(b[0])+X(b[1]))/2).toFixed(1)+'" y="34" text-anchor="middle" font-family="IBM Plex Mono, monospace" font-size="'+(narrow?9:10)+'" fill="'+b[3]+'">'+b[2]+'</text>';
+  }
+  g+='<line x1="'+x0+'" y1="40" x2="'+x1+'" y2="40" stroke="'+RULE+'" stroke-width="1"/>';
+  for(const v of [0.225,0.414,0.732]){
+    g+='<line x1="'+X(v).toFixed(1)+'" y1="14" x2="'+X(v).toFixed(1)+'" y2="46" stroke="'+INK+'" stroke-width="1" stroke-dasharray="3 3"/>';
+    g+='<text x="'+X(v).toFixed(1)+'" y="58" text-anchor="middle" font-family="IBM Plex Mono, monospace" font-size="'+(narrow?9:10)+'" fill="#5E6E76">'+v.toFixed(3)+'</text>';
+  }
+  const mx=X(Math.min(ratio,XMAX));
+  g+='<polygon points="'+mx.toFixed(1)+',18 '+(mx-4).toFixed(1)+',10 '+(mx+4).toFixed(1)+',10" fill="'+INK+'"/>';
+  const tw=narrow?38:44;
+  const tx=Math.max(x0, Math.min(x1-tw, mx-tw/2));
+  g+='<rect x="'+tx.toFixed(1)+'" y="62" width="'+tw+'" height="13" fill="'+INK+'"/>';
+  g+='<text x="'+(tx+tw/2).toFixed(1)+'" y="71.5" text-anchor="middle" font-family="IBM Plex Mono, monospace" font-size="9.5" fill="#fff">'+ratio.toFixed(3)+'</text>';
+  document.getElementById('ratiobar').innerHTML='<svg viewBox="0 0 '+W+' '+H+'" style="display:block;width:100%;height:auto">'+g+'</svg>';
+
+  const pred = ratio<0.225?3 : ratio<0.414?4 : ratio<0.732?6 : 8;
+  let n='半径比 '+ratio.toFixed(3)+' が示すのは'+pred+'配位。この構造の実際の配位数は'+st.coordN+'。';
+  if(pred!==st.coordN) n+=' 予測と食い違う。半径比の規則は目安にすぎず、塩化カリウムのような例外がある。';
+  const lim = st.id==='nacl'?0.414:0.732;
+  if(ratio<lim) n+=' いまの比は'+lim.toFixed(3)+'を下回っているので、陰イオンどうしが接してしまい格子定数はこれ以上縮まない。上の充填率は参考値として見る。';
+  document.getElementById('rationote').textContent=n;
+}
+
+/* ---------- 密度 ---------- */
+const F={}, VAL={a:0,c:0,M:0,NA:6.02e23,rho:0};
+function buildFields(){
+  const hex = st.cell==='hex';
+  let h='';
+  h+='<div class="field"><label>格子定数 a / pm</label><input type="number" id="in-a" step="0.1"></div>';
+  if(hex) h+='<div class="field"><label>高さ c / pm</label><input type="number" id="in-c" step="0.1"></div>';
+  h+='<div class="field"><label>'+(st.kind==='ionic'?'式量 M / g·mol⁻¹':'モル質量 M / g·mol⁻¹')+'</label><input type="number" id="in-M" step="0.01"></div>';
+  h+='<div class="field"><label>アボガドロ定数 / mol⁻¹</label><input type="number" id="in-NA" step="1e21"></div>';
+  h+='<div class="field"><label>密度 ρ / g·cm⁻³</label><input type="number" id="in-rho" step="0.01"></div>';
+  document.getElementById('fields').innerHTML=h;
+  F.a=document.getElementById('in-a');
+  F.c=hex?document.getElementById('in-c'):null;
+  F.M=document.getElementById('in-M');
+  F.NA=document.getElementById('in-NA');
+  F.rho=document.getElementById('in-rho');
+  [['a',F.a],['c',F.c],['M',F.M],['NA',F.NA],['rho',F.rho]].forEach(([k,el])=>{
+    if(!el) return;
+    el.addEventListener('input',()=>{ VAL[k]=+el.value; activePreset=-1; drawPresets(); solve(); drawStats(); });
+  });
+}
+function buildPresets(){
+  document.getElementById('presets').innerHTML=st.presets.map((p,i)=>
+    '<button class="btn'+(i===activePreset?' on':'')+'" data-p="'+i+'">'+p.n+'</button>').join('');
+  document.querySelectorAll('#presets .btn').forEach(b=>{
+    b.addEventListener('click',()=>{ applyPreset(+b.dataset.p); });
+  });
+}
+function drawPresets(){
+  document.querySelectorAll('#presets .btn').forEach(b=>{
+    b.classList.toggle('on', +b.dataset.p===activePreset);
+  });
+}
+function applyPreset(i){
+  const p=st.presets[i]; activePreset=i;
+  VAL.a=p.a; VAL.c=p.c||0; VAL.M=p.M; VAL.NA=6.02e23; VAL.rho=p.rho;
+  F.a.value=p.a; if(F.c) F.c.value=p.c;
+  F.M.value=p.M; F.NA.value=6.02e23;
+  if(p.x!==undefined){ ratio=p.x; document.getElementById('ratio').value=Math.round(p.x*1000); }
+  target='rho'; syncTarget();
+  drawPresets(); solve(); drawStats(); drawRatio(); drawStage();
+}
+function cellVolume(){
+  const a=VAL.a*1e-10;
+  if(st.cell==='hex'){ const c=VAL.c*1e-10; return 3*SQ3/2*a*a*c; }
+  return a*a*a;
+}
+function syncTarget(){
+  document.querySelectorAll('[data-t]').forEach(b=>b.classList.toggle('on',b.dataset.t===target));
+  [['a',F.a],['c',F.c],['M',F.M],['NA',F.NA],['rho',F.rho]].forEach(([k,el])=>{
+    if(!el) return; el.readOnly=(k===target);
+  });
+}
+function solve(){
+  const Z=st.Z, V=cellVolume();
+  const acm=VAL.a*1e-10, ccm=VAL.c*1e-10;
+  let M=VAL.M, NA=VAL.NA, rho=VAL.rho;
+  if(target==='rho'){ rho=Z*M/(NA*V); VAL.rho=rho; F.rho.value=isFinite(rho)?(+rho.toPrecision(4)):''; }
+  if(target==='M'){ M=rho*V*NA/Z; VAL.M=M; F.M.value=isFinite(M)?(+M.toPrecision(4)):''; }
+  if(target==='NA'){ NA=Z*M/(rho*V); VAL.NA=NA; F.NA.value=isFinite(NA)?(+NA.toPrecision(4)):''; }
+
+  const volEq = st.cell==='hex'
+    ? 'V = (3√3/2)·a²c = 2.598 × ('+fmt(acm)+' cm)² × ('+fmt(ccm)+' cm) = '+fmt(V)+' cm³'
+    : 'V = a³ = ('+fmt(acm)+' cm)³ = '+fmt(V)+' cm³';
+  const mass=rho*V, massZ=Z*M/NA;
+  let s='';
+  const step=(l,e)=>'<div class="step"><div class="lbl">'+l+'</div><div class="eq">'+e+'</div></div>';
+
+  s+=step('STEP 1  粒子数','Z = '+Z+(st.kind==='ionic'?'（組成式単位）':'（原子）'));
+  if(target==='rho'){
+    s+=step('STEP 2  単位格子の質量','w = Z·M / N<sub>A</sub> = '+Z+' × '+fmt(M)+' / '+fmt(NA)+' = '+fmt(massZ)+' g');
+    s+=step('STEP 3  単位格子の体積', volEq);
+    s+=step('STEP 4  密度','ρ = w / V = '+fmt(massZ)+' / '+fmt(V)+' = '+fmt(rho,3)+' g/cm³');
+  }else if(target==='M'){
+    s+=step('STEP 2  単位格子の体積', volEq);
+    s+=step('STEP 3  単位格子の質量','w = ρ·V = '+fmt(rho)+' × '+fmt(V)+' = '+fmt(mass)+' g');
+    s+=step('STEP 4  モル質量','M = w·N<sub>A</sub> / Z = '+fmt(mass)+' × '+fmt(NA)+' / '+Z+' = '+fmt(M,4)+' g/mol');
+  }else{
+    s+=step('STEP 2  単位格子の体積', volEq);
+    s+=step('STEP 3  単位格子の質量','w = ρ·V = '+fmt(rho)+' × '+fmt(V)+' = '+fmt(mass)+' g');
+    s+=step('STEP 4  アボガドロ定数','N<sub>A</sub> = Z·M / w = '+Z+' × '+fmt(M)+' / '+fmt(mass)+' = '+fmt(NA,4)+' /mol');
+  }
+  document.getElementById('steps').innerHTML=s;
+
+  let dn='pm を cm に直すところが山場。1 pm = 10⁻¹⁰ cm なので、a = '+VAL.a+' pm は '+fmt(acm)+' cm。3乗すると桁が3倍動く。';
+  if(activePreset>=0){
+    const p=st.presets[activePreset];
+    if(target==='rho') dn+=' '+p.n.split(' ')[0]+' の文献値は '+p.rho+' g/cm³。';
+    if(target==='M') dn+=' 文献値の密度から逆算すれば式量が出る。実験で原子量を決める手順そのもの。';
+    if(target==='NA') dn+=' 密度・格子定数・原子量が分かればアボガドロ定数が出る。X線回折で格子定数を測る意味はここにある。';
+  }
+  document.getElementById('densnote').textContent=dn;
+}
+
+/* ---------- 構造の切り替え ---------- */
+function buildSelector(){
+  document.getElementById('sel').innerHTML=STRUCTS.map((s,i)=>
+    '<button class="btn" data-s="'+i+'">'+s.name+'</button>').join('');
+  document.querySelectorAll('#sel .btn').forEach(b=>{
+    b.addEventListener('click',()=>select(+b.dataset.s));
+  });
+}
+function select(i){
+  st=STRUCTS[i];
+  document.querySelectorAll('#sel .btn').forEach(b=>b.classList.toggle('on',+b.dataset.s===i));
+  document.getElementById('desc').textContent=st.desc;
+  document.getElementById('tip').textContent=st.tip;
+  buildFields(); buildPresets();
+  activePreset=0; applyPreset(0);
+  drawCount(); drawLegend(); drawStage(); drawStats(); drawRatio();
+}
+
+/* ---------- 操作 ---------- */
+document.getElementById('rscale').addEventListener('input',e=>{ rscale=+e.target.value/100; drawStage(); });
+document.getElementById('b-count').addEventListener('click',()=>{ rscale=0.5; document.getElementById('rscale').value=50; drawStage(); });
+document.getElementById('b-touch').addEventListener('click',()=>{ rscale=1; document.getElementById('rscale').value=100; drawStage(); });
+function toggle(id,fn){
+  const b=document.getElementById(id);
+  b.addEventListener('click',()=>{ fn(!b.classList.contains('on')); b.classList.toggle('on'); drawStage(); });
+}
+toggle('t-contact',v=>showContact=v);
+toggle('t-coord',v=>showCoord=v);
+toggle('t-cell',v=>showCell=v);
+document.getElementById('m-pos').addEventListener('click',()=>{
+  colorMode='pos';
+  document.getElementById('m-pos').classList.add('on');
+  document.getElementById('m-sp').classList.remove('on');
+  drawStage(); drawLegend(); drawCount();
+});
+document.getElementById('m-sp').addEventListener('click',()=>{
+  colorMode='sp';
+  document.getElementById('m-sp').classList.add('on');
+  document.getElementById('m-pos').classList.remove('on');
+  drawStage(); drawLegend(); drawCount();
+});
+document.getElementById('v-std').addEventListener('click',()=>{yaw=-0.62;pitch=0.38;drawStage();});
+document.getElementById('v-front').addEventListener('click',()=>{yaw=0;pitch=0;drawStage();});
+document.getElementById('v-top').addEventListener('click',()=>{yaw=0;pitch=1.45;drawStage();});
+document.getElementById('v-diag').addEventListener('click',()=>{yaw=-Math.PI/4;pitch=Math.atan(1/SQ2);drawStage();});
+document.getElementById('ratio').addEventListener('input',e=>{
+  ratio=+e.target.value/1000; activePreset=-1; drawPresets();
+  drawStage(); drawStats(); drawRatio();
+});
+document.querySelectorAll('[data-t]').forEach(b=>{
+  b.addEventListener('click',()=>{ target=b.dataset.t; syncTarget(); solve(); });
+});
+let rt=0;
+window.addEventListener('resize',()=>{
+  clearTimeout(rt);
+  rt=setTimeout(()=>{ const n=window.innerWidth<=430; if(n!==narrow){ narrow=n; drawStage(); drawRatio(); } },150);
+});
+
+buildSelector();
+select(0);
+</script>
+</body>
+</html>

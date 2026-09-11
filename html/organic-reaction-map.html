@@ -1,0 +1,1208 @@
+<!doctype html>
+<html lang="ja">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>有機化合物 反応系統図</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500&family=IBM+Plex+Sans+JP:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+*{box-sizing:border-box}
+:root{
+  --ink:#16232B; --muted:#5E6E76; --paper:#EDF1EF; --surface:#FFFFFF;
+  --rule:#D6DDDA; --rule-soft:#E8EDEB;
+  --c0:#B87A16; --c0t:#8A5A0C;
+  --c1:#158A6D; --c1t:#0D6A53;
+  --c2:#2457A6; --c2t:#1B4380;
+  --c3:#6E3AA7; --c3t:#572D85;
+  --c4:#A82A6A; --c4t:#831F52;
+  --c5:#3B6E1E; --c5t:#2A5215;
+  --sans:"IBM Plex Sans JP","Hiragino Sans","Yu Gothic UI",system-ui,sans-serif;
+  --mono:"IBM Plex Mono",ui-monospace,SFMono-Regular,Menlo,monospace;
+  --band-ali:#F1F6F4; --band-aro:#F1F4F9; --band-isl:#F7F5F1;
+}
+html,body{margin:0;padding:0}
+body{background:var(--paper);color:var(--ink);font-family:var(--sans);
+  font-size:13.5px;line-height:1.75;-webkit-text-size-adjust:100%}
+.mono{font-family:var(--mono);font-variant-numeric:tabular-nums}
+.wrap{max-width:1200px;margin:0 auto;padding:20px 14px 72px}
+.card{background:var(--surface);border:1px solid var(--rule);border-radius:3px;padding:14px;margin-bottom:14px}
+.card.text,header{max-width:820px}
+.eyebrow{display:flex;align-items:center;gap:10px;font-family:var(--mono);font-size:11.5px;letter-spacing:.14em;color:var(--muted)}
+.eyebrow::after{content:"";flex:1;height:1px;background:var(--rule)}
+h1{font-size:22px;font-weight:600;letter-spacing:.01em;margin:8px 0 2px}
+h2{font-size:13.5px;font-weight:600;margin:14px 0 6px;letter-spacing:.01em}
+h2:first-child{margin-top:0}
+p{margin:0 0 8px} p:last-child{margin-bottom:0}
+.note{color:var(--muted);font-size:12px;line-height:1.7}
+.sub{color:var(--muted);font-size:11.5px;font-family:var(--mono);letter-spacing:.06em}
+hr{border:none;border-top:1px solid var(--rule-soft);margin:12px 0}
+ul.tight{margin:0;padding-left:1.1em} ul.tight li{margin-bottom:5px}
+
+.btn{font:inherit;font-size:12.5px;line-height:1.4;border:1px solid var(--rule);background:#fff;color:var(--ink);border-radius:2px;padding:6px 10px;cursor:pointer}
+.btn:hover{border-color:#B4C0BC}
+.btn.on{background:var(--ink);color:#fff;border-color:var(--ink)}
+.btn:focus-visible{outline:2px solid var(--c2);outline-offset:1px}
+.btn.sm{font-size:11.5px;padding:4px 8px}
+.btnrow{display:flex;flex-wrap:wrap;gap:6px}
+.ctl{display:flex;flex-wrap:wrap;align-items:center;gap:8px;margin-top:10px}
+.ctl .lab{font-family:var(--mono);font-size:11px;letter-spacing:.1em;color:var(--muted);white-space:nowrap;min-width:74px}
+input[type=range]{width:100%;max-width:160px;accent-color:#16232B;height:22px}
+input[type=range]:focus-visible{outline:2px solid var(--c2);outline-offset:1px}
+
+.viewer{position:relative;border:1px solid var(--rule-soft);border-radius:3px;background:#FBFCFB;overflow:hidden;margin-top:10px}
+svg.stage{display:block;width:100%;height:auto;touch-action:pan-y;cursor:grab}
+svg.stage.drag{cursor:grabbing}
+.legend{display:flex;flex-wrap:wrap;gap:4px 14px;margin-top:9px;font-size:11.5px;color:var(--muted)}
+.sw{display:inline-block;width:10px;height:10px;border-radius:1px;margin-right:5px;vertical-align:-1px;border:1px solid var(--rule)}
+.swl{display:inline-block;width:14px;height:0;border-top:2px solid var(--muted);margin-right:5px;vertical-align:3px}
+
+.counts{font-family:var(--mono);font-size:11.5px;letter-spacing:.06em;color:var(--muted);margin-top:9px}
+.counts b{color:var(--ink);font-weight:500}
+
+.panel{min-height:132px}
+.pname{font-size:15px;font-weight:600;letter-spacing:.01em;margin:0 0 1px}
+.pform{font-family:var(--mono);font-size:13px;color:var(--c2t);margin:0 0 7px}
+.ptag{display:inline-block;font-family:var(--mono);font-size:10.5px;letter-spacing:.08em;border:1px solid var(--rule);border-radius:2px;padding:1px 6px;margin:0 4px 4px 0;color:var(--muted)}
+.kv{display:grid;grid-template-columns:78px 1fr;gap:2px 10px;font-size:12.5px;margin:6px 0}
+.kv .k{font-family:var(--mono);font-size:10.5px;letter-spacing:.08em;color:var(--muted);padding-top:3px}
+.rxlist{margin-top:9px}
+.rxgrp{font-family:var(--mono);font-size:10.5px;letter-spacing:.1em;color:var(--muted);margin:8px 0 4px}
+.rxbtn{display:block;width:100%;text-align:left;font:inherit;font-size:12px;line-height:1.55;border:1px solid var(--rule-soft);background:#fff;border-radius:2px;padding:5px 8px;margin-bottom:4px;cursor:pointer;color:var(--ink)}
+.rxbtn:hover{border-color:#B4C0BC}
+.rxbtn:focus-visible{outline:2px solid var(--c2);outline-offset:1px}
+.rxbtn .rid{font-family:var(--mono);font-size:10.5px;color:var(--muted);letter-spacing:.06em;margin-right:6px}
+.rxbtn .arw{color:var(--muted);margin:0 4px}
+.pathrow{border-left:2px solid var(--rule);padding:1px 0 1px 11px;margin-bottom:8px;font-size:12px}
+.pathrow:last-child{margin-bottom:0}
+.pathrow .lbl{font-family:var(--mono);font-size:10.5px;letter-spacing:.12em;color:var(--muted)}
+.pathrow .seq{line-height:1.9;word-break:break-word}
+.pathrow .seq .rid{font-family:var(--mono);font-size:10px;color:var(--c4t);letter-spacing:.04em}
+.warnmsg{color:var(--c4t);font-size:12px;line-height:1.7}
+
+.node{cursor:pointer}
+.node:focus{outline:none}
+.node:focus-visible .box{stroke:var(--c2);stroke-width:2.5}
+.nbox{fill:#fff;stroke:var(--rule);stroke-width:1}
+.node[data-fam="脂肪族"] .nbox{stroke:#9DBFB2}
+.node[data-fam="芳香族"] .nbox{stroke:#A3B4CE}
+.node[data-fam="無機化合物"] .nbox{stroke:#C3C9C6;stroke-dasharray:3 2}
+.nform{font-family:var(--mono);font-size:11px;fill:var(--ink);text-anchor:middle;dominant-baseline:middle;pointer-events:none}
+.nname{font-size:9.5px;fill:var(--muted);text-anchor:middle;pointer-events:none}
+.node.dim{opacity:.13}
+.node.hidden{display:none}
+.node.sel .nbox{fill:var(--ink);stroke:var(--ink)}
+.node.sel .nform{fill:#fff}
+.node.sel .nname{fill:var(--ink);font-weight:600}
+.node.nbr .nbox{stroke-width:2}
+.node.in .nbox{stroke:var(--c2)}
+.node.out .nbox{stroke:var(--c0)}
+.node.onpath .nbox{stroke:var(--c4);stroke-width:2}
+.node.pend .nbox{fill:var(--c4);stroke:var(--c4)}
+.node.pend .nform{fill:#fff}
+
+.edge{fill:none;stroke:#B9C4C0;stroke-width:1.2}
+.edge.hidden,.ehit.hidden,.edot.hidden{display:none}
+.edge.dim{opacity:.1}
+.edge.in{stroke:var(--c2);stroke-width:2}
+.edge.out{stroke:var(--c0);stroke-width:2}
+.edge.sel{stroke:var(--ink);stroke-width:2.4}
+.edge.onpath{stroke:var(--c4);stroke-width:2.4}
+.ehit{fill:none;stroke:transparent;stroke-width:13;cursor:pointer}
+.edot{fill:#C6CFCB;pointer-events:none}
+.edot.dim{opacity:.1}
+.edot.on{fill:var(--ink)}
+.elabel{font-family:var(--mono);font-size:9px;fill:var(--ink);text-anchor:middle;pointer-events:none;paint-order:stroke;stroke:#FBFCFB;stroke-width:3.2;stroke-linejoin:round}
+.bandrect{stroke:var(--rule-soft);stroke-width:1}
+.bandlabel{font-family:var(--mono);font-size:11px;letter-spacing:.14em;fill:#9AA8A3;pointer-events:none}
+.bandnote{font-size:10px;fill:#9AA8A3;pointer-events:none}
+
+/* ---------- 逆引きモード ---------- */
+.view[hidden],.card[hidden]{display:none}
+.revgrid{display:grid;grid-template-columns:minmax(0,1fr);gap:14px;align-items:start}
+@media (min-width:761px){.revgrid{grid-template-columns:minmax(330px,40%) minmax(0,1fr)}}
+.revcol{min-width:0}
+.revcol .card:last-child{margin-bottom:0}
+
+.trow{display:flex;flex-wrap:wrap;align-items:center;gap:5px 8px;padding:5px 0;border-bottom:1px solid var(--rule-soft)}
+.trow:last-of-type{border-bottom:none}
+.tlab{flex:1 1 146px;min-width:0;font-size:12.5px;line-height:1.5}
+.tbtns{display:flex;gap:4px;flex:0 0 auto}
+.tbtn{font-size:11px;padding:3px 7px;min-width:38px;text-align:center}
+.tbtn.on{background:var(--ink);color:#fff;border-color:var(--ink)}
+.tbtn.on.neu{background:#fff;color:var(--ink);border-color:var(--ink);font-weight:500}
+.tbtn.on.neg{background:var(--muted);border-color:var(--muted)}
+.fxrow{display:flex;flex-wrap:wrap;align-items:center;gap:8px;margin-top:10px}
+.fx{font-family:var(--mono);font-size:12.5px;border:1px solid var(--rule);border-radius:2px;
+  padding:5px 8px;width:132px;background:#fff;color:var(--ink)}
+.fx:focus-visible{outline:2px solid var(--c2);outline-offset:-1px}
+
+.cand{display:block;width:100%;text-align:left;font:inherit;font-size:12px;line-height:1.55;
+  border:1px solid var(--rule-soft);background:#fff;border-radius:2px;
+  padding:6px 8px;margin-bottom:4px;cursor:pointer;color:var(--ink)}
+.cand:hover{border-color:#B4C0BC}
+.cand:focus-visible{outline:2px solid var(--c2);outline-offset:1px}
+.cand.gone{display:none}
+.cand .cn{font-weight:500}
+.cand .cf{font-family:var(--mono);font-size:11px;color:var(--c2t);margin-left:7px}
+.cand .cm{font-family:var(--mono);font-size:10.5px;color:var(--muted);margin-right:7px}
+.cand .cg{display:block;font-size:10.5px;color:var(--muted);line-height:1.5}
+.cand.solo{border-color:var(--c1);border-left:3px solid var(--c1);padding-left:6px}
+
+.sug{display:flex;flex-wrap:wrap;align-items:baseline;gap:1px 8px;font-size:12px;
+  padding:4px 0;border-bottom:1px solid var(--rule-soft)}
+.sug:last-child{border-bottom:none}
+.sug .sn{font-family:var(--mono);font-size:10.5px;color:var(--muted);min-width:1.5em}
+.sug .st{flex:1 1 132px;min-width:0}
+.sug .sv{font-family:var(--mono);font-size:11px;font-variant-numeric:tabular-nums}
+.sug.flat .st,.sug.flat .sv{color:var(--muted)}
+
+.kv.wide{grid-template-columns:118px 1fr}
+.hint{border-left:2px solid var(--rule);padding:1px 0 1px 11px;margin:9px 0;font-size:12px;line-height:1.7}
+.hint:last-child{margin-bottom:0}
+.hint .hl{font-family:var(--mono);font-size:10.5px;letter-spacing:.12em;color:var(--muted);display:block}
+.hint.warn{border-left-color:var(--c4)}
+.hint.warn .hl{color:var(--c4t)}
+.hint.ok{border-left-color:var(--c1)}
+.hint.ok .hl{color:var(--c1t)}
+
+@media (prefers-reduced-motion:no-preference){
+  .edge.trace{transition:stroke-dashoffset 220ms linear}
+  .cand{transition:opacity 180ms linear}
+  .cand.leaving{opacity:0}
+  .cand.solo{animation:solopop 260ms ease-out}
+}
+@keyframes solopop{from{background:#F2F6FA}to{background:#fff}}
+@media (max-width:430px){
+  body{font-size:13px}
+  .wrap{padding:14px 10px 56px}
+  .card{padding:11px}
+  h1{font-size:19px}
+  .btn{padding:6px 8px;font-size:12px}
+  .btn.sm{font-size:11px;padding:4px 7px}
+  .ctl .lab{min-width:0;flex:1 1 100%;margin-bottom:-4px}
+  .kv{grid-template-columns:66px 1fr}
+  .kv.wide{grid-template-columns:104px 1fr}
+  .tlab{flex:1 1 100%}
+  .tbtn{font-size:10.5px;padding:3px 6px;min-width:35px}
+  .fx{width:112px}
+}
+</style>
+</head>
+<body>
+<div class="wrap">
+
+<header>
+  <div class="eyebrow">ORGANIC REACTION MAP</div>
+  <h1>有機化合物 反応系統図</h1>
+  <p class="note">脂肪族と芳香族の反応を1枚に置いた。化合物をタップすると、そこから出る反応と入る反応が色分けされる。反応の線をタップすると試薬と条件が出る。2つの化合物を選ぶと、その間の経路をすべて数え上げる。</p>
+</header>
+
+<div class="card text">
+  <div class="eyebrow">MODE</div>
+  <div class="btnrow" style="margin-top:8px">
+    <button class="btn on" id="m-map" aria-pressed="true">系統図から見る</button>
+    <button class="btn" id="m-rev" aria-pressed="false">性質から化合物を絞り込む</button>
+  </div>
+</div>
+
+<div class="view" id="view-map">
+
+<div class="card">
+  <div class="eyebrow">CONTROLS</div>
+  <div class="ctl"><span class="lab">官能基</span><div class="btnrow" id="f-group"></div></div>
+  <div class="ctl"><span class="lab">反応の種類</span><div class="btnrow" id="f-type"></div></div>
+  <div class="ctl"><span class="lab">表示</span><div class="btnrow">
+    <button class="btn sm" id="t-detect" aria-pressed="false">検出反応をもつ化合物だけ</button>
+    <button class="btn sm" id="t-path" aria-pressed="false">経路をたどる</button>
+    <button class="btn sm" id="t-reset">すべて解除</button>
+  </div></div>
+  <div class="counts" id="counts"></div>
+</div>
+
+<div class="card">
+  <div class="eyebrow">MAP</div>
+  <div class="ctl">
+    <span class="lab">拡大率</span>
+    <button class="btn sm" id="zoom-out" aria-label="縮小">－</button>
+    <input type="range" id="zoom-range" min="10" max="300" step="1" value="100" aria-label="表示の拡大率（10%〜300%）">
+    <span class="mono" id="zoom-val" style="min-width:3.6em">100%</span>
+    <button class="btn sm" id="zoom-in" aria-label="拡大">＋</button>
+    <button class="btn sm" id="zoom-fit">全体を表示</button>
+  </div>
+  <div class="viewer">
+    <svg class="stage" id="stage" role="img" aria-label="有機化合物の反応系統図"></svg>
+  </div>
+  <div class="legend">
+    <span><span class="sw" style="background:var(--band-ali)"></span>脂肪族</span>
+    <span><span class="sw" style="background:var(--band-aro)"></span>芳香族</span>
+    <span><span class="sw" style="background:var(--band-isl)"></span>ベンゼンとつながらない系統</span>
+    <span><span class="swl" style="border-color:var(--c0)"></span>選んだ化合物から出る反応</span>
+    <span><span class="swl" style="border-color:var(--c2)"></span>選んだ化合物に入る反応</span>
+    <span><span class="swl" style="border-color:var(--c4)"></span>経路</span>
+  </div>
+  <p class="note" style="margin-top:8px">図はドラッグで動かせる。拡大率は上のスライダーで調整する（タッチ操作ではピンチでも拡大縮小できる）。ノードは Tab キーで順に辿れる（Enter で選択、矢印キーで隣の方向へ移動、Esc で解除）。</p>
+</div>
+
+<div class="card text panel" id="panel"></div>
+
+<div class="card text">
+  <div class="eyebrow">NOTES</div>
+  <h2>この図の読み方で注意すること</h2>
+  <ul class="tight note">
+    <li>矢印の向きは「反応物 → 生成物」。中和や加水分解のように往復するものは、2本の線を反対側にふくらませて描いている。</li>
+    <li>試薬としてだけ関わる化合物（メタノール、無水酢酸など）も、生成物への線を引いてある。脂肪族と芳香族をまたぐ線が9本ある。</li>
+    <li>炭化カルシウムは無機化合物だが、アセチレンの出発点として置いた。破線の枠で示している。</li>
+    <li>シクロヘキサンとヘキサクロロシクロヘキサンはベンゼンからできるが、化合物としては脂環式なので脂肪族側に置いてある。</li>
+  </ul>
+  <hr>
+  <p class="sub">DATA</p>
+  <p class="note" id="datanote"></p>
+</div>
+
+</div><!-- /view-map -->
+
+<div class="view" id="view-rev" hidden>
+
+<div class="card text">
+  <div class="eyebrow">REVERSE LOOKUP</div>
+  <p class="note" style="margin-top:8px">検査の結果を入れていくと、条件に合う化合物が絞られる。入試の構造決定は「どの検査を先にやるか」で手数が変わるので、下の「次の一手」に候補が何件まで減るかを出してある。</p>
+</div>
+
+<div class="revgrid">
+
+  <div class="revcol">
+    <div class="card">
+      <div class="eyebrow">TESTS</div>
+      <div id="testlist" style="margin-top:6px"></div>
+      <div class="fxrow">
+        <span class="lab" style="font-family:var(--mono);font-size:11px;letter-spacing:.1em;color:var(--muted)">分子式</span>
+        <input class="fx" id="fx-input" type="text" inputmode="text" autocomplete="off"
+               spellcheck="false" placeholder="C2H4O" aria-label="分子式で絞り込む（完全一致）">
+        <button class="btn sm" id="rev-reset">すべて未検査に戻す</button>
+      </div>
+      <p class="note" style="margin-top:8px">分子式は完全一致で照合する。大文字と小文字は区別する（空白は無視）。</p>
+    </div>
+
+    <div class="card" id="sugcard">
+      <div class="eyebrow">NEXT STEP</div>
+      <div id="sugbody"></div>
+    </div>
+  </div>
+
+  <div class="revcol">
+    <div class="card">
+      <div class="eyebrow">CANDIDATES</div>
+      <div class="counts" id="revcount" aria-live="polite"></div>
+      <div id="revverdict"></div>
+      <div id="candlist" style="margin-top:9px"></div>
+    </div>
+
+    <div class="card text" id="solocard" hidden>
+      <div class="eyebrow">COMPOUND</div>
+      <div id="solobody"></div>
+    </div>
+  </div>
+
+</div>
+
+<div class="card text">
+  <div class="eyebrow">NOTES</div>
+  <h2>この絞り込みで気をつけること</h2>
+  <ul class="tight note">
+    <li>検出反応だけで候補が1件になっても、その化合物と検出反応の出方が完全に同じ化合物が他にあることがある。その場合は候補欄に警告を出している。分子式や官能基まで見ないと決まらない。</li>
+    <li>臭素水は「脱色」（不飽和結合への付加）と「白色沈殿」（フェノール類・アニリンの置換）で意味が違う。同じ試薬でも別の情報になる。</li>
+    <li>NaOHに溶けるがNaHCO3とは反応しない、がフェノール類の判定。ただしピクリン酸はニトロ基3個で強酸性になり、NaHCO3とも反応する例外。</li>
+    <li>ここで扱う性質は data/organic-properties.json に入っているものだけ。教科書に載っていても、このデータに無い検出反応は判定に使っていない。</li>
+  </ul>
+</div>
+
+</div><!-- /view-rev -->
+
+</div><!-- /wrap -->
+<script>
+/* ---------- データ（JSONをそのまま埋め込み。fetch は使わない） ---------- */
+const DATA = {"nodes":[{"id":"calcium-carbide","name":"炭化カルシウム","formula":"CaC2","family":"無機化合物","group":"その他","detection":[],"note":"カーバイド。水を加えるとアセチレンが出る"},{"id":"methane","name":"メタン","formula":"CH4","family":"脂肪族","group":"炭化水素","detection":[],"note":"正四面体形。付加はせず、置換だけ起こる"},{"id":"ethane","name":"エタン","formula":"C2H6","family":"脂肪族","group":"炭化水素","detection":[],"note":"アルカン。臭素水を脱色しない"},{"id":"ethylene","name":"エチレン","formula":"CH2=CH2","family":"脂肪族","group":"炭化水素","detection":["臭素水を脱色する"],"note":"平面形。二重結合をもち付加反応をする"},{"id":"propene","name":"プロペン","formula":"CH2=CHCH3","family":"脂肪族","group":"炭化水素","detection":["臭素水を脱色する"],"note":"プロピレン。水を付加すると2-プロパノール"},{"id":"acetylene","name":"アセチレン","formula":"CH≡CH","family":"脂肪族","group":"炭化水素","detection":["臭素水を脱色する"],"note":"直線形。三重結合をもち付加が2回できる"},{"id":"cyclohexane","name":"シクロヘキサン","formula":"C6H12","family":"脂肪族","group":"炭化水素","detection":[],"note":"脂環式。ベンゼンに水素を付加して得る"},{"id":"chloromethane","name":"クロロメタン","formula":"CH3Cl","family":"脂肪族","group":"その他","detection":[],"note":"塩化メチル。メタンの置換で最初にできる"},{"id":"dibromoethane","name":"1,2-ジブロモエタン","formula":"CH2BrCH2Br","family":"脂肪族","group":"その他","detection":[],"note":"エチレンに臭素が付加してできる"},{"id":"methanol","name":"メタノール","formula":"CH3OH","family":"脂肪族","group":"アルコール","detection":[],"note":"ヨードホルム反応は示さない。有毒"},{"id":"ethanol","name":"エタノール","formula":"C2H5OH","family":"脂肪族","group":"アルコール","detection":["ヨードホルム反応"],"note":"濃硫酸の温度で生成物が変わるのが頻出"},{"id":"isopropanol","name":"2-プロパノール","formula":"CH3CH(OH)CH3","family":"脂肪族","group":"アルコール","detection":["ヨードホルム反応"],"note":"第二級アルコール。酸化するとアセトン"},{"id":"sodium-ethoxide","name":"ナトリウムエトキシド","formula":"C2H5ONa","family":"脂肪族","group":"アルコール","detection":[],"note":"エタノールのナトリウム塩。水を加えると強塩基性"},{"id":"diethyl-ether","name":"ジエチルエーテル","formula":"C2H5OC2H5","family":"脂肪族","group":"エーテル","detection":[],"note":"ナトリウムとも反応しない。沸点が低く引火性"},{"id":"formaldehyde","name":"ホルムアルデヒド","formula":"HCHO","family":"脂肪族","group":"アルデヒド","detection":["銀鏡反応","フェーリング液の還元"],"note":"約37%水溶液がホルマリン"},{"id":"acetaldehyde","name":"アセトアルデヒド","formula":"CH3CHO","family":"脂肪族","group":"アルデヒド","detection":["銀鏡反応","フェーリング液の還元","ヨードホルム反応"],"note":"還元性を示すアルデヒドかつヨードホルム陽性"},{"id":"acetone","name":"アセトン","formula":"CH3COCH3","family":"脂肪族","group":"ケトン","detection":["ヨードホルム反応"],"note":"還元性なし。銀鏡反応もフェーリングも陰性"},{"id":"formic-acid","name":"ギ酸","formula":"HCOOH","family":"脂肪族","group":"カルボン酸","detection":["銀鏡反応","フェーリング液の還元","炭酸水素ナトリウムからCO2発生"],"note":"ホルミル基をもつので酸なのに還元性がある"},{"id":"acetic-acid","name":"酢酸","formula":"CH3COOH","family":"脂肪族","group":"カルボン酸","detection":["炭酸水素ナトリウムからCO2発生"],"note":"CH3CO-をもつがヨードホルム反応は陰性"},{"id":"sodium-acetate","name":"酢酸ナトリウム","formula":"CH3COONa","family":"脂肪族","group":"カルボン酸","detection":[],"note":"酢酸の塩。水に溶け、水溶液は弱塩基性"},{"id":"acetic-anhydride","name":"無水酢酸","formula":"(CH3CO)2O","family":"脂肪族","group":"その他","detection":[],"note":"酸無水物。アセチル化の試薬として使う"},{"id":"ethyl-acetate","name":"酢酸エチル","formula":"CH3COOC2H5","family":"脂肪族","group":"エステル","detection":[],"note":"果実に似たにおい。水に溶けにくい"},{"id":"benzene","name":"ベンゼン","formula":"C6H6","family":"芳香族","group":"炭化水素","detection":[],"note":"平面正六角形。付加より置換が起こりやすい"},{"id":"toluene","name":"トルエン","formula":"C6H5CH3","family":"芳香族","group":"炭化水素","detection":[],"note":"側鎖のメチル基が酸化されて安息香酸になる"},{"id":"cumene","name":"クメン","formula":"C6H5CH(CH3)2","family":"芳香族","group":"炭化水素","detection":[],"note":"イソプロピルベンゼン。クメン法の原料"},{"id":"cumene-hydroperoxide","name":"クメンヒドロペルオキシド","formula":"C6H5C(CH3)2OOH","family":"芳香族","group":"その他","detection":[],"note":"クメン法の中間体。分解でフェノールとアセトン"},{"id":"chlorobenzene","name":"クロロベンゼン","formula":"C6H5Cl","family":"芳香族","group":"その他","detection":[],"note":"塩素が環に直結し、置換しにくい"},{"id":"nitrobenzene","name":"ニトロベンゼン","formula":"C6H5NO2","family":"芳香族","group":"その他","detection":[],"note":"淡黄色で水より重い油状。還元でアニリンへ"},{"id":"aniline","name":"アニリン","formula":"C6H5NH2","family":"芳香族","group":"アミン","detection":["さらし粉水溶液で赤紫色","硫酸酸性の二クロム酸カリウムで黒色"],"note":"弱塩基。水に溶けにくく、酸には塩をつくって溶ける"},{"id":"aniline-hydrochloride","name":"アニリン塩酸塩","formula":"C6H5NH3Cl","family":"芳香族","group":"アミン","detection":[],"note":"アニリンの塩。水によく溶ける"},{"id":"acetanilide","name":"アセトアニリド","formula":"C6H5NHCOCH3","family":"芳香族","group":"その他","detection":[],"note":"アミド。中性で、さらし粉の呈色は示さない"},{"id":"benzenediazonium-chloride","name":"塩化ベンゼンジアゾニウム","formula":"C6H5N2Cl","family":"芳香族","group":"その他","detection":[],"note":"5℃以上で分解するので氷冷が必須"},{"id":"hydroxyazobenzene","name":"p-ヒドロキシアゾベンゼン","formula":"C6H5N=NC6H4OH","family":"芳香族","group":"その他","detection":[],"note":"アゾ基をもつ橙赤色の染料"},{"id":"phenol","name":"フェノール","formula":"C6H5OH","family":"芳香族","group":"フェノール類","detection":["塩化鉄(III)水溶液で紫色","臭素水で白色沈殿"],"note":"炭酸より弱い酸。炭酸水素ナトリウムとは反応しない"},{"id":"sodium-phenoxide","name":"ナトリウムフェノキシド","formula":"C6H5ONa","family":"芳香族","group":"フェノール類","detection":[],"note":"フェノールの塩。CO2の条件で行き先が変わる"},{"id":"picric-acid","name":"ピクリン酸","formula":"C6H2(NO2)3OH","family":"芳香族","group":"フェノール類","detection":[],"note":"2,4,6-トリニトロフェノール。黄色結晶で強酸性"},{"id":"trinitrotoluene","name":"2,4,6-トリニトロトルエン","formula":"C6H2(NO2)3CH3","family":"芳香族","group":"その他","detection":[],"note":"TNT。淡黄色の結晶で爆薬に使われる"},{"id":"benzenesulfonic-acid","name":"ベンゼンスルホン酸","formula":"C6H5SO3H","family":"芳香族","group":"その他","detection":[],"note":"硫酸に近い強酸。水によく溶ける"},{"id":"sodium-benzenesulfonate","name":"ベンゼンスルホン酸ナトリウム","formula":"C6H5SO3Na","family":"芳香族","group":"その他","detection":[],"note":"アルカリ融解でナトリウムフェノキシドになる"},{"id":"benzoic-acid","name":"安息香酸","formula":"C6H5COOH","family":"芳香族","group":"カルボン酸","detection":["炭酸水素ナトリウムからCO2発生"],"note":"水に溶けにくい白色結晶。炭酸より強い酸"},{"id":"sodium-benzoate","name":"安息香酸ナトリウム","formula":"C6H5COONa","family":"芳香族","group":"カルボン酸","detection":[],"note":"水に溶ける。分離操作でエーテル層から水層へ移る"},{"id":"salicylic-acid","name":"サリチル酸","formula":"C6H4(OH)COOH","family":"芳香族","group":"カルボン酸","detection":["塩化鉄(III)水溶液で赤紫色","炭酸水素ナトリウムからCO2発生"],"note":"カルボキシ基とフェノール性OHを両方もつ"},{"id":"sodium-salicylate","name":"サリチル酸ナトリウム","formula":"C6H4(OH)COONa","family":"芳香族","group":"カルボン酸","detection":[],"note":"ナトリウムフェノキシドとCO2からできる"},{"id":"methyl-salicylate","name":"サリチル酸メチル","formula":"C6H4(OH)COOCH3","family":"芳香族","group":"エステル","detection":["塩化鉄(III)水溶液で赤紫色"],"note":"フェノール性OHが残るので呈色する。消炎鎮痛剤"},{"id":"acetylsalicylic-acid","name":"アセチルサリチル酸","formula":"C6H4(OCOCH3)COOH","family":"芳香族","group":"エステル","detection":[],"note":"OHがふさがれ塩化鉄(III)で呈色しない。解熱鎮痛剤"},{"id":"hexachlorocyclohexane","name":"1,2,3,4,5,6-ヘキサクロロシクロヘキサン","formula":"C6H6Cl6","family":"脂肪族","group":"その他","detection":[],"note":"かつて殺虫剤(BHC)の原料。付加なので環は壊れない"},{"id":"benzaldehyde","name":"ベンズアルデヒド","formula":"C6H5CHO","family":"芳香族","group":"アルデヒド","detection":["銀鏡反応"],"note":"銀鏡反応は陽性だがフェーリング液は還元しない"}],"reactions":[{"id":"r001","from":["calcium-carbide"],"to":["acetylene"],"reagent":"水","conditions":"常温","type":"加水分解","note":"アセチレンの実験室的製法。水酸化カルシウムも生じる","confidence":"high"},{"id":"r002","from":["acetylene"],"to":["ethylene"],"reagent":"H2 / ニッケル(または白金)触媒","conditions":"加熱","type":"付加","note":"付加が進むとさらにエタンまでいく","confidence":"high"},{"id":"r003","from":["ethylene"],"to":["ethane"],"reagent":"H2 / ニッケル(または白金)触媒","conditions":"加熱","type":"付加","note":"二重結合が単結合になる","confidence":"high"},{"id":"r004","from":["acetylene"],"to":["benzene"],"reagent":"なし","conditions":"赤熱した鉄管に通す(約500℃)","type":"その他","note":"3分子が重合して環をつくる","confidence":"high"},{"id":"r005","from":["acetylene"],"to":["acetaldehyde"],"reagent":"水 / 硫酸水銀(II)触媒","conditions":"","type":"付加","note":"不安定なビニルアルコールを経て異性化する","confidence":"high"},{"id":"r006","from":["ethylene"],"to":["ethanol"],"reagent":"水 / リン酸触媒","conditions":"高温・高圧","type":"付加","note":"エタノールの工業的製法","confidence":"high"},{"id":"r007","from":["ethylene"],"to":["dibromoethane"],"reagent":"臭素水(Br2)","conditions":"常温","type":"付加","note":"赤褐色が消える。不飽和結合の検出に使う","confidence":"high"},{"id":"r008","from":["ethylene"],"to":["acetaldehyde"],"reagent":"O2 / 塩化パラジウム(II)・塩化銅(II)触媒","conditions":"","type":"酸化","note":"アセトアルデヒドの工業的製法","confidence":"low"},{"id":"r009","from":["methane"],"to":["chloromethane"],"reagent":"Cl2","conditions":"光(紫外線)を当てる","type":"置換","note":"置換が続くと四塩化炭素まで進む","confidence":"high"},{"id":"r010","from":["sodium-acetate"],"to":["methane"],"reagent":"NaOH(ソーダ石灰)","conditions":"混ぜて加熱","type":"その他","note":"メタンの実験室的製法。炭酸ナトリウムも生じる","confidence":"high"},{"id":"r011","from":["ethanol"],"to":["ethylene"],"reagent":"濃硫酸","conditions":"160〜170℃","type":"脱水","note":"分子内脱水。温度が高いほうがこちら","confidence":"high"},{"id":"r012","from":["ethanol"],"to":["diethyl-ether"],"reagent":"濃硫酸","conditions":"130〜140℃","type":"脱水","note":"2分子からの分子間脱水","confidence":"high"},{"id":"r013","from":["ethanol"],"to":["sodium-ethoxide"],"reagent":"Na(金属ナトリウム)","conditions":"常温","type":"置換","note":"水素が発生する。ヒドロキシ基の確認に使う","confidence":"high"},{"id":"r014","from":["ethanol"],"to":["acetaldehyde"],"reagent":"K2Cr2O7 / 硫酸酸性","conditions":"加熱","type":"酸化","note":"第一級アルコールの酸化。溶液は赤橙色から緑色へ","confidence":"high"},{"id":"r015","from":["acetaldehyde"],"to":["acetic-acid"],"reagent":"K2Cr2O7 / 硫酸酸性","conditions":"加熱","type":"酸化","note":"アルデヒドはさらに酸化されてカルボン酸になる","confidence":"high"},{"id":"r016","from":["methanol"],"to":["formaldehyde"],"reagent":"K2Cr2O7 / 硫酸酸性","conditions":"加熱","type":"酸化","note":"第一級アルコールの酸化。エタノールの酸化と同じ酸化剤","confidence":"high"},{"id":"r017","from":["formaldehyde"],"to":["formic-acid"],"reagent":"K2Cr2O7 / 硫酸酸性","conditions":"加熱","type":"酸化","note":"アルデヒドはさらに酸化されカルボン酸になる","confidence":"high"},{"id":"r018","from":["propene"],"to":["isopropanol"],"reagent":"水 / リン酸触媒","conditions":"高温・高圧","type":"付加","note":"ヒドロキシ基は中央の炭素につく","confidence":"low"},{"id":"r019","from":["isopropanol"],"to":["acetone"],"reagent":"K2Cr2O7 / 硫酸酸性","conditions":"加熱","type":"酸化","note":"第二級アルコールの酸化でケトンになる","confidence":"high"},{"id":"r020","from":["acetic-acid","ethanol"],"to":["ethyl-acetate"],"reagent":"濃硫酸(触媒)","conditions":"加熱","type":"エステル化","note":"水が取れる。可逆反応なので完全には進まない","confidence":"high"},{"id":"r021","from":["ethyl-acetate"],"to":["acetic-acid","ethanol"],"reagent":"水 / 希硫酸","conditions":"加熱","type":"加水分解","note":"エステル化の逆反応","confidence":"high"},{"id":"r022","from":["ethyl-acetate"],"to":["sodium-acetate","ethanol"],"reagent":"NaOH水溶液","conditions":"加熱","type":"加水分解","note":"けん化。塩ができるので逆反応は起こらない","confidence":"high"},{"id":"r023","from":["acetic-acid"],"to":["sodium-acetate"],"reagent":"NaOH水溶液","conditions":"常温","type":"中和","note":"","confidence":"high"},{"id":"r024","from":["sodium-acetate"],"to":["acetic-acid"],"reagent":"塩酸(強酸)","conditions":"常温","type":"中和","note":"弱酸の遊離。分離操作で使う","confidence":"high"},{"id":"r025","from":["acetic-acid"],"to":["acetic-anhydride"],"reagent":"十酸化四リン(P4O10)","conditions":"加熱","type":"脱水","note":"2分子から水1分子が取れる","confidence":"high"},{"id":"r026","from":["acetic-anhydride"],"to":["acetic-acid"],"reagent":"水","conditions":"","type":"加水分解","note":"酢酸2分子にもどる","confidence":"high"},{"id":"r027","from":["benzene"],"to":["cyclohexane"],"reagent":"H2 / ニッケル触媒","conditions":"高温・高圧","type":"付加","note":"ベンゼンが付加反応をする数少ない例","confidence":"high"},{"id":"r028","from":["benzene"],"to":["nitrobenzene"],"reagent":"濃硝酸 + 濃硫酸(混酸)","conditions":"約60℃","type":"置換","note":"水より重い淡黄色の油状物質が得られる","confidence":"high"},{"id":"r029","from":["benzene"],"to":["benzenesulfonic-acid"],"reagent":"濃硫酸","conditions":"加熱","type":"置換","note":"スルホン化。強酸ができる","confidence":"high"},{"id":"r030","from":["benzene"],"to":["chlorobenzene"],"reagent":"Cl2 / 鉄粉(触媒)","conditions":"","type":"置換","note":"触媒があると置換、光を当てると付加になる","confidence":"high"},{"id":"r031","from":["benzene","propene"],"to":["cumene"],"reagent":"リン酸触媒","conditions":"","type":"置換","note":"クメン法の第1段階","confidence":"low"},{"id":"r032","from":["cumene"],"to":["cumene-hydroperoxide"],"reagent":"O2(空気)","conditions":"","type":"酸化","note":"クメン法の第2段階","confidence":"high"},{"id":"r033","from":["cumene-hydroperoxide"],"to":["phenol","acetone"],"reagent":"希硫酸","conditions":"","type":"その他","note":"分解。アセトンが同時にできるのがクメン法の特徴","confidence":"high"},{"id":"r034","from":["chlorobenzene"],"to":["sodium-phenoxide"],"reagent":"NaOH水溶液","conditions":"高温・高圧","type":"置換","note":"塩素がヒドロキシ基に置き換わる","confidence":"high"},{"id":"r035","from":["benzenesulfonic-acid"],"to":["sodium-benzenesulfonate"],"reagent":"NaOH水溶液","conditions":"常温","type":"中和","note":"","confidence":"high"},{"id":"r036","from":["sodium-benzenesulfonate"],"to":["sodium-phenoxide"],"reagent":"NaOH(固体)","conditions":"融解(アルカリ融解)","type":"その他","note":"亜硫酸ナトリウムも生じる","confidence":"high"},{"id":"r037","from":["phenol"],"to":["sodium-phenoxide"],"reagent":"NaOH水溶液","conditions":"常温","type":"中和","note":"フェノールが弱い酸としてはたらく","confidence":"high"},{"id":"r038","from":["sodium-phenoxide"],"to":["phenol"],"reagent":"希硫酸(または塩酸)","conditions":"常温","type":"中和","note":"弱酸の遊離","confidence":"high"},{"id":"r039","from":["sodium-phenoxide"],"to":["phenol"],"reagent":"CO2","conditions":"水溶液に通じる(常温・常圧)","type":"中和","note":"フェノールが炭酸より弱い酸だとわかる","confidence":"high"},{"id":"r040","from":["sodium-phenoxide"],"to":["sodium-salicylate"],"reagent":"CO2","conditions":"高温・高圧","type":"その他","note":"同じCO2でも条件が違うと生成物が変わる","confidence":"high"},{"id":"r041","from":["sodium-salicylate"],"to":["salicylic-acid"],"reagent":"希硫酸","conditions":"常温","type":"中和","note":"弱酸の遊離","confidence":"high"},{"id":"r042","from":["salicylic-acid","methanol"],"to":["methyl-salicylate"],"reagent":"濃硫酸(触媒)","conditions":"加熱","type":"エステル化","note":"カルボキシ基のほうがエステルになる","confidence":"high"},{"id":"r043","from":["salicylic-acid","acetic-anhydride"],"to":["acetylsalicylic-acid"],"reagent":"無水酢酸","conditions":"","type":"その他","note":"フェノール性OHのアセチル化。酢酸も生じる","confidence":"high"},{"id":"r044","from":["phenol"],"to":["picric-acid"],"reagent":"濃硝酸 + 濃硫酸(混酸)","conditions":"加熱","type":"置換","note":"2,4,6位の3か所がニトロ化される","confidence":"low"},{"id":"r045","from":["nitrobenzene"],"to":["aniline-hydrochloride"],"reagent":"Sn(または Fe) + 濃塩酸","conditions":"加熱","type":"還元","note":"直接得られるのはアニリンではなくその塩","confidence":"high"},{"id":"r046","from":["aniline-hydrochloride"],"to":["aniline"],"reagent":"NaOH水溶液","conditions":"常温","type":"中和","note":"弱塩基の遊離","confidence":"high"},{"id":"r047","from":["aniline"],"to":["aniline-hydrochloride"],"reagent":"塩酸","conditions":"常温","type":"中和","note":"水に溶けないアニリンが塩になって溶ける","confidence":"high"},{"id":"r048","from":["aniline","acetic-anhydride"],"to":["acetanilide"],"reagent":"無水酢酸","conditions":"","type":"その他","note":"アミノ基のアセチル化。酢酸も生じる","confidence":"high"},{"id":"r049","from":["aniline"],"to":["benzenediazonium-chloride"],"reagent":"NaNO2 + 塩酸","conditions":"5℃以下(氷冷)","type":"その他","note":"ジアゾ化。温度が上がると分解してしまう","confidence":"high"},{"id":"r050","from":["benzenediazonium-chloride","sodium-phenoxide"],"to":["hydroxyazobenzene"],"reagent":"ナトリウムフェノキシド水溶液","conditions":"氷冷下","type":"その他","note":"カップリング。橙赤色の染料ができる","confidence":"high"},{"id":"r051","from":["benzenediazonium-chloride"],"to":["phenol"],"reagent":"水","conditions":"加温(5℃以上)","type":"加水分解","note":"窒素が発生する。氷冷が必要な理由がこれ","confidence":"high"},{"id":"r052","from":["toluene"],"to":["benzoic-acid"],"reagent":"KMnO4","conditions":"加熱後に酸を加える","type":"酸化","note":"側鎖のメチル基だけが酸化される","confidence":"high"},{"id":"r053","from":["toluene"],"to":["trinitrotoluene"],"reagent":"濃硝酸 + 濃硫酸(混酸)","conditions":"加熱","type":"置換","note":"3か所がニトロ化される","confidence":"low"},{"id":"r054","from":["benzoic-acid"],"to":["sodium-benzoate"],"reagent":"NaOH水溶液","conditions":"常温","type":"中和","note":"水に溶けない安息香酸が溶けるようになる","confidence":"high"},{"id":"r055","from":["sodium-benzoate"],"to":["benzoic-acid"],"reagent":"塩酸(強酸)","conditions":"常温","type":"中和","note":"弱酸の遊離。分離操作で使う","confidence":"high"},{"id":"r056","from":["benzene"],"to":["hexachlorocyclohexane"],"reagent":"Cl2","conditions":"光(紫外線)を当てる","type":"付加","note":"同じCl2でも鉄粉触媒なら置換(クロロベンゼン)になる","confidence":"high"},{"id":"r057","from":["toluene"],"to":["benzaldehyde"],"reagent":"KMnO4(希薄・低温)","conditions":"反応を途中で止める","type":"酸化","note":"条件を制御しないと安息香酸まで進んでしまう","confidence":"low"},{"id":"r058","from":["benzaldehyde"],"to":["benzoic-acid"],"reagent":"KMnO4","conditions":"加熱","type":"酸化","note":"側鎖の酸化はここで安息香酸まで進む","confidence":"low"}]};
+/* ---------- 配置座標。化学データとは別に、この教材だけが持つ ---------- */
+const LAYOUT = {"wide":{"viewBox":[19,46,1320,944],"bands":[{"id":"ali","label":"脂肪族","x":35,"y":62,"w":659,"h":758},{"id":"aro","label":"芳香族","x":715,"y":78,"w":608,"h":668},{"id":"isl","label":"ベンゼンとは直接つながらない系統","x":715,"y":786,"w":608,"h":188}],"nodes":{"calcium-carbide":[100,100],"acetylene":[240,96],"ethylene":[216,226],"ethane":[104,196],"dibromoethane":[104,276],"ethanol":[224,300],"diethyl-ether":[100,350],"sodium-ethoxide":[100,430],"acetaldehyde":[314,374],"acetic-acid":[386,490],"acetic-anhydride":[580,520],"ethyl-acetate":[280,476],"sodium-acetate":[332,564],"methane":[216,660],"chloromethane":[110,700],"methanol":[500,640],"formaldehyde":[420,720],"formic-acid":[300,776],"propene":[606,126],"isopropanol":[600,200],"acetone":[622,274],"cyclohexane":[630,370],"hexachlorocyclohexane":[600,444],"benzene":[1100,112],"cumene":[790,176],"cumene-hydroperoxide":[800,250],"chlorobenzene":[976,226],"benzenesulfonic-acid":[1082,186],"sodium-benzenesulfonate":[1080,264],"nitrobenzene":[1250,176],"phenol":[882,372],"sodium-phenoxide":[1000,376],"picric-acid":[790,460],"sodium-salicylate":[1010,470],"salicylic-acid":[1010,560],"methyl-salicylate":[890,644],"acetylsalicylic-acid":[1044,634],"aniline-hydrochloride":[1258,266],"aniline":[1210,340],"acetanilide":[1184,702],"benzenediazonium-chloride":[1178,444],"hydroxyazobenzene":[1146,520],"toluene":[886,852],"benzaldehyde":[1040,820],"trinitrotoluene":[760,930],"benzoic-acid":[1150,896],"sodium-benzoate":[1256,894]},"curve":{"r006|ethylene|ethanol":30,"r011|ethanol|ethylene":30,"r020|acetic-acid|ethyl-acetate":30,"r020|ethanol|ethyl-acetate":30,"r021|ethyl-acetate|acetic-acid":30,"r021|ethyl-acetate|ethanol":30,"r022|ethyl-acetate|ethanol":58,"r023|acetic-acid|sodium-acetate":30,"r024|sodium-acetate|acetic-acid":30,"r025|acetic-acid|acetic-anhydride":30,"r026|acetic-anhydride|acetic-acid":30,"r037|phenol|sodium-phenoxide":30,"r038|sodium-phenoxide|phenol":30,"r039|sodium-phenoxide|phenol":58,"r046|aniline-hydrochloride|aniline":30,"r047|aniline|aniline-hydrochloride":30,"r054|benzoic-acid|sodium-benzoate":30,"r055|sodium-benzoate|benzoic-acid":30}},"narrow":{"viewBox":[-4,54,382,1888],"bands":[{"id":"ali","label":"脂肪族","x":2,"y":60,"w":370,"h":922},{"id":"aro","label":"芳香族","x":3,"y":1054,"w":367,"h":598},{"id":"isl","label":"ベンゼンとは直接つながらない系統","x":3,"y":1762,"w":367,"h":174}],"nodes":{"calcium-carbide":[70,86],"acetylene":[36,304],"ethylene":[84,254],"ethane":[180,216],"dibromoethane":[180,298],"ethanol":[200,496],"diethyl-ether":[184,384],"sodium-ethoxide":[280,346],"acetaldehyde":[70,354],"acetic-acid":[146,562],"ethyl-acetate":[126,446],"sodium-acetate":[120,614],"methane":[72,714],"chloromethane":[102,764],"acetic-anhydride":[332,674],"propene":[292,144],"isopropanol":[308,194],"acetone":[326,276],"methanol":[238,674],"formaldehyde":[300,724],"formic-acid":[294,798],"cyclohexane":[222,898],"hexachlorocyclohexane":[238,948],"benzene":[190,1080],"cumene":[100,1142],"chlorobenzene":[166,1216],"benzenesulfonic-acid":[244,1164],"nitrobenzene":[334,1160],"cumene-hydroperoxide":[58,1204],"sodium-benzenesulfonate":[228,1370],"aniline-hydrochloride":[330,1250],"phenol":[132,1372],"sodium-phenoxide":[178,1320],"aniline":[324,1340],"picric-acid":[70,1434],"sodium-salicylate":[200,1444],"benzenediazonium-chloride":[326,1436],"salicylic-acid":[160,1544],"acetanilide":[284,1494],"hydroxyazobenzene":[292,1566],"methyl-salicylate":[66,1596],"acetylsalicylic-acid":[224,1618],"toluene":[138,1790],"benzaldehyde":[224,1788],"trinitrotoluene":[76,1842],"benzoic-acid":[240,1850],"sodium-benzoate":[240,1902]},"curve":{"r004|acetylene|benzene":150,"r006|ethylene|ethanol":30,"r011|ethanol|ethylene":30,"r020|acetic-acid|ethyl-acetate":30,"r020|ethanol|ethyl-acetate":30,"r021|ethyl-acetate|acetic-acid":30,"r021|ethyl-acetate|ethanol":30,"r022|ethyl-acetate|ethanol":58,"r023|acetic-acid|sodium-acetate":30,"r024|sodium-acetate|acetic-acid":30,"r025|acetic-acid|acetic-anhydride":30,"r026|acetic-anhydride|acetic-acid":30,"r037|phenol|sodium-phenoxide":30,"r038|sodium-phenoxide|phenol":30,"r039|sodium-phenoxide|phenol":58,"r046|aniline-hydrochloride|aniline":30,"r047|aniline|aniline-hydrochloride":30,"r054|benzoic-acid|sodium-benzoate":30,"r055|sodium-benzoate|benzoic-acid":30}}};
+
+/* ---------- 起動時チェック: wide / narrow の座標の欠落 ---------- */
+(function checkLayout(){
+  const ids=new Set(DATA.nodes.map(n=>n.id)), msg=[];
+  const W=LAYOUT.wide.nodes, N=LAYOUT.narrow.nodes;
+  ids.forEach(id=>{
+    const hw=Object.prototype.hasOwnProperty.call(W,id), hn=Object.prototype.hasOwnProperty.call(N,id);
+    if(hw&&!hn) msg.push(id+' : LAYOUT.wide にはあるが LAYOUT.narrow に座標が無い');
+    else if(!hw&&hn) msg.push(id+' : LAYOUT.narrow にはあるが LAYOUT.wide に座標が無い');
+    else if(!hw&&!hn) msg.push(id+' : wide / narrow のどちらにも座標が無い');
+  });
+  Object.keys(W).forEach(id=>{ if(!ids.has(id)) msg.push(id+' : LAYOUT.wide にあるが nodes に無い id'); });
+  Object.keys(N).forEach(id=>{ if(!ids.has(id)) msg.push(id+' : LAYOUT.narrow にあるが nodes に無い id'); });
+  if(msg.length) console.warn('[LAYOUT] 座標の不整合 '+msg.length+'件\n'+msg.join('\n'));
+  else console.info('[LAYOUT] wide / narrow ともに全 '+ids.size+' ノードの座標あり');
+})();
+
+const NODE={}; DATA.nodes.forEach(n=>NODE[n.id]=n);
+const RX={};   DATA.reactions.forEach(r=>RX[r.id]=r);
+const ISLAND=new Set(['toluene','benzaldehyde','trinitrotoluene','benzoic-acid','sodium-benzoate']);
+const bandOf=id=>ISLAND.has(id)?'isl':(NODE[id].family==='芳香族'?'aro':'ali');
+
+/* from × to を展開した線。反応1件が複数の線になることがある */
+const LINES=[];
+DATA.reactions.forEach(r=>{ r.from.forEach(a=>{ r.to.forEach(b=>{
+  if(a!==b) LINES.push({i:LINES.length,key:r.id+'|'+a+'|'+b,rid:r.id,a:a,b:b,r:r});
+});});});
+const OUT={},IN={};
+DATA.nodes.forEach(n=>{OUT[n.id]=[];IN[n.id]=[];});
+LINES.forEach(l=>{OUT[l.a].push(l.i);IN[l.b].push(l.i);});
+
+const GROUPS=['炭化水素','アルコール','エーテル','アルデヒド','ケトン','カルボン酸','エステル','フェノール類','アミン','その他'];
+const TYPES=[]; DATA.reactions.forEach(r=>{ if(TYPES.indexOf(r.type)<0) TYPES.push(r.type); });
+TYPES.sort();
+
+/* ---------- 状態 ---------- */
+const st={groups:new Set(),types:new Set(),detectOnly:false,
+          pathMode:false,pa:null,pb:null,paths:[],
+          selNode:null,selLine:null};
+
+/* ---------- 表示するか ---------- */
+const nodeVisible=n=> (st.groups.size===0||st.groups.has(n.group)) &&
+                      (!st.detectOnly||n.detection.length>0);
+const rxVisible=r=> (st.types.size===0||st.types.has(r.type)) &&
+                    r.from.every(id=>nodeVisible(NODE[id])) &&
+                    r.to.every(id=>nodeVisible(NODE[id]));
+
+/* ---------- 図形の計算 ---------- */
+const SVGNS='http://www.w3.org/2000/svg';
+function mk(t,at){const e=document.createElementNS(SVGNS,t);for(const k in at)e.setAttribute(k,at[k]);return e;}
+function metrics(mode){
+  return mode==='wide'
+    ? {cw:6.7,minw:76,pad:18,fs:11,h:22,showName:true,nameMax:118}
+    : {cw:6.0,minw:56,pad:14,fs:10,h:20,showName:false,nameMax:0};
+}
+const boxOf=(n,M)=>({w:Math.max(M.minw,n.formula.length*M.cw+M.pad),h:M.h});
+function tw(s,fs){let w=0;for(const c of s)w+=(c.charCodeAt(0)<128?0.56:1)*fs;return w;}
+function split2(s,fs){
+  let best=null;
+  for(let i=1;i<s.length;i++){
+    const a=s.slice(0,i),b=s.slice(i),m=Math.max(tw(a,fs),tw(b,fs));
+    if(best===null||m<best.m)best={m:m,l:[a,b]};
+  }
+  return best?best.l:[s];
+}
+function fitName(s,maxW){
+  for(const fs of [9.5,8.8,8.1,7.4,6.8,6.2]){
+    if(tw(s,fs)<=maxW) return {fs:fs,lines:[s]};
+    const l=split2(s,fs);
+    if(Math.max(tw(l[0],fs),tw(l[1],fs))<=maxW) return {fs:fs,lines:l};
+  }
+  return {fs:6.2,lines:split2(s,6.2)};
+}
+function bezPts(A,B,c){
+  const mx=(A[0]+B[0])/2,my=(A[1]+B[1])/2,dx=B[0]-A[0],dy=B[1]-A[1];
+  const L=Math.hypot(dx,dy)||1,cx=mx-dy/L*c,cy=my+dx/L*c,p=[];
+  /* 長い線ほど細かく刻む。刻みが粗いと端点がノードから離れて矢印が浮く */
+  const n=Math.max(24,Math.min(200,Math.round((L+Math.abs(c)*2)/6)));
+  for(let i=0;i<n;i++){const t=i/(n-1),u=1-t;
+    p.push([u*u*A[0]+2*u*t*cx+t*t*B[0],u*u*A[1]+2*u*t*cy+t*t*B[1]]);}
+  return p;
+}
+const inBox=(p,c,w,h)=>Math.abs(p[0]-c[0])<=w/2&&Math.abs(p[1]-c[1])<=h/2;
+function geom(l,L,M){
+  const A=L.nodes[l.a],B=L.nodes[l.b];
+  const ab=boxOf(NODE[l.a],M),bb=boxOf(NODE[l.b],M);
+  const pts=bezPts(A,B,L.curve[l.key]||0);
+  let s=0; while(s<pts.length-2&&inBox(pts[s],A,ab.w+6,ab.h+6))s++;
+  let e=pts.length-1; while(e>s+1&&inBox(pts[e],B,bb.w+15,bb.h+15))e--;
+  const cut=pts.slice(s,e+1);
+  let d='M'+cut[0][0].toFixed(1)+' '+cut[0][1].toFixed(1);
+  for(let i=1;i<cut.length;i++)d+='L'+cut[i][0].toFixed(1)+' '+cut[i][1].toFixed(1);
+  return {d:d,mid:cut[Math.floor(cut.length/2)]};
+}
+
+/* ---------- 描画 ---------- */
+const stage=document.getElementById('stage');
+let mode='',L=null,M=null,VB=null,nodeEl={},edgeEl=[],hitEl=[],dotEl=[],labEl=[];
+function build(){
+  mode=window.innerWidth<=760?'narrow':'wide';
+  L=LAYOUT[mode]; M=metrics(mode);
+  VB=L.viewBox.slice();
+  while(stage.firstChild)stage.removeChild(stage.firstChild);
+  stage.setAttribute('viewBox',VB.join(' '));
+  syncZoomUI();
+  const defs=mk('defs');
+  [['arw','#B9C4C0'],['arw-in','#2457A6'],['arw-out','#B87A16'],['arw-sel','#16232B'],['arw-path','#A82A6A']]
+   .forEach(([id,col])=>{
+    const m=mk('marker',{id:id,viewBox:'0 0 10 10',refX:'9',refY:'5',
+      markerWidth:'5.2',markerHeight:'5.2',orient:'auto-start-reverse',markerUnits:'strokeWidth'});
+    m.appendChild(mk('path',{d:'M0 1 L9 5 L0 9 z',fill:col}));
+    defs.appendChild(m);
+  });
+  stage.appendChild(defs);
+  const gB=mk('g'),gE=mk('g'),gD=mk('g'),gL=mk('g'),gH=mk('g'),gN=mk('g');
+  [gB,gE,gD,gL,gH,gN].forEach(g=>stage.appendChild(g));
+
+  const FILL={ali:'var(--band-ali)',aro:'var(--band-aro)',isl:'var(--band-isl)'};
+  L.bands.forEach(b=>{
+    gB.appendChild(mk('rect',{class:'bandrect',x:b.x,y:b.y,width:b.w,height:b.h,rx:3,fill:FILL[b.id]}));
+    const t=mk('text',{class:'bandlabel',x:b.x+10,y:b.y+16}); t.textContent=b.label; gB.appendChild(t);
+    if(b.id==='isl'){
+      const n=mk('text',{class:'bandnote',x:b.x+10,y:b.y+30});
+      n.textContent='ベンゼンからトルエンをつくる反応は高校範囲では扱わない';
+      gB.appendChild(n);
+    }
+  });
+
+  edgeEl=[];hitEl=[];dotEl=[];labEl=[];
+  LINES.forEach(l=>{
+    const g=geom(l,L,M);
+    const p=mk('path',{class:'edge',d:g.d,'marker-end':'url(#arw)'});
+    const h=mk('path',{class:'ehit',d:g.d,tabindex:'-1',role:'button'});
+    h.setAttribute('aria-label',l.r.id+' '+NODE[l.a].name+'から'+NODE[l.b].name);
+    const ti=mk('title'); ti.textContent=NODE[l.a].name+' → '+NODE[l.b].name+'　'+l.r.reagent; h.appendChild(ti);
+    const dot=mk('circle',{class:'edot',cx:g.mid[0],cy:g.mid[1],r:mode==='wide'?2.6:2.2});
+    const lb=mk('text',{class:'elabel',x:g.mid[0],y:g.mid[1]-6}); lb.textContent=l.r.reagent;
+    lb.style.display='none';
+    h.addEventListener('click',ev=>{ev.stopPropagation();pickLine(l.i);});
+    h.addEventListener('keydown',ev=>{if(ev.key==='Enter'||ev.key===' '){ev.preventDefault();pickLine(l.i);}});
+    gE.appendChild(p);gH.appendChild(h);gD.appendChild(dot);gL.appendChild(lb);
+    edgeEl.push(p);hitEl.push(h);dotEl.push(dot);labEl.push(lb);
+  });
+
+  nodeEl={};
+  const order=DATA.nodes.slice().sort((x,y)=>{
+    const bo={ali:0,aro:1,isl:2};
+    if(bo[bandOf(x.id)]!==bo[bandOf(y.id)])return bo[bandOf(x.id)]-bo[bandOf(y.id)];
+    const px=L.nodes[x.id],py=L.nodes[y.id];
+    return (px[1]-py[1])||(px[0]-py[0]);
+  });
+  order.forEach(n=>{
+    const p=L.nodes[n.id],b=boxOf(n,M);
+    const g=mk('g',{class:'node',tabindex:'0',role:'button','data-id':n.id,'data-fam':n.family});
+    g.setAttribute('aria-label',n.name+'　'+n.formula);
+    const ti=mk('title'); ti.textContent=n.name+'（'+n.formula+'）'; g.appendChild(ti);
+    g.appendChild(mk('rect',{class:'nbox',x:p[0]-b.w/2,y:p[1]-b.h/2,width:b.w,height:b.h,rx:2}));
+    const f=mk('text',{class:'nform',x:p[0],y:p[1]+0.5,'font-size':M.fs}); f.textContent=n.formula;
+    g.appendChild(f);
+    if(M.showName){
+      const fit=fitName(n.name,M.nameMax);
+      fit.lines.forEach((ln,i)=>{
+        const t=mk('text',{class:'nname',x:p[0],y:p[1]+b.h/2+fit.fs+1+i*(fit.fs+1.5),'font-size':fit.fs});
+        t.textContent=ln; g.appendChild(t);
+      });
+    }
+    g.addEventListener('click',ev=>{ev.stopPropagation();pickNode(n.id);});
+    g.addEventListener('keydown',ev=>onNodeKey(ev,n.id));
+    gN.appendChild(g); nodeEl[n.id]=g;
+  });
+  apply();
+}
+
+/* ---------- 状態の反映 ---------- */
+function clearTrace(){
+  edgeEl.forEach(p=>{p.classList.remove('trace');p.style.transition='none';
+    p.style.strokeDasharray='';p.style.strokeDashoffset='';});
+}
+function apply(){
+  const onPathN=new Set(),onPathL=new Set();
+  st.paths.forEach(p=>p.forEach(li=>{onPathL.add(li);onPathN.add(LINES[li].a);onPathN.add(LINES[li].b);}));
+  const inSet=new Set(),outSet=new Set();
+  if(st.selNode){IN[st.selNode].forEach(i=>inSet.add(i));OUT[st.selNode].forEach(i=>outSet.add(i));}
+  let vn=0;
+  DATA.nodes.forEach(n=>{
+    const g=nodeEl[n.id],vis=nodeVisible(n); if(vis)vn++;
+    g.classList.toggle('hidden',!vis);
+    g.setAttribute('tabindex',vis?'0':'-1');
+    g.classList.toggle('sel',st.selNode===n.id);
+    g.classList.toggle('pend',st.pathMode&&(st.pa===n.id||st.pb===n.id));
+    g.classList.toggle('onpath',onPathN.has(n.id));
+    const nbr=(st.selNode&&st.selNode!==n.id&&
+      (IN[st.selNode].some(i=>LINES[i].a===n.id)||OUT[st.selNode].some(i=>LINES[i].b===n.id)));
+    g.classList.toggle('nbr',!!nbr);
+    g.classList.toggle('dim',!!(st.selNode&&!nbr&&st.selNode!==n.id&&!onPathN.has(n.id)));
+  });
+  const seenRx=new Set();
+  LINES.forEach(l=>{
+    const vis=rxVisible(l.r); if(vis)seenRx.add(l.rid);
+    const p=edgeEl[l.i],h=hitEl[l.i],d=dotEl[l.i],lb=labEl[l.i];
+    [p,h,d].forEach(e=>e.classList.toggle('hidden',!vis));
+    h.setAttribute('tabindex','-1');
+    const isIn=inSet.has(l.i),isOut=outSet.has(l.i),isSel=st.selLine===l.i,isP=onPathL.has(l.i);
+    p.classList.toggle('in',isIn&&!isSel&&!isP);
+    p.classList.toggle('out',isOut&&!isSel&&!isP);
+    p.classList.toggle('sel',isSel);
+    p.classList.toggle('onpath',isP&&!isSel);
+    const hot=isIn||isOut||isSel||isP;
+    p.classList.toggle('dim',!hot&&(!!st.selNode||!!st.selLine||st.paths.length>0));
+    d.classList.toggle('dim',!hot&&(!!st.selNode||!!st.selLine||st.paths.length>0));
+    d.classList.toggle('on',hot);
+    p.setAttribute('marker-end', isSel?'url(#arw-sel)':isP?'url(#arw-path)':
+      isIn?'url(#arw-in)':isOut?'url(#arw-out)':'url(#arw)');
+    lb.style.display=(vis&&hot)?'':'none';
+  });
+  let vr=0; DATA.reactions.forEach(r=>{if(rxVisible(r))vr++;});
+  document.getElementById('counts').innerHTML=
+    '表示中 &nbsp;ノード <b>'+vn+'</b> / '+DATA.nodes.length+
+    ' &nbsp;&nbsp;反応 <b>'+vr+'</b> / '+DATA.reactions.length+
+    ' &nbsp;&nbsp;線 <b>'+seenRx.size+'</b> 反応ぶん';
+  drawPanel();
+}
+function trace(){
+  const reduce=window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+  if(reduce||st.paths.length===0){clearTrace();return;}
+  const step=new Map();
+  st.paths.forEach(p=>p.forEach((li,i)=>{step.set(li,Math.min(step.has(li)?step.get(li):999,i));}));
+  step.forEach((s,li)=>{
+    const p=edgeEl[li]; if(!p)return;
+    let len=0; try{len=p.getTotalLength();}catch(e){return;}
+    p.classList.add('trace');
+    p.style.transition='none'; p.style.strokeDasharray=len; p.style.strokeDashoffset=len;
+    p.getBoundingClientRect();
+    p.style.transition='stroke-dashoffset 220ms linear '+(s*220)+'ms';
+    p.style.strokeDashoffset='0';
+  });
+}
+
+/* ---------- 詳細パネル ---------- */
+const panel=document.getElementById('panel');
+const esc=s=>String(s).replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
+function rxLine(r){return r.from.map(i=>NODE[i].name).join(' + ')+' → '+r.to.map(i=>NODE[i].name).join(' + ');}
+function drawPanel(){
+  if(st.pathMode){ panelPath(); return; }
+  if(st.selLine!==null){ panelLine(LINES[st.selLine]); return; }
+  if(st.selNode){ panelNode(NODE[st.selNode]); return; }
+  panel.innerHTML='<div class="eyebrow">DETAIL</div>'+
+    '<p class="note" style="margin-top:8px">化合物か反応の線をタップすると、ここに中身が出る。'+
+    '化合物を選ぶと、そこから出る反応が橙、入る反応が青で示される。</p>';
+}
+function panelNode(n){
+  let h='<div class="eyebrow">COMPOUND</div>';
+  h+='<p class="pname" style="margin-top:8px">'+esc(n.name)+'</p>';
+  h+='<p class="pform">'+esc(n.formula)+'</p>';
+  h+='<div><span class="ptag">'+esc(n.family)+'</span><span class="ptag">'+esc(n.group)+'</span></div>';
+  h+='<div class="kv"><div class="k">検出反応</div><div>'+
+     (n.detection.length?n.detection.map(esc).join('<br>'):'—')+'</div>';
+  h+='<div class="k">要点</div><div>'+(n.note?esc(n.note):'—')+'</div></div>';
+  const outs=OUT[n.id].filter(i=>rxVisible(LINES[i].r));
+  const ins=IN[n.id].filter(i=>rxVisible(LINES[i].r));
+  h+='<div class="rxlist">';
+  h+='<div class="rxgrp">ここから出る反応 '+outs.length+'</div>';
+  h+= outs.length?outs.map(i=>btn(i)).join(''):'<p class="note">なし</p>';
+  h+='<div class="rxgrp">ここに入る反応 '+ins.length+'</div>';
+  h+= ins.length?ins.map(i=>btn(i)).join(''):'<p class="note">なし</p>';
+  h+='</div>';
+  panel.innerHTML=h;
+  panel.querySelectorAll('.rxbtn').forEach(b=>b.addEventListener('click',()=>pickLine(+b.dataset.li)));
+}
+function btn(i){
+  const l=LINES[i];
+  return '<button class="rxbtn" data-li="'+i+'"><span class="rid">'+l.rid+'</span>'+
+    esc(NODE[l.a].name)+'<span class="arw">→</span>'+esc(NODE[l.b].name)+
+    '<br><span class="note">'+esc(l.r.reagent)+(l.r.conditions?'　/　'+esc(l.r.conditions):'')+'</span></button>';
+}
+function panelLine(l){
+  const r=l.r;
+  let h='<div class="eyebrow">REACTION</div>';
+  h+='<p class="pname" style="margin-top:8px;font-size:13.5px">'+esc(rxLine(r))+'</p>';
+  h+='<p class="pform" style="font-size:11.5px">'+esc(r.id)+'</p>';
+  h+='<div><span class="ptag">'+esc(r.type)+'</span></div>';
+  h+='<div class="kv">';
+  h+='<div class="k">試薬</div><div>'+esc(r.reagent||'—')+'</div>';
+  h+='<div class="k">条件</div><div>'+esc(r.conditions||'—')+'</div>';
+  h+='<div class="k">注意点</div><div>'+esc(r.note||'—')+'</div>';
+  h+='</div>';
+  h+='<div class="rxlist"><div class="rxgrp">この反応の化合物</div>';
+  r.from.concat(r.to).filter((v,i,a)=>a.indexOf(v)===i).forEach(id=>{
+    h+='<button class="rxbtn" data-nid="'+id+'">'+esc(NODE[id].name)+
+       '<span class="note">　'+esc(NODE[id].formula)+'</span></button>';
+  });
+  h+='</div>';
+  panel.innerHTML=h;
+  panel.querySelectorAll('.rxbtn').forEach(b=>b.addEventListener('click',()=>pickNode(b.dataset.nid)));
+}
+function panelPath(){
+  let h='<div class="eyebrow">PATH</div>';
+  h+='<div class="kv" style="margin-top:8px">';
+  h+='<div class="k">起点</div><div>'+(st.pa?esc(NODE[st.pa].name):'<span class="note">図から化合物を1つ選ぶ</span>')+'</div>';
+  h+='<div class="k">終点</div><div>'+(st.pb?esc(NODE[st.pb].name):'<span class="note">もう1つ選ぶ</span>')+'</div>';
+  h+='</div>';
+  if(st.pa&&st.pb){
+    if(st.paths.length===0){
+      h+='<p class="warnmsg">'+esc(NODE[st.pa].name)+' から '+esc(NODE[st.pb].name)+
+         ' へたどれる経路は無い。<br>矢印の向きに沿って進める反応が、いま表示している範囲に存在しない。</p>';
+    }else{
+      h+='<p class="note">経路 '+st.paths.length+' 通り（矢印の向きに沿ってたどれるもの）</p>';
+      st.paths.forEach((p,k)=>{
+        h+='<div class="pathrow"><div class="lbl">PATH '+(k+1)+'　'+p.length+'段</div><div class="seq">';
+        h+=esc(NODE[LINES[p[0]].a].name);
+        p.forEach(li=>{const l=LINES[li];
+          h+=' <span class="rid">─'+l.rid+'→</span> '+esc(NODE[l.b].name);});
+        h+='</div></div>';
+      });
+    }
+  }
+  h+='<div class="btnrow" style="margin-top:10px"><button class="btn sm" id="p-clear">選び直す</button></div>';
+  panel.innerHTML=h;
+  const c=document.getElementById('p-clear');
+  if(c)c.addEventListener('click',()=>{st.pa=st.pb=null;st.paths=[];clearTrace();apply();});
+}
+
+/* ---------- 経路の数え上げ ---------- */
+function findPaths(a,b){
+  const res=[],seen=new Set([a]),cur=[];
+  const MAXD=12,MAXP=40;
+  (function dfs(u){
+    if(res.length>=MAXP||cur.length>=MAXD)return;
+    for(const li of OUT[u]){
+      const l=LINES[li];
+      if(!rxVisible(l.r))continue;
+      if(l.b===b){ res.push(cur.concat([li])); if(res.length>=MAXP)return; continue; }
+      if(seen.has(l.b))continue;
+      seen.add(l.b);cur.push(li);dfs(l.b);cur.pop();seen.delete(l.b);
+      if(res.length>=MAXP)return;
+    }
+  })(a);
+  res.sort((x,y)=>x.length-y.length);
+  return res;
+}
+
+/* ---------- 選択 ---------- */
+function pickNode(id){
+  if(!nodeVisible(NODE[id]))return;
+  if(st.pathMode){
+    clearTrace();
+    if(!st.pa||(st.pa&&st.pb)){st.pa=id;st.pb=null;st.paths=[];}
+    else if(id===st.pa){st.pa=null;st.paths=[];}
+    else{st.pb=id;st.paths=findPaths(st.pa,st.pb);}
+    apply(); if(st.paths.length)trace();
+    return;
+  }
+  clearTrace();
+  st.selLine=null;
+  st.selNode=(st.selNode===id)?null:id;
+  apply();
+}
+function pickLine(i){
+  if(!rxVisible(LINES[i].r))return;
+  if(st.pathMode)return;
+  clearTrace();
+  st.selNode=null;
+  st.selLine=(st.selLine===i)?null:i;
+  apply();
+}
+function deselect(){ clearTrace(); st.selNode=null; st.selLine=null; if(!st.pathMode){st.pa=st.pb=null;st.paths=[];} apply(); }
+
+/* ---------- キーボード ---------- */
+function onNodeKey(ev,id){
+  if(ev.key==='Enter'||ev.key===' '){ev.preventDefault();pickNode(id);return;}
+  if(ev.key==='Escape'){ev.preventDefault();deselect();return;}
+  const dir={ArrowRight:[1,0],ArrowLeft:[-1,0],ArrowUp:[0,-1],ArrowDown:[0,1]}[ev.key];
+  if(!dir)return;
+  ev.preventDefault();
+  const p=L.nodes[id];let best=null;
+  DATA.nodes.forEach(n=>{
+    if(n.id===id||!nodeVisible(n))return;
+    const q=L.nodes[n.id],dx=q[0]-p[0],dy=q[1]-p[1];
+    const along=dx*dir[0]+dy*dir[1], off=Math.abs(dx*dir[1]-dy*dir[0]);
+    if(along<=6)return;
+    const s=along+off*2.4;
+    if(best===null||s<best.s)best={s:s,id:n.id};
+  });
+  if(best)nodeEl[best.id].focus();
+}
+
+/* ---------- 絞り込みUI ---------- */
+function chips(host,items,set){
+  host.innerHTML='';
+  const all=document.createElement('button');
+  all.className='btn sm'+(set.size===0?' on':'');all.textContent='すべて';
+  all.addEventListener('click',()=>{set.clear();buildChips();recount();});
+  host.appendChild(all);
+  items.forEach(v=>{
+    const b=document.createElement('button');
+    b.className='btn sm'+(set.has(v)?' on':'');b.textContent=v;
+    b.setAttribute('aria-pressed',set.has(v)?'true':'false');
+    b.addEventListener('click',()=>{set.has(v)?set.delete(v):set.add(v);buildChips();recount();});
+    host.appendChild(b);
+  });
+}
+function buildChips(){
+  chips(document.getElementById('f-group'),GROUPS,st.groups);
+  chips(document.getElementById('f-type'),TYPES,st.types);
+}
+function recount(){
+  if(st.selNode&&!nodeVisible(NODE[st.selNode]))st.selNode=null;
+  if(st.selLine!==null&&!rxVisible(LINES[st.selLine].r))st.selLine=null;
+  if(st.pa&&st.pb){clearTrace();st.paths=findPaths(st.pa,st.pb);}
+  apply(); if(st.paths.length)trace();
+}
+
+document.getElementById('t-detect').addEventListener('click',function(){
+  st.detectOnly=!st.detectOnly;
+  this.classList.toggle('on',st.detectOnly);
+  this.setAttribute('aria-pressed',st.detectOnly?'true':'false');
+  recount();
+});
+document.getElementById('t-path').addEventListener('click',function(){
+  st.pathMode=!st.pathMode;
+  this.classList.toggle('on',st.pathMode);
+  this.setAttribute('aria-pressed',st.pathMode?'true':'false');
+  clearTrace(); st.selNode=null;st.selLine=null;st.pa=st.pb=null;st.paths=[];
+  apply();
+});
+document.getElementById('t-reset').addEventListener('click',()=>{
+  clearTrace();
+  st.groups.clear();st.types.clear();st.detectOnly=false;
+  st.pathMode=false;st.pa=st.pb=null;st.paths=[];st.selNode=null;st.selLine=null;
+  const d=document.getElementById('t-detect'),p=document.getElementById('t-path');
+  d.classList.remove('on');d.setAttribute('aria-pressed','false');
+  p.classList.remove('on');p.setAttribute('aria-pressed','false');
+  buildChips();apply();
+});
+
+/* ---------- パンとズーム ---------- */
+let drag=null;
+stage.addEventListener('pointerdown',ev=>{
+  if(ev.target.closest('.node')||ev.target.classList.contains('ehit'))return;
+  drag={x:ev.clientX,y:ev.clientY,vb:VB.slice(),moved:false};
+  stage.classList.add('drag');stage.setPointerCapture(ev.pointerId);
+});
+stage.addEventListener('pointermove',ev=>{
+  if(!drag)return;
+  const r=stage.getBoundingClientRect();
+  const dx=(ev.clientX-drag.x)/r.width*drag.vb[2], dy=(ev.clientY-drag.y)/r.height*drag.vb[3];
+  if(Math.abs(ev.clientX-drag.x)+Math.abs(ev.clientY-drag.y)>3)drag.moved=true;
+  VB=[drag.vb[0]-dx,drag.vb[1]-dy,drag.vb[2],drag.vb[3]];
+  stage.setAttribute('viewBox',VB.join(' '));
+});
+function endDrag(ev){
+  if(!drag)return;
+  const moved=drag.moved; drag=null; stage.classList.remove('drag');
+  if(!moved&&ev&&ev.target===stage)deselect();
+}
+stage.addEventListener('pointerup',endDrag);
+stage.addEventListener('pointercancel',()=>{drag=null;stage.classList.remove('drag');});
+/* トラックパッドのホイール/2本指スライドはズームに使わない（誤操作が起きやすいため）。
+   拡大率はスライダーで操作する。ホイールは既定のページスクロールに任せる。 */
+
+/* ---------- 拡大率スライダー（10%〜300%） ---------- */
+const zoomRange=document.getElementById('zoom-range'), zoomVal=document.getElementById('zoom-val');
+function setVB(nv){ VB=nv; stage.setAttribute('viewBox',VB.join(' ')); syncZoomUI(); }
+function currentPercent(){ return Math.round(L.viewBox[2]/VB[2]*100); }
+function syncZoomUI(){
+  const p=Math.max(10,Math.min(300,currentPercent()));
+  zoomRange.value=p; zoomVal.textContent=p+'%';
+}
+function zoomToPercent(p,cx,cy){
+  p=Math.max(10,Math.min(300,p));
+  const w=L.viewBox[2]*100/p, h=w*(L.viewBox[3]/L.viewBox[2]);
+  if(cx===undefined){cx=VB[0]+VB[2]/2; cy=VB[1]+VB[3]/2;}
+  setVB([cx-w/2,cy-h/2,w,h]);
+}
+zoomRange.addEventListener('input',()=>zoomToPercent(+zoomRange.value));
+document.getElementById('zoom-in').addEventListener('click',()=>zoomToPercent(currentPercent()+20));
+document.getElementById('zoom-out').addEventListener('click',()=>zoomToPercent(currentPercent()-20));
+document.getElementById('zoom-fit').addEventListener('click',()=>setVB(L.viewBox.slice()));
+
+/* ---------- タッチのピンチ操作は維持する（トラックパッドとは別の入力） ---------- */
+let pinch=null;
+stage.addEventListener('touchstart',ev=>{
+  if(ev.touches.length===2){
+    const a=ev.touches[0],b=ev.touches[1];
+    pinch={d:Math.hypot(a.clientX-b.clientX,a.clientY-b.clientY),vb:VB.slice()};
+    drag=null;
+  }
+},{passive:true});
+stage.addEventListener('touchmove',ev=>{
+  if(pinch&&ev.touches.length===2){
+    ev.preventDefault();
+    const a=ev.touches[0],b=ev.touches[1];
+    const d=Math.hypot(a.clientX-b.clientX,a.clientY-b.clientY);
+    const s=Math.min(10,Math.max(0.333,pinch.vb[2]/L.viewBox[2]*(pinch.d/d)))*L.viewBox[2]/pinch.vb[2];
+    const cx=pinch.vb[0]+pinch.vb[2]/2, cy=pinch.vb[1]+pinch.vb[3]/2;
+    setVB([cx-pinch.vb[2]*s/2,cy-pinch.vb[3]*s/2,pinch.vb[2]*s,pinch.vb[3]*s]);
+  }
+},{passive:false});
+stage.addEventListener('touchend',()=>{if(pinch)pinch=null;});
+
+/* ---------- 起動 ---------- */
+document.getElementById('datanote').textContent=
+  'ノード '+DATA.nodes.length+' 件 / 反応 '+DATA.reactions.length+' 件。'+
+  'from × to を展開した線は '+LINES.length+' 本（反応1件が複数の線になるものがあるため反応数より多い）。'+
+  '内容は data/organic-reaction-map.json をそのまま埋め込んでいる。';
+buildChips();
+build();
+let rt=0,lastMode=mode;
+window.addEventListener('resize',()=>{
+  clearTimeout(rt);
+  rt=setTimeout(()=>{
+    const m=window.innerWidth<=760?'narrow':'wide';
+    if(m!==lastMode){lastMode=m;clearTrace();build();if(st.paths.length)trace();}
+  },160);
+});
+
+
+/* ==================== 逆引きモード ==================== */
+/* ---------- 性質データ（data/organic-properties.json をそのまま埋め込み） ---------- */
+const PROPS = {"properties":[{"id":"calcium-carbide","molecular_formula":"CaC2","molecular_weight":64.0,"acidity":"中性","naoh_soluble":false,"nahco3_reaction":false,"hcl_soluble":false,"iodoform":false,"silver_mirror":false,"fehling":false,"fecl3":"","bromine_water":"なし","bleaching_powder":"","functional_groups":[],"distinguishing":"無機化合物のため検出反応は該当しない","confidence":"low"},{"id":"methane","molecular_formula":"CH4","molecular_weight":16.0,"acidity":"中性","naoh_soluble":false,"nahco3_reaction":false,"hcl_soluble":false,"iodoform":false,"silver_mirror":false,"fehling":false,"fecl3":"","bromine_water":"なし","bleaching_powder":"","functional_groups":[],"distinguishing":"置換反応のみで付加は起こらない炭化水素","confidence":"high"},{"id":"ethane","molecular_formula":"C2H6","molecular_weight":30.0,"acidity":"中性","naoh_soluble":false,"nahco3_reaction":false,"hcl_soluble":false,"iodoform":false,"silver_mirror":false,"fehling":false,"fecl3":"","bromine_water":"なし","bleaching_powder":"","functional_groups":[],"distinguishing":"臭素水を脱色しない飽和炭化水素","confidence":"high"},{"id":"ethylene","molecular_formula":"C2H4","molecular_weight":28.0,"acidity":"中性","naoh_soluble":false,"nahco3_reaction":false,"hcl_soluble":false,"iodoform":false,"silver_mirror":false,"fehling":false,"fecl3":"","bromine_water":"脱色","bleaching_powder":"","functional_groups":["二重結合"],"distinguishing":"臭素水を脱色する二重結合1つの炭化水素","confidence":"high"},{"id":"propene","molecular_formula":"C3H6","molecular_weight":42.0,"acidity":"中性","naoh_soluble":false,"nahco3_reaction":false,"hcl_soluble":false,"iodoform":false,"silver_mirror":false,"fehling":false,"fecl3":"","bromine_water":"脱色","bleaching_powder":"","functional_groups":["二重結合"],"distinguishing":"臭素水を脱色するC3の不飽和炭化水素","confidence":"high"},{"id":"acetylene","molecular_formula":"C2H2","molecular_weight":26.0,"acidity":"中性","naoh_soluble":false,"nahco3_reaction":false,"hcl_soluble":false,"iodoform":false,"silver_mirror":false,"fehling":false,"fecl3":"","bromine_water":"脱色","bleaching_powder":"","functional_groups":["三重結合"],"distinguishing":"三重結合をもち臭素水に2段階で付加する","confidence":"high"},{"id":"cyclohexane","molecular_formula":"C6H12","molecular_weight":84.0,"acidity":"中性","naoh_soluble":false,"nahco3_reaction":false,"hcl_soluble":false,"iodoform":false,"silver_mirror":false,"fehling":false,"fecl3":"","bromine_water":"なし","bleaching_powder":"","functional_groups":[],"distinguishing":"ベンゼンの水素付加で得る飽和脂環式炭化水素","confidence":"high"},{"id":"chloromethane","molecular_formula":"CH3Cl","molecular_weight":50.5,"acidity":"中性","naoh_soluble":false,"nahco3_reaction":false,"hcl_soluble":false,"iodoform":false,"silver_mirror":false,"fehling":false,"fecl3":"","bromine_water":"なし","bleaching_powder":"","functional_groups":["ハロゲン"],"distinguishing":"メタンの塩素置換で最初に生じる化合物","confidence":"high"},{"id":"dibromoethane","molecular_formula":"C2H4Br2","molecular_weight":188.0,"acidity":"中性","naoh_soluble":false,"nahco3_reaction":false,"hcl_soluble":false,"iodoform":false,"silver_mirror":false,"fehling":false,"fecl3":"","bromine_water":"なし","bleaching_powder":"","functional_groups":["ハロゲン"],"distinguishing":"エチレンへの臭素付加で得られる化合物","confidence":"high"},{"id":"methanol","molecular_formula":"CH4O","molecular_weight":32.0,"acidity":"中性","naoh_soluble":false,"nahco3_reaction":false,"hcl_soluble":false,"iodoform":false,"silver_mirror":false,"fehling":false,"fecl3":"","bromine_water":"なし","bleaching_powder":"","functional_groups":["ヒドロキシ基"],"distinguishing":"ヨードホルム反応陰性の第一級アルコール","confidence":"high"},{"id":"ethanol","molecular_formula":"C2H6O","molecular_weight":46.0,"acidity":"中性","naoh_soluble":false,"nahco3_reaction":false,"hcl_soluble":false,"iodoform":true,"silver_mirror":false,"fehling":false,"fecl3":"","bromine_water":"なし","bleaching_powder":"","functional_groups":["ヒドロキシ基"],"distinguishing":"ヨードホルム反応陽性の第一級アルコール","confidence":"high"},{"id":"isopropanol","molecular_formula":"C3H8O","molecular_weight":60.0,"acidity":"中性","naoh_soluble":false,"nahco3_reaction":false,"hcl_soluble":false,"iodoform":true,"silver_mirror":false,"fehling":false,"fecl3":"","bromine_water":"なし","bleaching_powder":"","functional_groups":["ヒドロキシ基"],"distinguishing":"ヨードホルム反応陽性の第二級アルコール","confidence":"high"},{"id":"sodium-ethoxide","molecular_formula":"C2H5NaO","molecular_weight":68.0,"acidity":"塩","naoh_soluble":false,"nahco3_reaction":false,"hcl_soluble":false,"iodoform":false,"silver_mirror":false,"fehling":false,"fecl3":"","bromine_water":"なし","bleaching_powder":"","functional_groups":["ヒドロキシ基"],"distinguishing":"エタノールのナトリウム塩、強塩基性","confidence":"low"},{"id":"diethyl-ether","molecular_formula":"C4H10O","molecular_weight":74.0,"acidity":"中性","naoh_soluble":false,"nahco3_reaction":false,"hcl_soluble":false,"iodoform":false,"silver_mirror":false,"fehling":false,"fecl3":"","bromine_water":"なし","bleaching_powder":"","functional_groups":["エーテル結合"],"distinguishing":"ナトリウムと反応しない低沸点エーテル","confidence":"high"},{"id":"formaldehyde","molecular_formula":"CH2O","molecular_weight":30.0,"acidity":"中性","naoh_soluble":false,"nahco3_reaction":false,"hcl_soluble":false,"iodoform":false,"silver_mirror":true,"fehling":true,"fecl3":"","bromine_water":"なし","bleaching_powder":"","functional_groups":["アルデヒド基"],"distinguishing":"銀鏡・フェーリング陽性、ヨードホルム陰性","confidence":"high"},{"id":"acetaldehyde","molecular_formula":"C2H4O","molecular_weight":44.0,"acidity":"中性","naoh_soluble":false,"nahco3_reaction":false,"hcl_soluble":false,"iodoform":true,"silver_mirror":true,"fehling":true,"fecl3":"","bromine_water":"なし","bleaching_powder":"","functional_groups":["アルデヒド基"],"distinguishing":"銀鏡・フェーリング・ヨードホルムすべて陽性","confidence":"high"},{"id":"acetone","molecular_formula":"C3H6O","molecular_weight":58.0,"acidity":"中性","naoh_soluble":false,"nahco3_reaction":false,"hcl_soluble":false,"iodoform":true,"silver_mirror":false,"fehling":false,"fecl3":"","bromine_water":"なし","bleaching_powder":"","functional_groups":["カルボニル基"],"distinguishing":"ヨードホルム陽性だが還元性のないケトン","confidence":"high"},{"id":"formic-acid","molecular_formula":"CH2O2","molecular_weight":46.0,"acidity":"カルボン酸","naoh_soluble":true,"nahco3_reaction":true,"hcl_soluble":false,"iodoform":false,"silver_mirror":true,"fehling":true,"fecl3":"","bromine_water":"なし","bleaching_powder":"","functional_groups":["アルデヒド基","カルボキシ基"],"distinguishing":"カルボン酸なのに銀鏡・フェーリング陽性","confidence":"low"},{"id":"acetic-acid","molecular_formula":"C2H4O2","molecular_weight":60.0,"acidity":"カルボン酸","naoh_soluble":true,"nahco3_reaction":true,"hcl_soluble":false,"iodoform":false,"silver_mirror":false,"fehling":false,"fecl3":"","bromine_water":"なし","bleaching_powder":"","functional_groups":["カルボキシ基"],"distinguishing":"CH3CO-をもつがヨードホルム反応は陰性","confidence":"high"},{"id":"sodium-acetate","molecular_formula":"C2H3NaO2","molecular_weight":82.0,"acidity":"塩","naoh_soluble":false,"nahco3_reaction":false,"hcl_soluble":false,"iodoform":false,"silver_mirror":false,"fehling":false,"fecl3":"","bromine_water":"なし","bleaching_powder":"","functional_groups":["カルボキシ基"],"distinguishing":"酢酸の塩、水溶液は弱塩基性","confidence":"low"},{"id":"acetic-anhydride","molecular_formula":"C4H6O3","molecular_weight":102.0,"acidity":"中性","naoh_soluble":false,"nahco3_reaction":false,"hcl_soluble":false,"iodoform":false,"silver_mirror":false,"fehling":false,"fecl3":"","bromine_water":"なし","bleaching_powder":"","functional_groups":["カルボニル基"],"distinguishing":"酸無水物構造をもち水で酢酸に加水分解","confidence":"low"},{"id":"ethyl-acetate","molecular_formula":"C4H8O2","molecular_weight":88.0,"acidity":"中性","naoh_soluble":false,"nahco3_reaction":false,"hcl_soluble":false,"iodoform":false,"silver_mirror":false,"fehling":false,"fecl3":"","bromine_water":"なし","bleaching_powder":"","functional_groups":["エステル結合"],"distinguishing":"果実様の芳香をもつ低沸点エステル","confidence":"high"},{"id":"benzene","molecular_formula":"C6H6","molecular_weight":78.0,"acidity":"中性","naoh_soluble":false,"nahco3_reaction":false,"hcl_soluble":false,"iodoform":false,"silver_mirror":false,"fehling":false,"fecl3":"","bromine_water":"なし","bleaching_powder":"","functional_groups":["ベンゼン環"],"distinguishing":"臭素水を脱色しない芳香族炭化水素","confidence":"high"},{"id":"toluene","molecular_formula":"C7H8","molecular_weight":92.0,"acidity":"中性","naoh_soluble":false,"nahco3_reaction":false,"hcl_soluble":false,"iodoform":false,"silver_mirror":false,"fehling":false,"fecl3":"","bromine_water":"なし","bleaching_powder":"","functional_groups":["ベンゼン環"],"distinguishing":"側鎖のメチル基が酸化され安息香酸になる","confidence":"high"},{"id":"cumene","molecular_formula":"C9H12","molecular_weight":120.0,"acidity":"中性","naoh_soluble":false,"nahco3_reaction":false,"hcl_soluble":false,"iodoform":false,"silver_mirror":false,"fehling":false,"fecl3":"","bromine_water":"なし","bleaching_powder":"","functional_groups":["ベンゼン環"],"distinguishing":"クメン法の原料イソプロピルベンゼン","confidence":"high"},{"id":"cumene-hydroperoxide","molecular_formula":"C9H12O2","molecular_weight":152.0,"acidity":"中性","naoh_soluble":false,"nahco3_reaction":false,"hcl_soluble":false,"iodoform":false,"silver_mirror":false,"fehling":false,"fecl3":"","bromine_water":"なし","bleaching_powder":"","functional_groups":["ベンゼン環"],"distinguishing":"クメン法の中間体、過酸化物構造をもつ","confidence":"low"},{"id":"chlorobenzene","molecular_formula":"C6H5Cl","molecular_weight":112.5,"acidity":"中性","naoh_soluble":false,"nahco3_reaction":false,"hcl_soluble":false,"iodoform":false,"silver_mirror":false,"fehling":false,"fecl3":"","bromine_water":"なし","bleaching_powder":"","functional_groups":["ベンゼン環","ハロゲン"],"distinguishing":"塩素が環に直結し置換されにくい化合物","confidence":"high"},{"id":"nitrobenzene","molecular_formula":"C6H5NO2","molecular_weight":123.0,"acidity":"中性","naoh_soluble":false,"nahco3_reaction":false,"hcl_soluble":false,"iodoform":false,"silver_mirror":false,"fehling":false,"fecl3":"","bromine_water":"なし","bleaching_powder":"","functional_groups":["ベンゼン環","ニトロ基"],"distinguishing":"水より重い淡黄色油状、還元でアニリンへ","confidence":"high"},{"id":"aniline","molecular_formula":"C6H7N","molecular_weight":93.0,"acidity":"塩基性","naoh_soluble":false,"nahco3_reaction":false,"hcl_soluble":true,"iodoform":false,"silver_mirror":false,"fehling":false,"fecl3":"","bromine_water":"白色沈殿","bleaching_powder":"赤紫色","functional_groups":["ベンゼン環","アミノ基"],"distinguishing":"さらし粉で赤紫、二クロム酸Kで黒色(アニリンブラック)","confidence":"high"},{"id":"aniline-hydrochloride","molecular_formula":"C6H8ClN","molecular_weight":129.5,"acidity":"塩","naoh_soluble":false,"nahco3_reaction":false,"hcl_soluble":false,"iodoform":false,"silver_mirror":false,"fehling":false,"fecl3":"","bromine_water":"なし","bleaching_powder":"","functional_groups":["アミノ基","ベンゼン環"],"distinguishing":"アニリンの塩酸塩、水によく溶ける","confidence":"low"},{"id":"acetanilide","molecular_formula":"C8H9NO","molecular_weight":135.0,"acidity":"中性","naoh_soluble":false,"nahco3_reaction":false,"hcl_soluble":false,"iodoform":false,"silver_mirror":false,"fehling":false,"fecl3":"","bromine_water":"なし","bleaching_powder":"","functional_groups":["ベンゼン環","カルボニル基"],"distinguishing":"アミド構造で中性、さらし粉で呈色しない","confidence":"low"},{"id":"benzenediazonium-chloride","molecular_formula":"C6H5ClN2","molecular_weight":140.5,"acidity":"塩","naoh_soluble":false,"nahco3_reaction":false,"hcl_soluble":false,"iodoform":false,"silver_mirror":false,"fehling":false,"fecl3":"","bromine_water":"なし","bleaching_powder":"","functional_groups":["ベンゼン環"],"distinguishing":"5℃以上で分解するジアゾニウム塩","confidence":"low"},{"id":"hydroxyazobenzene","molecular_formula":"C12H10N2O","molecular_weight":198.0,"acidity":"フェノール性","naoh_soluble":true,"nahco3_reaction":false,"hcl_soluble":false,"iodoform":false,"silver_mirror":false,"fehling":false,"fecl3":"","bromine_water":"なし","bleaching_powder":"","functional_groups":["ベンゼン環","ヒドロキシ基"],"distinguishing":"アゾ基をもつ橙赤色の染料","confidence":"low"},{"id":"phenol","molecular_formula":"C6H6O","molecular_weight":94.0,"acidity":"フェノール性","naoh_soluble":true,"nahco3_reaction":false,"hcl_soluble":false,"iodoform":false,"silver_mirror":false,"fehling":false,"fecl3":"紫色","bromine_water":"白色沈殿","bleaching_powder":"","functional_groups":["ヒドロキシ基","ベンゼン環"],"distinguishing":"NaHCO3と反応せずFeCl3で紫色に呈色","confidence":"high"},{"id":"sodium-phenoxide","molecular_formula":"C6H5NaO","molecular_weight":116.0,"acidity":"塩","naoh_soluble":false,"nahco3_reaction":false,"hcl_soluble":false,"iodoform":false,"silver_mirror":false,"fehling":false,"fecl3":"","bromine_water":"なし","bleaching_powder":"","functional_groups":["ヒドロキシ基","ベンゼン環"],"distinguishing":"フェノールの塩、CO2の条件で行き先変化","confidence":"low"},{"id":"picric-acid","molecular_formula":"C6H3N3O7","molecular_weight":229.0,"acidity":"強酸","naoh_soluble":true,"nahco3_reaction":true,"hcl_soluble":false,"iodoform":false,"silver_mirror":false,"fehling":false,"fecl3":"","bromine_water":"なし","bleaching_powder":"","functional_groups":["ヒドロキシ基","ベンゼン環","ニトロ基"],"distinguishing":"フェノール類だがニトロ基3個で強酸、NaHCO3とも反応","confidence":"high"},{"id":"trinitrotoluene","molecular_formula":"C7H5N3O6","molecular_weight":227.0,"acidity":"中性","naoh_soluble":false,"nahco3_reaction":false,"hcl_soluble":false,"iodoform":false,"silver_mirror":false,"fehling":false,"fecl3":"","bromine_water":"なし","bleaching_powder":"","functional_groups":["ベンゼン環","ニトロ基"],"distinguishing":"TNT、ヒドロキシ基をもたない中性の爆薬","confidence":"high"},{"id":"benzenesulfonic-acid","molecular_formula":"C6H6O3S","molecular_weight":158.0,"acidity":"強酸","naoh_soluble":true,"nahco3_reaction":true,"hcl_soluble":false,"iodoform":false,"silver_mirror":false,"fehling":false,"fecl3":"","bromine_water":"なし","bleaching_powder":"","functional_groups":["ベンゼン環","スルホ基"],"distinguishing":"硫酸に近い強酸性を示すスルホン酸","confidence":"high"},{"id":"sodium-benzenesulfonate","molecular_formula":"C6H5NaO3S","molecular_weight":180.0,"acidity":"塩","naoh_soluble":false,"nahco3_reaction":false,"hcl_soluble":false,"iodoform":false,"silver_mirror":false,"fehling":false,"fecl3":"","bromine_water":"なし","bleaching_powder":"","functional_groups":["スルホ基","ベンゼン環"],"distinguishing":"アルカリ融解でフェノール類に変わる塩","confidence":"low"},{"id":"benzoic-acid","molecular_formula":"C7H6O2","molecular_weight":122.0,"acidity":"カルボン酸","naoh_soluble":true,"nahco3_reaction":true,"hcl_soluble":false,"iodoform":false,"silver_mirror":false,"fehling":false,"fecl3":"","bromine_water":"なし","bleaching_powder":"","functional_groups":["カルボキシ基","ベンゼン環"],"distinguishing":"水に溶けにくい白色結晶のカルボン酸","confidence":"high"},{"id":"sodium-benzoate","molecular_formula":"C7H5NaO2","molecular_weight":144.0,"acidity":"塩","naoh_soluble":false,"nahco3_reaction":false,"hcl_soluble":false,"iodoform":false,"silver_mirror":false,"fehling":false,"fecl3":"","bromine_water":"なし","bleaching_powder":"","functional_groups":["カルボキシ基","ベンゼン環"],"distinguishing":"安息香酸の塩、水に溶ける","confidence":"low"},{"id":"salicylic-acid","molecular_formula":"C7H6O3","molecular_weight":138.0,"acidity":"カルボン酸","naoh_soluble":true,"nahco3_reaction":true,"hcl_soluble":false,"iodoform":false,"silver_mirror":false,"fehling":false,"fecl3":"赤紫色","bromine_water":"白色沈殿","bleaching_powder":"","functional_groups":["カルボキシ基","ヒドロキシ基","ベンゼン環"],"distinguishing":"カルボキシ基とフェノール性OHを両方もつ","confidence":"high"},{"id":"sodium-salicylate","molecular_formula":"C7H5NaO3","molecular_weight":160.0,"acidity":"塩","naoh_soluble":false,"nahco3_reaction":false,"hcl_soluble":false,"iodoform":false,"silver_mirror":false,"fehling":false,"fecl3":"","bromine_water":"なし","bleaching_powder":"","functional_groups":["カルボキシ基","ヒドロキシ基","ベンゼン環"],"distinguishing":"サリチル酸の塩、CO2との反応で生成","confidence":"low"},{"id":"methyl-salicylate","molecular_formula":"C8H8O3","molecular_weight":152.0,"acidity":"フェノール性","naoh_soluble":true,"nahco3_reaction":false,"hcl_soluble":false,"iodoform":false,"silver_mirror":false,"fehling":false,"fecl3":"赤紫色","bromine_water":"なし","bleaching_powder":"","functional_groups":["ヒドロキシ基","エステル結合","ベンゼン環"],"distinguishing":"フェノール性OHが残りFeCl3で赤紫色","confidence":"low"},{"id":"acetylsalicylic-acid","molecular_formula":"C9H8O4","molecular_weight":180.0,"acidity":"カルボン酸","naoh_soluble":true,"nahco3_reaction":true,"hcl_soluble":false,"iodoform":false,"silver_mirror":false,"fehling":false,"fecl3":"","bromine_water":"なし","bleaching_powder":"","functional_groups":["カルボキシ基","エステル結合","ベンゼン環"],"distinguishing":"OHがアセチル化されFeCl3で呈色しない","confidence":"high"},{"id":"hexachlorocyclohexane","molecular_formula":"C6H6Cl6","molecular_weight":291.0,"acidity":"中性","naoh_soluble":false,"nahco3_reaction":false,"hcl_soluble":false,"iodoform":false,"silver_mirror":false,"fehling":false,"fecl3":"","bromine_water":"なし","bleaching_powder":"","functional_groups":["ハロゲン"],"distinguishing":"ベンゼンへの塩素付加で環を保ち飽和化","confidence":"high"},{"id":"benzaldehyde","molecular_formula":"C7H6O","molecular_weight":106.0,"acidity":"中性","naoh_soluble":false,"nahco3_reaction":false,"hcl_soluble":false,"iodoform":false,"silver_mirror":true,"fehling":false,"fecl3":"","bromine_water":"なし","bleaching_powder":"","functional_groups":["アルデヒド基","ベンゼン環"],"distinguishing":"銀鏡陽性だがフェーリングは還元しない","confidence":"high"}]};
+
+const PROP={}; PROPS.properties.forEach(p=>PROP[p.id]=p);
+
+/* ---------- 起動時チェック: 性質データと反応データの id 対応 ---------- */
+(function checkProps(){
+  const msg=[], ids=new Set(DATA.nodes.map(n=>n.id));
+  PROPS.properties.forEach(p=>{ if(!ids.has(p.id)) msg.push(p.id+' : organic-properties にあるが nodes に無い id'); });
+  DATA.nodes.forEach(n=>{ if(!PROP[n.id]) msg.push(n.id+' : nodes にあるが organic-properties に無い'); });
+  if(msg.length) console.warn('[PROPS] 性質データの不整合 '+msg.length+'件\n'+msg.join('\n'));
+  else console.info('[PROPS] 全 '+PROPS.properties.length+' 件が nodes と対応。逆引きの対象は '+PROPS.properties.length+' 件');
+})();
+
+/* ---------- 検査の定義 ----------
+   kind bool  : JSON が true/false。陽性/陰性 で判定
+   kind color : JSON が色名の文字列。空文字でなければ陽性
+   kind enum  : JSON の値をそのまま選ぶ                       */
+const TESTS=[
+  {id:'naoh_soluble',     label:'NaOH水溶液に溶ける',   kind:'bool'},
+  {id:'nahco3_reaction',  label:'NaHCO3からCO2が発生',  kind:'bool'},
+  {id:'hcl_soluble',      label:'塩酸に溶ける',         kind:'bool'},
+  {id:'iodoform',         label:'ヨードホルム反応',     kind:'bool'},
+  {id:'silver_mirror',    label:'銀鏡反応',             kind:'bool'},
+  {id:'fehling',          label:'フェーリング液の還元', kind:'bool'},
+  {id:'fecl3',            label:'塩化鉄(III)の呈色',    kind:'color'},
+  {id:'bromine_water',    label:'臭素水',               kind:'enum',
+     options:[['脱色','脱色'],['白色沈殿','白色沈殿'],['なし','反応なし']]},
+  {id:'bleaching_powder', label:'さらし粉の呈色',       kind:'color'}
+];
+/* 検査の選択肢。値は JSON と同じ文字列、表示だけラベルを使う */
+function optionsOf(t){
+  return t.kind==='enum' ? t.options : [['陽性','陽性'],['陰性','陰性']];
+}
+/* ある化合物がその検査で示す結果 */
+function outcomeOf(t,p){
+  if(t.kind==='enum')  return p[t.id];
+  if(t.kind==='color') return p[t.id]!=='' ? '陽性' : '陰性';
+  return p[t.id] ? '陽性' : '陰性';
+}
+function outcomeLabel(t,v){
+  const o=optionsOf(t).find(x=>x[0]===v);
+  return o?o[1]:v;
+}
+
+/* ---------- 状態 ---------- */
+const rev={tests:{},formula:''};
+TESTS.forEach(t=>rev.tests[t.id]=null);   /* null = 未検査 */
+
+/* ---------- 照合 ---------- */
+const normFx=s=>String(s).replace(/\s+/g,'');
+function testMatch(t,p){
+  const v=rev.tests[t.id];
+  return v===null ? true : outcomeOf(t,p)===v;
+}
+/* skipTest / skipFormula を渡すと、その条件だけ外して数えられる */
+function matches(p,skipTest,skipFormula){
+  for(let i=0;i<TESTS.length;i++){
+    const t=TESTS[i];
+    if(skipTest===t.id) continue;
+    if(!testMatch(t,p)) return false;
+  }
+  if(!skipFormula && rev.formula && p.molecular_formula!==rev.formula) return false;
+  return true;
+}
+const listOf=(skipTest,skipFormula)=>PROPS.properties.filter(p=>matches(p,skipTest,skipFormula));
+
+/* ---------- 検出反応の出方が完全に同じ化合物のまとまり ----------
+   9つの検査すべての結果が一致する化合物は、検出反応だけでは永久に区別できない */
+const profKey=p=>TESTS.map(t=>outcomeOf(t,p)).join('|');
+const PROFGRP={};
+PROPS.properties.forEach(p=>{ const k=profKey(p); (PROFGRP[k]=PROFGRP[k]||[]).push(p.id); });
+
+/* ---------- 検査UIの組み立て ---------- */
+const testHost=document.getElementById('testlist');
+const tbtnEl={};
+function buildTests(){
+  testHost.innerHTML='';
+  TESTS.forEach(t=>{
+    const row=document.createElement('div'); row.className='trow';
+    const lab=document.createElement('div'); lab.className='tlab'; lab.textContent=t.label;
+    const box=document.createElement('div');
+    box.className='tbtns'; box.setAttribute('role','group');
+    box.setAttribute('aria-label',t.label+' の検査結果');
+    tbtnEl[t.id]=[];
+    /* 未検査 + 各選択肢 */
+    const opts=[[null,'未検査']].concat(optionsOf(t));
+    opts.forEach(([val,text])=>{
+      const b=document.createElement('button');
+      b.className='btn sm tbtn'+(val===null?' neu':'')+(val==='陰性'||val==='なし'?' neg':'');
+      b.textContent=text;
+      b.setAttribute('aria-label',t.label+' '+text);
+      b.addEventListener('click',()=>{ rev.tests[t.id]=val; syncTests(); revRender(); });
+      b._val=val; tbtnEl[t.id].push(b); box.appendChild(b);
+    });
+    row.appendChild(lab); row.appendChild(box); testHost.appendChild(row);
+  });
+  syncTests();
+}
+function syncTests(){
+  TESTS.forEach(t=>{
+    tbtnEl[t.id].forEach(b=>{
+      const on=(rev.tests[t.id]===b._val);
+      b.classList.toggle('on',on);
+      b.setAttribute('aria-pressed',on?'true':'false');
+    });
+  });
+}
+
+/* ---------- 候補リストの組み立て（47件を作っておき、表示だけ切り替える） ---------- */
+const candHost=document.getElementById('candlist');
+const candEl={};
+function buildCands(){
+  candHost.innerHTML='';
+  PROPS.properties.forEach(p=>{
+    const n=NODE[p.id];
+    const b=document.createElement('button');
+    b.className='cand'; b.type='button';
+    b.setAttribute('aria-label',n.name+' を系統図で見る');
+    b.innerHTML='<span class="cn">'+esc(n.name)+'</span>'+
+      '<span class="cf">'+esc(n.formula)+'</span>'+
+      '<span class="cg"><span class="cm">分子式 '+esc(p.molecular_formula)+'</span>'+
+      (p.functional_groups.length?esc(p.functional_groups.join('・')):'官能基なし')+'</span>';
+    b.addEventListener('click',()=>gotoMap(p.id));
+    candHost.appendChild(b); candEl[p.id]=b;
+  });
+}
+
+/* ---------- 候補の出し入れ。消えるものはフェードアウトさせる ---------- */
+let fadeTimer=0;
+const reduceMotion=()=>window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+function showCands(ids){
+  const keep=new Set(ids), leaving=[];
+  PROPS.properties.forEach(p=>{
+    const el=candEl[p.id];
+    if(keep.has(p.id)){
+      el.classList.remove('gone','leaving');
+    }else if(!el.classList.contains('gone')){
+      leaving.push(el);
+    }
+  });
+  clearTimeout(fadeTimer);
+  if(reduceMotion()){
+    leaving.forEach(el=>{el.classList.remove('leaving');el.classList.add('gone');});
+  }else{
+    leaving.forEach(el=>el.classList.add('leaving'));
+    fadeTimer=setTimeout(()=>{
+      leaving.forEach(el=>{ if(el.classList.contains('leaving')){el.classList.remove('leaving');el.classList.add('gone');} });
+    },180);
+  }
+  /* 1件に確定したときだけ軽く強調する */
+  PROPS.properties.forEach(p=>candEl[p.id].classList.remove('solo'));
+  if(ids.length===1) candEl[ids[0]].classList.add('solo');
+}
+
+/* ---------- 次の一手。残りの検査でどれだけ減るか ---------- */
+function suggest(cands){
+  const rows=[];
+  TESTS.forEach(t=>{
+    if(rev.tests[t.id]!==null) return;
+    const b=new Map();
+    cands.forEach(p=>{ const k=outcomeOf(t,p); b.set(k,(b.get(k)||0)+1); });
+    let worst=0; b.forEach(v=>{ if(v>worst) worst=v; });
+    rows.push({t:t,b:b,worst:worst,split:b.size});
+  });
+  /* 最悪の場合に残る件数が少ない順。同数なら分岐が多い順 */
+  rows.sort((x,y)=> (x.worst-y.worst) || (y.split-x.split));
+  return rows;
+}
+function drawSuggest(cands){
+  const host=document.getElementById('sugbody');
+  const card=document.getElementById('sugcard');
+  if(cands.length<=1){
+    card.hidden=true; host.innerHTML=''; return;
+  }
+  card.hidden=false;
+  const rows=suggest(cands);
+  if(!rows.length){
+    host.innerHTML='<p class="note" style="margin-top:8px">検査はすべて済んでいる。これ以上は検出反応では絞れない。</p>';
+    return;
+  }
+  let h='<p class="note" style="margin-top:8px">いまの候補 <b>'+cands.length+'</b> 件に対して、次にこの検査をすると候補がこう分かれる。'+
+        '上にあるものほど、結果がどちらに転んでも候補が少なく残る。</p>';
+  rows.forEach((r,i)=>{
+    const parts=[];
+    optionsOf(r.t).forEach(([val,text])=>{
+      const n=r.b.get(val)||0;
+      parts.push(esc(text)+' → '+n+'件');
+    });
+    /* 定義した選択肢に無い結果が出た場合も落とさず拾う */
+    r.b.forEach((n,k)=>{ if(!optionsOf(r.t).some(o=>o[0]===k)) parts.push(esc(k)+' → '+n+'件'); });
+    h+='<div class="sug'+(r.split<=1?' flat':'')+'">'+
+       '<span class="sn">'+(i+1)+'</span>'+
+       '<span class="st">'+esc(r.t.label)+'</span>'+
+       '<span class="sv">'+(r.split<=1?'この検査では絞れない':parts.join(' / '))+'</span></div>';
+  });
+  host.innerHTML=h;
+}
+
+/* ---------- 0件のとき、どれを外せば候補が出るか ---------- */
+function drawZero(){
+  const relax=[];
+  TESTS.forEach(t=>{
+    if(rev.tests[t.id]===null) return;
+    const n=listOf(t.id,false).length;
+    if(n>0) relax.push({label:t.label+'（'+outcomeLabel(t,rev.tests[t.id])+'）',n:n});
+  });
+  if(rev.formula){
+    const n=listOf(null,true).length;
+    if(n>0) relax.push({label:'分子式 '+rev.formula,n:n});
+  }
+  relax.sort((a,b)=>b.n-a.n);
+  let h='<div class="hint warn"><span class="hl">候補なし</span>'+
+        'この条件をすべて満たす化合物は、このデータの47件の中には無い。';
+  if(relax.length){
+    h+='<br>次のどれか1つを外すと候補が出る。<br>';
+    h+=relax.map(r=>'・'+esc(r.label)+' を外す → <b>'+r.n+'件</b>').join('<br>');
+  }else{
+    h+='<br>条件を1つ外しただけでは候補は出ない。2つ以上外す必要がある。';
+  }
+  h+='</div>';
+  return h;
+}
+
+/* ---------- 名前の列挙。長くなりすぎるときは打ち切る ---------- */
+function nameList(arr,max){
+  max=max||8;
+  return arr.length<=max ? arr.join('・')
+       : arr.slice(0,max).join('・')+' ほか'+(arr.length-max)+'件';
+}
+
+/* ---------- 1件に決まったときの表示 ---------- */
+function drawSolo(p,detCount,detIds){
+  const n=NODE[p.id];
+  let h='';
+  /* 何で決まったのかを区別して出す */
+  if(detCount===1){
+    h+='<div class="hint ok"><span class="hl">検出反応だけで決まった</span>'+
+       '選んだ検出反応の組み合わせだけで、候補はこの1件になった。分子式は使っていない。</div>';
+  }else{
+    const others=detIds.filter(id=>id!==p.id).map(id=>NODE[id].name);
+    h+='<div class="hint warn"><span class="hl">分子式まで使って決まった</span>'+
+       '検出反応だけでは <b>'+detCount+'件</b> までしか絞れていない。分子式を外すと'+
+       esc(nameList(others))+' が候補に残る。</div>';
+  }
+  /* 検出反応の出方が完全に同じ化合物が他にいるなら、それを隠さない */
+  const grp=PROFGRP[profKey(p)]||[p.id];
+  if(grp.length>1){
+    const others=grp.filter(id=>id!==p.id).map(id=>NODE[id].name);
+    h+='<div class="hint warn"><span class="hl">この検査の組み合わせでは他にも該当がある</span>'+
+       esc(n.name)+' は、この9つの検出反応の出方が '+esc(nameList(others))+
+       ' と完全に同じ。検出反応をこれ以上増やしても、この '+grp.length+
+       ' 件は区別できない。分子式・分子量・官能基で見分けることになる。</div>';
+  }
+  h+='<p class="pname" style="margin-top:10px">'+esc(n.name)+'</p>';
+  h+='<p class="pform">'+esc(n.formula)+'</p>';
+  h+='<div><span class="ptag">'+esc(n.family)+'</span><span class="ptag">'+esc(n.group)+'</span>'+
+     '<span class="ptag">'+esc(p.acidity)+'</span></div>';
+  h+='<div class="kv">';
+  h+='<div class="k">分子式</div><div class="mono">'+esc(p.molecular_formula)+'</div>';
+  h+='<div class="k">分子量</div><div class="mono">'+esc(String(p.molecular_weight))+'</div>';
+  h+='<div class="k">官能基</div><div>'+(p.functional_groups.length?esc(p.functional_groups.join('・')):'—')+'</div>';
+  h+='</div>';
+  h+='<div class="rxgrp">検出反応の出方</div><div class="kv wide">';
+  TESTS.forEach(t=>{
+    let v;
+    if(t.kind==='color') v = p[t.id]!=='' ? p[t.id] : '呈色しない';
+    else if(t.kind==='enum') v = outcomeLabel(t,p[t.id]);
+    else v = p[t.id] ? '陽性' : '陰性';
+    h+='<div class="k">'+esc(t.label)+'</div><div>'+esc(v)+'</div>';
+  });
+  h+='</div>';
+  if(p.distinguishing){
+    h+='<div class="kv"><div class="k">見分け方</div><div>'+esc(p.distinguishing)+'</div></div>';
+  }
+  h+='<div class="rxgrp">系統図での位置</div>';
+  h+='<button class="btn sm" id="goto-map">系統図でこの化合物を見る</button>';
+  h+='<p class="note" style="margin-top:6px">系統図モードに切り替えて '+esc(n.name)+
+     ' を選択し、そこから出る反応と入る反応を表示する。</p>';
+  return h;
+}
+
+/* ---------- 逆引き全体の描画 ---------- */
+function revRender(){
+  const all=listOf(null,false);
+  const det=listOf(null,true);            /* 分子式を外して、検出反応だけで絞った結果 */
+  const ids=all.map(p=>p.id);
+
+  const anyTest=TESTS.some(t=>rev.tests[t.id]!==null);
+  const nCond=TESTS.filter(t=>rev.tests[t.id]!==null).length+(rev.formula?1:0);
+  document.getElementById('revcount').innerHTML=
+    '候補 <b>'+all.length+'</b> / '+PROPS.properties.length+
+    ' &nbsp;&nbsp;条件 <b>'+nCond+'</b> 件';
+
+  showCands(ids);
+
+  const vd=document.getElementById('revverdict');
+  const solo=document.getElementById('solocard');
+  if(all.length===0){
+    vd.innerHTML=drawZero(); solo.hidden=true;
+  }else if(all.length===1){
+    vd.innerHTML='';
+    solo.hidden=false;
+    document.getElementById('solobody').innerHTML=drawSolo(all[0],det.length,det.map(p=>p.id));
+    const g=document.getElementById('goto-map');
+    if(g) g.addEventListener('click',()=>gotoMap(all[0].id));
+  }else{
+    solo.hidden=true;
+    vd.innerHTML = anyTest||rev.formula ? '' :
+      '<p class="note" style="margin-top:6px">まだ何も検査していない。上の検査を選ぶか、分子式を入れると絞り込まれる。</p>';
+  }
+  drawSuggest(all);
+}
+
+/* ---------- 系統図モードへ渡す ---------- */
+function gotoMap(id){
+  setMode('map');
+  /* 絞り込みが効いていると選べないので、いったん解除してから選ぶ */
+  clearTrace();
+  st.groups.clear(); st.types.clear(); st.detectOnly=false;
+  st.pathMode=false; st.pa=st.pb=null; st.paths=[]; st.selLine=null; st.selNode=null;
+  const d=document.getElementById('t-detect'),p=document.getElementById('t-path');
+  d.classList.remove('on'); d.setAttribute('aria-pressed','false');
+  p.classList.remove('on'); p.setAttribute('aria-pressed','false');
+  buildChips();
+  pickNode(id);
+  const q=L.nodes[id];
+  if(q) setVB([q[0]-VB[2]/2,q[1]-VB[3]/2,VB[2],VB[3]]);
+  const el=nodeEl[id];
+  if(el) el.focus();
+}
+
+/* ---------- モード切り替え ---------- */
+const mMap=document.getElementById('m-map'), mRev=document.getElementById('m-rev');
+function setMode(m){
+  const isRev=(m==='rev');
+  document.getElementById('view-map').hidden=isRev;
+  document.getElementById('view-rev').hidden=!isRev;
+  mMap.classList.toggle('on',!isRev); mMap.setAttribute('aria-pressed',isRev?'false':'true');
+  mRev.classList.toggle('on',isRev);  mRev.setAttribute('aria-pressed',isRev?'true':'false');
+  if(isRev) revRender();
+}
+mMap.addEventListener('click',()=>setMode('map'));
+mRev.addEventListener('click',()=>setMode('rev'));
+
+/* ---------- 分子式の入力 ---------- */
+const fxInput=document.getElementById('fx-input');
+fxInput.addEventListener('input',()=>{ rev.formula=normFx(fxInput.value); revRender(); });
+document.getElementById('rev-reset').addEventListener('click',()=>{
+  TESTS.forEach(t=>rev.tests[t.id]=null);
+  rev.formula=''; fxInput.value='';
+  syncTests(); revRender();
+});
+
+/* ---------- 逆引きの起動 ---------- */
+buildTests();
+buildCands();
+revRender();
+
+</script>
+</body>
+</html>

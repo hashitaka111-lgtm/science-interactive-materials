@@ -1,0 +1,783 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>溶解度積の基礎 — イオン積・溶解度換算・共通イオン効果</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500;600&family=IBM+Plex+Sans+JP:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+:root{
+  --ink:#16232B; --muted:#5E6E76; --paper:#EDF1EF; --surface:#FFFFFF;
+  --rule:#D6DDDA; --rule-soft:#E8EDEB;
+  --c0:#B87A16; --c0t:#8A5A0C;
+  --c1:#158A6D; --c1t:#0D6A53;
+  --c2:#2457A6; --c2t:#1B4380;
+  --c3:#6E3AA7; --c3t:#572D85;
+  --c4:#A82A6A; --c4t:#831F52;
+  --c5:#3B6E1E; --c5t:#2A5215;
+  --sans:"IBM Plex Sans JP","Hiragino Sans","Yu Gothic UI",system-ui,sans-serif;
+  --mono:"IBM Plex Mono",ui-monospace,SFMono-Regular,Menlo,monospace;
+}
+*{box-sizing:border-box}
+html,body{margin:0;padding:0}
+body{
+  background:var(--paper); color:var(--ink);
+  font-family:var(--sans); font-size:14px; line-height:1.72;
+  -webkit-text-size-adjust:100%;
+}
+.wrap{max-width:820px;margin:0 auto;padding:26px 14px 60px}
+.card{
+  background:var(--surface); border:1px solid var(--rule); border-radius:3px;
+  padding:16px 18px; margin-bottom:14px;
+}
+.card.tight{padding:13px 18px}
+h1{font-size:22px;font-weight:600;letter-spacing:.01em;margin:0 0 6px;line-height:1.45}
+h2{font-size:15px;font-weight:600;margin:0 0 8px;letter-spacing:.01em}
+h3{font-size:13px;font-weight:600;margin:18px 0 6px;letter-spacing:.01em}
+p{margin:0 0 10px}
+p:last-child{margin-bottom:0}
+.lead{color:var(--muted);font-size:13px}
+.eyebrow{
+  display:flex;align-items:center;gap:10px;
+  font-family:var(--mono);font-size:11.5px;letter-spacing:.14em;
+  color:var(--muted);text-transform:uppercase;margin:0 0 12px;
+}
+.eyebrow::after{content:"";flex:1;height:1px;background:var(--rule)}
+.mono{font-family:var(--mono);font-variant-numeric:tabular-nums}
+.num{font-family:var(--mono);font-variant-numeric:tabular-nums;text-align:right}
+.muted{color:var(--muted)}
+.small{font-size:12px}
+.xs{font-size:11.5px}
+
+/* controls */
+.ctrl{display:grid;gap:10px 14px;margin:12px 0}
+.ctrl.g2{grid-template-columns:1fr 1fr}
+.ctrl.g4{grid-template-columns:repeat(4,1fr)}
+.field label{display:block;font-family:var(--mono);font-size:10.5px;letter-spacing:.1em;color:var(--muted);margin-bottom:3px;text-transform:uppercase}
+select,input[type=text],input[type=number]{
+  width:100%;font-family:var(--mono);font-size:13px;font-variant-numeric:tabular-nums;
+  padding:6px 7px;border:1px solid var(--rule);border-radius:2px;background:var(--surface);color:var(--ink);
+}
+select{font-family:var(--sans)}
+input:focus,select:focus,button:focus-visible{outline:2px solid var(--ink);outline-offset:1px}
+.btnrow{display:flex;flex-wrap:wrap;gap:5px;margin:8px 0}
+button.tog{
+  font-family:var(--mono);font-size:11.5px;letter-spacing:.04em;
+  padding:5px 9px;border:1px solid var(--rule);border-radius:2px;
+  background:var(--surface);color:var(--muted);cursor:pointer;
+}
+button.tog[aria-pressed="true"]{background:var(--ink);color:#fff;border-color:var(--ink)}
+input[type=range]{width:100%;accent-color:var(--ink);margin:2px 0}
+
+/* tables */
+table{width:100%;border-collapse:collapse;font-size:12.5px}
+th,td{padding:5px 7px;border-bottom:1px solid var(--rule-soft);text-align:left;vertical-align:baseline}
+th{font-family:var(--mono);font-size:10.5px;letter-spacing:.08em;color:var(--muted);font-weight:500;text-transform:uppercase;border-bottom:1px solid var(--rule)}
+td.n,th.n{text-align:right;font-family:var(--mono);font-variant-numeric:tabular-nums}
+tr.hi td{background:var(--rule-soft)}
+.scroll{overflow-x:auto;-webkit-overflow-scrolling:touch}
+
+/* readout */
+.read{border:1px solid var(--rule);border-radius:2px;padding:10px 12px;margin-top:10px;background:var(--surface)}
+.read dl{display:grid;grid-template-columns:auto 1fr;gap:3px 14px;margin:0}
+.read dt{font-size:12px;color:var(--muted)}
+.read dd{margin:0;font-family:var(--mono);font-size:12.5px;font-variant-numeric:tabular-nums;text-align:right}
+.verdict{font-family:var(--mono);font-size:13px;letter-spacing:.04em;padding:6px 10px;border-radius:2px;display:inline-block;margin-top:8px}
+.verdict.yes{background:var(--ink);color:#fff}
+.verdict.no{border:1px solid var(--rule);color:var(--muted)}
+
+/* note */
+.note{border-left:2px solid var(--rule);padding:2px 0 2px 11px;margin:12px 0;font-size:12.5px;color:var(--muted)}
+.note b{color:var(--ink);font-weight:600}
+.formula{font-family:var(--mono);font-size:12.5px;background:var(--rule-soft);padding:7px 10px;border-radius:2px;overflow-x:auto;white-space:nowrap}
+
+/* chart */
+.chartbox{position:relative;margin:12px 0 4px;touch-action:none;cursor:crosshair}
+svg{display:block;width:100%;height:auto}
+.legend{display:flex;flex-wrap:wrap;gap:4px 14px;font-family:var(--mono);font-size:11px;color:var(--muted);margin-top:6px}
+.legend span{display:flex;align-items:center;gap:5px}
+.sw{width:14px;height:2px;display:inline-block}
+.sw.d{background:none;border-top:2px dashed currentColor;height:0}
+
+footer{margin-top:22px;font-size:11.5px;color:var(--muted);line-height:1.7}
+footer h4{font-family:var(--mono);font-size:10.5px;letter-spacing:.12em;text-transform:uppercase;margin:0 0 6px;font-weight:500}
+.toc{display:flex;flex-wrap:wrap;gap:4px 6px;margin-top:10px}
+.toc a{font-family:var(--mono);font-size:11px;letter-spacing:.04em;color:var(--muted);text-decoration:none;border:1px solid var(--rule);border-radius:2px;padding:4px 8px}
+.toc a:hover{color:var(--ink);border-color:var(--ink)}
+
+@media (max-width:430px){
+  body{font-size:13.5px}
+  .wrap{padding:18px 10px 44px}
+  .card{padding:13px 12px}
+  .ctrl.g2,.ctrl.g4{grid-template-columns:1fr 1fr}
+  h1{font-size:19px}
+  table{font-size:11.5px}
+  th,td{padding:4px 4px}
+}
+</style>
+</head>
+<body>
+<div class="wrap">
+
+<div class="card">
+  <div class="eyebrow">Solubility Product · Ksp</div>
+  <h1>溶解度積 ― 沈殿するかしないかを数で決める</h1>
+  <p class="lead">医学部受験の無機化学で問われる沈殿平衡を、近似に頼らず解いて可視化する。イオン積による判定、溶解度と Ksp の換算、共通イオン効果までを扱う。硫化物の分別沈殿と両性水酸化物は別ファイル。</p>
+  <div class="toc">
+    <a href="#s1">1 · イオン積 Q</a>
+    <a href="#s2">2 · 溶解度 ⇄ Ksp</a>
+    <a href="#s3">3 · 共通イオン効果</a>
+  </div>
+</div>
+
+<!-- ================= 1 ================= -->
+<div class="card" id="s1">
+  <div class="eyebrow">1 · Q vs Ksp</div>
+  <h2>混ぜたら沈殿するか</h2>
+  <p class="small">2つの溶液を混ぜた直後の濃度からイオン積 Q を計算し、Ksp と比べる。Q が Ksp を超えていれば、超えた分だけ沈殿して Q は Ksp まで落ちる。残留濃度は「完全に沈殿する」と仮定せず、平衡式を直接解いた値を出している。</p>
+  <div class="formula">K<sub>sp</sub> = [A]<sup>m</sup>[B]<sup>n</sup> &nbsp; / &nbsp; Q = [A]<sub>0</sub><sup>m</sup>[B]<sub>0</sub><sup>n</sup> &nbsp; / &nbsp; [A]<sub>0</sub> = c<sub>1</sub>V<sub>1</sub>/(V<sub>1</sub>+V<sub>2</sub>)</div>
+
+  <div class="ctrl">
+    <div class="field"><label>難溶性塩</label><select id="m1-salt"></select></div>
+  </div>
+  <div class="ctrl g4">
+    <div class="field"><label id="m1-l1">陽イオン c₁</label><input type="number" id="m1-c1" value="0.010" step="any" min="0"></div>
+    <div class="field"><label>体積 V₁ / mL</label><input type="number" id="m1-v1" value="50" step="any" min="0"></div>
+    <div class="field"><label id="m1-l2">陰イオン c₂</label><input type="number" id="m1-c2" value="0.010" step="any" min="0"></div>
+    <div class="field"><label>体積 V₂ / mL</label><input type="number" id="m1-v2" value="50" step="any" min="0"></div>
+  </div>
+
+  <div class="chartbox" id="m1-chart"></div>
+  <div id="m1-out"></div>
+</div>
+
+<!-- ================= 2 ================= -->
+<div class="card" id="s2">
+  <div class="eyebrow">2 · Solubility ⇄ Ksp</div>
+  <h2>化学式の型で換算式が変わる</h2>
+  <p class="small">純水に s mol/L 溶けたとき [A] = ms、[B] = ns。これを Ksp の定義に代入すると型ごとの係数 m<sup>m</sup>n<sup>n</sup> が出る。この係数のせいで、Ksp が小さい塩のほうが溶けやすいという逆転が起きる。</p>
+  <div class="formula">K<sub>sp</sub> = m<sup>m</sup>n<sup>n</sup>·s<sup>m+n</sup> &nbsp;⟹&nbsp; s = (K<sub>sp</sub> / m<sup>m</sup>n<sup>n</sup>)<sup>1/(m+n)</sup></div>
+
+  <div class="scroll"><table id="m2-types"></table></div>
+
+  <h3>Ksp を動かして溶解度を見る</h3>
+  <div class="field"><label>log₁₀ K<sub>sp</sub> <span class="mono" id="m2-kv"></span></label>
+  <input type="range" id="m2-slider" min="-40" max="-2" step="0.05" value="-10"></div>
+  <div class="chartbox" id="m2-chart"></div>
+  <div class="legend" id="m2-legend"></div>
+  <div id="m2-out"></div>
+
+  <h3>難溶性塩の一覧</h3>
+  <div class="btnrow" id="m2-sort">
+    <button class="tog" data-k="ksp" aria-pressed="true">Ksp が小さい順</button>
+    <button class="tog" data-k="s" aria-pressed="false">溶けにくい順</button>
+    <button class="tog" data-k="grp" aria-pressed="false">系統別</button>
+  </div>
+  <div class="scroll"><table id="m2-table"></table></div>
+
+  <h3>水酸化物は公式だけでは足りない</h3>
+  <p class="small">水酸化物の溶解度を Ksp = m<sup>m</sup>n<sup>n</sup>s<sup>m+n</sup> で求めるのは、水の電離を無視した近似。塩から出る OH⁻ が 10⁻⁷ mol/L より少ない場合、実際の [OH⁻] は水由来のぶんで底上げされる。電荷収支 n[M<sup>n+</sup>] + [H⁺] = [OH⁻] と K<sub>w</sub> を連立して解いた値を並べた。</p>
+  <div class="formula">n·K<sub>sp</sub>/[OH⁻]<sup>n</sup> + K<sub>w</sub>/[OH⁻] = [OH⁻]</div>
+  <div class="scroll"><table id="m2-hyd"></table></div>
+  <div class="note" id="m2-hydnote"></div>
+</div>
+
+<!-- ================= 3 ================= -->
+<div class="card" id="s3">
+  <div class="eyebrow">3 · Common Ion Effect</div>
+  <h2>共通イオンを加えると溶解度が落ちる</h2>
+  <p class="small">共通イオンを c mol/L 加えた溶液での溶解度 s は、質量作用の式を s について解いて求める。左辺は s の単調増加関数なので、二分法で厳密に解ける。高校で使う近似は溶けた分の寄与を無視した形で、c が小さくなると成り立たなくなる。</p>
+  <div class="formula">厳密 &nbsp;(ms + c<sub>A</sub>)<sup>m</sup>(ns + c<sub>B</sub>)<sup>n</sup> = K<sub>sp</sub> &nbsp;&nbsp;/&nbsp;&nbsp; 近似 &nbsp;s ≈ K<sub>sp</sub> / (m<sup>m</sup>c<sub>B</sub><sup>n</sup>) など</div>
+
+  <div class="ctrl g2">
+    <div class="field"><label>難溶性塩</label><select id="m3-salt"></select></div>
+    <div class="field"><label>加える共通イオン</label><select id="m3-ion"></select></div>
+  </div>
+  <div class="field"><label>共通イオン濃度 <span class="mono" id="m3-cv"></span></label>
+  <input type="range" id="m3-slider" min="-6" max="0" step="0.02" value="-2"></div>
+
+  <div class="chartbox" id="m3-chart"></div>
+  <div class="legend">
+    <span><i class="sw" style="background:var(--c2);height:3px"></i>厳密解</span>
+    <span><i class="sw" style="background:var(--c4);opacity:.75"></i>近似解 Ksp/cⁿ（細線）</span>
+    <span><i class="sw" style="background:var(--rule);height:1px"></i>純水での溶解度</span>
+  </div>
+  <div id="m3-out"></div>
+  <div class="note">
+    <b>塩効果。</b>共通イオンを含まない電解質(KNO₃ など)を加えると、イオン強度が上がって活量係数が 1 を下回り、溶解度はむしろ増える。0.1 mol/L 程度の 1:1 電解質で AgCl の溶解度は 2 割ほど増加する。高校では活量を扱わないためこの計算には含めていない。
+  </div>
+</div>
+
+<footer class="card tight">
+  <h4>定数の出典と注記</h4>
+  <p>Ksp は 25 ℃ の値。ハロゲン化銀・硫酸塩・炭酸塩は CRC Handbook と日本の高校教科書でほぼ一致する。以下は食い違いのあるもの。</p>
+  <p><b>Ca(OH)₂</b> 5.0×10⁻⁶ を採用。文献値は 4.7×10⁻⁶ 〜 8.0×10⁻⁶ に散らばり、溶解度実測(0.0165 mol/L, 25 ℃)から逆算すると 1.8×10⁻⁵ になる。イオン対 CaOH⁺ の生成を無視しているためのずれ。<br>
+  <b>Al(OH)₃</b> 1.3×10⁻³³ を採用。無定形は 3×10⁻³³ 前後、結晶質のギブサイトは 1×10⁻³⁴ 程度まで下がる。<br>
+  <b>Fe(OH)₃</b> 6.3×10⁻³⁸。水和酸化物の状態でひと桁以上変動する。<br>
+  <b>Ca₃(PO₄)₂</b> 2.0×10⁻²⁹。PO₄³⁻ の加水分解が大きいため、この Ksp から出した溶解度は実測(約 2×10⁻⁵ mol/L)と 2 桁ずれる。表の値は加水分解を無視した理論値。</p>
+  <p>硫化物の Ksp は S²⁻ の濃度スケールの取り方で 10⁵ 倍以上変わるため、このファイルには含めていない。別ファイルで扱う。</p>
+</footer>
+
+</div>
+
+<script>
+"use strict";
+
+/* ============================================================
+   データ。ここに1行足せば全モジュールに反映される。
+   m = 陽イオンの数, n = 陰イオンの数, Ksp = [cat]^m [an]^n
+   ============================================================ */
+const SALTS = [
+  {id:"AgCl",      f:"AgCl",       jp:"塩化銀",       cat:"Ag⁺",  an:"Cl⁻",    m:1,n:1, ksp:1.8e-10, mw:143.32, grp:"ハロゲン化銀"},
+  {id:"AgBr",      f:"AgBr",       jp:"臭化銀",       cat:"Ag⁺",  an:"Br⁻",    m:1,n:1, ksp:5.4e-13, mw:187.77, grp:"ハロゲン化銀"},
+  {id:"AgI",       f:"AgI",        jp:"ヨウ化銀",     cat:"Ag⁺",  an:"I⁻",     m:1,n:1, ksp:8.5e-17, mw:234.77, grp:"ハロゲン化銀"},
+  {id:"Ag2CrO4",   f:"Ag₂CrO₄",    jp:"クロム酸銀",   cat:"Ag⁺",  an:"CrO₄²⁻", m:2,n:1, ksp:1.1e-12, mw:331.73, grp:"クロム酸塩"},
+  {id:"PbCrO4",    f:"PbCrO₄",     jp:"クロム酸鉛",   cat:"Pb²⁺", an:"CrO₄²⁻", m:1,n:1, ksp:2.8e-13, mw:323.19, grp:"クロム酸塩"},
+  {id:"BaSO4",     f:"BaSO₄",      jp:"硫酸バリウム", cat:"Ba²⁺", an:"SO₄²⁻",  m:1,n:1, ksp:1.1e-10, mw:233.39, grp:"硫酸塩"},
+  {id:"SrSO4",     f:"SrSO₄",      jp:"硫酸ストロンチウム", cat:"Sr²⁺", an:"SO₄²⁻", m:1,n:1, ksp:3.4e-7, mw:183.68, grp:"硫酸塩"},
+  {id:"CaSO4",     f:"CaSO₄",      jp:"硫酸カルシウム", cat:"Ca²⁺", an:"SO₄²⁻", m:1,n:1, ksp:4.9e-5, mw:136.14, grp:"硫酸塩"},
+  {id:"PbSO4",     f:"PbSO₄",      jp:"硫酸鉛",       cat:"Pb²⁺", an:"SO₄²⁻",  m:1,n:1, ksp:1.8e-8,  mw:303.26, grp:"硫酸塩"},
+  {id:"CaCO3",     f:"CaCO₃",      jp:"炭酸カルシウム", cat:"Ca²⁺", an:"CO₃²⁻", m:1,n:1, ksp:4.8e-9,  mw:100.09, grp:"炭酸塩"},
+  {id:"BaCO3",     f:"BaCO₃",      jp:"炭酸バリウム", cat:"Ba²⁺", an:"CO₃²⁻",  m:1,n:1, ksp:2.6e-9,  mw:197.34, grp:"炭酸塩"},
+  {id:"CaF2",      f:"CaF₂",       jp:"フッ化カルシウム", cat:"Ca²⁺", an:"F⁻",  m:1,n:2, ksp:3.5e-11, mw:78.07,  grp:"ハロゲン化物"},
+  {id:"PbCl2",     f:"PbCl₂",      jp:"塩化鉛",       cat:"Pb²⁺", an:"Cl⁻",    m:1,n:2, ksp:1.7e-5,  mw:278.11, grp:"ハロゲン化物"},
+  {id:"PbI2",      f:"PbI₂",       jp:"ヨウ化鉛",     cat:"Pb²⁺", an:"I⁻",     m:1,n:2, ksp:9.8e-9,  mw:461.01, grp:"ハロゲン化物"},
+  {id:"MgOH2",     f:"Mg(OH)₂",    jp:"水酸化マグネシウム", cat:"Mg²⁺", an:"OH⁻", m:1,n:2, ksp:5.6e-12, mw:58.32, grp:"水酸化物"},
+  {id:"CaOH2",     f:"Ca(OH)₂",    jp:"水酸化カルシウム", cat:"Ca²⁺", an:"OH⁻", m:1,n:2, ksp:5.0e-6,  mw:74.09,  grp:"水酸化物"},
+  {id:"ZnOH2",     f:"Zn(OH)₂",    jp:"水酸化亜鉛",   cat:"Zn²⁺", an:"OH⁻",    m:1,n:2, ksp:3.0e-17, mw:99.42,  grp:"水酸化物"},
+  {id:"FeOH2",     f:"Fe(OH)₂",    jp:"水酸化鉄(II)", cat:"Fe²⁺", an:"OH⁻",    m:1,n:2, ksp:4.9e-17, mw:89.86,  grp:"水酸化物"},
+  {id:"CuOH2",     f:"Cu(OH)₂",    jp:"水酸化銅(II)", cat:"Cu²⁺", an:"OH⁻",    m:1,n:2, ksp:2.2e-20, mw:97.56,  grp:"水酸化物"},
+  {id:"AlOH3",     f:"Al(OH)₃",    jp:"水酸化アルミニウム", cat:"Al³⁺", an:"OH⁻", m:1,n:3, ksp:1.3e-33, mw:78.00, grp:"水酸化物"},
+  {id:"FeOH3",     f:"Fe(OH)₃",    jp:"水酸化鉄(III)", cat:"Fe³⁺", an:"OH⁻",   m:1,n:3, ksp:6.3e-38, mw:106.87, grp:"水酸化物"},
+  {id:"Ca3PO42",   f:"Ca₃(PO₄)₂",  jp:"リン酸カルシウム", cat:"Ca²⁺", an:"PO₄³⁻", m:3,n:2, ksp:2.0e-29, mw:310.18, grp:"リン酸塩"}
+];
+const KW = 1.0e-14;
+
+/* ============================================================
+   共通ユーティリティ
+   ============================================================ */
+const SUP = {"-":"⁻","0":"⁰","1":"¹","2":"²","3":"³","4":"⁴","5":"⁵","6":"⁶","7":"⁷","8":"⁸","9":"⁹"};
+function supStr(s){return String(s).split("").map(c=>SUP[c]||c).join("");}
+/* SVG 用: 1.8×10⁻¹⁰ */
+function sciU(x, sig){
+  sig = sig || 2;
+  if(!isFinite(x)) return "—";
+  if(x === 0) return "0";
+  const e = Math.floor(Math.log10(Math.abs(x)));
+  let mant = x/Math.pow(10,e);
+  mant = Number(mant.toFixed(sig-1));
+  let m2 = mant, e2 = e;
+  if(Math.abs(m2) >= 10){ m2 = m2/10; e2 += 1; }
+  if(e2 >= -1 && e2 <= 2) return Number(x.toPrecision(sig+1)).toString();
+  return m2.toFixed(sig-1) + "×10" + supStr(e2);
+}
+/* HTML 用: 1.8×10<sup>-10</sup> */
+function sciH(x, sig){
+  sig = sig || 2;
+  if(!isFinite(x)) return "—";
+  if(x === 0) return "0";
+  const e = Math.floor(Math.log10(Math.abs(x)));
+  let mant = Number((x/Math.pow(10,e)).toFixed(sig-1));
+  let m2 = mant, e2 = e;
+  if(Math.abs(m2) >= 10){ m2 = m2/10; e2 += 1; }
+  if(e2 >= -1 && e2 <= 2) return Number(x.toPrecision(sig+1)).toString();
+  return m2.toFixed(sig-1) + "×10<sup>" + e2 + "</sup>";
+}
+const narrow = () => window.innerWidth <= 430;
+const coef  = s => Math.pow(s.m, s.m) * Math.pow(s.n, s.n);
+const SUB = "₀₁₂₃₄₅₆₇₈₉";
+const typeName = s => "A" + (s.m > 1 ? SUB[s.m] : "") + "B" + (s.n > 1 ? SUB[s.n] : "") + "型";
+/* 純水での溶解度(単純式) */
+const sPure = s => Math.pow(s.ksp / coef(s), 1/(s.m + s.n));
+
+/* 共通イオン下の溶解度: (m·s+cA)^m (n·s+cB)^n = Ksp を二分法 */
+function solveS(salt, cA, cB){
+  const m = salt.m, n = salt.n, K = salt.ksp;
+  const f = s => Math.pow(m*s + cA, m) * Math.pow(n*s + cB, n) - K;
+  if(f(0) >= 0) return 0;
+  let lo = 0, hi = Math.max(1e-12, sPure(salt));
+  let guard = 0;
+  while(f(hi) < 0 && guard++ < 200) hi *= 2;
+  for(let i=0;i<200;i++){ const mid = (lo+hi)/2; if(f(mid) < 0) lo = mid; else hi = mid; }
+  return (lo+hi)/2;
+}
+/* 沈殿量 x: ([A]0 - m x)^m ([B]0 - n x)^n = Ksp */
+function solvePrecip(salt, a0, b0){
+  const m = salt.m, n = salt.n, K = salt.ksp;
+  const xmax = Math.min(a0/m, b0/n);
+  const f = x => Math.pow(a0 - m*x, m) * Math.pow(b0 - n*x, n) - K;
+  if(f(0) <= 0) return 0;
+  let lo = 0, hi = xmax;
+  for(let i=0;i<200;i++){ const mid=(lo+hi)/2; if(f(mid) > 0) lo = mid; else hi = mid; }
+  return (lo+hi)/2;
+}
+/* 水の電離を含む水酸化物の厳密溶解度 */
+function hydroxideExact(salt){
+  const n = salt.n, K = salt.ksp;
+  const f = oh => n*K/Math.pow(oh,n) + KW/oh - oh;   /* oh について単調減少 */
+  let lo = 1e-16, hi = 10;
+  for(let i=0;i<300;i++){ const mid = Math.sqrt(lo*hi); if(f(mid) > 0) lo = mid; else hi = mid; }
+  const oh = Math.sqrt(lo*hi);
+  return { oh: oh, s: K/Math.pow(oh,n), pH: 14 + Math.log10(oh) };
+}
+
+/* ============================================================
+   SVG 組み立てヘルパ
+   ============================================================ */
+function esc(t){return String(t).replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;");}
+function txt(x,y,s,o){
+  o = o || {};
+  const a = ['x="'+x+'"','y="'+y+'"'];
+  a.push('fill="'+(o.fill||"var(--muted)")+'"');
+  a.push('font-size="'+(o.size||10.5)+'"');
+  a.push('font-family="'+(o.mono===false?"var(--sans)":"var(--mono)")+'"');
+  if(o.anchor) a.push('text-anchor="'+o.anchor+'"');
+  if(o.weight) a.push('font-weight="'+o.weight+'"');
+  if(o.ls) a.push('letter-spacing="'+o.ls+'"');
+  return "<text "+a.join(" ")+">"+esc(s)+"</text>";
+}
+function line(x1,y1,x2,y2,o){
+  o = o||{};
+  return '<line x1="'+x1+'" y1="'+y1+'" x2="'+x2+'" y2="'+y2+'" stroke="'+(o.stroke||"var(--rule-soft)")+'" stroke-width="'+(o.w||1)+'"'+(o.dash?' stroke-dasharray="'+o.dash+'"':"")+' />';
+}
+function chip(x,y,label,anchor){
+  const w = label.length * 6.4 + 12, h = 17;
+  let cx = x - w/2;
+  if(anchor === "start") cx = x + 6;
+  if(anchor === "end")   cx = x - w - 6;
+  return '<g><rect x="'+cx+'" y="'+(y-h/2)+'" width="'+w+'" height="'+h+'" rx="2" fill="var(--ink)"/>'
+       + txt(cx + w/2, y + 3.9, label, {fill:"#fff", size:10.5, anchor:"middle"}) + "</g>";
+}
+
+/* ============================================================
+   モジュール 1: イオン積による沈殿判定
+   ============================================================ */
+(function(){
+  const sel = document.getElementById("m1-salt");
+  SALTS.forEach((s,i)=>{ const o=document.createElement("option"); o.value=s.id; o.textContent=s.f+"　"+s.jp; sel.appendChild(o); });
+  sel.value = "AgCl";
+  const ids = ["m1-c1","m1-v1","m1-c2","m1-v2"];
+  const el = {}; ids.forEach(i=>el[i]=document.getElementById(i));
+  const out = document.getElementById("m1-out"), box = document.getElementById("m1-chart");
+
+  function salt(){ return SALTS.find(s=>s.id===sel.value); }
+
+  function draw(){
+    const s = salt();
+    document.getElementById("m1-l1").innerHTML = s.cat + " c₁ / mol·L⁻¹";
+    document.getElementById("m1-l2").innerHTML = s.an  + " c₂ / mol·L⁻¹";
+    const c1=+el["m1-c1"].value||0, v1=+el["m1-v1"].value||0, c2=+el["m1-c2"].value||0, v2=+el["m1-v2"].value||0;
+    const V = v1+v2;
+    if(V<=0){ out.innerHTML=""; box.innerHTML=""; return; }
+    const a0 = c1*v1/V, b0 = c2*v2/V;
+    const Q = Math.pow(a0,s.m)*Math.pow(b0,s.n);
+    const yes = Q > s.ksp;
+
+    /* --- ログ目盛りバー --- */
+    const W = 700, H = narrow() ? 82 : 92, PL = 18, PR = 18;
+    const vals = [Q, s.ksp].filter(v=>v>0);
+    let lo = Math.floor(Math.log10(Math.min.apply(null,vals))) - 2;
+    let hi = Math.ceil (Math.log10(Math.max.apply(null,vals))) + 2;
+    if(hi-lo < 8){ const c=(hi+lo)/2; lo=c-4; hi=c+4; }
+    const X = v => PL + (v-lo)/(hi-lo)*(W-PL-PR);
+    const yAx = H-26;
+    let g = '<svg viewBox="0 0 '+W+' '+H+'" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="イオン積とKspの比較">';
+    g += line(PL, yAx, W-PR, yAx, {stroke:"var(--rule)"});
+    const step = Math.max(1, Math.round((hi-lo)/(narrow()?5:10)));
+    for(let e=Math.ceil(lo); e<=hi; e+=step){
+      g += line(X(e), yAx, X(e), yAx+4, {stroke:"var(--rule)"});
+      g += txt(X(e), yAx+15, "10"+supStr(e), {anchor:"middle", size:narrow()?9:9.5});
+    }
+    if(s.ksp>0){
+      const x = X(Math.log10(s.ksp));
+      g += line(x, 16, x, yAx, {stroke:"var(--c1)", w:1.6, dash:"4 3"});
+      g += txt(x, 11, "Ksp", {fill:"var(--c1t)", anchor:"middle", size:10.5, weight:600});
+    }
+    if(Q>0){
+      const x = X(Math.log10(Q));
+      g += line(x, 16, x, yAx, {stroke:"var(--c4)", w:1.6});
+      g += txt(x, 11, "Q", {fill:"var(--c4t)", anchor:"middle", size:10.5, weight:600});
+      const xk = X(Math.log10(s.ksp));
+      if(Math.abs(x-xk) > 2){
+        g += '<rect x="'+Math.min(x,xk)+'" y="'+(yAx-9)+'" width="'+Math.abs(x-xk)+'" height="9" fill="'+(yes?"var(--c4)":"var(--c1)")+'" opacity="0.16"/>';
+      }
+    }
+    g += "</svg>";
+    box.innerHTML = g;
+
+    /* --- 数値 --- */
+    let h = '<div class="read"><dl>';
+    h += "<dt>混合後 "+s.cat+"</dt><dd>"+sciH(a0,3)+" mol/L</dd>";
+    h += "<dt>混合後 "+s.an +"</dt><dd>"+sciH(b0,3)+" mol/L</dd>";
+    h += "<dt>イオン積 Q</dt><dd>"+sciH(Q,3)+"</dd>";
+    h += "<dt>溶解度積 Ksp</dt><dd>"+sciH(s.ksp,2)+"</dd>";
+    h += "<dt>Q / Ksp</dt><dd>"+(s.ksp>0?sciH(Q/s.ksp,3):"—")+"</dd>";
+    h += "</dl>";
+    h += '<div class="verdict '+(yes?"yes":"no")+'">'+(yes ? "Q > Ksp　沈殿が生じる" : "Q < Ksp　沈殿しない")+"</div></div>";
+
+    if(yes){
+      const x = solvePrecip(s, a0, b0);
+      const aEq = a0 - s.m*x, bEq = b0 - s.n*x;
+      const naive = Math.min(a0/s.m, b0/s.n);
+      h += '<div class="read"><div class="xs muted" style="margin-bottom:6px;font-family:var(--mono);letter-spacing:.1em">沈殿後の平衡（厳密解）</div><dl>';
+      h += "<dt>沈殿した "+s.f+"</dt><dd>"+sciH(x,3)+" mol/L</dd>";
+      h += "<dt>残った "+s.cat+"</dt><dd>"+sciH(aEq,3)+" mol/L</dd>";
+      h += "<dt>残った "+s.an +"</dt><dd>"+sciH(bEq,3)+" mol/L</dd>";
+      h += "<dt>沈殿率</dt><dd>"+(100*x/naive).toFixed(4)+" %</dd>";
+      h += "</dl>";
+      const gap = (naive-x)/naive;
+      h += '<div class="xs muted" style="margin-top:7px">完全に沈殿すると仮定すると '+sciH(naive,3)+' mol/L。厳密解との差は '+(gap<1e-6 ? "0.0001 % 未満" : (100*gap).toFixed(4)+" %")+"。"
+        +  (Math.abs(a0*s.n-b0*s.m) < 1e-12*Math.max(a0,b0) ? " 化学量論比ちょうどで混ぜているので、残留濃度は Ksp から決まる下限まで落ちる。" : " 一方が過剰なので、少ないほうのイオンはほぼ完全に落ちる。")
+        + "</div></div>";
+    }
+    out.innerHTML = h;
+  }
+  sel.addEventListener("change", draw);
+  ids.forEach(i=>el[i].addEventListener("input", draw));
+  window.addEventListener("resize", draw);
+  draw();
+})();
+
+/* ============================================================
+   モジュール 2: 溶解度 ⇄ Ksp
+   ============================================================ */
+(function(){
+  /* 型の一覧表 */
+  const TYPES = [
+    {m:1,n:1, label:"AB型",    ex:"AgCl, BaSO₄, CaCO₃", c:0},
+    {m:1,n:2, label:"AB₂型",   ex:"CaF₂, PbCl₂, Mg(OH)₂", c:1},
+    {m:2,n:1, label:"A₂B型",   ex:"Ag₂CrO₄", c:1},
+    {m:1,n:3, label:"AB₃型",   ex:"Al(OH)₃, Fe(OH)₃", c:2},
+    {m:3,n:2, label:"A₃B₂型",  ex:"Ca₃(PO₄)₂", c:3}
+  ];
+  const tt = document.getElementById("m2-types");
+  let h = "<tr><th>型</th><th>電離</th><th class='n'>mᵐnⁿ</th><th>Ksp と s の関係</th><th>例</th></tr>";
+  TYPES.forEach(t=>{
+    const cf = Math.pow(t.m,t.m)*Math.pow(t.n,t.n);
+    const ion = (t.m>1?t.m:"")+"A + "+(t.n>1?t.n:"")+"B";
+    h += "<tr><td class='mono'>"+t.label+"</td><td class='mono xs'>"+ion+"</td><td class='n'>"+cf+"</td>"
+       + "<td class='mono'>Ksp = "+(cf>1?cf:"")+"s"+supStr(t.m+t.n)+"</td><td class='xs muted'>"+t.ex+"</td></tr>";
+  });
+  tt.innerHTML = h;
+
+  /* --- log-log チャート --- */
+  const LINES = [
+    {mm:1, nn:1, lab:"AB",     c:"var(--c0)", ct:"var(--c0t)"},
+    {mm:1, nn:2, lab:"AB₂/A₂B",c:"var(--c1)", ct:"var(--c1t)"},
+    {mm:1, nn:3, lab:"AB₃/A₃B",c:"var(--c2)", ct:"var(--c2t)"},
+    {mm:3, nn:2, lab:"A₃B₂",   c:"var(--c3)", ct:"var(--c3t)"}
+  ].map(L=>{ L.cf = Math.pow(L.mm,L.mm)*Math.pow(L.nn,L.nn); L.tot = L.mm+L.nn; return L; });
+
+  const lg = document.getElementById("m2-legend");
+  lg.innerHTML = LINES.map(L=>'<span><i class="sw" style="background:'+L.c+'"></i>'+L.lab+"型</span>").join("");
+
+  const slider = document.getElementById("m2-slider");
+  const box = document.getElementById("m2-chart");
+  const out = document.getElementById("m2-out");
+  const kv  = document.getElementById("m2-kv");
+
+  const XLO=-40, XHI=-2, YLO=-14, YHI=0;
+
+  function draw(){
+    const N = narrow();
+    const W = 700, H = N ? 300 : 340;
+    const PL = N ? 40 : 48, PR = N ? 12 : 58, PT = 14, PB = 34;
+    const X = v => PL + (v-XLO)/(XHI-XLO)*(W-PL-PR);
+    const Y = v => PT + (YHI-v)/(YHI-YLO)*(H-PT-PB);
+    const lk = +slider.value;
+
+    let g = '<svg viewBox="0 0 '+W+' '+H+'" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="Kspと溶解度の対数プロット">';
+    /* grid */
+    for(let e=XLO; e<=XHI; e+=(N?10:5)){
+      g += line(X(e), PT, X(e), H-PB);
+      g += txt(X(e), H-PB+15, "10"+supStr(e), {anchor:"middle", size:N?9:9.5});
+    }
+    for(let e=YLO; e<=YHI; e+=2){
+      g += line(PL, Y(e), W-PR, Y(e));
+      g += txt(PL-6, Y(e)+3.5, "10"+supStr(e), {anchor:"end", size:N?9:9.5});
+    }
+    g += line(PL, PT, PL, H-PB, {stroke:"var(--rule)"});
+    g += line(PL, H-PB, W-PR, H-PB, {stroke:"var(--rule)"});
+    g += txt(W-PR, H-PB+29, "Ksp", {anchor:"end", size:10, ls:".08em"});
+    g += txt(PL-6, PT-3, "s / mol·L⁻¹", {anchor:"start", size:10, ls:".08em"});
+
+    /* 型ごとの直線 */
+    LINES.forEach(L=>{
+      const f = lkv => (lkv - Math.log10(L.cf)) / L.tot;
+      const y1 = f(XLO), y2 = f(XHI);
+      g += '<path d="M '+X(XLO)+' '+Y(Math.max(Math.min(y1,YHI),YLO))+' L '+X(XHI)+' '+Y(Math.max(Math.min(y2,YHI),YLO))+'" fill="none" stroke="'+L.c+'" stroke-width="1.6"/>';
+      if(!N){
+        const yy = Math.max(Math.min(f(XHI), YHI), YLO);
+        g += txt(X(XHI)+5, Y(yy)+3.5, L.lab, {fill:L.ct, size:10, anchor:"start"});
+      }
+    });
+
+    /* 実在の塩 */
+    SALTS.forEach(s=>{
+      const lx = Math.log10(s.ksp), ly = Math.log10(sPure(s));
+      if(lx<XLO||lx>XHI||ly<YLO||ly>YHI) return;
+      const tot = s.m+s.n;
+      const L = LINES.find(l=>l.tot===tot) || LINES[0];
+      g += '<circle cx="'+X(lx)+'" cy="'+Y(ly)+'" r="2.6" fill="'+L.c+'" opacity="0.85"/>';
+    });
+    /* 逆転の例 */
+    const agcl = SALTS.find(s=>s.id==="AgCl"), ag2 = SALTS.find(s=>s.id==="Ag2CrO4");
+    [[agcl,"AgCl","end"],[ag2,"Ag₂CrO₄","start"]].forEach(p=>{
+      const s=p[0], lx=Math.log10(s.ksp), ly=Math.log10(sPure(s));
+      g += '<circle cx="'+X(lx)+'" cy="'+Y(ly)+'" r="3.6" fill="none" stroke="var(--ink)" stroke-width="1.2"/>';
+      if(!N) g += txt(X(lx)+(p[2]==="end"?-7:7), Y(ly)-7, p[1], {fill:"var(--ink)", size:10, anchor:p[2]});
+    });
+
+    /* カーソル */
+    g += line(X(lk), PT, X(lk), H-PB, {stroke:"var(--ink)", w:1, dash:"2 3"});
+    LINES.forEach(L=>{
+      const y = (lk - Math.log10(L.cf))/L.tot;
+      if(y<YLO||y>YHI) return;
+      g += '<circle cx="'+X(lk)+'" cy="'+Y(y)+'" r="3.4" fill="'+L.c+'" stroke="var(--surface)" stroke-width="1.2"/>';
+    });
+    g += chip(X(lk), PT+9, "Ksp = "+sciU(Math.pow(10,lk),2), lk > (XLO+XHI)/2 ? "end" : "start");
+    g += "</svg>";
+    box.innerHTML = g;
+
+    kv.innerHTML = "= " + sciH(Math.pow(10,lk),2);
+
+    let o = '<div class="read"><dl>';
+    LINES.forEach(L=>{
+      const s = Math.pow(Math.pow(10,lk)/L.cf, 1/L.tot);
+      o += "<dt>"+L.lab+"型</dt><dd>"+sciH(s,3)+" mol/L</dd>";
+    });
+    o += "</dl><div class='xs muted' style='margin-top:7px'>同じ Ksp でも型が違えば溶解度は桁で変わる。AB型と A₃B₂型では "
+       + sciH(Math.pow(Math.pow(10,lk)/108,1/5) / Math.sqrt(Math.pow(10,lk)), 2) + " 倍の開き。</div></div>";
+    out.innerHTML = o;
+  }
+
+  slider.addEventListener("input", draw);
+  window.addEventListener("resize", draw);
+
+  /* ポインタでなぞる */
+  let dragging = false;
+  function fromPointer(ev){
+    const r = box.getBoundingClientRect();
+    if(r.width <= 0) return;
+    const N = narrow();
+    const PL = N ? 40 : 48, PR = N ? 12 : 58, W = 700;
+    const px = (ev.clientX - r.left) / r.width * W;
+    let v = XLO + (px - PL)/(W-PL-PR)*(XHI-XLO);
+    v = Math.max(XLO, Math.min(XHI, v));
+    slider.value = v.toFixed(2);
+    draw();
+  }
+  box.addEventListener("pointerdown", e=>{ dragging=true; box.setPointerCapture(e.pointerId); fromPointer(e); e.preventDefault(); });
+  box.addEventListener("pointermove", e=>{ if(dragging) { fromPointer(e); e.preventDefault(); } });
+  box.addEventListener("pointerup",   e=>{ dragging=false; });
+  box.addEventListener("pointercancel", ()=>{ dragging=false; });
+
+  /* --- 塩の一覧表 --- */
+  const table = document.getElementById("m2-table");
+  const sortBtns = document.querySelectorAll("#m2-sort button");
+  let mode = "ksp";
+  function renderTable(){
+    const rows = SALTS.slice();
+    if(mode==="ksp") rows.sort((a,b)=>a.ksp-b.ksp);
+    if(mode==="s")   rows.sort((a,b)=>sPure(a)-sPure(b));
+    if(mode==="grp") rows.sort((a,b)=> a.grp===b.grp ? a.ksp-b.ksp : a.grp.localeCompare(b.grp,"ja"));
+    const N = narrow();
+    let t = "<tr><th>塩</th><th>型</th><th class='n'>Ksp</th><th class='n'>s / mol·L⁻¹</th>"+(N?"":"<th class='n'>s / g·L⁻¹</th><th>系統</th>")+"</tr>";
+    rows.forEach(s=>{
+      const sp = sPure(s);
+      const hi = (s.id==="AgCl"||s.id==="Ag2CrO4") ? " class='hi'" : "";
+      t += "<tr"+hi+"><td class='mono'>"+s.f+"</td><td class='xs muted'>"+typeName(s)+"</td>"
+        +  "<td class='n'>"+sciH(s.ksp,2)+"</td><td class='n'>"+sciH(sp,2)+"</td>"
+        +  (N?"":"<td class='n'>"+sciH(sp*s.mw,2)+"</td><td class='xs muted'>"+s.grp+"</td>")
+        +  "</tr>";
+    });
+    table.innerHTML = t;
+  }
+  sortBtns.forEach(b=>b.addEventListener("click", ()=>{
+    mode = b.dataset.k;
+    sortBtns.forEach(x=>x.setAttribute("aria-pressed", x===b ? "true" : "false"));
+    renderTable();
+  }));
+  window.addEventListener("resize", renderTable);
+
+  /* --- 水酸化物の厳密解 --- */
+  function renderHyd(){
+    const hyd = SALTS.filter(s=>s.an==="OH⁻");
+    let t = "<tr><th>水酸化物</th><th class='n'>近似 s</th><th class='n'>厳密 s</th><th class='n'>ずれ</th><th class='n'>飽和液の pH</th></tr>";
+    let worst = null;
+    hyd.forEach(s=>{
+      const a = sPure(s), e = hydroxideExact(s), r = a/e.s;
+      if(!worst || r > worst.r) worst = {s:s, r:r, a:a, e:e};
+      const flag = r > 1.05;
+      t += "<tr"+(flag?" class='hi'":"")+"><td class='mono'>"+s.f+"</td><td class='n'>"+sciH(a,2)+"</td>"
+        +  "<td class='n'>"+sciH(e.s,2)+"</td><td class='n'>"+(r<1.005 ? "—" : "×"+sciH(r,2))+"</td>"
+        +  "<td class='n'>"+e.pH.toFixed(2)+"</td></tr>";
+    });
+    document.getElementById("m2-hyd").innerHTML = t;
+    document.getElementById("m2-hydnote").innerHTML =
+      "<b>差が出るのは溶けなさすぎる水酸化物。</b>" + worst.s.f + " は近似式だと "+sciH(worst.a,2)
+      + " mol/L と出るが、[OH⁻] が水由来の 10⁻⁷ mol/L で頭打ちになるため実際は "+sciH(worst.e.s,2)
+      + " mol/L。"+sciH(worst.r,2)+" 倍のずれで、有効数字の問題ではなく答えが壊れている。"
+      + "Mg(OH)₂ や Ca(OH)₂ のように塩由来の OH⁻ が 10⁻⁴ mol/L 出るものは近似で問題ない。"
+      + "なお Al(OH)₃ と Zn(OH)₂ は両性なので、この厳密解でもまだ足りない。[Al(OH)₄]⁻ の生成を入れると pH 7 での溶解度はさらに桁違いに大きくなる。";
+  }
+
+  renderTable(); renderHyd(); draw();
+})();
+
+/* ============================================================
+   モジュール 3: 共通イオン効果
+   ============================================================ */
+(function(){
+  const selS = document.getElementById("m3-salt"), selI = document.getElementById("m3-ion");
+  const slider = document.getElementById("m3-slider");
+  const box = document.getElementById("m3-chart"), out = document.getElementById("m3-out");
+  const cv = document.getElementById("m3-cv");
+
+  const PICK = ["AgCl","AgBr","AgI","Ag2CrO4","BaSO4","CaCO3","CaF2","PbCl2","PbI2","PbSO4","MgOH2","CaOH2","Ca3PO42"];
+  PICK.forEach(id=>{
+    const s = SALTS.find(x=>x.id===id);
+    const o = document.createElement("option"); o.value=s.id; o.textContent=s.f+"　"+s.jp; selS.appendChild(o);
+  });
+  selS.value="AgCl";
+
+  function salt(){ return SALTS.find(s=>s.id===selS.value); }
+  function fillIons(){
+    const s = salt();
+    selI.innerHTML = "";
+    [["an", s.an], ["cat", s.cat]].forEach(p=>{
+      const o=document.createElement("option"); o.value=p[0]; o.textContent=p[1]+" を加える"; selI.appendChild(o);
+    });
+    selI.value = "an";
+  }
+
+  const XLO=-6, XHI=0;
+
+  function draw(){
+    const s = salt(), side = selI.value;
+    const N = narrow();
+    const W=700, H = N?280:320, PL = N?44:52, PR = N?14:16, PT=16, PB=34;
+    const lc = +slider.value, c = Math.pow(10, lc);
+
+    const s0 = sPure(s);
+    const cA = side==="cat" ? c : 0, cB = side==="an" ? c : 0;
+    const exact = solveS(s, cA, cB);
+    /* 近似: 加えた側のイオン濃度を c で固定し、もう一方だけ溶解由来とする */
+    const approx = side==="an"
+      ? Math.pow(s.ksp / Math.pow(c, s.n), 1/s.m) / s.m
+      : Math.pow(s.ksp / Math.pow(c, s.m), 1/s.n) / s.n;
+
+    /* y 範囲 */
+    const ys = [];
+    for(let i=0;i<=120;i++){
+      const lcx = XLO + (XHI-XLO)*i/120, cx = Math.pow(10,lcx);
+      ys.push(Math.log10(solveS(s, side==="cat"?cx:0, side==="an"?cx:0)));
+    }
+    ys.push(Math.log10(s0));
+    let YHI = Math.ceil(Math.max.apply(null, ys.filter(isFinite)));
+    let YLO = Math.floor(Math.min.apply(null, ys.filter(isFinite)));
+    if(YHI-YLO < 4) YLO = YHI-4;
+    YLO = Math.max(YLO, YHI-20);
+
+    const X = v => PL + (v-XLO)/(XHI-XLO)*(W-PL-PR);
+    const Y = v => PT + (YHI-v)/(YHI-YLO)*(H-PT-PB);
+    const clampY = v => Math.max(YLO, Math.min(YHI, v));
+
+    let g = '<svg viewBox="0 0 '+W+' '+H+'" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="共通イオン濃度と溶解度">';
+    for(let e=XLO; e<=XHI; e++){
+      g += line(X(e), PT, X(e), H-PB);
+      g += txt(X(e), H-PB+15, "10"+supStr(e), {anchor:"middle", size:N?9:9.5});
+    }
+    const ystep = Math.max(1, Math.round((YHI-YLO)/(N?4:7)));
+    for(let e=YLO; e<=YHI; e+=ystep){
+      g += line(PL, Y(e), W-PR, Y(e));
+      g += txt(PL-6, Y(e)+3.5, "10"+supStr(e), {anchor:"end", size:N?9:9.5});
+    }
+    g += line(PL, PT, PL, H-PB, {stroke:"var(--rule)"});
+    g += line(PL, H-PB, W-PR, H-PB, {stroke:"var(--rule)"});
+    g += txt(W-PR, H-PB+29, "加えた "+(side==="an"?s.an:s.cat)+" / mol·L⁻¹", {anchor:"end", size:10});
+    g += txt(PL-6, PT-4, "s / mol·L⁻¹", {anchor:"start", size:10});
+
+    /* 純水の水準 */
+    if(Math.log10(s0) <= YHI && Math.log10(s0) >= YLO){
+      g += line(PL, Y(Math.log10(s0)), W-PR, Y(Math.log10(s0)), {stroke:"var(--rule)", w:1});
+      if(!N) g += txt(W-PR-4, Y(Math.log10(s0))-5, "純水 "+sciU(s0,2), {anchor:"end", size:9.5});
+    }
+
+    /* 近似曲線 */
+    let dA = "";
+    for(let i=0;i<=200;i++){
+      const lcx = XLO + (XHI-XLO)*i/200, cx = Math.pow(10,lcx);
+      const ap = side==="an" ? Math.pow(s.ksp/Math.pow(cx,s.n), 1/s.m)/s.m
+                             : Math.pow(s.ksp/Math.pow(cx,s.m), 1/s.n)/s.n;
+      const ly = Math.log10(ap);
+      if(!isFinite(ly)) continue;
+      dA += (dA?" L ":"M ") + X(lcx).toFixed(2) + " " + Y(clampY(ly)).toFixed(2);
+    }
+    g += '<path d="'+dA+'" fill="none" stroke="var(--c4)" stroke-width="1.2" opacity="0.75"/>';
+
+    /* 厳密曲線 */
+    let dE = "";
+    for(let i=0;i<=200;i++){
+      const lcx = XLO + (XHI-XLO)*i/200, cx = Math.pow(10,lcx);
+      const ly = Math.log10(solveS(s, side==="cat"?cx:0, side==="an"?cx:0));
+      if(!isFinite(ly)) continue;
+      dE += (dE?" L ":"M ") + X(lcx).toFixed(2) + " " + Y(clampY(ly)).toFixed(2);
+    }
+    g += '<path d="'+dE+'" fill="none" stroke="var(--c2)" stroke-width="2"/>';
+
+    /* カーソル */
+    g += line(X(lc), PT, X(lc), H-PB, {stroke:"var(--ink)", w:1, dash:"2 3"});
+    const lyE = clampY(Math.log10(exact)), lyA = clampY(Math.log10(approx));
+    g += '<circle cx="'+X(lc)+'" cy="'+Y(lyA)+'" r="3.2" fill="var(--c4)" stroke="var(--surface)" stroke-width="1.2"/>';
+    g += '<circle cx="'+X(lc)+'" cy="'+Y(lyE)+'" r="3.8" fill="var(--c2)" stroke="var(--surface)" stroke-width="1.2"/>';
+    g += chip(X(lc), PT+9, "c = "+sciU(c,2), lc > -3 ? "end" : "start");
+    g += "</svg>";
+    box.innerHTML = g;
+
+    cv.innerHTML = "= " + sciH(c,2) + " mol/L";
+
+    const ratio = approx/exact;
+    let o = '<div class="read"><dl>';
+    o += "<dt>純水での溶解度</dt><dd>"+sciH(s0,3)+" mol/L</dd>";
+    o += "<dt>厳密解 s</dt><dd>"+sciH(exact,3)+" mol/L</dd>";
+    o += "<dt>近似解</dt><dd>"+sciH(approx,3)+" mol/L</dd>";
+    o += "<dt>近似の倍率</dt><dd>×"+(ratio<100 ? ratio.toFixed(3) : sciH(ratio,3))+"</dd>";
+    o += "<dt>純水比の抑制</dt><dd>1/"+sciH(s0/exact,3)+"</dd>";
+    o += "</dl>";
+    let msg;
+    if(ratio < 1.01) msg = "近似と厳密がほぼ一致する領域。加えた共通イオンが溶解由来のイオンを圧倒しているので、教科書の近似式で解いてよい。";
+    else if(ratio < 1.5) msg = "近似が数 % 過大になり始めた。有効数字2桁の答えなら影響が出る。";
+    else if(ratio < 5) msg = "近似が"+ratio.toFixed(1)+"倍の過大評価。この領域で近似式を使うと選択肢を取り違える。";
+    else msg = "近似は完全に破綻している("+sciH(ratio,2)+"倍)。共通イオンの量が溶解由来のイオンと同程度以下なので、二次式(あるいは高次式)を解くしかない。";
+    if(approx > s0) msg += " 近似解が純水での溶解度を上回っており、共通イオンを加えて溶けやすくなるという矛盾が起きている。";
+    o += "<div class='xs muted' style='margin-top:7px'>"+msg+"</div></div>";
+    out.innerHTML = o;
+  }
+
+  selS.addEventListener("change", ()=>{ fillIons(); draw(); });
+  selI.addEventListener("change", draw);
+  slider.addEventListener("input", draw);
+  window.addEventListener("resize", draw);
+
+  let dragging=false;
+  function fromPointer(ev){
+    const r = box.getBoundingClientRect(); if(r.width<=0) return;
+    const N = narrow(), PL = N?44:52, PR = N?14:16, W=700;
+    const px = (ev.clientX - r.left)/r.width*W;
+    let v = XLO + (px-PL)/(W-PL-PR)*(XHI-XLO);
+    v = Math.max(XLO, Math.min(XHI, v));
+    slider.value = v.toFixed(2); draw();
+  }
+  box.addEventListener("pointerdown", e=>{ dragging=true; box.setPointerCapture(e.pointerId); fromPointer(e); e.preventDefault(); });
+  box.addEventListener("pointermove", e=>{ if(dragging){ fromPointer(e); e.preventDefault(); } });
+  box.addEventListener("pointerup", ()=>{ dragging=false; });
+  box.addEventListener("pointercancel", ()=>{ dragging=false; });
+
+  fillIons(); draw();
+})();
+</script>
+</body>
+</html>

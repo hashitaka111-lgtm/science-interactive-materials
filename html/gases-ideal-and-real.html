@@ -1,0 +1,1001 @@
+<!doctype html>
+<html lang="ja">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>理想気体と実在気体</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500&family=IBM+Plex+Sans+JP:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+:root{
+  --ink:#16232B; --muted:#5E6E76; --paper:#EDF1EF; --surface:#FFFFFF;
+  --rule:#D6DDDA; --rule-soft:#E8EDEB;
+  --sans:"IBM Plex Sans JP","Hiragino Sans","Yu Gothic UI",system-ui,sans-serif;
+  --mono:"IBM Plex Mono",ui-monospace,SFMono-Regular,Menlo,monospace;
+}
+*{box-sizing:border-box}
+html,body{margin:0;padding:0}
+body{background:var(--paper);color:var(--ink);font-family:var(--sans);font-size:13.5px;line-height:1.78;
+  -webkit-text-size-adjust:100%;padding:18px 12px 60px}
+.wrap{max-width:812px;margin:0 auto}
+.card{background:var(--surface);border:1px solid var(--rule);border-radius:3px;padding:18px 18px 16px;margin-bottom:14px}
+h1{font-size:22px;font-weight:600;letter-spacing:.01em;margin:10px 0 6px;line-height:1.45}
+h2{font-size:15px;font-weight:600;letter-spacing:.01em;margin:10px 0 4px}
+h3{font-size:12.5px;font-weight:600;margin:16px 0 2px;color:var(--ink)}
+p{margin:6px 0}
+.eyebrow{display:flex;align-items:center;gap:10px;font-family:var(--mono);font-size:11.5px;
+  letter-spacing:.14em;color:var(--muted);text-transform:uppercase}
+.eyebrow::after{content:"";flex:1;height:1px;background:var(--rule)}
+.lede{color:var(--muted);font-size:13px}
+.note{color:var(--muted);font-size:12px;margin-top:10px}
+.eq{font-family:var(--mono);font-size:12.5px;background:var(--paper);border:1px solid var(--rule-soft);
+  border-radius:3px;padding:8px 10px;margin:10px 0;overflow-x:auto;white-space:nowrap;font-variant-numeric:tabular-nums}
+.chips{display:flex;flex-wrap:wrap;gap:5px;margin:10px 0 4px}
+button.chip{font-family:var(--mono);font-size:11.5px;font-weight:500;letter-spacing:.04em;color:var(--ink);
+  background:var(--surface);border:1px solid var(--rule);border-radius:2px;padding:5px 9px;cursor:pointer;
+  line-height:1.2;transition:none}
+button.chip:hover{border-color:var(--muted)}
+button.chip[aria-pressed="true"]{background:var(--ink);color:#fff;border-color:var(--ink)}
+button.chip:focus-visible{outline:2px solid var(--ink);outline-offset:1px}
+.sld{display:flex;align-items:center;gap:10px;margin:8px 0}
+.sld label{font-family:var(--mono);font-size:11px;letter-spacing:.08em;color:var(--muted);white-space:nowrap;min-width:64px}
+.sld input[type=range]{flex:1;min-width:80px;accent-color:var(--ink);height:22px}
+.sld .val{font-family:var(--mono);font-size:12.5px;font-weight:500;font-variant-numeric:tabular-nums;
+  text-align:right;min-width:96px}
+.chart{display:block;width:100%;height:auto;touch-action:pan-y;margin-top:4px}
+.chart text{font-family:var(--mono);fill:var(--muted)}
+.chart .tk{font-size:10px}
+.chart .ax{font-size:10px;letter-spacing:.08em}
+.chart .grid{stroke:var(--rule-soft);stroke-width:1;fill:none}
+.chart .axis{stroke:var(--rule);stroke-width:1;fill:none}
+.chart .guide{stroke:var(--ink);stroke-width:1;opacity:.5}
+.chart .ideal{stroke:var(--muted);stroke-width:1.2;fill:none}
+.chart .thin{stroke-width:1.1;fill:none;opacity:.42}
+.chart .bold{stroke-width:1.9;fill:none}
+.chart .dash{stroke-dasharray:4 3}
+.chart .mk{fill:var(--ink)}
+.chart .lbl{fill:var(--ink);font-size:10px}
+.chart .chiptx{fill:#fff}
+.kv{display:grid;grid-template-columns:repeat(auto-fit,minmax(140px,1fr));gap:0 16px;margin-top:10px}
+.kv div{display:flex;justify-content:space-between;align-items:baseline;gap:10px;
+  border-bottom:1px solid var(--rule-soft);padding:4px 0}
+.kv b{font-family:var(--mono);font-size:10.5px;font-weight:500;letter-spacing:.06em;color:var(--muted)}
+.kv span{font-family:var(--mono);font-size:12.5px;font-weight:500;font-variant-numeric:tabular-nums}
+.lg{display:flex;flex-wrap:wrap;gap:12px;margin-top:8px;font-family:var(--mono);font-size:11px;color:var(--muted)}
+.lg i{display:inline-block;width:16px;height:0;border-top-width:2px;border-top-style:solid;
+  vertical-align:middle;margin-right:5px}
+.tblwrap{overflow-x:auto;margin-top:10px}
+table{width:100%;border-collapse:collapse;font-size:12px}
+th{font-family:var(--mono);font-size:10px;font-weight:500;letter-spacing:.05em;color:var(--muted);
+  text-align:right;border-bottom:1px solid var(--rule);padding:6px 5px;white-space:nowrap}
+td{padding:5px;border-bottom:1px solid var(--rule-soft);text-align:right;font-family:var(--mono);
+  font-size:11.5px;font-variant-numeric:tabular-nums;white-space:nowrap}
+th:first-child,td:first-child{text-align:left}
+tbody tr{cursor:pointer}
+tbody tr.on td{background:var(--paper)}
+ul{margin:6px 0;padding-left:18px}
+li{margin:3px 0}
+.sub{border-top:1px solid var(--rule-soft);margin-top:16px;padding-top:12px}
+.big{font-family:var(--mono);font-size:20px;font-weight:500;font-variant-numeric:tabular-nums;letter-spacing:-.01em}
+@media (max-width:430px){
+  body{padding:12px 8px 44px;font-size:13px}
+  .card{padding:14px 12px 12px}
+  h1{font-size:19px}
+  .sld label{min-width:52px;font-size:10.5px}
+  .sld .val{min-width:82px;font-size:12px}
+  .kv{grid-template-columns:1fr 1fr;gap:0 12px}
+}
+</style>
+</head>
+<body>
+<main class="wrap">
+
+<header class="card">
+  <div class="eyebrow">PV=nRT / van der Waals / Maxwell–Boltzmann</div>
+  <h1>理想気体と実在気体</h1>
+  <p class="lede">PV=nRT はどこまで使えて、どこから外れるのか。ファンデルワールス式を3次方程式として数値的に解き、同じ温度・同じ圧力での体積の差を見ます。臨界点、分圧、分子の速度分布まで、グラフをなぞりながら数値で確認できます。</p>
+  <p class="note">圧力の単位は 10⁵ Pa（1 bar、1 atm = 1.013×10⁵ Pa）。体積は 1 mol あたりの L で表示します。気体定数は R = 0.083145 L·10⁵Pa·mol⁻¹·K⁻¹ = 8.314 J·mol⁻¹·K⁻¹。</p>
+</header>
+
+<section class="card">
+  <div class="eyebrow">01 / 等温線</div>
+  <h2>P–V 図で理想と実在を重ねる</h2>
+  <p>ファンデルワールス式は、動ける体積を V−nb に狭め、壁を叩く勢いを an²/V² だけ差し引いた式です。1 mol あたりで解くと圧力は次のように書けます。</p>
+  <div class="eq">P = RT/(V − b) − a/V²　　　　（理想気体は P = RT/V）</div>
+  <p>気体を選んで温度を動かしてください。臨界温度より下ではS字のふくらみ（ループ）が出ます。ここは dP/dV &gt; 0、つまり体積を押し縮めると圧力が下がる領域で、実在しません。実際には水平な線に置き換わり、その高さが蒸気圧、両端が液体と気体のモル体積です。</p>
+  <div class="chips" id="g1"></div>
+  <div class="sld"><label>T / Tc</label><input type="range" id="s1t" min="0.86" max="1.60" step="0.005"><span class="val" id="v1t"></span></div>
+  <div class="chips" id="t1"></div>
+  <div id="ch1"></div>
+  <div class="sld"><label>V 位置</label><input type="range" id="s1v" min="0" max="1" step="0.001"><span class="val" id="v1v"></span></div>
+  <div class="kv" id="rd1"></div>
+  <div class="lg" id="lg1"></div>
+  <p class="note" id="nt1"></p>
+</section>
+
+<section class="card">
+  <div class="eyebrow">02 / 圧縮率因子</div>
+  <h2>Z = PV/(nRT) のずれ方で補正の勝敗が見える</h2>
+  <p>理想気体なら Z は常に 1。実在気体では、引力の補正が勝つと 1 より小さく、排除体積が勝つと 1 より大きくなります。低圧側の傾きがゼロになる温度がボイル温度 T_B = a/(Rb) で、ファンデルワールス式では T_B = (27/8)T_c。</p>
+  <p>下のグラフは、各圧力で3次方程式を解いて得た実際のモル体積から Z を計算したものです。臨界温度より低い気体では、蒸気圧のところで気体の枝から液体の枝へ飛びます。曲線が切れているのがその凝縮です。</p>
+  <div class="chips" id="g2"></div>
+  <div class="sld"><label>T / K</label><input type="range" id="s2t" min="80" max="800" step="1"><span class="val" id="v2t"></span></div>
+  <div id="ch2"></div>
+  <div class="sld"><label>P 位置</label><input type="range" id="s2p" min="0" max="1" step="0.001"><span class="val" id="v2p"></span></div>
+  <div class="kv" id="rd2"></div>
+  <div class="lg" id="lg2"></div>
+  <p class="note" id="nt2"></p>
+</section>
+
+<section class="card">
+  <div class="eyebrow">03 / 臨界点</div>
+  <h2>a と b だけで臨界定数が決まる</h2>
+  <p>臨界等温線では極大と極小が重なって変曲点1つに縮退します。∂P/∂V = 0 と ∂²P/∂V² = 0 を連立すると、余計な仮定なしに3つの臨界定数が出ます。</p>
+  <div class="eq">V_c = 3b　　T_c = 8a/(27Rb)　　P_c = a/(27b²)　　Z_c = P_cV_c/(RT_c) = 3/8 = 0.375</div>
+  <p>Z_c からは a も b も消えるので、どの気体でも 0.375 になるはずです。実測は 0.23 から 0.30。ファンデルワールス式は臨界温度と臨界圧力をよく当てる一方で、臨界体積は 3b が実測より3割ほど大きく出ます。行をタップすると、その気体が上のグラフにも反映されます。</p>
+  <div class="tblwrap"><table id="tb3"><thead></thead><tbody></tbody></table></div>
+  <p class="note">a・b・臨界定数の実測値はいずれも CRC Handbook 系の値を採用。a は 10⁵Pa·L²·mol⁻²、b は L·mol⁻¹。教科書によっては atm 基準の a（本表の値を 1.013 で割ったもの）が載っているので、単位を確認してから使ってください。</p>
+</section>
+
+<section class="card">
+  <div class="eyebrow">04 / 分圧とモル分率</div>
+  <h2>分圧比は物質量比そのもの</h2>
+  <p>混合気体でも、理想気体なら成分どうしは互いに無関心です。成分 i だけがその体積を単独で占めたときの圧力が分圧で、P_i V = n_i RT が成り立ちます。全圧で割れば</p>
+  <div class="eq">P_i / P = n_i / n = x_i　　　　P = ΣP_i（ドルトンの分圧の法則）</div>
+  <p>物質量比と体積比と分圧比が同じ数字になる、という一点だけ押さえれば計算は終わります。組成のスライダーを動かすと、モル分率と分圧が同時に変わります。</p>
+  <div class="chips" id="m4"></div>
+  <div id="ch4"></div>
+  <div id="sl4"></div>
+  <div class="tblwrap"><table id="tb4"><thead></thead><tbody></tbody></table></div>
+  <p class="note" id="nt4"></p>
+
+  <div class="sub">
+    <h3>肺胞気酸素分圧（医学部志望向け）</h3>
+    <p>気道に入った空気は体温で飽和水蒸気になるので、まず水蒸気分圧 47 mmHg が全圧から差し引かれます。残りに吸入気酸素濃度 F<sub>I</sub>O₂ を掛けたものが肺胞へ届く酸素で、そこから二酸化炭素と交換された分を引きます。呼吸商 R = 0.8 として</p>
+    <div class="eq">P<sub>A</sub>O₂ = (P<sub>B</sub> − 47) × F<sub>I</sub>O₂ − P<sub>a</sub>CO₂ / 0.8</div>
+    <div class="sld"><label>P_B</label><input type="range" id="s4b" min="380" max="760" step="5"><span class="val" id="v4b"></span></div>
+    <div class="sld"><label>FIO₂</label><input type="range" id="s4f" min="0.21" max="1" step="0.01"><span class="val" id="v4f"></span></div>
+    <div class="sld"><label>PaCO₂</label><input type="range" id="s4c" min="20" max="90" step="1"><span class="val" id="v4c"></span></div>
+    <div class="kv" id="rd4"></div>
+    <p class="note" id="nt4b"></p>
+  </div>
+</section>
+
+<section class="card">
+  <div class="eyebrow">05 / 速度分布</div>
+  <h2>同じ温度でも、速さは1つに揃わない</h2>
+  <p>3次元のマクスウェル・ボルツマン分布は、速さの2乗で増える項と指数関数で潰す項の積になっています。</p>
+  <div class="eq">f(v) = 4π(M/2πRT)^{3/2} · v² · exp(−Mv²/2RT)</div>
+  <p>山の頂点が最頻値 v_p = √(2RT/M)、重心が平均 v̄ = √(8RT/πM)、二乗平均平方根が v_rms = √(3RT/M)。比は常に √2 : √(8/π) : √3 で、温度にも分子量にもよりません。曲線の下の面積は必ず1なので、温度を上げて裾が伸びれば山は必ず低くなります。</p>
+  <div class="chips" id="g5"></div>
+  <div class="sld"><label>T / K</label><input type="range" id="s5t" min="80" max="1500" step="5"><span class="val" id="v5t"></span></div>
+  <div class="chips" id="o5"></div>
+  <div id="ch5"></div>
+  <div class="sld"><label>v 位置</label><input type="range" id="s5v" min="0" max="1" step="0.001"><span class="val" id="v5v"></span></div>
+  <div class="kv" id="rd5"></div>
+  <div class="lg" id="lg5"></div>
+  <p class="note">高速側の裾の割合は数値積分（台形則、2000分割）で計算しています。温度を上げたときに増えるのは平均速度そのものより裾の分子の数で、この効き方が反応速度のアレニウス式につながります。</p>
+</section>
+
+<section class="card">
+  <div class="eyebrow">まとめ</div>
+  <h2>持ち帰る4つ</h2>
+  <ul>
+    <li>ファンデルワールス式の補正は2か所だけ。体積は V−nb に狭まり、圧力は an²/V² だけ目減りする。</li>
+    <li>Z が1より小さければ引力が優勢、大きければ排除体積が優勢。高圧では必ず Z &gt; 1 に転じる。</li>
+    <li>臨界定数は a と b から一意に決まり、Z_c = 3/8 は気体によらない。実測が 0.23〜0.30 に散るのがこのモデルの限界。</li>
+    <li>混合気体では物質量比＝体積比＝分圧比。肺胞気の計算もこの1行から出る。</li>
+  </ul>
+  <p class="note">次のテーマは希薄溶液です。浸透圧の π = cRT は、いま見た PV = nRT を n/V = c と書き換えただけの形をしています。溶質分子が溶媒の中を飛び回って半透膜を叩いている、という描像がそのまま重なることを、束一的性質の側から確認します。</p>
+</section>
+
+</main>
+
+<script>
+'use strict';
+/* ============ 定数とデータ ============ */
+var R = 0.083145;      /* L·10^5Pa·mol^-1·K^-1 */
+var RSI = 8.314462;    /* J·mol^-1·K^-1 */
+var MMHG = 760 / 1.01325; /* 1 bar 相当の mmHg */
+
+var SER = [
+  {f:'#B87A16', t:'#8A5A0C'},
+  {f:'#158A6D', t:'#0D6A53'},
+  {f:'#2457A6', t:'#1B4380'},
+  {f:'#6E3AA7', t:'#572D85'},
+  {f:'#A82A6A', t:'#831F52'},
+  {f:'#3B6E1E', t:'#2A5215'}
+];
+
+/* a: 10^5Pa·L^2·mol^-2 / b: L·mol^-1 / TcE,PcE,VcE: 実測の臨界定数 */
+var GASES = [
+  {id:'He',  lb:'He',  ja:'ヘリウム',    M:4.003,  a:0.0346, b:0.02380, TcE:5.19,  PcE:2.27,  VcE:0.0573, s:2},
+  {id:'H2',  lb:'H₂',  ja:'水素',        M:2.016,  a:0.2453, b:0.02651, TcE:33.0,  PcE:12.9,  VcE:0.0650, s:1},
+  {id:'N2',  lb:'N₂',  ja:'窒素',        M:28.013, a:1.370,  b:0.03870, TcE:126.2, PcE:34.0,  VcE:0.0894, s:0},
+  {id:'O2',  lb:'O₂',  ja:'酸素',        M:31.999, a:1.382,  b:0.03186, TcE:154.6, PcE:50.4,  VcE:0.0734, s:4},
+  {id:'CH4', lb:'CH₄', ja:'メタン',      M:16.043, a:2.303,  b:0.04306, TcE:190.6, PcE:46.0,  VcE:0.0990, s:5},
+  {id:'CO2', lb:'CO₂', ja:'二酸化炭素',  M:44.010, a:3.658,  b:0.04286, TcE:304.1, PcE:73.8,  VcE:0.0940, s:3},
+  {id:'NH3', lb:'NH₃', ja:'アンモニア',  M:17.031, a:4.225,  b:0.03707, TcE:405.5, PcE:113.5, VcE:0.0725, s:1},
+  {id:'H2O', lb:'H₂O', ja:'水蒸気',      M:18.015, a:5.537,  b:0.03049, TcE:647.1, PcE:220.6, VcE:0.0560, s:2}
+];
+GASES.forEach(function(g){
+  g.Tc = 8 * g.a / (27 * R * g.b);
+  g.Pc = g.a / (27 * g.b * g.b);
+  g.Vc = 3 * g.b;
+  g.Tb = g.a / (R * g.b);
+  g.ZcE = g.PcE * g.VcE / (R * g.TcE);
+  g.col = SER[g.s];
+});
+var GI = {}; GASES.forEach(function(g,i){GI[g.id] = i;});
+
+var MIXTURES = [
+  {id:'dry', name:'乾燥空気', P:1.013,
+   comps:[{l:'N₂',n:78.08,s:0},{l:'O₂',n:20.95,s:4},{l:'Ar',n:0.93,s:1},{l:'CO₂',n:0.04,s:3}],
+   note:'地表の乾燥空気。二酸化炭素は全圧 1.013×10⁵ Pa のうち 0.3 mmHg ほどしかありません。'},
+  {id:'alv', name:'肺胞気', P:1.013,
+   comps:[{l:'N₂',n:75.4,s:0},{l:'O₂',n:13.2,s:4},{l:'CO₂',n:5.3,s:3},{l:'H₂O',n:6.2,s:2}],
+   note:'体温で飽和した水蒸気が 47 mmHg を占め、酸素は吸入気の 159 mmHg から 100 mmHg まで下がります。'},
+  {id:'ane', name:'酸素60%投与', P:1.013,
+   comps:[{l:'O₂',n:60,s:4},{l:'N₂',n:34,s:0},{l:'H₂O',n:6,s:2}],
+   note:'酸素投与では吸入気酸素濃度が上がるだけで、全圧は大気圧のままです。'},
+  {id:'nh3', name:'ハーバー法の原料', P:2.5,
+   comps:[{l:'N₂',n:25,s:0},{l:'H₂',n:75,s:1}],
+   note:'量論比 1:3 で仕込んだ原料気体。分圧比がそのまま物質量比になります。'}
+];
+
+/* ============ 数値計算 ============ */
+function solveCubic(a, b, c, d){
+  if(Math.abs(a) < 1e-15){
+    if(Math.abs(b) < 1e-15) return Math.abs(c) < 1e-15 ? [] : [-d / c];
+    var D = c * c - 4 * b * d;
+    if(D < 0) return [];
+    var sq = Math.sqrt(D);
+    return [(-c - sq) / (2 * b), (-c + sq) / (2 * b)].sort(function(x,y){return x - y;});
+  }
+  b /= a; c /= a; d /= a;
+  var p = c - b * b / 3;
+  var q = 2 * b * b * b / 27 - b * c / 3 + d;
+  var sh = -b / 3;
+  var disc = q * q / 4 + p * p * p / 27;
+  var out = [];
+  if(disc > 1e-16){
+    var s = Math.sqrt(disc);
+    out = [Math.cbrt(-q / 2 + s) + Math.cbrt(-q / 2 - s) + sh];
+  } else if(disc < -1e-16){
+    var r = Math.sqrt(-p * p * p / 27);
+    var phi = Math.acos(Math.max(-1, Math.min(1, -q / (2 * r))));
+    var m = 2 * Math.sqrt(-p / 3);
+    for(var k = 0; k < 3; k++) out.push(m * Math.cos((phi + 2 * Math.PI * k) / 3) + sh);
+  } else {
+    var u = Math.cbrt(-q / 2);
+    out = [2 * u + sh, -u + sh];
+  }
+  return out.sort(function(x,y){return x - y;});
+}
+
+/* PV^3 - (Pb+RT)V^2 + aV - ab = 0 の物理的な根（V > b）をニュートン法で磨いて返す */
+function vdwRoots(g, T, P){
+  var rt = solveCubic(P, -(P * g.b + R * T), g.a, -g.a * g.b);
+  var out = [];
+  for(var i = 0; i < rt.length; i++){
+    var v = rt[i];
+    if(!(v > g.b * 1.000001)) continue;
+    for(var k = 0; k < 40; k++){
+      var f = P * v * v * v - (P * g.b + R * T) * v * v + g.a * v - g.a * g.b;
+      var fp = 3 * P * v * v - 2 * (P * g.b + R * T) * v + g.a;
+      if(Math.abs(fp) < 1e-18) break;
+      var nv = v - f / fp;
+      if(!isFinite(nv) || nv <= g.b) break;
+      var done = Math.abs(nv - v) < 1e-14;
+      v = nv;
+      if(done) break;
+    }
+    out.push(v);
+  }
+  return out.sort(function(x,y){return x - y;});
+}
+function pVdw(g, T, V){ return R * T / (V - g.b) - g.a / (V * V); }
+function pIdeal(T, V){ return R * T / V; }
+function dPdV(g, T, V){ return -R * T / ((V - g.b) * (V - g.b)) + 2 * g.a / (V * V * V); }
+
+function bisect(f, lo, hi){
+  var flo = f(lo);
+  for(var i = 0; i < 80; i++){
+    var m = (lo + hi) / 2, fm = f(m);
+    if(flo * fm <= 0){ hi = m; } else { lo = m; flo = fm; }
+  }
+  return (lo + hi) / 2;
+}
+function loopExtrema(g, T){
+  var lo = g.b * 1.0002, hi = g.Vc * 200, N = 2400, res = [];
+  var pv = lo, pd = dPdV(g, T, lo);
+  for(var i = 1; i <= N; i++){
+    var V = lo * Math.pow(hi / lo, i / N), d = dPdV(g, T, V);
+    if(pd * d < 0) res.push(bisect(function(x){return dPdV(g, T, x);}, pv, V));
+    pv = V; pd = d;
+  }
+  return res;
+}
+/* マクスウェルの等面積則で気液共存圧を決める */
+function psat(g, T){
+  if(T >= g.Tc) return null;
+  var ex = loopExtrema(g, T);
+  if(ex.length < 2) return null;
+  var pMin = pVdw(g, T, ex[0]), pMax = pVdw(g, T, ex[1]);
+  var span = pMax - pMin;
+  if(!(span > 0)) return null;
+  var lo = Math.max(pMin + span * 1e-4, span * 1e-6), hi = pMax - span * 1e-4;
+  if(!(hi > lo)) return null;
+  var gf = function(Ps){
+    var r = vdwRoots(g, T, Ps);
+    if(r.length < 3) return NaN;
+    var V1 = r[0], V3 = r[r.length - 1];
+    return R * T * Math.log((V3 - g.b) / (V1 - g.b)) + g.a * (1 / V3 - 1 / V1) - Ps * (V3 - V1);
+  };
+  var flo = gf(lo), fhi = gf(hi);
+  if(!isFinite(flo) || !isFinite(fhi) || flo * fhi > 0) return null;
+  for(var i = 0; i < 70; i++){
+    var m = (lo + hi) / 2, fm = gf(m);
+    if(!isFinite(fm)) break;
+    if(flo * fm <= 0){ hi = m; } else { lo = m; flo = fm; }
+  }
+  var Ps = (lo + hi) / 2, r2 = vdwRoots(g, T, Ps);
+  if(r2.length < 3) return null;
+  return {P:Ps, Vl:r2[0], Vg:r2[r2.length - 1]};
+}
+/* 圧力を指定したときの実在気体のモル体積（気体側・液体側を蒸気圧で切り替える） */
+function vAt(g, T, P, ps){
+  var r = vdwRoots(g, T, P);
+  if(!r.length) return null;
+  var liq = !!(ps && P > ps.P);
+  if(r.length === 1) return {V:r[0], phase:liq ? 1 : 0};
+  return liq ? {V:r[0], phase:1} : {V:r[r.length - 1], phase:0};
+}
+function maxwell(Mkg, T, v){
+  return 4 * Math.PI * Math.pow(Mkg / (2 * Math.PI * RSI * T), 1.5) * v * v *
+         Math.exp(-Mkg * v * v / (2 * RSI * T));
+}
+
+/* ============ 表示ユーティリティ ============ */
+function fx(v, d){ return (!isFinite(v)) ? '—' : v.toFixed(d); }
+function sig(v, p){
+  if(!isFinite(v)) return '—';
+  var av = Math.abs(v);
+  if(av >= 1000) return v.toFixed(0);
+  if(av >= 100) return v.toFixed(1);
+  if(av >= 10) return v.toFixed(2);
+  if(av >= 1) return v.toFixed(3);
+  return v.toPrecision(p || 3);
+}
+function clamp(v, lo, hi){ return v < lo ? lo : (v > hi ? hi : v); }
+function esc(s){ return String(s).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;'); }
+function kv(items){
+  return items.map(function(it){
+    return '<div><b>' + it[0] + '</b><span>' + it[1] + '</span></div>';
+  }).join('');
+}
+function legend(items){
+  return items.map(function(it){
+    var st = it.dash ? 'dotted' : 'solid';
+    return '<span><i style="border-top-color:' + it.c + ';border-top-style:' + st + '"></i>' + esc(it.t) + '</span>';
+  }).join('');
+}
+
+/* ============ SVG ヘルパー ============ */
+var NARROW = false;
+function scale(box, dom){
+  return {
+    l:box.l, t:box.t, w:box.w, h:box.h,
+    x0:dom.x0, x1:dom.x1, y0:dom.y0, y1:dom.y1,
+    X:function(v){ return box.l + (v - dom.x0) / (dom.x1 - dom.x0) * box.w; },
+    Y:function(v){ return box.t + box.h - (v - dom.y0) / (dom.y1 - dom.y0) * box.h; },
+    iX:function(px){ return dom.x0 + (px - box.l) / box.w * (dom.x1 - dom.x0); }
+  };
+}
+function ticks(min, max, n){
+  var span = max - min;
+  if(!(span > 0)) return {v:[min], d:0};
+  var raw = span / n, mag = Math.pow(10, Math.floor(Math.log10(raw))), r = raw / mag;
+  var step = (r <= 1 ? 1 : r <= 2 ? 2 : r <= 2.5 ? 2.5 : r <= 5 ? 5 : 10) * mag;
+  var d = step < 1 ? Math.ceil(-Math.log10(step)) : 0;
+  if(Math.abs(step - Math.round(step)) > 1e-9) d = Math.max(d, 1);
+  var v = [];
+  for(var k = Math.ceil(min / step - 1e-9); k * step <= max + 1e-9; k++) v.push(k * step);
+  return {v:v, d:d};
+}
+function frame(s, o){
+  var xt = ticks(s.x0, s.x1, o.nx || (NARROW ? 4 : 7));
+  var yt = ticks(s.y0, s.y1, o.ny || (NARROW ? 4 : 6));
+  var out = '';
+  yt.v.forEach(function(v){
+    var y = s.Y(v).toFixed(1);
+    out += '<line class="grid" x1="' + s.l + '" y1="' + y + '" x2="' + (s.l + s.w) + '" y2="' + y + '"/>';
+    out += '<text class="tk" x="' + (s.l - 6) + '" y="' + (s.Y(v) + 3.4).toFixed(1) + '" text-anchor="end">' + v.toFixed(yt.d) + '</text>';
+  });
+  xt.v.forEach(function(v){
+    var x = s.X(v).toFixed(1);
+    out += '<line class="grid" x1="' + x + '" y1="' + s.t + '" x2="' + x + '" y2="' + (s.t + s.h) + '"/>';
+    out += '<text class="tk" x="' + x + '" y="' + (s.t + s.h + 14) + '" text-anchor="middle">' + v.toFixed(xt.d) + '</text>';
+  });
+  out += '<line class="axis" x1="' + s.l + '" y1="' + (s.t + s.h) + '" x2="' + (s.l + s.w) + '" y2="' + (s.t + s.h) + '"/>';
+  out += '<line class="axis" x1="' + s.l + '" y1="' + s.t + '" x2="' + s.l + '" y2="' + (s.t + s.h) + '"/>';
+  out += '<text class="ax" x="' + (s.l + s.w) + '" y="' + (s.t + s.h + 29) + '" text-anchor="end">' + o.xlab + '</text>';
+  out += '<text class="ax" x="' + (s.l - 4) + '" y="' + (s.t - 8) + '" text-anchor="start">' + o.ylab + '</text>';
+  return out;
+}
+function pathOf(s, pts){
+  var lo = s.y0 - (s.y1 - s.y0) * 0.3, hi = s.y1 + (s.y1 - s.y0) * 0.3;
+  var d = '', pen = false;
+  for(var i = 0; i < pts.length; i++){
+    var x = pts[i][0], y = pts[i][1], brk = pts[i][2];
+    if(!isFinite(y)){ pen = false; continue; }
+    var yy = clamp(y, lo, hi);
+    d += (pen && !brk ? 'L' : 'M') + s.X(x).toFixed(1) + ' ' + s.Y(yy).toFixed(1) + ' ';
+    pen = true;
+  }
+  return d;
+}
+function chipAt(lines, px, py, s){
+  var fs = NARROW ? 9.5 : 10.5, lh = fs + 3.5, mx = 0;
+  lines.forEach(function(t){ mx = Math.max(mx, t.length); });
+  var w = mx * fs * 0.605 + 14, h = lines.length * lh + 7;
+  var x = px + 10;
+  if(x + w > s.l + s.w) x = px - 10 - w;
+  x = Math.max(s.l + 1, x);
+  var y = clamp(py - h / 2, s.t + 2, s.t + s.h - h - 2);
+  var o = '<g><rect x="' + x.toFixed(1) + '" y="' + y.toFixed(1) + '" width="' + w.toFixed(1) +
+          '" height="' + h.toFixed(1) + '" rx="2" fill="#16232B"/>';
+  lines.forEach(function(t, i){
+    o += '<text class="chiptx" x="' + (x + 7).toFixed(1) + '" y="' + (y + lh * i + fs + 3).toFixed(1) +
+         '" font-size="' + fs + '">' + esc(t) + '</text>';
+  });
+  return o + '</g>';
+}
+function svgWrap(W, H, inner, id){
+  return '<svg class="chart" id="' + id + '" viewBox="0 0 ' + W + ' ' + H + '" role="img">' + inner + '</svg>';
+}
+function attachPointer(el, cb){
+  var down = false;
+  function frac(e){
+    var r = el.getBoundingClientRect();
+    return clamp((e.clientX - r.left) / r.width, 0, 1);
+  }
+  el.addEventListener('pointerdown', function(e){
+    down = true;
+    if(el.setPointerCapture) try{ el.setPointerCapture(e.pointerId); }catch(x){}
+    cb(frac(e)); e.preventDefault();
+  });
+  el.addEventListener('pointermove', function(e){
+    if(down || e.pointerType === 'mouse') cb(frac(e));
+  });
+  el.addEventListener('pointerup', function(){ down = false; });
+  el.addEventListener('pointercancel', function(){ down = false; });
+}
+
+/* ============ 状態 ============ */
+var st = {
+  gi:GI.CO2, tr:0.96, showCrit:true, showCoex:true, v1:0,
+  zT:300, zP:60,
+  mi:1, comps:null, pb:760, fio2:0.21, paco2:40,
+  g5:GI.N2, t5:300, multi5:false, v5:0
+};
+st.comps = MIXTURES[st.mi].comps.map(function(c){ return {l:c.l, n:c.n, s:c.s}; });
+
+var P1 = {}, P2 = {}, P5 = {};
+function $(id){ return document.getElementById(id); }
+
+/* ============ 01 等温線 ============ */
+function drawP1(){
+  var g = GASES[st.gi], T = st.tr * g.Tc;
+  var W = NARROW ? 380 : 764, H = NARROW ? 292 : 372;
+  var box = {l:NARROW ? 44 : 54, t:24};
+  box.w = W - box.l - (NARROW ? 14 : 22);
+  box.h = H - box.t - (NARROW ? 36 : 42);
+  var xmax = 5.2 * g.Vc, ymax = 2.4 * g.Pc;
+  var s = scale(box, {x0:0, x1:xmax, y0:0, y1:ymax});
+  P1 = {s:s, g:g, T:T, W:W, H:H, xmax:xmax};
+
+  var n = 500, i, V, pts;
+  var o = '<defs><clipPath id="cp1"><rect x="' + box.l + '" y="' + box.t + '" width="' + box.w +
+          '" height="' + box.h + '"/></clipPath></defs>';
+  o += frame(s, {xlab:'V / L·mol⁻¹', ylab:'P / 10⁵ Pa'});
+  o += '<g clip-path="url(#cp1)">';
+
+  if(st.showCrit){
+    pts = [];
+    for(i = 1; i <= n; i++){ V = xmax * i / n; if(V > g.b * 1.03) pts.push([V, pVdw(g, g.Tc, V)]); }
+    o += '<path d="' + pathOf(s, pts) + '" fill="none" stroke="' + g.col.f + '" stroke-width="1" opacity="0.4"/>';
+  }
+  pts = [];
+  for(i = 1; i <= n; i++){ V = xmax * i / n; pts.push([V, pIdeal(T, V)]); }
+  o += '<path class="ideal" d="' + pathOf(s, pts) + '"/>';
+
+  pts = [];
+  for(i = 1; i <= n; i++){ V = xmax * i / n; if(V > g.b * 1.03) pts.push([V, pVdw(g, T, V)]); }
+  o += '<path class="bold" d="' + pathOf(s, pts) + '" stroke="' + g.col.f + '"/>';
+
+  var ps = st.showCoex ? psat(g, T) : null;
+  P1.ps = ps;
+  if(ps){
+    o += '<line class="dash" x1="' + s.X(ps.Vl).toFixed(1) + '" y1="' + s.Y(ps.P).toFixed(1) +
+         '" x2="' + s.X(ps.Vg).toFixed(1) + '" y2="' + s.Y(ps.P).toFixed(1) +
+         '" style="fill:none;stroke:#16232B;stroke-width:1.2"/>';
+    o += '<circle class="mk" cx="' + s.X(ps.Vl).toFixed(1) + '" cy="' + s.Y(ps.P).toFixed(1) + '" r="3"/>';
+    o += '<circle class="mk" cx="' + s.X(ps.Vg).toFixed(1) + '" cy="' + s.Y(ps.P).toFixed(1) + '" r="3"/>';
+    if(!NARROW){
+      o += '<text class="lbl" x="' + (s.X(ps.Vg) + 7).toFixed(1) + '" y="' + (s.Y(ps.P) - 6).toFixed(1) +
+           '">気液共存 ' + fx(ps.P, 1) + '</text>';
+    }
+  }
+  o += '<circle class="mk" cx="' + s.X(g.Vc).toFixed(1) + '" cy="' + s.Y(g.Pc).toFixed(1) + '" r="3.4"/>';
+  o += '<line class="dash" x1="' + s.X(g.Vc).toFixed(1) + '" y1="' + s.Y(g.Pc).toFixed(1) +
+       '" x2="' + s.X(g.Vc).toFixed(1) + '" y2="' + (s.t + s.h) + '" style="stroke:#5E6E76;stroke-width:1"/>';
+  o += '<line class="dash" x1="' + s.l + '" y1="' + s.Y(g.Pc).toFixed(1) +
+       '" x2="' + s.X(g.Vc).toFixed(1) + '" y2="' + s.Y(g.Pc).toFixed(1) + '" style="stroke:#5E6E76;stroke-width:1"/>';
+  o += '<text class="lbl" x="' + (s.X(g.Vc) + 6).toFixed(1) + '" y="' + (s.Y(g.Pc) - 7).toFixed(1) + '">臨界点</text>';
+  o += '</g><g id="p1cur"></g>';
+
+  $('ch1').innerHTML = svgWrap(W, H, o, 'sv1');
+  attachPointer($('sv1'), function(f){
+    st.v1 = clamp(f * xmax, xmax * 0.02, xmax);
+    $('s1v').value = String(st.v1 / xmax);
+    curP1();
+  });
+  $('lg1').innerHTML = legend([
+    {c:'#5E6E76', t:'理想気体 PV=nRT'},
+    {c:g.col.f, t:'ファンデルワールス（T = ' + fx(T, 1) + ' K）'},
+    {c:g.col.f, t:'臨界等温線 T_c = ' + fx(g.Tc, 1) + ' K', dash:true}
+  ]);
+  $('nt1').innerHTML = g.ja + 'の臨界定数は T_c = ' + fx(g.Tc, 1) + ' K、P_c = ' + fx(g.Pc, 1) +
+    '×10⁵ Pa、V_c = 3b = ' + fx(g.Vc, 4) + ' L·mol⁻¹。' +
+    (T < g.Tc ? '共存線はファンデルワールス式に等面積則を当てた予測値で、実測の蒸気圧より高めに出ます。二酸化炭素の 280 K なら計算 52.5 に対して実測 41.6×10⁵ Pa。' :
+                '臨界温度より上なので、圧力をいくら上げても液体にはなりません。');
+  curP1();
+}
+function curP1(){
+  var s = P1.s, g = P1.g, T = P1.T;
+  if(!s) return;
+  if(!(st.v1 > 0)) st.v1 = 1.8 * g.Vc;
+  var V = clamp(st.v1, P1.xmax * 0.02, P1.xmax);
+  var pi = pIdeal(T, V), pv = V > g.b ? pVdw(g, T, V) : NaN;
+  var x = s.X(V);
+  var o = '<line class="guide" x1="' + x.toFixed(1) + '" y1="' + s.t + '" x2="' + x.toFixed(1) +
+          '" y2="' + (s.t + s.h) + '"/>';
+  var yi = clamp(s.Y(clamp(pi, s.y0, s.y1)), s.t, s.t + s.h);
+  var yv = isFinite(pv) ? clamp(s.Y(clamp(pv, s.y0, s.y1)), s.t, s.t + s.h) : null;
+  o += '<circle cx="' + x.toFixed(1) + '" cy="' + yi.toFixed(1) + '" r="3" fill="#5E6E76"/>';
+  if(yv !== null) o += '<circle cx="' + x.toFixed(1) + '" cy="' + yv.toFixed(1) + '" r="3.4" fill="' + g.col.f + '"/>';
+  o += chipAt(['V = ' + fx(V, 4) + ' L/mol', '理想 ' + fx(pi, 2), '実在 ' + fx(pv, 2)],
+              x, yv !== null ? yv : yi, s);
+  var el = $('p1cur');
+  if(el) el.innerHTML = o;
+  var dz = pv / pi;
+  $('rd1').innerHTML = kv([
+    ['V', fx(V, 4)],
+    ['P 理想', fx(pi, 2)],
+    ['P 実在', fx(pv, 2)],
+    ['差', (pv - pi >= 0 ? '+' : '') + fx(pv - pi, 2)],
+    ['ずれ', (dz - 1 >= 0 ? '+' : '') + fx((dz - 1) * 100, 1) + '%'],
+    ['V / V_c', fx(V / g.Vc, 2)]
+  ]);
+  $('v1v').textContent = fx(V, 4) + ' L/mol';
+  $('s1v').value = String(V / P1.xmax);
+}
+
+/* ============ 02 圧縮率因子 ============ */
+var P2SET = ['He', 'N2', 'CH4', 'CO2'];
+function drawP2(){
+  var W = NARROW ? 380 : 764, H = NARROW ? 288 : 348;
+  var box = {l:NARROW ? 40 : 50, t:24};
+  box.w = W - box.l - (NARROW ? 14 : 22);
+  box.h = H - box.t - (NARROW ? 36 : 42);
+  var Pmax = 600, s = scale(box, {x0:0, x1:Pmax, y0:0, y1:2});
+  var T = st.zT;
+  P2 = {s:s, T:T, Pmax:Pmax};
+
+  var o = '<defs><clipPath id="cp2"><rect x="' + box.l + '" y="' + box.t + '" width="' + box.w +
+          '" height="' + box.h + '"/></clipPath></defs>';
+  o += frame(s, {xlab:'P / 10⁵ Pa', ylab:'Z = PV/(nRT)'});
+  o += '<line class="dash" x1="' + s.l + '" y1="' + s.Y(1).toFixed(1) + '" x2="' + (s.l + s.w) +
+       '" y2="' + s.Y(1).toFixed(1) + '" style="stroke:#5E6E76;stroke-width:1"/>';
+  o += '<text class="lbl" x="' + (s.l + 6) + '" y="' + (s.Y(1) - 5).toFixed(1) + '" style="fill:#5E6E76">理想気体 Z = 1</text>';
+  o += '<g clip-path="url(#cp2)">';
+
+  var ids = P2SET.slice();
+  if(ids.indexOf(GASES[st.gi].id) < 0) ids.push(GASES[st.gi].id);
+  var lgs = [], n = 320;
+  ids.forEach(function(id){
+    var g = GASES[GI[id]], sel = (GI[id] === st.gi);
+    var ps = T < g.Tc ? psat(g, T) : null;
+    var pts = [], last = -1;
+    for(var i = 1; i <= n; i++){
+      var P = Pmax * i / n, r = vAt(g, T, P, ps);
+      if(!r) continue;
+      pts.push([P, P * r.V / (R * T), r.phase !== last && last >= 0]);
+      last = r.phase;
+    }
+    o += '<path class="' + (sel ? 'bold' : 'thin') + '" d="' + pathOf(s, pts) + '" stroke="' + g.col.f + '"/>';
+    if(ps && ps.P < Pmax){
+      o += '<line class="dash" x1="' + s.X(ps.P).toFixed(1) + '" y1="' + s.t + '" x2="' + s.X(ps.P).toFixed(1) +
+           '" y2="' + (s.t + s.h) + '" style="stroke:' + g.col.f + ';stroke-width:1;opacity:.6"/>';
+      if(sel) o += '<text class="lbl" x="' + (s.X(ps.P) + 5).toFixed(1) + '" y="' + (s.t + 12) +
+                   '" style="fill:' + g.col.t + '">凝縮 ' + fx(ps.P, 1) + '</text>';
+    }
+    if(pts.length){
+      var lastPt = pts[pts.length - 1];
+      if(!NARROW && lastPt[1] < 2 && lastPt[1] > 0){
+        o += '<text class="lbl" x="' + (s.l + s.w - 3) + '" y="' + (s.Y(lastPt[1]) - 5).toFixed(1) +
+             '" text-anchor="end" style="fill:' + g.col.t + '">' + g.lb + '</text>';
+      }
+    }
+    lgs.push({c:g.col.f, t:g.lb + (sel ? '（選択中）' : '')});
+    if(sel) P2.g = g, P2.ps = ps;
+  });
+  o += '</g><g id="p2cur"></g>';
+
+  $('ch2').innerHTML = svgWrap(W, H, o, 'sv2');
+  attachPointer($('sv2'), function(f){
+    st.zP = clamp(f * Pmax, 1, Pmax);
+    $('s2p').value = String(st.zP / Pmax);
+    curP2();
+  });
+  $('lg2').innerHTML = legend(lgs);
+  var g0 = P2.g;
+  $('nt2').innerHTML = g0.ja + 'のボイル温度は T_B = a/(Rb) = ' + fx(g0.Tb, 0) + ' K（= 27T_c/8）。' +
+    (T > g0.Tb ? 'いまの温度はそれより高いので、低圧側でも Z は 1 を下回りません。' :
+                 'いまの温度はそれより低いので、低圧側で Z が 1 を下回ります。') +
+    ' 実測のボイル温度は窒素で 327 K、水素で 110 K あたりで、ファンデルワールス式の予測はやや高めに出ます。';
+  curP2();
+}
+function curP2(){
+  var s = P2.s, g = P2.g, T = P2.T;
+  if(!s) return;
+  var P = clamp(st.zP, 1, P2.Pmax);
+  var r = vAt(g, T, P, P2.ps);
+  var Vi = R * T / P;
+  var Z = r ? P * r.V / (R * T) : NaN;
+  var x = s.X(P), y = isFinite(Z) ? clamp(s.Y(clamp(Z, s.y0, s.y1)), s.t, s.t + s.h) : s.t + s.h / 2;
+  var o = '<line class="guide" x1="' + x.toFixed(1) + '" y1="' + s.t + '" x2="' + x.toFixed(1) +
+          '" y2="' + (s.t + s.h) + '"/>';
+  o += '<circle cx="' + x.toFixed(1) + '" cy="' + y.toFixed(1) + '" r="3.4" fill="' + g.col.f + '"/>';
+  var phase = (T >= g.Tc) ? (P >= g.Pc ? '超臨界流体' : '気体') : (r && r.phase ? '液体' : '気体');
+  o += chipAt([g.lb + '  P = ' + fx(P, 0), 'Z = ' + fx(Z, 4), phase], x, y, s);
+  var el = $('p2cur');
+  if(el) el.innerHTML = o;
+  $('rd2').innerHTML = kv([
+    ['P', fx(P, 0)],
+    ['Z', fx(Z, 4)],
+    ['V 実在', r ? sig(r.V, 4) : '—'],
+    ['V 理想', sig(Vi, 4)],
+    ['体積のずれ', r ? ((r.V / Vi - 1 >= 0 ? '+' : '') + fx((r.V / Vi - 1) * 100, 1) + '%') : '—'],
+    ['状態', phase]
+  ]);
+  $('v2p').textContent = fx(P, 0) + '×10⁵ Pa';
+  $('s2p').value = String(P / P2.Pmax);
+}
+
+/* ============ 03 臨界点の表 ============ */
+function drawP3(){
+  var cols = NARROW
+    ? [['気体', function(g){return g.lb;}], ['Tc計算', function(g){return fx(g.Tc, 1);}],
+       ['Tc実測', function(g){return fx(g.TcE, 1);}], ['Pc計算', function(g){return fx(g.Pc, 1);}],
+       ['Pc実測', function(g){return fx(g.PcE, 1);}], ['Zc実測', function(g){return fx(g.ZcE, 3);}]]
+    : [['気体', function(g){return g.lb + ' ' + g.ja;}], ['a', function(g){return fx(g.a, 4);}],
+       ['b', function(g){return fx(g.b, 5);}], ['Tc計算', function(g){return fx(g.Tc, 1);}],
+       ['Tc実測', function(g){return fx(g.TcE, 1);}], ['Pc計算', function(g){return fx(g.Pc, 1);}],
+       ['Pc実測', function(g){return fx(g.PcE, 1);}], ['Vc=3b', function(g){return fx(g.Vc, 4);}],
+       ['Vc実測', function(g){return fx(g.VcE, 4);}], ['Zc実測', function(g){return fx(g.ZcE, 3);}]];
+  var th = '<tr>' + cols.map(function(c){ return '<th>' + c[0] + '</th>'; }).join('') + '</tr>';
+  var tb = GASES.map(function(g, i){
+    return '<tr data-i="' + i + '" class="' + (i === st.gi ? 'on' : '') + '">' +
+      cols.map(function(c){ return '<td>' + c[1](g) + '</td>'; }).join('') + '</tr>';
+  }).join('');
+  var t = $('tb3');
+  t.querySelector('thead').innerHTML = th;
+  t.querySelector('tbody').innerHTML = tb;
+  Array.prototype.forEach.call(t.querySelectorAll('tbody tr'), function(tr){
+    tr.addEventListener('click', function(){
+      st.gi = +tr.getAttribute('data-i');
+      st.v1 = 0;
+      syncChips();
+      drawP1(); drawP2(); drawP3();
+    });
+  });
+}
+
+/* ============ 04 分圧 ============ */
+function drawP4(){
+  var mx = MIXTURES[st.mi], cs = st.comps;
+  var tot = cs.reduce(function(a, c){ return a + c.n; }, 0) || 1;
+  var Ptot = mx.P;
+  var W = NARROW ? 380 : 764, H = NARROW ? 108 : 96;
+  var l = 4, w = W - 8, top = 26, bh = NARROW ? 30 : 34;
+  var o = '<text class="ax" x="' + l + '" y="14">分圧の内訳　全圧 ' + fx(Ptot, 3) + '×10⁵ Pa = ' +
+          fx(Ptot * MMHG, 0) + ' mmHg</text>';
+  var x = l;
+  cs.forEach(function(c){
+    var frw = c.n / tot, ww = frw * w, col = SER[c.s];
+    o += '<rect x="' + x.toFixed(1) + '" y="' + top + '" width="' + Math.max(0, ww - 1).toFixed(1) +
+         '" height="' + bh + '" fill="' + col.f + '" opacity="0.9"/>';
+    if(ww > (NARROW ? 44 : 54)){
+      o += '<text x="' + (x + 6).toFixed(1) + '" y="' + (top + bh / 2 + 4) + '" style="fill:#fff" font-size="' +
+           (NARROW ? 10 : 11) + '">' + c.l + ' ' + fx(frw * 100, 1) + '%</text>';
+    }
+    o += '<text class="tk" x="' + (x + ww / 2).toFixed(1) + '" y="' + (top + bh + 16) + '" text-anchor="middle">' +
+         (ww > 30 ? fx(frw * Ptot * MMHG, 0) : '') + '</text>';
+    x += ww;
+  });
+  o += '<text class="ax" x="' + l + '" y="' + (top + bh + 32) + '">単位は mmHg</text>';
+  $('ch4').innerHTML = svgWrap(W, H, o, 'sv4');
+
+  var sl = cs.map(function(c, i){
+    return '<div class="sld"><label>' + c.l + '</label>' +
+      '<input type="range" data-ci="' + i + '" min="0" max="100" step="0.1" value="' + c.n + '">' +
+      '<span class="val" id="v4c' + i + '">' + fx(c.n / tot * 100, 1) + ' %</span></div>';
+  }).join('');
+  $('sl4').innerHTML = sl;
+  Array.prototype.forEach.call($('sl4').querySelectorAll('input'), function(inp){
+    inp.addEventListener('input', function(){
+      st.comps[+inp.getAttribute('data-ci')].n = +inp.value;
+      drawP4();
+    });
+  });
+
+  var t = $('tb4');
+  t.querySelector('thead').innerHTML =
+    '<tr><th>成分</th><th>n（相対）</th><th>モル分率 x</th><th>分圧 /10⁵Pa</th><th>分圧 /mmHg</th></tr>';
+  t.querySelector('tbody').innerHTML = cs.map(function(c){
+    var xi = c.n / tot;
+    return '<tr><td style="color:' + SER[c.s].t + '">' + c.l + '</td><td>' + fx(c.n, 2) + '</td><td>' +
+      fx(xi, 4) + '</td><td>' + fx(xi * Ptot, 4) + '</td><td>' + fx(xi * Ptot * MMHG, 1) + '</td></tr>';
+  }).join('') +
+    '<tr><td>合計</td><td>' + fx(tot, 2) + '</td><td>1.0000</td><td>' + fx(Ptot, 4) + '</td><td>' +
+    fx(Ptot * MMHG, 1) + '</td></tr>';
+  $('nt4').textContent = mx.note;
+  drawP4b();
+}
+function drawP4b(){
+  var pao2 = (st.pb - 47) * st.fio2 - st.paco2 / 0.8;
+  var pio2 = (st.pb - 47) * st.fio2;
+  $('v4b').textContent = st.pb + ' mmHg';
+  $('v4f').textContent = fx(st.fio2, 2);
+  $('v4c').textContent = st.paco2 + ' mmHg';
+  $('rd4').innerHTML = kv([
+    ['吸入気 PIO₂', fx(pio2, 1) + ' mmHg'],
+    ['肺胞気 PAO₂', fx(pao2, 1) + ' mmHg'],
+    ['CO₂ による減少', fx(st.paco2 / 0.8, 1) + ' mmHg']
+  ]);
+  var msg;
+  if(pao2 < 60) msg = '肺胞気酸素分圧が 60 mmHg を切ると、ヘモグロビン酸素解離曲線の急な部分に入って動脈血酸素飽和度が一気に落ちます。';
+  else if(st.pb < 700) msg = '標高が上がって全圧が下がると、酸素濃度は 21% のままでも分圧だけが下がります。高山病の正体はこの分圧の低下です。';
+  else if(st.paco2 > 55) msg = '換気が落ちて二酸化炭素が溜まると、その分だけ肺胞の酸素が押し出されます。酸素を投与すると酸素分圧は戻りますが、換気の問題は残ります。';
+  else msg = '室内気（760 mmHg、FIO₂ 0.21、PaCO₂ 40）なら約 100 mmHg。全圧から水蒸気を引いてからモル分率を掛ける、という順番が肝心です。';
+  $('nt4b').textContent = msg;
+}
+
+/* ============ 05 速度分布 ============ */
+function drawP5(){
+  var g = GASES[st.g5], Mkg = g.M / 1000, T = st.t5;
+  var W = NARROW ? 380 : 764, H = NARROW ? 292 : 352;
+  var box = {l:NARROW ? 46 : 58, t:24};
+  box.w = W - box.l - (NARROW ? 14 : 22);
+  box.h = H - box.t - (NARROW ? 36 : 42);
+  var Tmax = st.multi5 ? T * 2 : T;
+  var vmax = Math.ceil(3.2 * Math.sqrt(3 * RSI * Tmax / Mkg) / 100) * 100;
+  var Tmin = st.multi5 ? T / 2 : T;
+  var fmax = maxwell(Mkg, Tmin, Math.sqrt(2 * RSI * Tmin / Mkg)) * 1.12;
+  var s = scale(box, {x0:0, x1:vmax, y0:0, y1:fmax});
+  P5 = {s:s, g:g, T:T, vmax:vmax, Mkg:Mkg};
+
+  var o = '<defs><clipPath id="cp5"><rect x="' + box.l + '" y="' + box.t + '" width="' + box.w +
+          '" height="' + box.h + '"/></clipPath></defs>';
+  o += frame(s, {xlab:'v / m·s⁻¹', ylab:'f(v)'});
+  o += '<g clip-path="url(#cp5)">';
+
+  var temps = st.multi5 ? [T / 2, T, T * 2] : [T];
+  var lgs = [], n = 400;
+  temps.forEach(function(TT, k){
+    var col = SER[st.multi5 ? [1, 0, 4][k] : g.s];
+    var pts = [];
+    for(var i = 0; i <= n; i++){
+      var v = vmax * i / n;
+      pts.push([v, maxwell(Mkg, TT, v)]);
+    }
+    var main = (Math.abs(TT - T) < 1e-9);
+    o += '<path class="' + (main ? 'bold' : 'thin') + '" d="' + pathOf(s, pts) + '" stroke="' + col.f + '"/>';
+    lgs.push({c:col.f, t:fx(TT, 0) + ' K'});
+  });
+
+  var vp = Math.sqrt(2 * RSI * T / Mkg);
+  var va = Math.sqrt(8 * RSI * T / (Math.PI * Mkg));
+  var vr = Math.sqrt(3 * RSI * T / Mkg);
+  [[vp, 'v_p'], [va, 'v̄'], [vr, 'v_rms']].forEach(function(m, i){
+    var xx = s.X(m[0]).toFixed(1);
+    o += '<line class="dash" x1="' + xx + '" y1="' + s.t + '" x2="' + xx + '" y2="' + (s.t + s.h) +
+         '" style="stroke:#16232B;stroke-width:1;opacity:.55"/>';
+    o += '<text class="lbl" x="' + xx + '" y="' + (s.t + 12 + i * 12) + '" text-anchor="middle">' + m[1] + '</text>';
+  });
+  o += '</g><g id="p5cur"></g>';
+  $('ch5').innerHTML = svgWrap(W, H, o, 'sv5');
+  attachPointer($('sv5'), function(f){
+    st.v5 = clamp(f * vmax, 0, vmax);
+    $('s5v').value = String(st.v5 / vmax);
+    curP5();
+  });
+  $('lg5').innerHTML = legend(lgs.concat([{c:'#16232B', t:'代表速度（破線）', dash:true}]));
+
+  /* 累積分布を先に作っておく */
+  var N = 2000, cum = new Float64Array(N + 1), h = vmax / N, acc = 0;
+  for(var i = 1; i <= N; i++){
+    var v0 = (i - 1) * h, v1 = i * h;
+    acc += (maxwell(Mkg, T, v0) + maxwell(Mkg, T, v1)) / 2 * h;
+    cum[i] = acc;
+  }
+  P5.cum = cum; P5.h = h; P5.N = N;
+  if(!(st.v5 > 0)) st.v5 = vr;
+  curP5();
+}
+function curP5(){
+  var s = P5.s, g = P5.g, T = P5.T, Mkg = P5.Mkg;
+  if(!s) return;
+  var v = clamp(st.v5, 0, P5.vmax);
+  var fv = maxwell(Mkg, T, v);
+  var idx = clamp(Math.round(v / P5.h), 0, P5.N);
+  var above = clamp(1 - P5.cum[idx], 0, 1);
+  var x = s.X(v), y = clamp(s.Y(clamp(fv, s.y0, s.y1)), s.t, s.t + s.h);
+  var o = '<line class="guide" x1="' + x.toFixed(1) + '" y1="' + s.t + '" x2="' + x.toFixed(1) +
+          '" y2="' + (s.t + s.h) + '"/>';
+  o += '<circle cx="' + x.toFixed(1) + '" cy="' + y.toFixed(1) + '" r="3.4" fill="' + g.col.f + '"/>';
+  o += chipAt(['v = ' + fx(v, 0) + ' m/s', 'v 以上 ' + fx(above * 100, 2) + '%'], x, y, s);
+  var el = $('p5cur');
+  if(el) el.innerHTML = o;
+  var vp = Math.sqrt(2 * RSI * T / Mkg), va = Math.sqrt(8 * RSI * T / (Math.PI * Mkg)), vr = Math.sqrt(3 * RSI * T / Mkg);
+  var bs = Math.sqrt(RSI * T / Mkg);
+  $('rd5').innerHTML = kv([
+    ['v_p 最頻', fx(vp, 0) + ' m/s'],
+    ['v̄ 平均', fx(va, 0) + ' m/s'],
+    ['v_rms', fx(vr, 0) + ' m/s'],
+    ['比 √(RT/M)基準', fx(vp / bs, 3) + ':' + fx(va / bs, 3) + ':' + fx(vr / bs, 3)],
+    ['指定した v', fx(v, 0) + ' m/s'],
+    ['v 以上の割合', fx(above * 100, 2) + ' %']
+  ]);
+  $('v5v').textContent = fx(v, 0) + ' m/s';
+  $('s5v').value = String(v / P5.vmax);
+}
+
+/* ============ UI ============ */
+function chipHtml(label, pressed, attr){
+  return '<button class="chip" type="button" aria-pressed="' + (pressed ? 'true' : 'false') + '" ' + attr + '>' +
+         label + '</button>';
+}
+function syncChips(){
+  Array.prototype.forEach.call(document.querySelectorAll('#g1 button, #g2 button'), function(b){
+    b.setAttribute('aria-pressed', (+b.getAttribute('data-i') === st.gi) ? 'true' : 'false');
+  });
+  $('s1t').value = String(st.tr);
+  $('v1t').textContent = fx(st.tr, 3) + '　' + fx(st.tr * GASES[st.gi].Tc, 1) + ' K';
+}
+function buildUI(){
+  var gh = GASES.map(function(g, i){
+    return chipHtml(g.lb, i === st.gi, 'data-i="' + i + '"');
+  }).join('');
+  $('g1').innerHTML = gh;
+  $('g2').innerHTML = gh;
+  $('g5').innerHTML = GASES.map(function(g, i){
+    return chipHtml(g.lb, i === st.g5, 'data-i="' + i + '"');
+  }).join('');
+  $('t1').innerHTML = chipHtml('臨界等温線', st.showCrit, 'data-k="crit"') +
+                      chipHtml('気液共存線', st.showCoex, 'data-k="coex"');
+  $('o5').innerHTML = chipHtml('T の 1/2 倍と 2 倍も重ねる', st.multi5, 'data-k="multi"');
+  $('m4').innerHTML = MIXTURES.map(function(m, i){
+    return chipHtml(m.name, i === st.mi, 'data-i="' + i + '"');
+  }).join('');
+
+  ['g1', 'g2'].forEach(function(id){
+    $(id).addEventListener('click', function(e){
+      var b = e.target.closest('button');
+      if(!b) return;
+      st.gi = +b.getAttribute('data-i');
+      st.v1 = 0;
+      syncChips(); drawP1(); drawP2(); drawP3();
+    });
+  });
+  $('g5').addEventListener('click', function(e){
+    var b = e.target.closest('button');
+    if(!b) return;
+    st.g5 = +b.getAttribute('data-i');
+    st.v5 = 0;
+    Array.prototype.forEach.call($('g5').querySelectorAll('button'), function(x){
+      x.setAttribute('aria-pressed', (+x.getAttribute('data-i') === st.g5) ? 'true' : 'false');
+    });
+    drawP5();
+  });
+  $('t1').addEventListener('click', function(e){
+    var b = e.target.closest('button');
+    if(!b) return;
+    var k = b.getAttribute('data-k');
+    if(k === 'crit') st.showCrit = !st.showCrit; else st.showCoex = !st.showCoex;
+    b.setAttribute('aria-pressed', (k === 'crit' ? st.showCrit : st.showCoex) ? 'true' : 'false');
+    drawP1();
+  });
+  $('o5').addEventListener('click', function(e){
+    var b = e.target.closest('button');
+    if(!b) return;
+    st.multi5 = !st.multi5;
+    b.setAttribute('aria-pressed', st.multi5 ? 'true' : 'false');
+    drawP5();
+  });
+  $('m4').addEventListener('click', function(e){
+    var b = e.target.closest('button');
+    if(!b) return;
+    st.mi = +b.getAttribute('data-i');
+    st.comps = MIXTURES[st.mi].comps.map(function(c){ return {l:c.l, n:c.n, s:c.s}; });
+    Array.prototype.forEach.call($('m4').querySelectorAll('button'), function(x){
+      x.setAttribute('aria-pressed', (+x.getAttribute('data-i') === st.mi) ? 'true' : 'false');
+    });
+    drawP4();
+  });
+
+  $('s1t').value = String(st.tr);
+  $('s1t').addEventListener('input', function(){
+    st.tr = +this.value;
+    $('v1t').textContent = fx(st.tr, 3) + '　' + fx(st.tr * GASES[st.gi].Tc, 1) + ' K';
+    drawP1();
+  });
+  $('s1v').addEventListener('input', function(){
+    st.v1 = +this.value * P1.xmax;
+    curP1();
+  });
+  $('s2t').value = String(st.zT);
+  $('s2t').addEventListener('input', function(){
+    st.zT = +this.value;
+    $('v2t').textContent = st.zT + ' K';
+    drawP2();
+  });
+  $('s2p').addEventListener('input', function(){
+    st.zP = clamp(+this.value * P2.Pmax, 1, P2.Pmax);
+    curP2();
+  });
+  $('s5t').value = String(st.t5);
+  $('s5t').addEventListener('input', function(){
+    st.t5 = +this.value;
+    $('v5t').textContent = st.t5 + ' K';
+    drawP5();
+  });
+  $('s5v').addEventListener('input', function(){
+    st.v5 = +this.value * P5.vmax;
+    curP5();
+  });
+  $('s4b').value = String(st.pb);
+  $('s4f').value = String(st.fio2);
+  $('s4c').value = String(st.paco2);
+  $('s4b').addEventListener('input', function(){ st.pb = +this.value; drawP4b(); });
+  $('s4f').addEventListener('input', function(){ st.fio2 = +this.value; drawP4b(); });
+  $('s4c').addEventListener('input', function(){ st.paco2 = +this.value; drawP4b(); });
+
+  $('v1t').textContent = fx(st.tr, 3) + '　' + fx(st.tr * GASES[st.gi].Tc, 1) + ' K';
+  $('v2t').textContent = st.zT + ' K';
+  $('v5t').textContent = st.t5 + ' K';
+}
+
+function renderAll(){
+  drawP1(); drawP2(); drawP3(); drawP4(); drawP5();
+}
+function boot(){
+  NARROW = window.matchMedia('(max-width:430px)').matches;
+  buildUI();
+  renderAll();
+  var tm = null;
+  window.addEventListener('resize', function(){
+    clearTimeout(tm);
+    tm = setTimeout(function(){
+      var nw = window.matchMedia('(max-width:430px)').matches;
+      if(nw !== NARROW){ NARROW = nw; renderAll(); }
+    }, 180);
+  });
+}
+if(typeof document !== 'undefined') boot();
+</script>
+</body>
+</html>

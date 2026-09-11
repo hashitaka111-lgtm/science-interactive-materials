@@ -1,0 +1,1914 @@
+<!doctype html>
+<html lang="ja">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>波の重ね合わせインタラクティブ</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500&family=IBM+Plex+Sans+JP:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+*{box-sizing:border-box}
+:root{
+  --ink:#16232B; --muted:#5E6E76; --paper:#EDF1EF; --surface:#FFFFFF;
+  --rule:#D6DDDA; --rule-soft:#E8EDEB;
+  --c0:#B87A16; --c0t:#8A5A0C;
+  --c1:#158A6D; --c1t:#0D6A53;
+  --c2:#2457A6; --c2t:#1B4380;
+  --c3:#6E3AA7; --c3t:#572D85;
+  --c4:#A82A6A; --c4t:#831F52;
+  --c5:#3B6E1E; --c5t:#2A5215;
+  --mono:"IBM Plex Mono",ui-monospace,SFMono-Regular,Menlo,monospace;
+}
+html,body{margin:0;padding:0}
+body{
+  background:var(--paper); color:var(--ink);
+  font-family:"IBM Plex Sans JP","Hiragino Sans","Yu Gothic UI",system-ui,sans-serif;
+  font-size:13.5px; line-height:1.75; -webkit-text-size-adjust:100%;
+}
+.mono{font-family:var(--mono);font-variant-numeric:tabular-nums}
+.wrap{max-width:820px;margin:0 auto;padding:20px 14px 72px}
+.card{background:var(--surface);border:1px solid var(--rule);border-radius:3px;padding:14px;margin-bottom:14px}
+.eyebrow{display:flex;align-items:center;gap:10px;font-family:var(--mono);font-size:11.5px;letter-spacing:.14em;color:var(--muted)}
+.eyebrow::after{content:"";flex:1;height:1px;background:var(--rule)}
+h1{font-size:22px;font-weight:600;letter-spacing:.01em;margin:8px 0 2px}
+h2{font-size:13.5px;font-weight:600;margin:14px 0 6px;letter-spacing:.01em}
+h2:first-child{margin-top:0}
+p{margin:0 0 8px}
+p:last-child{margin-bottom:0}
+.note{color:var(--muted);font-size:12px;line-height:1.7}
+.sub{color:var(--muted);font-size:11.5px;font-family:var(--mono);letter-spacing:.06em}
+hr{border:none;border-top:1px solid var(--rule-soft);margin:12px 0}
+
+.btn{font:inherit;font-size:12.5px;line-height:1.4;border:1px solid var(--rule);background:#fff;color:var(--ink);border-radius:2px;padding:6px 10px;cursor:pointer}
+.btn:hover{border-color:#B4C0BC}
+.btn.on{background:var(--ink);color:#fff;border-color:var(--ink)}
+.btn:focus-visible{outline:2px solid var(--c2);outline-offset:1px}
+.btn.sm{padding:4px 8px;font-size:11.5px}
+.btnrow{display:flex;flex-wrap:wrap;gap:6px}
+.ctl{display:flex;flex-wrap:wrap;align-items:center;gap:8px;margin-top:10px}
+.ctl .lab{font-family:var(--mono);font-size:11px;letter-spacing:.1em;color:var(--muted);white-space:nowrap}
+.ctl .val{font-family:var(--mono);font-variant-numeric:tabular-nums;font-size:12.5px;min-width:74px}
+
+.viewer{position:relative;border:1px solid var(--rule-soft);border-radius:3px;background:#FBFCFB;overflow:hidden;margin-top:10px}
+svg.stage{display:block;width:100%;height:auto;touch-action:none}
+svg.stage.grab{cursor:grab}
+svg.stage.grab.drag{cursor:grabbing}
+
+.legend{display:flex;flex-wrap:wrap;gap:4px 14px;margin-top:9px;font-size:11.5px;color:var(--muted)}
+.sw{display:inline-block;width:10px;height:10px;border-radius:50%;margin-right:5px;vertical-align:-1px}
+.swl{display:inline-block;width:14px;height:0;border-top:2px solid;margin-right:5px;vertical-align:3px}
+
+table{width:100%;border-collapse:collapse;font-size:12.5px}
+th{font-weight:500;color:var(--muted);text-align:left;border-bottom:1px solid var(--rule);padding:5px 6px;font-size:11px;letter-spacing:.06em;font-family:var(--mono)}
+td{border-bottom:1px solid var(--rule-soft);padding:5px 6px;vertical-align:top}
+.num{text-align:right;font-family:var(--mono);font-variant-numeric:tabular-nums}
+tr.hi td{background:#FAFBFA;font-weight:600}
+tr.cur td{background:#F2F6FA}
+caption{caption-side:top;text-align:left;font-size:11.5px;color:var(--muted);padding:0 6px 6px}
+
+.stats{display:grid;grid-template-columns:1fr 1fr;gap:0 18px}
+.stat{display:flex;justify-content:space-between;align-items:baseline;gap:10px;border-bottom:1px solid var(--rule-soft);padding:6px 0}
+.stat .k{font-size:12px;color:var(--muted);white-space:nowrap}
+.stat .v{font-family:var(--mono);font-variant-numeric:tabular-nums;font-size:13px;text-align:right}
+
+.grid2{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.grid3{display:grid;grid-template-columns:repeat(3,1fr);gap:10px}
+input[type=range]{width:100%;max-width:220px;accent-color:#16232B;height:22px}
+
+.step{border-left:2px solid var(--rule);padding:1px 0 1px 11px;margin-bottom:10px}
+.step:last-child{margin-bottom:0;border-left-color:var(--ink)}
+.step .lbl{font-family:var(--mono);font-size:10.5px;letter-spacing:.12em;color:var(--muted)}
+.step .eq{font-family:var(--mono);font-size:12.5px;line-height:1.95;word-break:break-word}
+.step .eq sup{font-size:.78em}
+
+.warn{color:var(--c4t);font-size:11.5px;line-height:1.7}
+ul.tight{margin:0;padding-left:1.1em}
+ul.tight li{margin-bottom:5px}
+
+.fx{font-family:var(--mono);font-size:16px;line-height:2.2;padding:4px 0 2px;letter-spacing:.01em}
+.fx.small{font-size:13px;line-height:2}
+.fx .sym{cursor:pointer;padding:2px 3px;border-radius:2px;border-bottom:1px dashed var(--rule);-webkit-tap-highlight-color:transparent;touch-action:manipulation}
+.fx .sym:hover{background:#F6EEDC}
+.fx .sym.on{background:#F6E3BC;border-bottom:1px solid var(--c0);color:var(--c0t);font-weight:500}
+.symdesc{font-size:12px;color:var(--muted);border-left:2px solid var(--c0);padding:2px 0 2px 10px;margin-top:4px;min-height:3.4em;line-height:1.7}
+.symdesc b{color:var(--ink);font-weight:600}
+
+.wblk{border:1px solid var(--rule-soft);border-radius:3px;padding:8px 10px 10px}
+.wblk .hd{font-family:var(--mono);font-size:11px;letter-spacing:.1em;display:flex;align-items:center;gap:7px;margin-bottom:2px}
+.wblk .ctl{margin-top:6px}
+.wblk .ctl .lab{font-size:10.5px}
+.wblk .ctl .val{font-size:12px;min-width:66px}
+.wblk .der{font-family:var(--mono);font-size:11px;color:var(--muted);margin-top:7px;line-height:1.65;font-variant-numeric:tabular-nums}
+.tag{display:inline-block;font-family:var(--mono);font-size:10.5px;letter-spacing:.08em;border:1px solid var(--rule);border-radius:2px;padding:0 5px;color:var(--muted)}
+.tag.lit{border-color:var(--c0);background:#F6E3BC;color:var(--c0t)}
+
+@media (max-width:430px){
+  body{font-size:13px}
+  .wrap{padding:14px 10px 56px}
+  .card{padding:11px}
+  h1{font-size:19px}
+  .grid2,.grid3,.stats{grid-template-columns:1fr}
+  table{font-size:12px}
+  th,td{padding:4px 4px}
+  .btn{padding:6px 8px;font-size:12px}
+  input[type=range]{max-width:none;flex:1 1 100%}
+  .step .eq{font-size:11.5px}
+  .ctl .val{min-width:0}
+  .fx{font-size:14px;line-height:2.3}
+  .fx.small{font-size:12px}
+  .symdesc{min-height:5em}
+}
+</style>
+</head>
+<body>
+<div class="wrap">
+
+<header>
+  <div class="eyebrow">SUPERPOSITION OF WAVES</div>
+  <h1>波の重ね合わせインタラクティブ</h1>
+  <p class="note">波を2本用意して足すだけで、うなりも定常波も出てくる。違うのは位相差が時間で動くか、場所で固定されるか、それだけ。反射端の扱い、弦の固有振動、気柱の共鳴まで同じ足し算でつながる。</p>
+</header>
+
+<div class="card">
+  <div class="eyebrow">WAVE FORM</div>
+  <p class="note" style="margin-top:9px">まず記号の場所を確かめる。式の中の文字に触れると、グラフのどこを指しているかが光る。</p>
+  <div class="fx" id="fx1"></div>
+  <div class="fx small" id="fx2"></div>
+  <div class="symdesc" id="symdesc"></div>
+  <div class="viewer"><svg class="stage" id="sv-map" role="img" aria-label="波の式と記号の対応"><g id="map-static"></g><g id="map-dyn"></g></svg></div>
+  <div id="xobshost"></div>
+  <p class="note" style="margin-top:8px">上は「ある瞬間に写真を撮った形」、下は「ある1点をずっと見ていた記録」。どちらも正弦波の形をしているせいで混同されるが、横軸が違う。上の周期が波長 λ、下の周期が時間の周期 T。</p>
+</div>
+
+<div class="card">
+  <div class="eyebrow">SUPERPOSITION</div>
+  <div class="btnrow" id="presetsel" style="margin-top:10px"></div>
+  <div class="viewer"><svg class="stage" id="sv-sup" role="img" aria-label="2つの波とその合成"><g id="sup-static"></g><g id="sup-dyn"></g></svg></div>
+  <div id="transport1"></div>
+  <div class="grid2" style="margin-top:10px" id="wsliders"></div>
+  <div class="legend">
+    <span><span class="swl" style="border-color:var(--c2)"></span>波1</span>
+    <span><span class="swl" style="border-color:var(--c1)"></span>波2</span>
+    <span><span class="swl" style="border-color:var(--c4)"></span>合成波</span>
+    <span><span class="swl" style="border-color:var(--c0);border-top-style:dashed"></span>包絡線 R</span>
+    <span><span class="sw" style="background:var(--c3)"></span>包絡線の極小（節）</span>
+  </div>
+  <div class="stats" id="supstats" style="margin-top:10px"></div>
+  <p class="note" id="supnote" style="margin-top:9px"></p>
+</div>
+
+<div class="card">
+  <div class="eyebrow">BEATS</div>
+  <p class="note" style="margin-top:9px">観測点を1つ決めて、そこの変位を時間で追う。同じ向きに進む2つの波の振動数がわずかに違うと、強くなったり弱くなったりを繰り返す。</p>
+  <div class="viewer"><svg class="stage" id="sv-beat" role="img" aria-label="うなりの時間波形"><g id="beat-static"></g><g id="beat-dyn"></g></svg></div>
+  <div class="ctl"><button class="btn sm" id="b-beatpre">うなりの設定にする</button></div>
+  <div id="xobshost2"></div>
+  <div class="stats" id="beatstats" style="margin-top:10px"></div>
+  <p class="note" id="beatnote" style="margin-top:9px"></p>
+  <h2>音叉で考えるとき</h2>
+  <div id="beattable"></div>
+  <p class="note" style="margin-top:8px">440 Hz の音叉と、振動数の分からない音叉を鳴らして毎秒3回のうなりが聞こえたなら、相手は 437 Hz か 443 Hz。片方におもりを少し付けると振動数が下がるので、うなりが速くなったなら相手は 437 Hz、遅くなったなら 443 Hz。これで一意に決まる。</p>
+</div>
+
+<div class="card">
+  <div class="eyebrow">STANDING WAVE</div>
+  <p class="note" style="margin-top:9px">向きを逆にすると、包絡線が動かなくなる。腹はずっと腹、節はずっと節。薄い線は1周期を9等分した瞬間の形で、どれも同じ点を通っているのが分かる。</p>
+  <div class="viewer"><svg class="stage" id="sv-stand" role="img" aria-label="定常波の節と腹"><g id="stand-static"></g><g id="stand-dyn"></g></svg></div>
+  <div class="ctl">
+    <button class="btn sm" id="b-standpre">定常波の設定にする</button>
+    <button class="btn sm" id="b-standpre2">振幅を変えた定常波</button>
+  </div>
+  <div class="stats" id="standstats" style="margin-top:10px"></div>
+  <p class="note" id="standnote" style="margin-top:9px"></p>
+</div>
+
+<div class="card">
+  <div class="eyebrow">y (x, t) &middot; 3D</div>
+  <p class="note" style="margin-top:9px">合成波を、場所と時間の2つの軸に広げた面として描く。ドラッグで視点が回る。真上から見たときの縞の傾きが 1/v で、定常波では縞が縦になって節の位置に線が立つ。</p>
+  <div class="viewer"><svg class="stage grab" id="sv-3d" role="img" aria-label="合成波の時空間表示"><g id="d3-static"></g><g id="d3-dyn"></g></svg></div>
+  <div class="ctl">
+    <span class="lab">視点</span>
+    <button class="btn sm" id="v-front">正面（y-x）</button>
+    <button class="btn sm" id="v-side">真横（y-t）</button>
+    <button class="btn sm" id="v-top">真上（x-t）</button>
+    <button class="btn sm on" id="v-obl">斜め</button>
+  </div>
+</div>
+
+<div class="card">
+  <div class="eyebrow">REFLECTION</div>
+  <p class="note" style="margin-top:9px">ここだけは重ね合わせの式を使わず、波動方程式そのものを差分法で解いている。反射が反転するかどうかを式で決め打ちせず、端の条件だけ与えて出てきた結果を見る。</p>
+  <div class="viewer"><svg class="stage" id="sv-refl" role="img" aria-label="固定端と自由端での反射"><g id="refl-static"></g><g id="refl-dyn"></g></svg></div>
+  <div class="ctl">
+    <span class="lab">右端</span>
+    <button class="btn sm" id="e-fix">固定端</button>
+    <button class="btn sm" id="e-free">自由端</button>
+    <span class="lab">入射波</span>
+    <button class="btn sm" id="s-sine">連続波</button>
+    <button class="btn sm" id="s-pulse">パルス</button>
+  </div>
+  <div id="lamRhost"></div>
+  <div class="ctl"><button class="btn sm" id="b-reflreset">やり直す</button></div>
+  <div id="transport2"></div>
+  <div class="legend">
+    <span><span class="swl" style="border-color:var(--c2);border-top-style:dashed"></span>入射波（解析式）</span>
+    <span><span class="swl" style="border-color:var(--c1)"></span>反射波（数値解）</span>
+    <span><span class="swl" style="border-color:var(--c4)"></span>実際の変位（数値解）</span>
+    <span><span class="swl" style="border-color:var(--c0);border-top-style:dashed"></span>振幅の履歴</span>
+  </div>
+  <div class="stats" id="reflstats" style="margin-top:10px"></div>
+  <p class="note" id="reflnote" style="margin-top:9px"></p>
+</div>
+
+<div class="card">
+  <div class="eyebrow">STRING MODES</div>
+  <p class="note" style="margin-top:9px">両端を固定した弦では、行きの波と帰りの波が重なって定常波になる。両端が節になる波長だけが生き残る。実際の振動数は数百 Hz なので、見えるようにゆっくり再生している。</p>
+  <div class="btnrow" id="modesel" style="margin-top:10px"></div>
+  <div class="viewer"><svg class="stage" id="sv-str" role="img" aria-label="弦の固有振動"><g id="str-static"></g><g id="str-dyn"></g></svg></div>
+  <div id="strparams"></div>
+  <div class="stats" id="strstats" style="margin-top:10px"></div>
+  <p class="note" id="strnote" style="margin-top:9px"></p>
+  <div id="strtable" style="margin-top:12px"></div>
+  <h2>はじいた弦の形</h2>
+  <p class="note">弦を1点でつまんで放すと、三角形の初期形が固有振動に分解される。どの倍音がどれだけ混ざるかは、つまむ位置で決まる。</p>
+  <div class="viewer"><svg class="stage" id="sv-spec" role="img" aria-label="はじく位置と倍音の強さ"><g id="spec-static"></g></svg></div>
+  <p class="note" id="specnote" style="margin-top:9px"></p>
+</div>
+
+<div class="card">
+  <div class="eyebrow">AIR COLUMN</div>
+  <p class="note" style="margin-top:9px">気柱でも起きていることは弦と同じ。違うのは端の条件で、閉じた端は空気が動けないので変位の節、開いた端は自由に動けるので変位の腹になる。</p>
+  <div class="btnrow" id="pipesel" style="margin-top:10px"></div>
+  <div class="btnrow" id="pmodesel" style="margin-top:6px"></div>
+  <div class="viewer"><svg class="stage" id="sv-pipe" role="img" aria-label="気柱の共鳴"><g id="pipe-static"></g><g id="pipe-dyn"></g></svg></div>
+  <div class="ctl">
+    <span class="lab">表示</span>
+    <button class="btn sm on" id="p-disp">変位</button>
+    <button class="btn sm" id="p-press">圧力</button>
+  </div>
+  <div id="pipeparams"></div>
+  <div class="stats" id="pipestats" style="margin-top:10px"></div>
+  <p class="note" id="pipenote" style="margin-top:9px"></p>
+  <div id="pipetable" style="margin-top:12px"></div>
+  <h2>共鳴実験から開口端補正を出す</h2>
+  <p class="note">ガラス管の水面を下げていくと、1回目の共鳴が長さ L<sub>1</sub>、2回目が L<sub>2</sub> で起きる。L<sub>1</sub>+&Delta; = &lambda;/4、L<sub>2</sub>+&Delta; = 3&lambda;/4 なので、引き算すると &Delta; が消えて &lambda; = 2(L<sub>2</sub>&minus;L<sub>1</sub>)。補正は &Delta; = (L<sub>2</sub> &minus; 3L<sub>1</sub>)/2 で求まる。&Delta; を測るには2回共鳴させるしかない、というのがこの実験の要点。</p>
+  <div id="rescalc" style="margin-top:8px"></div>
+</div>
+
+<div class="card">
+  <div class="eyebrow">DERIVATION</div>
+
+  <h2>波の式の出どころ</h2>
+  <p class="note">原点にある媒質が y = A sin(2πt/T + φ) で揺れているとする。この揺れが速さ v で右へ伝わるなら、位置 x に情報が届くのは x/v だけ後になる。だから x での揺れは、原点の「x/v 秒前の揺れ」をそのまま真似する。</p>
+  <div class="step"><span class="lbl">DELAY</span><div class="eq">y(x,t) = A sin(2π(t &minus; x/v)/T + φ)</div></div>
+  <div class="step"><span class="lbl">λ = vT</span><div class="eq">y = A sin{2π(t/T &minus; x/λ) + φ}　　左向きなら x の符号が反転する</div></div>
+  <div class="step"><span class="lbl">k, ω</span><div class="eq">k = 2π/λ、ω = 2π/T　→　y = A sin(ωt &minus; kx + φ)</div></div>
+  <p class="note">t/T と x/λ が引き算で並んでいる形がすべて。t が T 増えても、x が λ 増えても位相は 2π 動くだけなので同じ状態に戻る。時間と空間で周期が別々にあるのはこのため。</p>
+
+  <h2>足し算を1本にまとめる</h2>
+  <p class="note">媒質の応答が線形なら、2つの解の和も解になる。合成波はただの足し算で、この先の話は全部そこから出る。y = A<sub>1</sub> sinθ<sub>1</sub> + A<sub>2</sub> sinθ<sub>2</sub> を、平均 θ̄ = (θ<sub>1</sub>+θ<sub>2</sub>)/2 と半差 δ = (θ<sub>1</sub>&minus;θ<sub>2</sub>)/2 で書き直す。</p>
+  <div class="step"><span class="lbl">EXPAND</span><div class="eq">y = (A<sub>1</sub>+A<sub>2</sub>) cosδ &middot; sinθ̄ + (A<sub>1</sub>&minus;A<sub>2</sub>) sinδ &middot; cosθ̄</div></div>
+  <div class="step"><span class="lbl">AMPLITUDE</span><div class="eq">y = R sin(θ̄ + χ)、　R = √(A<sub>1</sub><sup>2</sup> + A<sub>2</sub><sup>2</sup> + 2A<sub>1</sub>A<sub>2</sub> cosΔθ)、　Δθ = θ<sub>1</sub> &minus; θ<sub>2</sub></div></div>
+  <p class="note">R が包絡線。A<sub>1</sub> = A<sub>2</sub> = A なら R = 2A|cos(Δθ/2)| に戻って教科書の形になる。近似はどこにも入っていないので、振幅が違っても振動数が違っても、そのまま使える。</p>
+  <div class="step"><span class="lbl">PHASE GAP</span><div class="eq">Δθ = (ω<sub>1</sub>&minus;ω<sub>2</sub>)t &minus; (s<sub>1</sub>k<sub>1</sub> &minus; s<sub>2</sub>k<sub>2</sub>)x + (φ<sub>1</sub>&minus;φ<sub>2</sub>)　　s は進行方向（+1 か &minus;1）</div></div>
+  <p class="note">うなりと定常波の分かれ目はここにしかない。同じ向きで振動数だけ違えば Δθ は t にほぼ比例して、強弱が時間で入れ替わる。逆向きで振動数が同じなら第1項が消えて Δθ は x だけの関数になり、強弱が場所に貼りつく。包絡線が動く速さは u = Δω/Δk で、前者では u = v、後者では u = 0。</p>
+
+  <h2>うなりの振動数が差になる理由</h2>
+  <p class="note">Δθ は毎秒 Δω = 2πΔf だけ進む。R は Δθ について周期 2π だから、R が元に戻るのに 1/Δf 秒かかる。強弱の周期がそのまま 1/Δf なので、うなりは毎秒 |f<sub>1</sub>&minus;f<sub>2</sub>| 回。</p>
+  <p class="note">ここでよく間違えるのが 2A cos(πΔf&middot;t) の形。cos そのものの振動数は Δf/2 で、差の半分に見えてしまう。しかし耳が拾うのは絶対値のほうで、|cos| は周期が半分になる。R = √(&hellip;) の形で書いておけば絶対値を取り忘れる余地がない。</p>
+  <p class="note">A<sub>1</sub> ≠ A<sub>2</sub> のときは R の最小値が |A<sub>1</sub>&minus;A<sub>2</sub>| になって、音は完全には消えない。変調の深さは小さいほうの振幅を大きいほうで割った値。うなりが「聞こえにくい」ときはたいていこれが原因。</p>
+
+  <h2>定常波の節と腹</h2>
+  <p class="note">s<sub>1</sub> = +1、s<sub>2</sub> = &minus;1、k<sub>1</sub> = k<sub>2</sub> = k とすると Δθ = &minus;2kx + (φ<sub>1</sub>&minus;φ<sub>2</sub>)。</p>
+  <div class="step"><span class="lbl">NODE</span><div class="eq">cosΔθ = &minus;1　→　x = (φ<sub>1</sub>&minus;φ<sub>2</sub> &minus; π &minus; 2πm)/(2k)　　R = |A<sub>1</sub>&minus;A<sub>2</sub>|</div></div>
+  <div class="step"><span class="lbl">ANTINODE</span><div class="eq">cosΔθ = +1　→　x = (φ<sub>1</sub>&minus;φ<sub>2</sub> &minus; 2πm)/(2k)　　R = A<sub>1</sub>+A<sub>2</sub></div></div>
+  <p class="note">隣り合う節の間隔は π/k = λ/2、節と隣の腹は λ/4。振幅がそろっているときだけ、時間と場所がきれいに分離する。</p>
+  <div class="step"><span class="lbl">A₁ = A₂</span><div class="eq">y = 2A cos(kx &minus; Δφ/2) &middot; sin(ωt + (φ<sub>1</sub>+φ<sub>2</sub>)/2)</div></div>
+  <p class="note">場所で決まる振幅と、全点共通の時間変化に完全に割れる。どの点も同じタイミングで最大になり、山が横に動くことはない。振幅がずれていると y = 2A<sub>2</sub>cosδ&middot;sinθ̄ + (A<sub>1</sub>&minus;A<sub>2</sub>) sinθ<sub>1</sub> と分解でき、定常波に進行波が乗った形になる。節が0にならないのはこの残りのせい。定在波比 (A<sub>1</sub>+A<sub>2</sub>)/|A<sub>1</sub>&minus;A<sub>2</sub>| がどれだけ定常波に近いかの指標。</p>
+
+  <h2>固定端と自由端</h2>
+  <p class="note">x = L に端があり、右向きの波 y<sub>i</sub> = A sin(ωt &minus; kx) が入射する。反射波を y<sub>r</sub> = A′ sin(ωt + kx + ψ) と置いて、端の条件から A′ と ψ を決める。</p>
+  <div class="step"><span class="lbl">FIXED</span><div class="eq">y(L,t) = 0 が常に成り立つ　→　A′ = A、ψ = π &minus; 2kL</div></div>
+  <div class="step"><span class="lbl">FREE</span><div class="eq">∂y/∂x = 0（端に横向きの力がかからない）　→　A′ = A、ψ = &minus;2kL</div></div>
+  <p class="note">固定端だけ π が残る。これが位相の反転。端は必ず節になる。自由端では π が付かず、端が腹になる。節の位置は固定端で x = L &minus; mλ/2、自由端で x = L &minus; λ/4 &minus; mλ/2。ちょうど λ/4 だけずれる。</p>
+  <p class="note">エネルギーの向きで考えると納得しやすい。固定端では壁が弦を引き止めるので、弦は壁から逆向きの力を受ける。自由端では止めるものがないので、行き過ぎた分がそのまま戻ってくる。</p>
+
+  <h2>波動方程式を差分で解く</h2>
+  <p class="note">反射のカードだけは、上の式を使わずに元の方程式を直接解いている。∂<sup>2</sup>y/∂t<sup>2</sup> = v<sup>2</sup>∂<sup>2</sup>y/∂x<sup>2</sup> を中心差分に置き換えると次の形になる。</p>
+  <div class="step"><span class="lbl">SCHEME</span><div class="eq">y<sub>i</sub><sup>n+1</sup> = 2y<sub>i</sub><sup>n</sup> &minus; y<sub>i</sub><sup>n&minus;1</sup> + C<sup>2</sup>(y<sub>i+1</sub><sup>n</sup> &minus; 2y<sub>i</sub><sup>n</sup> + y<sub>i&minus;1</sub><sup>n</sup>)、　C = vΔt/Δx</div></div>
+  <div class="step"><span class="lbl">C = 1</span><div class="eq">y<sub>i</sub><sup>n+1</sup> = y<sub>i+1</sub><sup>n</sup> + y<sub>i&minus;1</sub><sup>n</sup> &minus; y<sub>i</sub><sup>n&minus;1</sup></div></div>
+  <p class="note">C を 1 に取ると 2y<sub>i</sub><sup>n</sup> が消えて、この形になる。1次元の波動方程式に限れば、これは丸め誤差の範囲で厳密。y = f(x&minus;vt) を代入すると Δx = vΔt から両辺が一致する。数値的な分散もない。だから「計算誤差で反転して見えている」という逃げ道がない。</p>
+  <ul class="tight note" style="margin-top:8px">
+    <li>固定端は y<sub>N</sub> = 0 を毎ステップ課すだけ。</li>
+    <li>自由端は仮想点 y<sub>N+1</sub> = y<sub>N&minus;1</sub> を置いて、y<sub>N</sub><sup>n+1</sup> = 2y<sub>N&minus;1</sub><sup>n</sup> &minus; y<sub>N</sub><sup>n&minus;1</sup>。</li>
+    <li>左端は吸収境界。C = 1 なら y<sub>0</sub><sup>n+1</sup> = y<sub>1</sub><sup>n</sup> が左向きの波を完全に飲み込む。戻ってきた波が再反射しないので、右端の反射だけを見られる。</li>
+    <li>入射波は全体場と散乱場を切り分ける方式で流し込んでいる。境界より右は「入射波+反射波」、左は「反射波だけ」を保持するので、反射波を単独で取り出して描ける。</li>
+  </ul>
+
+  <h2>弦の固有振動</h2>
+  <p class="note">両端が固定なら両端が節。長さ L に節が両端で入る条件から L = nλ/2 が出る。</p>
+  <div class="step"><span class="lbl">STRING</span><div class="eq">λ<sub>n</sub> = 2L/n、　f<sub>n</sub> = nv/(2L) = (n/2L)√(S/ρ)　　S は張力、ρ は線密度</div></div>
+  <p class="note">倍音が整数比できれいに並ぶのは、v が振動数によらない（分散がない）から。実際の弦には曲げ剛性があるので高次ほどわずかに高くなる。ピアノの調律で問題になるのがこのずれ。</p>
+  <div class="step"><span class="lbl">PLUCK</span><div class="eq">位置 pL を高さ h でつまむと　a<sub>n</sub> = 2h/(n<sup>2</sup>π<sup>2</sup>p(1&minus;p)) &middot; sin(nπp)</div></div>
+  <p class="note">三角形の初期形をフーリエ正弦級数に分解した係数。1/n<sup>2</sup> で減るので高次はすぐ小さくなる。真ん中でつまむと sin(nπ/2) が偶数の n で 0 になり、偶数倍音が全部消える。弦長の 1/5 の位置で弾けば5倍音が消える、というのも同じ式から出る。</p>
+
+  <h2>気柱</h2>
+  <p class="note">開いた端は空気が自由に動けるので変位の腹、閉じた端は動けないので変位の節。圧力はちょうど逆で、開口端が圧力の節になる。閉管の閉じた端では空気が動けない代わりに圧力が最も大きく振れる。</p>
+  <div class="step"><span class="lbl">OPEN</span><div class="eq">L<sub>e</sub> = nλ/2　→　f<sub>n</sub> = nv/(2L<sub>e</sub>)、L<sub>e</sub> = L + 2Δ　　整数倍音がすべて出る</div></div>
+  <div class="step"><span class="lbl">CLOSED</span><div class="eq">L<sub>e</sub> = (2m&minus;1)λ/4　→　f = (2m&minus;1)v/(4L<sub>e</sub>)、L<sub>e</sub> = L + Δ　　奇数倍音だけ</div></div>
+  <p class="note">同じ長さなら閉管の基本音は開管の半分。クラリネットが同じ管長のフルートより1オクターブ低いのはこの違い。</p>
+
+  <h2>音速の温度依存</h2>
+  <p class="note">断熱変化する理想気体では v = √(γRT/M)。空気なら γ = 1.4、M = 28.9647 g/mol で、0°C は 331.3 m/s になる。教科書の v = 331.5 + 0.6t は、これを t = 0 のまわりで1次まで展開したもの。</p>
+  <div class="step"><span class="lbl">EXPANSION</span><div class="eq">v = v<sub>0</sub>√(1 + t/273.15) ≒ v<sub>0</sub>(1 + t/546.3)　→　係数は 331.3/546.3 = 0.606</div></div>
+  <p class="note">0.6 はその丸め。30°C でも厳密値との差は 0.1% 程度しかないので、実用上は気にしなくていい。それより開口端補正のほうが桁違いに効く。</p>
+</div>
+
+<div class="card">
+  <div class="eyebrow">NOTES</div>
+
+  <h2>どの近似がどこで効くか</h2>
+  <div id="apptable"></div>
+
+  <h2>使った定数</h2>
+  <p class="note" id="constnote"></p>
+  <p class="note">開口端補正の係数は、フランジのない円管に対する Levine&ndash;Schwinger の理論値 0.6133a を既定にした。日本の教科書でよく見る 0.6a はこの丸め、無限に広い板に開口したとき（フランジ付き）は 8/(3π) = 0.8216a になる。管の口がどうなっているかで実測値が変わるので、実験値と合わないときはまずここを疑う。切り替えて差を見られるようにしてある。</p>
+  <p class="note">音速の基準値は断熱式から出した 331.3 m/s を既定にした。0°C 乾燥空気の実測は 331.29 m/s（Wong 1986）で、断熱式とほぼ一致する。教科書の 331.5 は測定の古い値に由来する丸めで、断熱式より 0.05% ほど高い。気柱の計算では、この 0.05% より開口端補正の数% のほうがはるかに大きい。</p>
+  <p class="note">弦の既定値は長さ 0.65 m、張力 73 N、線密度 0.40 g/m にしてある。ギターの1弦（0.010インチのプレーン弦）に近い値で、基本振動が E4 あたりに来る。</p>
+
+  <h2>取り違えやすいところ</h2>
+  <ul class="tight note">
+    <li>y-x グラフと y-t グラフを混ぜない。横軸が距離なら山の間隔は λ、時間なら T。問題文が「ある瞬間の」と言っていたら前者、「ある点の」と言っていたら後者。</li>
+    <li>うなりの回数は差の絶対値で、差の半分ではない。2A cos の cos だけ見ると半分に見えるので注意。</li>
+    <li>定常波でも媒質は動いている。動かないのは節の点だけで、腹は最も激しく動く。「定常」なのは波形が横に進まないという意味。</li>
+    <li>定常波にはエネルギーの流れがない。左右に同じだけ流れていて差し引きゼロになる。</li>
+    <li>固定端は変位の節、自由端は変位の腹。気柱では開口端が変位の腹で、圧力の節。変位と圧力を混ぜると全部逆になる。</li>
+    <li>閉管に偶数倍音はない。基本振動の3倍が第2の共鳴で、これを「2倍振動」と呼ぶ流儀もあるので、問題文がどちらの数え方をしているか確認する。</li>
+    <li>開口端補正は開いている端の数だけ効く。開管は 2Δ、閉管は Δ。</li>
+    <li>波が反射しても振動数は変わらない。変わるのは進む向きと、固定端なら位相。媒質が同じなら波長も速さもそのまま。</li>
+    <li>2つの波が重なっている間も、それぞれの波は相手を気にせず進み続ける。すれ違ったあとは元の形に戻る。重ね合わせは「その瞬間の変位を足す」だけの話。</li>
+  </ul>
+</div>
+
+</div>
+<script>
+"use strict";
+const TAU=Math.PI*2, RAD=Math.PI/180, DEG=180/Math.PI;
+const INK='#16232B',MUT='#5E6E76',RULE='#D6DDDA',SOFT='#E8EDEB';
+const CW1='#2457A6', CW2='#158A6D', CSUM='#A82A6A', CENV='#B87A16', CNOD='#6E3AA7', CGRN='#3B6E1E';
+const CW1T='#1B4380', CW2T='#0D6A53', CSUMT='#831F52', CENVT='#8A5A0C', CNODT='#572D85';
+
+/* ---------- 定数（データ駆動） ---------- */
+const GAMMA=1.4, RGAS=8.314462618, MAIR=0.0289647, T0K=273.15;
+const V0ADIA=Math.sqrt(GAMMA*RGAS*T0K/MAIR);      /* 0°C の音速：断熱式 */
+
+const VSND=[
+  {id:'adia', nm:'断熱式', v0:V0ADIA, f:function(t){return V0ADIA*Math.sqrt(1+t/T0K);},
+   note:'√(γRT/M) から出した理論値。0°C で '+V0ADIA.toFixed(2)+' m/s'},
+  {id:'txt',  nm:'331.5+0.6t', v0:331.5, f:function(t){return 331.5+0.6*t;},
+   note:'教科書の1次近似。0°C で 331.50 m/s'},
+  {id:'meas', nm:'実測基準', v0:331.29, f:function(t){return 331.29*Math.sqrt(1+t/T0K);},
+   note:'0°C 乾燥空気の実測 331.29 m/s（Wong 1986）を温度補正したもの'}
+];
+const ECORR=[
+  {id:'ls',  k:0.6133, nm:'0.6133a', note:'フランジなし円管の理論値（Levine–Schwinger）'},
+  {id:'txt', k:0.6,    nm:'0.6a',    note:'教科書の目安。上の丸め'},
+  {id:'fl',  k:0.8216, nm:'0.8216a', note:'フランジ付き（無限バッフル）の理論値 8/(3π)'},
+  {id:'no',  k:0,      nm:'補正なし', note:'開口端補正を無視した場合'}
+];
+const PIPES=[
+  {id:'open',   nm:'開管', nOpen:2, ratio:'1 : 2 : 3 : 4 : 5',
+   harm:function(n){return n;}, desc:'両端が変位の腹。整数倍音がすべてそろう。'},
+  {id:'closed', nm:'閉管', nOpen:1, ratio:'1 : 3 : 5 : 7 : 9',
+   harm:function(n){return 2*n-1;}, desc:'閉端が変位の節、開端が腹。奇数倍音しか立たない。'}
+];
+const PRESETS=[
+  {id:'beat',  nm:'うなり',        w:[{A:1.00,lam:1.00,v:8,phi:0,dir:1},{A:1.00,lam:0.80,v:8,phi:0,dir:1}]},
+  {id:'slow',  nm:'ゆるいうなり',  w:[{A:1.00,lam:1.00,v:8,phi:0,dir:1},{A:1.00,lam:0.92,v:8,phi:0,dir:1}]},
+  {id:'stand', nm:'定常波',        w:[{A:1.00,lam:1.00,v:8,phi:0,dir:1},{A:1.00,lam:1.00,v:8,phi:0,dir:-1}]},
+  {id:'stand2',nm:'振幅の違う定常波',w:[{A:1.00,lam:1.00,v:8,phi:0,dir:1},{A:0.45,lam:1.00,v:8,phi:0,dir:-1}]},
+  {id:'inph',  nm:'同位相で強め合う',w:[{A:0.80,lam:1.00,v:8,phi:0,dir:1},{A:0.80,lam:1.00,v:8,phi:0,dir:1}]},
+  {id:'anti',  nm:'逆位相で消える', w:[{A:0.80,lam:1.00,v:8,phi:0,dir:1},{A:0.80,lam:1.00,v:8,phi:180,dir:1}]}
+];
+const SPEEDS=[{v:0.1,nm:'0.1×'},{v:0.25,nm:'0.25×'},{v:0.5,nm:'0.5×'},{v:1,nm:'1×'}];
+const SYMS=[
+  {k:'y',  desc:'<b>y</b>　いま見ている場所の、いまこの瞬間の変位。グラフの縦軸そのもの。'},
+  {k:'A',  desc:'<b>A</b>　振幅。変位が届く上限で、山の高さでもあり谷の深さでもある。エネルギーは A² に比例する。'},
+  {k:'t',  desc:'<b>t</b>　時刻。下のグラフの横軸。x を固定して t だけ動かすと、その1点の上下運動が見える。'},
+  {k:'T',  desc:'<b>T</b>　周期。1点が1往復するのにかかる時間。下のグラフで山から山までの間隔。'},
+  {k:'x',  desc:'<b>x</b>　原点からの距離。上のグラフの横軸。t を固定して x だけ動かすと、その瞬間の波の形が見える。'},
+  {k:'lam',desc:'<b>λ</b>　波長。同じ位相が次に現れるまでの距離。上のグラフで山から山までの間隔。'},
+  {k:'v',  desc:'<b>v</b>　波が進む速さ。λ を T で割った値。薄い波形は Δt = T/8 だけ後の姿で、vΔt = λ/8 だけずれている。'},
+  {k:'phi',desc:'<b>φ</b>　初期位相。t = 0、x = 0 での位相のずれ。波形全体を横にずらす働きをする。'},
+  {k:'ph', desc:'<b>2π(t/T − x/λ) + φ</b>　位相。ここが 2π 変わると同じ状態に戻る。右の円で見ると、いま何度回ったところかにあたる。'}
+];
+const APPROX=[
+  ['包絡線 R を振幅とみなす','うなりの読み取り','Δf が f に近づくと成り立たない。Δf/f̄ が数%までなら実用的'],
+  ['両方の波が同じ速さ','定常波・弦・気柱','速さが違うと包絡線が u = Δω/Δk で動きだす。弦や気柱では同じ媒質なので成立する'],
+  ['弦の分散を無視','倍音が整数比','曲げ剛性があると高次ほど高くなる。ピアノの低音弦で数十セント'],
+  ['気柱を1次元とみなす','共鳴条件','管の直径が波長に比べて無視できるとき。開口端補正はこのはみ出しの補い'],
+  ['開口端補正 Δ = 0.6133a','気柱の共鳴','管の口の形で変わる。フランジ付きだと 0.8216a。管が太いほど効く'],
+  ['音速 v = 331.5 + 0.6t','気柱の計算','断熱式との差は 0°C で 0.05%、30°C で 0.1% ほど'],
+  ['空気を理想気体とみなす','音速の式','湿度・圧力の影響は常温で 0.1% 程度'],
+  ['差分の C = 1','反射の数値解','1次元の波動方程式ではこの取り方が厳密。誤差は丸め誤差だけ'],
+  ['減衰なし','全体','実際の弦や気柱は減衰する。定常波の節が完全な0にならない原因のひとつ']
+];
+
+const XMAX=4.0;
+
+const ST={
+  W:[{A:1.00,lam:1.00,v:8.0,phi:0,dir:1},{A:1.00,lam:0.80,v:8.0,phi:0,dir:1}],
+  t:0, playing:true, speed:0.25,
+  xobs:1.00,
+  hl:null, hlPin:false,
+  yaw:-0.55, pitch:0.34,
+  end:'fix', src:'sine', lamR:0.50,
+  strMode:1, strL:0.65, strS:73, strRho:0.40, pluck:0.20, strSyn:false,
+  pipe:'open', pMode:1, pipeL:0.50, pipeA:0.020, temp:15, ecIdx:0, vsIdx:0, press:false
+};
+
+/* ---------- 小道具 ---------- */
+const clamp=(v,a,b)=>v<a?a:(v>b?b:v);
+const f1=v=>(Math.round(v*100)/100).toString();
+function niceCeil(v){
+  if(v<=0) return 1;
+  const e=Math.floor(Math.log10(v)), m=v/Math.pow(10,e);
+  const lad=[1,1.2,1.5,2,2.5,3,4,5,6,8,10];
+  for(const q of lad) if(m<=q+1e-12) return q*Math.pow(10,e);
+  return 10*Math.pow(10,e);
+}
+function fmt(v,sig){
+  sig=sig||4;
+  if(!isFinite(v)) return '—';
+  if(v===0) return '0';
+  const av=Math.abs(v);
+  if(av>=1e-3&&av<1e6){
+    let s=v.toPrecision(sig);
+    if(s.indexOf('e')<0&&s.indexOf('.')>=0) s=s.replace(/0+$/,'').replace(/\.$/,'');
+    return s;
+  }
+  const e=Math.floor(Math.log10(av));
+  return (v/Math.pow(10,e)).toFixed(sig-1)+'×10<sup>'+String(e).replace('-','\u2212')+'</sup>';
+}
+function LN(x1,y1,x2,y2,c,w,dash,op){
+  return '<line x1="'+f1(x1)+'" y1="'+f1(y1)+'" x2="'+f1(x2)+'" y2="'+f1(y2)+'" stroke="'+c+'" stroke-width="'+(w||1)+'"'+
+    (dash?' stroke-dasharray="'+dash+'"':'')+(op!==undefined?' opacity="'+op+'"':'')+' stroke-linecap="round"/>';
+}
+function TX(x,y,s,c,size,anchor,weight,op){
+  return '<text x="'+f1(x)+'" y="'+f1(y)+'" fill="'+c+'" font-family="IBM Plex Mono, monospace" font-size="'+(size||10)+'"'+
+    (anchor?' text-anchor="'+anchor+'"':'')+(weight?' font-weight="'+weight+'"':'')+(op!==undefined?' opacity="'+op+'"':'')+'>'+s+'</text>';
+}
+function PL(pts,c,w,dash,op){
+  if(pts.length<2) return '';
+  let d='M'+f1(pts[0][0])+' '+f1(pts[0][1]);
+  for(let i=1;i<pts.length;i++) d+='L'+f1(pts[i][0])+' '+f1(pts[i][1]);
+  return '<path d="'+d+'" fill="none" stroke="'+c+'" stroke-width="'+(w||1.6)+'"'+
+    (dash?' stroke-dasharray="'+dash+'"':'')+(op!==undefined?' opacity="'+op+'"':'')+' stroke-linejoin="round" stroke-linecap="round"/>';
+}
+function AR(x1,y1,x2,y2,c,w,hs,op){
+  const dx=x2-x1, dy=y2-y1, len=Math.hypot(dx,dy);
+  if(len<0.6) return '';
+  hs=hs||6;
+  const ux=dx/len, uy=dy/len, px=-uy, py=ux;
+  const bx=x2-ux*hs, by=y2-uy*hs;
+  return LN(x1,y1,bx,by,c,w||1.6,null,op)+
+    '<polygon points="'+f1(x2)+','+f1(y2)+' '+f1(bx+px*hs*0.42)+','+f1(by+py*hs*0.42)+' '+f1(bx-px*hs*0.42)+','+f1(by-py*hs*0.42)+'" fill="'+c+'"'+(op!==undefined?' opacity="'+op+'"':'')+'/>';
+}
+function CIRC(x,y,r,fill,stroke,sw,dash,op){
+  return '<circle cx="'+f1(x)+'" cy="'+f1(y)+'" r="'+f1(r)+'" fill="'+(fill||'none')+'"'+
+    (stroke?' stroke="'+stroke+'" stroke-width="'+(sw||1)+'"':'')+(dash?' stroke-dasharray="'+dash+'"':'')+(op!==undefined?' opacity="'+op+'"':'')+'/>';
+}
+function RECT(x,y,w,h,fill,stroke,sw,dash,op){
+  return '<rect x="'+f1(x)+'" y="'+f1(y)+'" width="'+f1(w)+'" height="'+f1(h)+'" fill="'+(fill||'none')+'"'+
+    (stroke?' stroke="'+stroke+'" stroke-width="'+(sw||1)+'"':'')+(dash?' stroke-dasharray="'+dash+'"':'')+(op!==undefined?' opacity="'+op+'"':'')+'/>';
+}
+/* 寸法線（両端に矢羽） */
+function DIM(x1,y,x2,c,lab,size,op){
+  const s=size||9;
+  let o=LN(x1,y,x2,y,c,1.2,null,op);
+  for(const q of [[x1,1],[x2,-1]]){
+    o+=LN(q[0],y-3.5,q[0],y+3.5,c,1.2,null,op);
+    o+=LN(q[0],y,q[0]+q[1]*5,y-2.6,c,1.1,null,op)+LN(q[0],y,q[0]+q[1]*5,y+2.6,c,1.1,null,op);
+  }
+  if(lab) o+=TX((x1+x2)/2,y-6,lab,c,s,'middle','500',op);
+  return o;
+}
+function setVB(id,w,h){ const s=document.getElementById(id); s.setAttribute('viewBox','0 0 '+w+' '+h); }
+function put(id,s){ document.getElementById(id).innerHTML=s; }
+function stt(k,v){ return '<div class="stat"><span class="k">'+k+'</span><span class="v">'+v+'</span></div>'; }
+
+let narrow=window.innerWidth<=430;
+
+/* ---------- 波の量 ---------- */
+function kOf(w){ return TAU/w.lam; }
+function omOf(w){ return TAU*w.v/w.lam; }
+function fOf(w){ return w.v/w.lam; }
+function TOf(w){ return w.lam/w.v; }
+function theta(w,x,t){ return omOf(w)*t - w.dir*kOf(w)*x + w.phi*RAD; }
+function yw(i,x,t){ const w=ST.W[i]; return w.A*Math.sin(theta(w,x,t)); }
+function ysum(x,t){ return yw(0,x,t)+yw(1,x,t); }
+function dth(x,t){ return theta(ST.W[0],x,t)-theta(ST.W[1],x,t); }
+function envAt(x,t){
+  const a=ST.W[0], b=ST.W[1];
+  return Math.sqrt(a.A*a.A+b.A*b.A+2*a.A*b.A*Math.cos(dth(x,t)));
+}
+function dOmega(){ return omOf(ST.W[0])-omOf(ST.W[1]); }
+function dKeff(){ return ST.W[0].dir*kOf(ST.W[0])-ST.W[1].dir*kOf(ST.W[1]); }
+function dPhi(){ return (ST.W[0].phi-ST.W[1].phi)*RAD; }
+function yMaxScale(){ return niceCeil((ST.W[0].A+ST.W[1].A)*1.06); }
+/* Δθ = base(t) − dK·x を target+2πm に一致させる x を列挙（厳密） */
+function extremaX(t,kind){
+  const dK=dKeff(), t0=dOmega()*t+dPhi(), off=(kind==='min')?Math.PI:0, out=[];
+  if(Math.abs(dK)<1e-9) return out;
+  const t1=t0-dK*XMAX, lo=Math.min(t0,t1), hi=Math.max(t0,t1);
+  const m0=Math.ceil((lo-off)/TAU), m1=Math.floor((hi-off)/TAU);
+  if(m1-m0>400) return out;
+  for(let m=m0;m<=m1;m++){
+    const x=(t0-(off+TAU*m))/dK;
+    if(x>=-1e-9&&x<=XMAX+1e-9) out.push(x);
+  }
+  out.sort((p,q)=>p-q);
+  return out;
+}
+function extremaT(x,kind,tmax){
+  const dW=dOmega(), t0=-dKeff()*x+dPhi(), off=(kind==='min')?Math.PI:0, out=[];
+  if(Math.abs(dW)<1e-9) return out;
+  const a=t0, b=t0+dW*tmax, lo=Math.min(a,b), hi=Math.max(a,b);
+  const m0=Math.ceil((lo-off)/TAU), m1=Math.floor((hi-off)/TAU);
+  if(m1-m0>400) return out;
+  for(let m=m0;m<=m1;m++){
+    const tt=((off+TAU*m)-t0)/dW;
+    if(tt>=-1e-9&&tt<=tmax+1e-9) out.push(tt);
+  }
+  out.sort((p,q)=>p-q);
+  return out;
+}
+function regime(){
+  const a=ST.W[0], b=ST.W[1];
+  const df=Math.abs(fOf(a)-fOf(b));
+  const rel=df/Math.max(1e-9,(fOf(a)+fOf(b))/2);
+  if(a.dir!==b.dir && rel<1e-6) return 'stand';
+  if(a.dir!==b.dir) return 'mixed';
+  if(rel<1e-6) return 'add';
+  return 'beat';
+}
+const REGNM={stand:'定常波',beat:'うなり',add:'ただの重ね合わせ',mixed:'逆向き＋振動数差'};
+
+function DIMV(x,y1,y2,c,lab,size,op){
+  const s=size||9;
+  let o=LN(x,y1,x,y2,c,1.2,null,op);
+  for(const q of [[y1,1],[y2,-1]]){
+    o+=LN(x-3.5,q[0],x+3.5,q[0],c,1.2,null,op);
+    o+=LN(x,q[0],x-2.6,q[0]+q[1]*5,c,1.1,null,op)+LN(x,q[0],x+2.6,q[0]+q[1]*5,c,1.1,null,op);
+  }
+  if(lab) o+=TX(x+6,(y1+y2)/2+3,lab,c,s,'start','500',op);
+  return o;
+}
+
+/* ---------- スライダー登録 ---------- */
+const SLREG=[];
+function addSlider(host,id,lab,min,max,step,getv,setv,fmtf,unit,cb){
+  const row=document.createElement('div'); row.className='ctl';
+  row.innerHTML='<span class="lab">'+lab+'</span><input type="range" id="'+id+'" min="'+min+'" max="'+max+'" step="'+step+'"><span class="val mono" id="vv-'+id+'"></span>';
+  document.getElementById(host).appendChild(row);
+  const el=row.querySelector('input');
+  el.addEventListener('input',function(){ setv(+el.value); (cb||onParam)(); });
+  SLREG.push({id:id,getv:getv,fmtf:fmtf,unit:unit,el:el});
+}
+function syncSliders(){
+  for(const r of SLREG){
+    const raw=Math.round(r.getv());
+    if(+r.el.value!==raw) r.el.value=raw;
+    const box=document.getElementById('vv-'+r.id);
+    if(box) box.textContent=r.fmtf(raw)+(r.unit?' '+r.unit:'');
+  }
+}
+
+/* ---------- 再生コントロール ---------- */
+const TRANS=[];
+function stepDt(){ return Math.min(TOf(ST.W[0]),TOf(ST.W[1]))/24; }
+function buildTransport(host){
+  const row=document.createElement('div'); row.className='ctl';
+  row.innerHTML='<button class="btn" data-a="play"></button>'+
+    '<button class="btn sm" data-a="step">コマ送り</button>'+
+    '<button class="btn sm" data-a="reset">t = 0 に戻す</button>'+
+    '<span class="lab">速さ</span><span class="btnrow" data-a="spd"></span>';
+  document.getElementById(host).appendChild(row);
+  row.querySelector('[data-a="play"]').addEventListener('click',function(){ ST.playing=!ST.playing; syncTransport(); });
+  row.querySelector('[data-a="step"]').addEventListener('click',function(){ ST.playing=false; ST.t+=stepDt(); syncTransport(); dyn(); });
+  row.querySelector('[data-a="reset"]').addEventListener('click',function(){ ST.t=0; resetFD(); dyn(); });
+  const box=row.querySelector('[data-a="spd"]');
+  for(const s of SPEEDS){
+    const b=document.createElement('button');
+    b.className='btn sm'; b.textContent=s.nm; b.setAttribute('data-v',s.v);
+    b.addEventListener('click',function(){ ST.speed=s.v; syncTransport(); });
+    box.appendChild(b);
+  }
+  TRANS.push({play:row.querySelector('[data-a="play"]'),box:box});
+}
+function syncTransport(){
+  for(const t of TRANS){
+    t.play.textContent=ST.playing?'一時停止':'再生';
+    for(const b of t.box.children) b.classList.toggle('on',Math.abs(+b.getAttribute('data-v')-ST.speed)<1e-9);
+  }
+}
+
+/* ---------- 記号の対応（WAVE FORM） ---------- */
+const FX1='<span class="sym" data-s="y">y</span> = '+
+  '<span class="sym" data-s="A">A</span> sin{ '+
+  '<span class="sym" data-s="ph">2π</span>( '+
+  '<span class="sym" data-s="t">t</span> / <span class="sym" data-s="T">T</span>'+
+  ' &minus; <span class="sym" data-s="x">x</span> / <span class="sym" data-s="lam">λ</span>'+
+  ' ) + <span class="sym" data-s="phi">φ</span> }';
+const FX2='<span class="sym" data-s="v">v</span> = '+
+  '<span class="sym" data-s="lam">λ</span> / <span class="sym" data-s="T">T</span> = f'+
+  '<span class="sym" data-s="lam">λ</span>　　'+
+  '<span class="sym" data-s="ph">位相</span>が 2π 変わると同じ状態に戻る';
+function buildFx(){
+  document.getElementById('fx1').innerHTML=FX1;
+  document.getElementById('fx2').innerHTML=FX2;
+  const all=document.querySelectorAll('#fx1 .sym, #fx2 .sym');
+  for(const el of all){
+    const key=el.getAttribute('data-s');
+    el.setAttribute('tabindex','0');
+    el.addEventListener('pointerenter',function(){ if(!ST.hlPin) setHl(key); });
+    el.addEventListener('pointerleave',function(){ if(!ST.hlPin) setHl(null); });
+    el.addEventListener('focus',function(){ if(!ST.hlPin) setHl(key); });
+    el.addEventListener('click',function(){
+      if(ST.hlPin&&ST.hl===key){ ST.hlPin=false; setHl(null); }
+      else { ST.hlPin=true; setHl(key); }
+    });
+  }
+}
+function setHl(k){
+  ST.hl=k;
+  for(const el of document.querySelectorAll('#fx1 .sym, #fx2 .sym'))
+    el.classList.toggle('on',k!==null&&el.getAttribute('data-s')===k);
+  const s=SYMS.find(function(q){return q.k===k;});
+  document.getElementById('symdesc').innerHTML=s?s.desc:
+    '記号に触れると、グラフのどこを指しているかが光る。押すと固定、もう一度押すと解除。';
+  drawMap();
+}
+const DEFOP={y:0.95,A:0.42,t:0.3,T:0.5,x:0.3,lam:0.5,v:0,phi:0,ph:0.9};
+function opa(k){ return ST.hl?(ST.hl===k?1:0.10):DEFOP[k]; }
+function colr(k,base){ return ST.hl===k?CENVT:base; }
+
+let MP={};
+function drawMap(){
+  const W=narrow?360:740, H=narrow?414:356;
+  setVB('sv-map',W,H);
+  const w=ST.W[0], A=w.A, T=TOf(w), lam=w.lam, om=omOf(w), k=kOf(w), ph=w.phi*RAD;
+  const dR=narrow?48:54;
+  const x0=narrow?34:48, x1=narrow?W-14:W-2*dR-34;
+  const cyA=narrow?74:84, cyB=narrow?208:236, hh=narrow?46:56;
+  const dcx=narrow?W/2:W-dR-18, dcy=narrow?H-62:162;
+  const TS=3*T;
+  const tw=((ST.t%TS)+TS)%TS;
+  const ay=hh/Math.max(0.06,A*1.30);
+  const PXa=function(x){ return x0+(x1-x0)*x/XMAX; };
+  const PXb=function(t){ return x0+(x1-x0)*t/TS; };
+  const PY=function(cy,y){ return cy-y*ay; };
+  MP={W:W,H:H,x0:x0,x1:x1,cyA:cyA,cyB:cyB,hh:hh,TS:TS};
+  let o='';
+
+  /* 枠 */
+  for(const q of [[cyA,'y'],[cyB,'y']]) o+=LN(x0,q[0],x1,q[0],INK,1);
+  o+=LN(x0,cyA-hh,x0,cyA+hh,SOFT,1)+LN(x0,cyB-hh,x0,cyB+hh,SOFT,1);
+  for(const cy of [cyA,cyB]){
+    for(const q of [1,-1]){
+      o+=LN(x0,cy-q*A*ay,x1,cy-q*A*ay,SOFT,1,'2 5');
+      o+=LN(x0-3,cy-q*A*ay,x0+3,cy-q*A*ay,RULE,1);
+    }
+    o+=TX(x0-6,cy-A*ay+3,'+'+A.toFixed(1),MUT,8.5,'end');
+    o+=TX(x0-6,cy+A*ay+3,'\u2212'+A.toFixed(1),MUT,8.5,'end');
+    o+=TX(x0-6,cy+3,'0',MUT,8.5,'end');
+  }
+  /* 目盛り */
+  for(let i=0;i<=8;i++){
+    const X=PXa(XMAX*i/8), big=(i%2===0);
+    o+=LN(X,cyA-(big?4:2),X,cyA+(big?4:2),RULE,1);
+    if(big) o+=TX(X,cyA+hh+14,(XMAX*i/8).toFixed(1),MUT,8.5,'middle');
+  }
+  for(let i=0;i<=6;i++){
+    const X=PXb(TS*i/6), big=(i%2===0);
+    o+=LN(X,cyB-(big?4:2),X,cyB+(big?4:2),RULE,1);
+    if(big) o+=TX(X,cyB+hh+14,(TS*i/6).toFixed(3),MUT,8.5,'middle');
+  }
+  o+=TX(x1,cyA+hh+28,'x [m]',MUT,10,'end');
+  o+=TX(x1,cyB+hh+28,'t [s]',MUT,10,'end');
+  o+=TX(x0+3,cyA-hh-8,'ある瞬間の形（t = '+tw.toFixed(3)+' s で固定）',CW1T,10,'start','500');
+  o+=TX(x0+3,cyB-hh-8,'ある1点の記録（x = '+ST.xobs.toFixed(2)+' m で固定）',CW1T,10,'start','500');
+
+  /* v：Δt = T/8 後のゴースト */
+  {
+    const g=[], dt=T/8;
+    for(let i=0;i<=420;i++){ const x=XMAX*i/420; g.push([PXa(x),PY(cyA,A*Math.sin(om*(tw+dt)-k*x+ph))]); }
+    o+=PL(g,CW1,1.3,'4 3',opa('v'));
+    const xc=firstCrest(om*(tw+dt)+ph,k,lam);
+    if(xc!==null) o+=DIM(PXa(xc-lam/8),cyA-hh+8,PXa(xc),colr('v',CENVT),'vΔt = λ/8',9,opa('v'));
+    o+=AR(PXa(XMAX*0.62),cyA-hh-2,PXa(XMAX*0.62)+34,cyA-hh-2,colr('v',CENVT),2,7,opa('v'));
+    o+=TX(PXa(XMAX*0.62)+40,cyA-hh+2,'v = '+w.v.toFixed(1)+' m/s',colr('v',CENVT),9.5,'start','500',opa('v'));
+  }
+  /* φ：φ=0 との比較 */
+  {
+    const g=[];
+    for(let i=0;i<=420;i++){ const t=TS*i/420; g.push([PXb(t),PY(cyB,A*Math.sin(om*t-k*ST.xobs))]); }
+    o+=PL(g,MUT,1.3,'4 3',opa('phi'));
+    const sh=ph/om;
+    o+=DIM(PXb(Math.max(0,0.35*TS)),cyB+hh-10,PXb(Math.max(0,0.35*TS)+Math.abs(sh)),colr('phi',CENVT),
+        'φ による時間のずれ '+(sh>=0?'\u2212':'+')+Math.abs(sh).toFixed(4)+' s',9,opa('phi'));
+  }
+
+  /* 本体の波形 */
+  const pa=[], pb=[];
+  for(let i=0;i<=520;i++){ const x=XMAX*i/520; pa.push([PXa(x),PY(cyA,A*Math.sin(om*tw-k*x+ph))]); }
+  for(let i=0;i<=520;i++){ const t=TS*i/520; pb.push([PXb(t),PY(cyB,A*Math.sin(om*t-k*ST.xobs+ph))]); }
+  const dimAll=ST.hl?0.45:1;
+  o+=PL(pa,CW1,2,null,dimAll);
+  o+=PL(pb,CW1,2,null,dimAll);
+
+  /* λ */
+  {
+    const xc=firstCrest(om*tw+ph,k,lam);
+    if(xc!==null&&xc+lam<=XMAX+1e-9){
+      o+=DIM(PXa(xc),cyA-hh-1,PXa(xc+lam),colr('lam',CW1T),'λ = '+lam.toFixed(2)+' m',9.5,opa('lam'));
+      for(const q of [xc,xc+lam]) o+=LN(PXa(q),cyA-hh-1,PXa(q),PY(cyA,A),colr('lam',CW1T),1,'2 3',opa('lam'));
+    }
+    /* A（上のグラフ） */
+    if(xc!==null) o+=DIMV(PXa(xc),cyA,PY(cyA,A),colr('A',CSUMT),'A = '+A.toFixed(2)+' cm',9.5,opa('A'));
+  }
+  /* T */
+  {
+    const tc=firstCrestT(-k*ST.xobs+ph,om,T);
+    if(tc!==null&&tc+T<=TS+1e-9){
+      o+=DIM(PXb(tc),cyB-hh-1,PXb(tc+T),colr('T',CW1T),'T = '+T.toFixed(4)+' s',9.5,opa('T'));
+      for(const q of [tc,tc+T]) o+=LN(PXb(q),cyB-hh-1,PXb(q),PY(cyB,A),colr('T',CW1T),1,'2 3',opa('T'));
+      o+=DIMV(PXb(tc),cyB,PY(cyB,A),colr('A',CSUMT),'A',9.5,opa('A'));
+    }
+  }
+  /* x と t の位置 */
+  o+=DIM(PXa(0),cyA+hh+2,PXa(ST.xobs),colr('x',CNODT),'x = '+ST.xobs.toFixed(2)+' m',9.5,opa('x'));
+  o+=DIM(PXb(0),cyB+hh+2,PXb(tw),colr('t',CNODT),'t = '+tw.toFixed(3)+' s',9.5,opa('t'));
+
+  /* y */
+  const yA=A*Math.sin(om*tw-k*ST.xobs+ph);
+  o+=LN(PXa(ST.xobs),cyA-hh,PXa(ST.xobs),cyA+hh,INK,1,'3 3',opa('y')*0.6);
+  o+=LN(PXb(tw),cyB-hh,PXb(tw),cyB+hh,INK,1,'3 3',opa('y')*0.6);
+  o+=AR(PXa(ST.xobs),cyA,PXa(ST.xobs),PY(cyA,yA),colr('y',CSUM),2.4,7,opa('y'));
+  o+=AR(PXb(tw),cyB,PXb(tw),PY(cyB,yA),colr('y',CSUM),2.4,7,opa('y'));
+  o+=CIRC(PXa(ST.xobs),PY(cyA,yA),4.2,colr('y',CSUM),null,null,null,opa('y'));
+  o+=CIRC(PXb(tw),PY(cyB,yA),4.2,colr('y',CSUM),null,null,null,opa('y'));
+  o+=TX(PXa(ST.xobs)+7,PY(cyA,yA)-6,'y = '+yA.toFixed(3)+' cm',colr('y',CSUMT),9.5,'start','500',opa('y'));
+
+  /* 位相の円 */
+  {
+    const pop=ST.hl?(ST.hl==='ph'?1:0.22):0.92;
+    const th=om*tw-k*ST.xobs+ph;
+    const thn=((th%TAU)+TAU)%TAU;
+    o+=CIRC(dcx,dcy,dR,'none',RULE,1,'3 3',pop);
+    o+=LN(dcx-dR-8,dcy,dcx+dR+8,dcy,SOFT,1,null,pop);
+    o+=LN(dcx,dcy-dR-10,dcx,dcy+dR+10,SOFT,1,null,pop);
+    const px=dcx+dR*Math.cos(thn), py=dcy-dR*Math.sin(thn);
+    o+=AR(dcx,dcy,px,py,colr('ph',CW1),2,8,pop);
+    o+=LN(px,py,dcx,py,MUT,1,'2 3',pop);
+    o+=CIRC(dcx,py,3.6,CSUM,null,null,null,pop);
+    const ra=18, lg=(thn>Math.PI)?1:0;
+    o+='<path d="M'+f1(dcx+ra)+' '+f1(dcy)+' A '+ra+' '+ra+' 0 '+lg+' 0 '+f1(dcx+ra*Math.cos(thn))+' '+f1(dcy-ra*Math.sin(thn))+'" fill="none" stroke="'+MUT+'" stroke-width="1" opacity="'+pop+'"/>';
+    o+=TX(dcx,dcy+dR+22,'位相 '+(thn*DEG).toFixed(0)+'°',colr('ph',MUT),9.5,'middle','500',pop);
+    o+=TX(dcx,dcy+dR+34,'（'+Math.floor(th/TAU)+' 周まわった後）',MUT,8.5,'middle',null,pop);
+    o+=TX(dcx-dR-6,dcy-dR-4,'sin',MUT,9,'end',null,pop);
+  }
+  put('map-dyn',o);
+  put('map-static','');
+}
+function firstCrest(base,k,lam){
+  /* θ = base − k x が π/2 + 2πm になる最小の x（0 以上） */
+  const m0=Math.floor((base-Math.PI/2)/TAU);
+  for(let m=m0;m>m0-40;m--){
+    const x=(base-(Math.PI/2+TAU*m))/k;
+    if(x>=0&&x<=XMAX-lam*0.02) return x;
+  }
+  return null;
+}
+function firstCrestT(base,om,T){
+  for(let m=-60;m<60;m++){
+    const t=((Math.PI/2+TAU*m)-base)/om;
+    if(t>=0&&t<=3*T-T*0.02) return t;
+  }
+  return null;
+}
+
+/* ---------- 重ね合わせ（SUPERPOSITION） ---------- */
+let SP={};
+function layoutSup(){
+  const W=narrow?360:760, H=narrow?302:322;
+  const ml=narrow?34:46, mr=narrow?10:16, top=24, gap=narrow?24:30;
+  const hh=(H-top-gap-30)/4;
+  SP={W:W,H:H,x0:ml,x1:W-mr,cy1:top+hh,cy2:top+3*hh+gap,hh:hh};
+  setVB('sv-sup',W,H);
+}
+function axisX(x0,x1,cy,hh,lab,showNum){
+  let o=LN(x0,cy,x1,cy,INK,1)+LN(x0,cy-hh,x0,cy+hh,SOFT,1);
+  for(let i=0;i<=8;i++){
+    const X=x0+(x1-x0)*i/8, big=(i%2===0);
+    o+=LN(X,cy-(big?4:2),X,cy+(big?4:2),RULE,1);
+    if(big&&showNum) o+=TX(X,cy+hh+14,(XMAX*i/8).toFixed(1),MUT,8.5,'middle');
+  }
+  if(lab) o+=TX(x0+3,cy-hh-6,lab,MUT,10,'start','500');
+  return o;
+}
+function drawSupStatic(){
+  layoutSup();
+  const {W,H,x0,x1,cy1,cy2,hh}=SP, ym=yMaxScale(), ay=hh/ym;
+  let o='';
+  o+=axisX(x0,x1,cy1,hh,'波1 と 波2',false);
+  o+=axisX(x0,x1,cy2,hh,'合成波 y = y₁ + y₂',true);
+  for(const cy of [cy1,cy2]){
+    for(const q of [1,-1]){
+      o+=LN(x0-3,cy-q*ym*ay,x0+3,cy-q*ym*ay,RULE,1);
+      o+=TX(x0-6,cy-q*ym*ay+3,(q>0?'+':'\u2212')+ym,MUT,8.5,'end');
+    }
+    o+=TX(x0-6,cy+3,'0',MUT,8.5,'end');
+  }
+  o+=TX(x1,cy2+hh+27,'x [m]',MUT,10,'end');
+  o+=TX(x0-6,cy1-hh-6,'y',MUT,10,'end');
+  o+=TX(x0+3,H-6,'両方のグラフは同じ縦軸目盛り。合成が2倍まで伸びるのが見える。',MUT,9,'start');
+  put('sup-static',o);
+}
+function drawSupDyn(){
+  const {W,H,x0,x1,cy1,cy2,hh}=SP, ym=yMaxScale(), ay=hh/ym, t=ST.t;
+  const N=narrow?380:700;
+  const PX=function(x){ return x0+(x1-x0)*x/XMAX; };
+  const p1=[],p2=[],ps=[],pe=[],pen=[];
+  for(let i=0;i<=N;i++){
+    const x=XMAX*i/N, X=PX(x);
+    p1.push([X,cy1-yw(0,x,t)*ay]);
+    p2.push([X,cy1-yw(1,x,t)*ay]);
+    ps.push([X,cy2-ysum(x,t)*ay]);
+    const e=envAt(x,t);
+    pe.push([X,cy2-e*ay]); pen.push([X,cy2+e*ay]);
+  }
+  let o='';
+  o+=PL(p1,CW1,1.7);
+  o+=PL(p2,CW2,1.7);
+  o+=PL(pe,CENV,1.3,'4 3');
+  o+=PL(pen,CENV,1.3,'4 3');
+  o+=PL(ps,CSUM,2.1);
+  /* 極小と極大 */
+  const mn=extremaX(t,'min'), mx=extremaX(t,'max');
+  const reg=regime();
+  if(mn.length&&mn.length<=34){
+    const rmin=Math.abs(ST.W[0].A-ST.W[1].A);
+    for(const x of mn){
+      o+=LN(PX(x),cy2-hh,PX(x),cy2+hh,CNOD,1,'2 4',0.55);
+      o+=CIRC(PX(x),cy2,3.2,CNOD);
+    }
+    o+=TX(PX(mn[0]),cy2+hh+13,(reg==='stand'?'節':'極小'),CNODT,9,'middle','500');
+  }
+  if(mx.length&&mx.length<=34){
+    for(const x of mx) o+=CIRC(PX(x),cy2-(ST.W[0].A+ST.W[1].A)*ay,3.4,'none',CENVT,1.4);
+    if(mx.length>=2){
+      const d=mx[1]-mx[0];
+      o+=DIM(PX(mx[0]),cy2-hh+4,PX(mx[1]),CENVT,(reg==='stand'?'腹の間隔 ':'極大の間隔 ')+d.toFixed(3)+' m',9);
+    }
+  }
+  o+=TX(x1-2,cy1-hh-6,'t = '+t.toFixed(3)+' s',MUT,9.5,'end');
+  put('sup-dyn',o);
+  drawSupStats();
+}
+function drawSupStats(){
+  const a=ST.W[0], b=ST.W[1], reg=regime();
+  const dW=dOmega(), dK=dKeff(), df=fOf(a)-fOf(b);
+  const u=Math.abs(dK)<1e-9?Infinity:dW/dK;
+  const sp=Math.abs(dK)<1e-9?Infinity:TAU/Math.abs(dK);
+  const tp=Math.abs(dW)<1e-9?Infinity:TAU/Math.abs(dW);
+  let s='';
+  s+=stt('波1　f₁ / T₁',fOf(a).toFixed(3)+' Hz / '+TOf(a).toFixed(4)+' s');
+  s+=stt('波2　f₂ / T₂',fOf(b).toFixed(3)+' Hz / '+TOf(b).toFixed(4)+' s');
+  s+=stt('Δf = f₁ − f₂',df.toFixed(4)+' Hz');
+  s+=stt('Δk = s₁k₁ − s₂k₂',dK.toFixed(4)+' 1/m');
+  s+=stt('包絡線の時間周期 2π/|Δω|',isFinite(tp)?tp.toFixed(4)+' s':'∞（動かない）');
+  s+=stt('包絡線の空間周期 2π/|Δk|',isFinite(sp)?sp.toFixed(4)+' m':'∞（一様）');
+  s+=stt('包絡線の速さ u = Δω/Δk',isFinite(u)?u.toFixed(3)+' m/s':'—');
+  s+=stt('R の最大 / 最小',(a.A+b.A).toFixed(3)+' / '+Math.abs(a.A-b.A).toFixed(3)+' cm');
+  document.getElementById('supstats').innerHTML=s;
+  let n='';
+  if(reg==='stand'){
+    n='向きが逆で振動数が同じなので Δω = 0。Δθ が x だけの関数になって、包絡線が止まる。節の間隔は λ/2 = '+(a.lam/2).toFixed(3)+
+      ' m、節と隣の腹は λ/4 = '+(a.lam/4).toFixed(3)+' m。';
+    if(Math.abs(a.A-b.A)>1e-6) n+=' 振幅がそろっていないので節でも '+Math.abs(a.A-b.A).toFixed(2)+
+      ' cm だけ残る。定在波比は '+((a.A+b.A)/Math.abs(a.A-b.A)).toFixed(2)+'。完全な定常波は振幅が等しいときだけ。';
+    else n+=' 振幅が等しいので節は完全に静止する。';
+  }else if(reg==='beat'){
+    n='同じ向きで振動数が '+Math.abs(df).toFixed(3)+' Hz だけ違う。1点で見ると '+(1/Math.abs(df)).toFixed(3)+
+      ' 秒ごとに強弱が繰り返す。速さが同じなので包絡線も波と同じ '+u.toFixed(2)+' m/s で右へ流れていく。';
+    const rel=Math.abs(df)/((fOf(a)+fOf(b))/2);
+    if(rel>0.15) n+=' ただし Δf が f の '+(rel*100).toFixed(0)+'% もあるので、包絡線と中身の区別がつかなくなっている。うなりとして扱えるのは Δf が数%までの話。';
+  }else if(reg==='add'){
+    const dp=Math.abs(((a.phi-b.phi)%360+360)%360);
+    n='振動数も向きも同じなので、位相差 '+dp.toFixed(0)+'° が場所によらず一定。合成波は同じ形の進行波のままで、振幅だけが '+
+      (a.A+b.A>0?envAt(0,0).toFixed(3):'0')+' cm に変わる。';
+    if(Math.abs(dp-180)<1&&Math.abs(a.A-b.A)<1e-6) n+=' 逆位相で振幅も等しいので完全に打ち消し合う。';
+  }else{
+    n='向きが逆で振動数も違う。Δθ が t と x の両方に依存するので、包絡線が '+(isFinite(u)?u.toFixed(2):'—')+
+      ' m/s で動く。うなりと定常波の中間で、節が横に流れていく。';
+  }
+  document.getElementById('supnote').textContent=n;
+}
+
+/* ---------- うなり（BEATS） ---------- */
+let BT={};
+function beatWindow(){
+  const df=Math.abs(fOf(ST.W[0])-fOf(ST.W[1]));
+  const Tmin=Math.min(TOf(ST.W[0]),TOf(ST.W[1]));
+  if(df<1e-9) return 5*Tmin;
+  return clamp(3/df,4*Tmin,44*Tmin);
+}
+function drawBeatStatic(){
+  const W=narrow?360:760, H=narrow?242:262;
+  setVB('sv-beat',W,H);
+  const x0=narrow?36:48, x1=W-(narrow?10:16), cy=H/2-6, hh=H/2-34;
+  const TB=beatWindow(), ym=yMaxScale(), ay=hh/ym, x=ST.xobs;
+  BT={W:W,H:H,x0:x0,x1:x1,cy:cy,hh:hh,TB:TB,ay:ay};
+  const PX=function(t){ return x0+(x1-x0)*t/TB; };
+  let o='';
+  o+=LN(x0,cy,x1,cy,INK,1)+LN(x0,cy-hh,x0,cy+hh,SOFT,1);
+  for(const q of [1,-1]){
+    o+=LN(x0-3,cy-q*ym*ay,x0+3,cy-q*ym*ay,RULE,1);
+    o+=TX(x0-6,cy-q*ym*ay+3,(q>0?'+':'\u2212')+ym,MUT,8.5,'end');
+  }
+  o+=TX(x0-6,cy+3,'0',MUT,8.5,'end');
+  for(let i=0;i<=6;i++){
+    const X=PX(TB*i/6);
+    o+=LN(X,cy-4,X,cy+4,RULE,1);
+    o+=TX(X,cy+hh+14,(TB*i/6).toFixed(2),MUT,8.5,'middle');
+  }
+  o+=TX(x1,cy+hh+27,'t [s]',MUT,10,'end');
+  o+=TX(x0+3,cy-hh-8,'x = '+x.toFixed(2)+' m での変位',CW1T,10,'start','500');
+  /* 波形と包絡線 */
+  const N=narrow?900:1500, ps=[],pe=[],pen=[];
+  for(let i=0;i<=N;i++){
+    const t=TB*i/N, X=PX(t);
+    ps.push([X,cy-ysum(x,t)*ay]);
+    const e=envAt(x,t);
+    pe.push([X,cy-e*ay]); pen.push([X,cy+e*ay]);
+  }
+  o+=PL(pe,CENV,1.4,'4 3');
+  o+=PL(pen,CENV,1.4,'4 3');
+  o+=PL(ps,CSUM,1.5);
+  /* 極大の間隔 */
+  const mx=extremaT(x,'max',TB);
+  if(mx.length>=2&&mx.length<=20){
+    for(const t of mx) o+=LN(PX(t),cy-hh,PX(t),cy+hh,CENVT,1,'2 4',0.5);
+    o+=DIM(PX(mx[0]),cy-hh+6,PX(mx[1]),CENVT,'うなりの周期 '+(mx[1]-mx[0]).toFixed(4)+' s',9.5);
+  }
+  const mn=extremaT(x,'min',TB);
+  if(mn.length&&mn.length<=20) for(const t of mn) o+=CIRC(PX(t),cy,3,CNOD);
+  put('beat-static',o);
+  drawBeatStats();
+}
+function drawBeatDyn(){
+  const {x0,x1,cy,hh,TB,ay}=BT, x=ST.xobs;
+  const tw=((ST.t%TB)+TB)%TB;
+  const X=x0+(x1-x0)*tw/TB, y=ysum(x,tw);
+  let o=LN(X,cy-hh,X,cy+hh,INK,1,'3 3');
+  o+=AR(X,cy,X,cy-y*ay,CSUM,2.4,7);
+  o+=CIRC(X,cy-y*ay,4.2,CSUM);
+  put('beat-dyn',o);
+}
+function scanBeatPeriod(){
+  /* 包絡線 R(t) の極大を数値で拾って間隔を測る */
+  const x=ST.xobs, TB=beatWindow(), N=12000, h=TB/N;
+  let p0=envAt(x,0), p1=envAt(x,h), peaks=[];
+  for(let i=1;i<N;i++){
+    const p2=envAt(x,(i+1)*h);
+    if(p1>p0&&p1>=p2){
+      const den=p0-2*p1+p2;
+      const d=Math.abs(den)>1e-14?0.5*(p0-p2)/den:0;
+      peaks.push((i+d)*h);
+    }
+    p0=p1; p1=p2;
+  }
+  if(peaks.length<2) return null;
+  let s=0;
+  for(let i=1;i<peaks.length;i++) s+=peaks[i]-peaks[i-1];
+  return {n:peaks.length,mean:s/(peaks.length-1)};
+}
+function drawBeatStats(){
+  const a=ST.W[0], b=ST.W[1], df=fOf(a)-fOf(b), ad=Math.abs(df);
+  const sc=scanBeatPeriod();
+  const rmax=a.A+b.A, rmin=Math.abs(a.A-b.A);
+  let s='';
+  s+=stt('f₁ / f₂',fOf(a).toFixed(4)+' / '+fOf(b).toFixed(4)+' Hz');
+  s+=stt('|Δf|',ad.toFixed(5)+' Hz');
+  s+=stt('うなりの周期 1/|Δf|',ad>1e-9?(1/ad).toFixed(5)+' s':'—');
+  s+=stt('数値で測った極大の間隔',sc?sc.mean.toFixed(5)+' s':'—');
+  const dif=(sc&&ad>1e-9)?Math.abs(sc.mean-1/ad):null;
+  s+=stt('2つの差',dif===null?'—':(dif<1e-12?'< 1×10⁻¹² s':fmt(dif,2)+' s'));
+  s+=stt('平均の振動数 (f₁+f₂)/2',((fOf(a)+fOf(b))/2).toFixed(4)+' Hz');
+  s+=stt('R の最大 / 最小',rmax.toFixed(3)+' / '+rmin.toFixed(3)+' cm');
+  s+=stt('変調の深さ',rmax>0?((rmax-rmin)/(rmax+rmin)*100).toFixed(1)+' %':'—');
+  document.getElementById('beatstats').innerHTML=s;
+  let n;
+  if(ad<1e-9){
+    n='いま2つの振動数が完全に一致しているので、うなりは起きない。波長か速さを少しずらすと強弱が現れる。';
+  }else{
+    n='R の極大どうしの間隔を数値で探すと '+(sc?sc.mean.toFixed(5):'—')+' 秒。1/|Δf| = '+(1/ad).toFixed(5)+
+      ' 秒と一致する。cos(πΔf·t) の振動数は Δf/2 だが、耳が拾うのは絶対値なので周期が半分になり、結局うなりは毎秒 '+ad.toFixed(3)+' 回。';
+    if(rmin>1e-6) n+=' 振幅がそろっていないので、いちばん弱いときでも '+rmin.toFixed(2)+' cm 残る。完全に消えるのは振幅が等しいときだけ。';
+    if(ST.W[0].dir!==ST.W[1].dir) n+=' いまは向きが逆になっているので、この時間波形は観測点の場所によって形が変わる。うなりとして見るなら同じ向きにする。';
+  }
+  document.getElementById('beatnote').textContent=n;
+}
+function buildBeatTable(){
+  const rows=[[440,443],[440,441],[440,440.5],[440,437],[256,258]];
+  let h='<table><caption>音の高さが近いほどうなりは遅くなる。数え間違いを防ぐには 10 秒あたりの回数で測るのが実用的。</caption>'+
+    '<thead><tr><th>f₁ [Hz]</th><th>f₂ [Hz]</th><th class="num">|Δf|</th><th class="num">うなりの周期</th><th class="num">10 秒で何回</th></tr></thead><tbody>';
+  for(const r of rows){
+    const d=Math.abs(r[0]-r[1]);
+    h+='<tr><td>'+r[0]+'</td><td>'+r[1]+'</td><td class="num">'+d+' Hz</td><td class="num">'+(1/d).toFixed(4)+
+       ' s</td><td class="num">'+(10*d).toFixed(0)+'</td></tr>';
+  }
+  h+='</tbody></table>';
+  document.getElementById('beattable').innerHTML=h;
+}
+
+/* ---------- 定常波（STANDING WAVE） ---------- */
+let SW={};
+function drawStandStatic(){
+  const W=narrow?360:740, H=narrow?236:256;
+  setVB('sv-stand',W,H);
+  const x0=narrow?34:46, x1=W-(narrow?10:16), cy=H/2-8, hh=H/2-36;
+  SW={W:W,H:H,x0:x0,x1:x1,cy:cy,hh:hh};
+  const ym=yMaxScale(), ay=hh/ym;
+  let o=axisX(x0,x1,cy,hh,null,true);
+  for(const q of [1,-1]){
+    o+=LN(x0-3,cy-q*ym*ay,x0+3,cy-q*ym*ay,RULE,1);
+    o+=TX(x0-6,cy-q*ym*ay+3,(q>0?'+':'\u2212')+ym,MUT,8.5,'end');
+  }
+  o+=TX(x0-6,cy+3,'0',MUT,8.5,'end');
+  o+=TX(x1,cy+hh+27,'x [m]',MUT,10,'end');
+  /* 1周期を9等分した瞬間の形（時刻を固定して描くので、節が動かないことがそのまま見える） */
+  const Tm=(TOf(ST.W[0])+TOf(ST.W[1]))/2, Ns=narrow?200:340;
+  const PXs=function(x){ return x0+(x1-x0)*x/XMAX; };
+  for(let s=0;s<9;s++){
+    const ts=Tm*s/9, p=[];
+    for(let i=0;i<=Ns;i++){ const x=XMAX*i/Ns; p.push([PXs(x),cy-ysum(x,ts)*ay]); }
+    o+=PL(p,CSUM,1,null,0.22);
+  }
+  put('stand-static',o);
+}
+function drawStandDyn(){
+  const {W,H,x0,x1,cy,hh}=SW, ym=yMaxScale(), ay=hh/ym, t=ST.t;
+  const N=narrow?300:560;
+  const PX=function(x){ return x0+(x1-x0)*x/XMAX; };
+  let o='';
+  const pe=[],pen=[],pc=[];
+  for(let i=0;i<=N;i++){
+    const x=XMAX*i/N, e=envAt(x,t);
+    pe.push([PX(x),cy-e*ay]); pen.push([PX(x),cy+e*ay]);
+    pc.push([PX(x),cy-ysum(x,t)*ay]);
+  }
+  o+=PL(pe,CENV,1.5,'4 3');
+  o+=PL(pen,CENV,1.5,'4 3');
+  o+=PL(pc,CSUM,2.1);
+  const reg=regime();
+  const mn=extremaX(t,'min'), mx=extremaX(t,'max');
+  if(mn.length<=34) for(const x of mn){
+    o+=LN(PX(x),cy-hh,PX(x),cy+hh,CNOD,1,'2 4',0.6);
+    o+=CIRC(PX(x),cy,3.4,CNOD);
+  }
+  if(mx.length<=34) for(const x of mx){
+    o+=LN(PX(x),cy-hh+4,PX(x),cy+hh-4,CENVT,1,'1 4',0.35);
+    o+=CIRC(PX(x),cy-(ST.W[0].A+ST.W[1].A)*ay,3.6,'none',CENVT,1.5);
+  }
+  if(mn.length>=1) o+=TX(PX(mn[0]),cy+hh+13,reg==='stand'?'節':'極小',CNODT,9.5,'middle','500');
+  if(mx.length>=1) o+=TX(PX(mx[0]),cy-hh-4,reg==='stand'?'腹':'極大',CENVT,9.5,'middle','500');
+  if(mn.length>=2) o+=DIM(PX(mn[0]),cy+hh-6,PX(mn[1]),CNODT,'節の間隔 '+(mn[1]-mn[0]).toFixed(4)+' m',9.5);
+  o+=TX(x1-2,cy-hh-6,'t = '+t.toFixed(3)+' s',MUT,9.5,'end');
+  put('stand-dyn',o);
+  /* 数値 */
+  const a=ST.W[0], b=ST.W[1];
+  let s='';
+  s+=stt('判定',REGNM[reg]);
+  s+=stt('節の間隔（実測）',mn.length>=2?(mn[1]-mn[0]).toFixed(5)+' m':'—');
+  s+=stt('λ/2',(a.lam/2).toFixed(5)+' m');
+  s+=stt('節と隣の腹の距離',(mn.length&&mx.length)?Math.abs(mx[0]-mn[0]).toFixed(5)+' m':'—');
+  s+=stt('λ/4',(a.lam/4).toFixed(5)+' m');
+  s+=stt('腹での振幅',(a.A+b.A).toFixed(3)+' cm');
+  s+=stt('節での振幅',Math.abs(a.A-b.A).toFixed(3)+' cm');
+  s+=stt('定在波比',Math.abs(a.A-b.A)>1e-9?((a.A+b.A)/Math.abs(a.A-b.A)).toFixed(2):'∞（完全な定常波）');
+  document.getElementById('standstats').innerHTML=s;
+  let n;
+  if(reg==='stand'){
+    n='9枚の薄い線が節の点で必ず交わっている。どの瞬間でもそこは 0 のまま。腹では線がいちばん広がっていて、'+
+      '全部の線が同じタイミングで最大になる。時間の部分 sin(ωt) と場所の部分 cos(kx) が掛け算に分離しているからこうなる。';
+    if(Math.abs(a.A-b.A)>1e-6) n+=' いまは振幅が違うので、節が完全な 0 にならず薄い線がずれている。定常波に進行波が乗った状態。';
+  }else if(reg==='mixed'){
+    n='向きは逆だが振動数がずれているので、包絡線が横に流れる。節も一緒に動くので、薄い線は1点で交わらない。振動数をそろえると止まる。';
+  }else{
+    n='いまは2つとも同じ向きに進んでいるので定常波にならない。上のボタンで向きを逆にすると、包絡線が止まって節と腹が現れる。';
+  }
+  document.getElementById('standnote').textContent=n;
+}
+
+/* ---------- 時空間の面（自前の3D投影） ---------- */
+let D3={};
+function proj3(p,SC,DIST,CX,CY){
+  const cy=Math.cos(ST.yaw), sy=Math.sin(ST.yaw);
+  const X=p[0]*cy-p[1]*sy, Y=p[0]*sy+p[1]*cy;
+  const cp=Math.cos(ST.pitch), sp=Math.sin(ST.pitch);
+  const D=Y*cp-p[2]*sp, U=Y*sp+p[2]*cp;
+  const k=DIST/(DIST+D);
+  return {x:CX+X*SC*k, y:CY-U*SC*k, d:D};
+}
+function tspan3(){
+  const df=Math.abs(fOf(ST.W[0])-fOf(ST.W[1])), Tmin=Math.min(TOf(ST.W[0]),TOf(ST.W[1]));
+  if(df<1e-9) return 2*(TOf(ST.W[0])+TOf(ST.W[1]))/2;
+  return clamp(1/df,2*Tmin,14*Tmin);
+}
+function draw3DStatic(){
+  const W=narrow?340:560, H=narrow?280:330;
+  setVB('sv-3d',W,H);
+  const SC=narrow?54:76, DIST=10.5, CX=W/2, CY=H*0.50;
+  const TS=tspan3(), ym=yMaxScale();
+  D3={W:W,H:H,SC:SC,DIST:DIST,CX:CX,CY:CY,TS:TS,ym:ym};
+  const SX=2.6, SY=1.9, SZ=0.60;
+  const P=function(x,t,y){ return proj3([(x/XMAX-0.5)*SX,(t/TS-0.5)*SY,y/ym*SZ],SC,DIST,CX,CY); };
+  const items=[];
+  const NT=narrow?9:13, NXS=narrow?34:48, NX=narrow?9:13, NTS=narrow?30:44;
+  /* 底面の枠 */
+  for(let i=0;i<24;i++){
+    const a=P(XMAX*i/24,0,0), b=P(XMAX*(i+1)/24,0,0);
+    items.push({k:(a.d+b.d)/2+0.02,s:LN(a.x,a.y,b.x,b.y,SOFT,1)});
+    const c=P(0,TS*i/24,0), d=P(0,TS*(i+1)/24,0);
+    items.push({k:(c.d+d.d)/2+0.02,s:LN(c.x,c.y,d.x,d.y,SOFT,1)});
+  }
+  /* 等時刻線（x 方向の断面＝そのときの波形） */
+  for(let j=0;j<NT;j++){
+    const t=TS*j/(NT-1);
+    for(let i=0;i<NXS;i++){
+      const x0=XMAX*i/NXS, x1=XMAX*(i+1)/NXS;
+      const a=P(x0,t,ysum(x0,t)), b=P(x1,t,ysum(x1,t));
+      items.push({k:(a.d+b.d)/2,s:LN(a.x,a.y,b.x,b.y,CW1,1.1,null,0.75)});
+    }
+  }
+  /* 等位置線（t 方向の断面＝その点の振動） */
+  for(let j=0;j<NX;j++){
+    const x=XMAX*j/(NX-1);
+    for(let i=0;i<NTS;i++){
+      const t0=TS*i/NTS, t1=TS*(i+1)/NTS;
+      const a=P(x,t0,ysum(x,t0)), b=P(x,t1,ysum(x,t1));
+      items.push({k:(a.d+b.d)/2,s:LN(a.x,a.y,b.x,b.y,CW2,1.1,null,0.6)});
+    }
+  }
+  items.sort(function(p,q){return q.k-p.k;});
+  let o=items.map(function(q){return q.s;}).join('');
+  const ex=P(XMAX*1.06,0,0), et=P(0,TS*1.06,0), ey=P(0,0,ym*1.25);
+  o+=TX(ex.x,ex.y+4,'x',CW1T,12,'middle','500');
+  o+=TX(et.x,et.y+4,'t',CW2T,12,'middle','500');
+  o+=TX(ey.x,ey.y-2,'y',CSUMT,12,'middle','500');
+  o+=TX(8,15,'青 = ある瞬間の波形　緑 = ある1点の振動',MUT,9.5);
+  o+=TX(8,H-8,'t の幅 '+TS.toFixed(3)+' s　x の幅 '+XMAX.toFixed(1)+' m',MUT,9);
+  put('d3-static',o);
+}
+function draw3DDyn(){
+  const {SC,DIST,CX,CY,TS,ym}=D3;
+  const SX=2.6, SY=1.9, SZ=0.60;
+  const P=function(x,t,y){ return proj3([(x/XMAX-0.5)*SX,(t/TS-0.5)*SY,y/ym*SZ],SC,DIST,CX,CY); };
+  const tw=((ST.t%TS)+TS)%TS;
+  let o='';
+  const NA=narrow?40:64;
+  let pts=[];
+  for(let i=0;i<=NA;i++){ const x=XMAX*i/NA, p=P(x,tw,ysum(x,tw)); pts.push([p.x,p.y]); }
+  o+=PL(pts,CSUM,2.3);
+  pts=[];
+  for(let i=0;i<=NA;i++){ const t=TS*i/NA, p=P(ST.xobs,t,ysum(ST.xobs,t)); pts.push([p.x,p.y]); }
+  o+=PL(pts,CNOD,2.1);
+  const p0=P(ST.xobs,tw,ysum(ST.xobs,tw));
+  o+=CIRC(p0.x,p0.y,4.6,INK);
+  put('d3-dyn',o);
+}
+
+/* ---------- 反射（差分法で波動方程式を解く） ---------- */
+const FDL=3.0, FDV=4.0, FDN=400, FDDX=FDL/FDN, FDDT=FDDX/FDV, FDJS=40, FDA=1.0;
+const FDXS=FDJS*FDDX, FDW=0.12, FDP=2*(FDL-FDXS)/FDV+0.55;
+let fy=new Float64Array(FDN+1), fyp=new Float64Array(FDN+1), fyn=new Float64Array(FDN+1), fenv=new Float64Array(FDN+1);
+let fdT=0, fdT0=0;
+function xg(i){ return i*FDDX; }
+function yinc(x,t){
+  const tau=t-(x-FDXS)/FDV;
+  if(ST.src==='sine'){
+    if(tau<=0) return 0;
+    const T=ST.lamR/FDV;
+    const r=tau<2*T?0.5*(1-Math.cos(Math.PI*tau/(2*T))):1;
+    return FDA*r*Math.sin(TAU*tau/T);
+  }
+  const tp=((tau%FDP)+FDP)%FDP, c=0.30*FDP, z=(tp-c)*FDV/FDW;
+  return Math.abs(z)>6?0:FDA*Math.exp(-z*z);
+}
+function resetFD(){
+  fy.fill(0); fyp.fill(0); fyn.fill(0); fenv.fill(0);
+  fdT=0; fdT0=ST.t;
+}
+function fdStep(){
+  for(let i=1;i<FDN;i++) fyn[i]=fy[i+1]+fy[i-1]-fyp[i];
+  fyn[FDJS+1]+=yinc(xg(FDJS),fdT);
+  fyn[FDJS]  -=yinc(xg(FDJS+1),fdT);
+  if(ST.end==='fix') fyn[FDN]=0;
+  else fyn[FDN]=2*fy[FDN-1]-fyp[FDN];
+  fyn[0]=fy[1];
+  const tmp=fyp; fyp=fy; fy=fyn; fyn=tmp;
+  fdT+=FDDT;
+  const dec=Math.exp(-FDDT/(2.2*Math.max(1e-3,ST.lamR/FDV)));
+  const tt=fdT;
+  for(let i=0;i<=FDN;i++){
+    const tot=(i>FDJS)?fy[i]:fy[i]+yinc(xg(i),tt);
+    const a=Math.abs(tot), e=fenv[i]*dec;
+    fenv[i]=a>e?a:e;
+  }
+}
+function fdAdvance(){
+  const target=ST.t-fdT0;
+  if(target<fdT-FDDT*1.5){ resetFD(); return; }
+  let n=0;
+  while(fdT<target&&n<700){ fdStep(); n++; }
+}
+function fdTotal(i){ return (i>FDJS)?fy[i]:fy[i]+yinc(xg(i),fdT); }
+function fdRefl(i){ return (i>FDJS)?fy[i]-yinc(xg(i),fdT):fy[i]; }
+function fdLocal(kind,lo,hi){
+  const i0=Math.max(1,Math.ceil(lo/FDDX)), i1=Math.min(FDN-1,Math.floor(hi/FDDX));
+  let best=-1, bv=(kind==='min')?Infinity:-Infinity;
+  for(let i=i0;i<=i1;i++){
+    const v=fenv[i];
+    if(kind==='min'?(v<fenv[i-1]&&v<=fenv[i+1]):(v>fenv[i-1]&&v>=fenv[i+1])){
+      if(kind==='min'?v<bv:v>bv){ bv=v; best=i; }
+    }
+  }
+  if(best<0) return null;
+  const p0=fenv[best-1], p1=fenv[best], p2=fenv[best+1], den=p0-2*p1+p2;
+  const d=Math.abs(den)>1e-14?0.5*(p0-p2)/den:0;
+  return (best+d)*FDDX;
+}
+function fdAllMin(lo,hi){
+  const i0=Math.max(1,Math.ceil(lo/FDDX)), i1=Math.min(FDN-1,Math.floor(hi/FDDX)), out=[];
+  for(let i=i0;i<=i1;i++){
+    if(fenv[i]<fenv[i-1]&&fenv[i]<=fenv[i+1]){
+      const p0=fenv[i-1],p1=fenv[i],p2=fenv[i+1],den=p0-2*p1+p2;
+      const d=Math.abs(den)>1e-14?0.5*(p0-p2)/den:0;
+      out.push((i+clamp(d,-0.5,0.5))*FDDX);
+    }
+  }
+  return out;
+}
+let RF={};
+function drawReflStatic(){
+  const W=narrow?360:760, H=narrow?286:306;
+  setVB('sv-refl',W,H);
+  const x0=narrow?32:44, x1=W-(narrow?26:34), top=22, gap=narrow?22:26;
+  const hh=(H-top-gap-30)/4;
+  RF={W:W,H:H,x0:x0,x1:x1,cy1:top+hh,cy2:top+3*hh+gap,hh:hh};
+  const {cy1,cy2}=RF;
+  let o='';
+  for(const cy of [cy1,cy2]){
+    o+=LN(x0,cy,x1,cy,INK,1);
+    o+=LN(x0,cy-hh,x0,cy+hh,SOFT,1);
+    for(let i=0;i<=6;i++){
+      const X=x0+(x1-x0)*i/6;
+      o+=LN(X,cy-3,X,cy+3,RULE,1);
+      if(cy===cy2) o+=TX(X,cy+hh+14,(FDL*i/6).toFixed(1),MUT,8.5,'middle');
+    }
+  }
+  o+=TX(x1,cy2+hh+27,'x [m]',MUT,10,'end');
+  o+=TX(x0+3,cy1-hh-6,'入射波と反射波を分けて見る',MUT,10,'start','500');
+  o+=TX(x0+3,cy2-hh-6,'弦に実際に現れる形（合成）',CSUMT,10,'start','500');
+  /* 投入点 */
+  const XS=x0+(x1-x0)*FDXS/FDL;
+  for(const cy of [cy1,cy2]) o+=LN(XS,cy-hh,XS,cy+hh,RULE,1,'2 4');
+  o+=TX(XS+3,cy1+hh-3,'入射波の投入点',MUT,8.5);
+  put('refl-static',o);
+}
+function drawReflDyn(){
+  fdAdvance();
+  const {W,H,x0,x1,cy1,cy2,hh}=RF;
+  const ym=2.35*FDA, ay=hh/ym;
+  const PX=function(x){ return x0+(x1-x0)*x/FDL; };
+  const st=narrow?2:1;
+  const pi=[],pr=[],pt=[],pe=[],pen=[];
+  for(let i=0;i<=FDN;i+=st){
+    const X=PX(xg(i));
+    pi.push([X,cy1-yinc(xg(i),fdT)*ay]);
+    pr.push([X,cy1-fdRefl(i)*ay]);
+    pt.push([X,cy2-fdTotal(i)*ay]);
+    if(ST.src==='sine'){ pe.push([X,cy2-fenv[i]*ay]); pen.push([X,cy2+fenv[i]*ay]); }
+  }
+  let o='';
+  o+=PL(pi,CW1,1.5,'5 3');
+  o+=PL(pr,CW2,1.7);
+  if(ST.src==='sine'){ o+=PL(pe,CENV,1.3,'4 3'); o+=PL(pen,CENV,1.3,'4 3'); }
+  o+=PL(pt,CSUM,2.1);
+  /* 端の描画 */
+  const XE=PX(FDL);
+  for(const cy of [cy1,cy2]){
+    if(ST.end==='fix'){
+      o+=LN(XE,cy-hh-2,XE,cy+hh+2,INK,2.4);
+      for(let i=0;i<8;i++) o+=LN(XE,cy-hh+i*(2*hh/7),XE+7,cy-hh+i*(2*hh/7)+6,MUT,1);
+    }else{
+      o+=LN(XE,cy-hh-2,XE,cy+hh+2,MUT,1.2,'3 3');
+      o+=CIRC(XE,cy-fdTotal(FDN)*ay*(cy===cy2?1:0),5.2,'none',INK,1.8);
+    }
+  }
+  o+=TX(XE+2,cy1-hh-6,ST.end==='fix'?'固定端':'自由端',INK,10,'end','500');
+  /* 節と腹の理論位置 */
+  if(ST.src==='sine'){
+    const lam=ST.lamR, off=(ST.end==='fix')?0:lam/4;
+    for(let m=0;m<12;m++){
+      const xn=FDL-off-m*lam/2;
+      if(xn<FDXS+lam*0.4) break;
+      o+=LN(PX(xn),cy2-hh,PX(xn),cy2+hh,CNOD,1,'2 4',0.5);
+      o+=CIRC(PX(xn),cy2,2.8,CNOD);
+    }
+    const offa=(ST.end==='fix')?lam/4:0;
+    for(let m=0;m<12;m++){
+      const xa=FDL-offa-m*lam/2;
+      if(xa<FDXS+lam*0.4) break;
+      o+=CIRC(PX(xa),cy2-2*FDA*ay,3,'none',CENVT,1.3);
+    }
+    o+=TX(PX(FDL-off)-4,cy2+hh+13,'節',CNODT,9.5,'end','500');
+  }
+  o+=TX(x1-2,cy1-hh-6,'t = '+fdT.toFixed(3)+' s',MUT,9.5,'end');
+  put('refl-dyn',o);
+  drawReflStats();
+}
+function drawReflStats(){
+  const lam=ST.lamR, fix=(ST.end==='fix');
+  let emax=0;
+  for(let i=0;i<=FDN;i++) if(fenv[i]>emax) emax=fenv[i];
+  let nMeas=null, aMeas=null;
+  if(ST.src==='sine'&&emax>1e-6){
+    nMeas=(fenv[FDN]<0.05*emax)?FDL:fdLocal('min',FDL-0.58*lam,FDL-1e-9);
+    aMeas=(fenv[FDN]>0.9*emax)?FDL:fdLocal('max',FDL-0.58*lam,FDL-1e-9);
+  }
+  const mins=(ST.src==='sine')?fdAllMin(FDL-1.3*lam,FDL):[];
+  let gap=null;
+  if(mins.length>=2) gap=mins[mins.length-1]-mins[mins.length-2];
+  let s='';
+  s+=stt('反射係数',fix?'−1（位相が π 反転）':'+1（反転なし）');
+  s+=stt('端の状態',fix?'変位の節':'変位の腹');
+  s+=stt('端から最初の節（理論）',(fix?0:lam/4).toFixed(4)+' m');
+  s+=stt('端から最初の節（数値）',nMeas!==null?(FDL-nMeas).toFixed(4)+' m':'—');
+  s+=stt('端から最初の腹（理論）',(fix?lam/4:0).toFixed(4)+' m');
+  s+=stt('端から最初の腹（数値）',aMeas!==null?(FDL-aMeas).toFixed(4)+' m':'—');
+  s+=stt('節の間隔（数値）',gap!==null?gap.toFixed(4)+' m':'—');
+  s+=stt('λ/2',(lam/2).toFixed(4)+' m');
+  s+=stt('格子 Δx / Δt',FDDX.toFixed(5)+' m / '+FDDT.toFixed(6)+' s');
+  s+=stt('クーラン数 C = vΔt/Δx',(FDV*FDDT/FDDX).toFixed(6));
+  document.getElementById('reflstats').innerHTML=s;
+  let n;
+  if(ST.src==='pulse'){
+    n=fix?'固定端では、戻ってきたパルスが上下ひっくり返っている。壁が弦を引き止める向きに力を返すので、変位の符号が逆になる。境界に課したのは y = 0 だけで、反転しろとは一言も指示していない。'
+          :'自由端では、戻ってきたパルスの向きがそのまま。端に横向きの力が働かないという条件（∂y/∂x = 0）だけを課している。端では入射波と反射波が重なって、一瞬だけ振幅が2倍になる。';
+  }else if(fix){
+    n='入射波（破線）と反射波（実線）を足したものが下のグラフ。端の格子点では包絡線がぴったり 0 のまま動かない。'+
+      (gap!==null?('そこから λ/2 ごとに節が並ぶ。数値で測った節の間隔は '+gap.toFixed(4)+' m で、λ/2 = '+(lam/2).toFixed(4)+
+       ' m との差は '+((Math.abs(gap-lam/2)<1e-9)?'0':fmt(Math.abs(gap-lam/2),2))+' m。格子の刻み Δx = '+FDDX.toFixed(4)+' m より小さい。')
+       :'波が端に届くまで少し待つと、節が並ぶ。');
+  }else{
+    n='端が腹になり、最初の節は λ/4 だけ内側にできる。'+
+      (nMeas!==null?('数値で測ると端から '+(FDL-nMeas).toFixed(4)+' m、理論値 λ/4 = '+(lam/4).toFixed(4)+
+       ' m との差は '+fmt(Math.abs((FDL-nMeas)-lam/4),2)+' m。格子の刻み Δx = '+FDDX.toFixed(4)+' m より小さいところまで合っている。')
+       :'波が端に届くまで少し待つ。')+
+      ' 固定端に切り替えると節の並びが λ/4 だけずれる。';
+  }
+  document.getElementById('reflnote').textContent=n;
+}
+
+/* ---------- 弦の固有振動 ---------- */
+const NMODE=40, NSAMP=220;
+let SINTAB=null;
+function buildSinTab(){
+  SINTAB=[];
+  for(let n=1;n<=NMODE;n++){
+    const a=new Float64Array(NSAMP+1);
+    for(let i=0;i<=NSAMP;i++) a[i]=Math.sin(n*Math.PI*i/NSAMP);
+    SINTAB.push(a);
+  }
+}
+function strV(){ return Math.sqrt(ST.strS/(ST.strRho/1000)); }
+function strF(n){ return n*strV()/(2*ST.strL); }
+function pluckA(n){
+  const p=ST.pluck, s=Math.sin(n*Math.PI*p);
+  return 2*s/(n*n*Math.PI*Math.PI*p*(1-p));
+}
+const SLOWT=1.2;
+function strPhase(n){ return TAU*n*ST.t/SLOWT; }
+let SR={};
+function drawStrStatic(){
+  const W=narrow?360:700, H=narrow?196:216;
+  setVB('sv-str',W,H);
+  const x0=narrow?30:44, x1=W-(narrow?22:34), cy=H/2+2, hh=H/2-42;
+  SR={W:W,H:H,x0:x0,x1:x1,cy:cy,hh:hh};
+  let o='';
+  for(const q of [[x0,1],[x1,-1]]){
+    o+=LN(q[0],cy-hh-14,q[0],cy+hh+14,INK,2.4);
+    for(let i=0;i<9;i++) o+=LN(q[0],cy-hh-12+i*(2*hh+24)/8,q[0]+q[1]*-7,cy-hh-6+i*(2*hh+24)/8,MUT,1);
+  }
+  o+=LN(x0,cy,x1,cy,RULE,1,'3 3');
+  o+=TX(x0,cy+hh+30,'0',MUT,9,'middle');
+  o+=TX(x1,cy+hh+30,'L',MUT,9,'middle');
+  o+=TX((x0+x1)/2,H-6,'両端が固定 → 両端が節',MUT,9,'middle');
+  put('str-static',o);
+}
+function drawStrDyn(){
+  const {W,H,x0,x1,cy,hh}=SR;
+  const PX=function(u){ return x0+(x1-x0)*u; };
+  let o='';
+  if(ST.strSyn){
+    const ay=hh/1.18;
+    const y=new Float64Array(NSAMP+1);
+    for(let n=1;n<=NMODE;n++){
+      const c=pluckA(n)*Math.cos(strPhase(n)), tb=SINTAB[n-1];
+      if(Math.abs(c)<1e-6) continue;
+      for(let i=0;i<=NSAMP;i++) y[i]+=c*tb[i];
+    }
+    const p=[];
+    for(let i=0;i<=NSAMP;i++) p.push([PX(i/NSAMP),cy-y[i]*ay]);
+    /* 初期形（三角形） */
+    o+=PL([[PX(0),cy],[PX(ST.pluck),cy-ay],[PX(1),cy]],MUT,1.2,'4 3');
+    o+=PL(p,CSUM,2.2);
+    o+=CIRC(PX(ST.pluck),cy-ay,3.4,'none',MUT,1.2);
+    o+=TX(PX(ST.pluck),cy-ay-8,'つまんだ点',MUT,9,'middle');
+    o+=TX(x0+4,cy-hh-16,NMODE+' 個の固有振動を足し合わせた形',CSUMT,10,'start','500');
+  }else{
+    const n=ST.strMode, ay=hh/1.12, ph=Math.cos(strPhase(n));
+    const pe=[],pen=[],pc=[];
+    for(let i=0;i<=NSAMP;i++){
+      const u=i/NSAMP, s=Math.sin(n*Math.PI*u);
+      pe.push([PX(u),cy-s*ay]); pen.push([PX(u),cy+s*ay]);
+      pc.push([PX(u),cy-s*ph*ay]);
+    }
+    o+=PL(pe,CENV,1.3,'4 3');
+    o+=PL(pen,CENV,1.3,'4 3');
+    o+=PL(pc,CSUM,2.3);
+    for(let m=0;m<=n;m++){
+      const u=m/n;
+      o+=CIRC(PX(u),cy,3.6,CNOD);
+      if(m<n) o+=CIRC(PX((m+0.5)/n),cy-ay,3.4,'none',CENVT,1.4);
+    }
+    if(n>=1) o+=DIM(PX(0),cy+hh+13,PX(1/n),CNODT,'λ/2 = L/'+n,9.5);
+    o+=TX(x0+4,cy-hh-16,'n = '+n+'　λ = 2L/'+n+' = '+(2*ST.strL/n).toFixed(4)+' m',CSUMT,10,'start','500');
+  }
+  put('str-dyn',o);
+  drawStrStats();
+}
+function drawStrStats(){
+  const v=strV(), n=ST.strMode, f=strF(n), sl=strF(1)*SLOWT;
+  let s='';
+  s+=stt('波の速さ v = √(S/ρ)',v.toFixed(2)+' m/s');
+  s+=stt('基本振動 f₁ = v/2L',strF(1).toFixed(2)+' Hz');
+  if(!ST.strSyn){
+    s+=stt('n = '+n+' の波長 λ',(2*ST.strL/n).toFixed(4)+' m');
+    s+=stt('n = '+n+' の振動数',f.toFixed(2)+' Hz');
+    s+=stt('周期 T',(1/f*1000).toFixed(3)+' ms');
+    s+=stt('節の数 / 腹の数',(n+1)+' / '+n);
+  }else{
+    s+=stt('つまむ位置 p',(ST.pluck*100).toFixed(0)+' % の点');
+    s+=stt('足し合わせた数',NMODE+' モード');
+    s+=stt('第2倍音の相対強度',(Math.abs(pluckA(2)/pluckA(1))*100).toFixed(1)+' %');
+    s+=stt('第3倍音の相対強度',(Math.abs(pluckA(3)/pluckA(1))*100).toFixed(1)+' %');
+  }
+  s+=stt('線密度 ρ',ST.strRho.toFixed(2)+' g/m');
+  s+=stt('再生速度','実時間の 1/'+sl.toFixed(0));
+  document.getElementById('strstats').innerHTML=s;
+  let nt='張力を4倍にすると速さは2倍、振動数も2倍。長さを半分にすると振動数は2倍。太い弦（ρ が大きい）ほど低い音が出る。ギターで低音弦が太いのはこのため。';
+  if(ST.strSyn){
+    const p=ST.pluck, kill=[];
+    for(let q=2;q<=8;q++) if(Math.abs(Math.sin(q*Math.PI*p))<0.02) kill.push(q);
+    nt=kill.length?('つまむ位置が弦長の '+(p*100).toFixed(0)+'% なので、'+kill.join('、')+' 倍音がほぼ消えている。sin(nπp) が 0 になる n が抜ける。')
+      :('つまむ位置が弦長の '+(p*100).toFixed(0)+'% で、いまはどの倍音も残っている。ちょうど 1/2 や 1/3 の位置に合わせると、その次数の倍音が消える。');
+    nt+=' 高次ほど 1/n² で弱まるので、40 モードも足せば元の三角形にほぼ戻る。角のところだけ少しなまるのはギブス現象。';
+  }
+  document.getElementById('strnote').textContent=nt;
+}
+function buildStrTable(){
+  let h='<table><caption>両端固定の弦。倍音がきれいな整数比で並ぶのは、速さが振動数によらないから。</caption>'+
+    '<thead><tr><th>n</th><th class="num">λ = 2L/n</th><th class="num">f = nv/2L</th><th class="num">f/f₁</th><th>節の数</th><th>音程</th></tr></thead><tbody>';
+  const iv=['基本音','1オクターブ上','1オクターブ+5度','2オクターブ上','2オクターブ+長3度'];
+  for(let n=1;n<=5;n++){
+    const cur=(!ST.strSyn&&n===ST.strMode)?' cur':'';
+    h+='<tr class="'+cur.trim()+'"><td>'+n+'</td><td class="num">'+(2*ST.strL/n).toFixed(4)+' m</td><td class="num">'+
+      strF(n).toFixed(2)+' Hz</td><td class="num">'+n+'</td><td>'+(n+1)+'</td><td>'+iv[n-1]+'</td></tr>';
+  }
+  h+='</tbody></table>';
+  document.getElementById('strtable').innerHTML=h;
+}
+function drawSpec(){
+  const W=narrow?340:520, H=narrow?166:178;
+  setVB('sv-spec',W,H);
+  const x0=narrow?32:44, x1=W-14, y1=H-30, y0=20;
+  const NB=12, amps=[];
+  let mx=0;
+  for(let n=1;n<=NB;n++){ const a=Math.abs(pluckA(n)); amps.push(a); if(a>mx) mx=a; }
+  const bw=(x1-x0)/NB*0.62;
+  let o=LN(x0,y1,x1,y1,INK,1)+LN(x0,y0,x0,y1,SOFT,1);
+  for(const q of [0.25,0.5,0.75,1]){
+    o+=LN(x0,y1-(y1-y0)*q,x1,y1-(y1-y0)*q,SOFT,1,'2 5');
+    o+=TX(x0-5,y1-(y1-y0)*q+3,(q*100).toFixed(0)+'%',MUT,8.5,'end');
+  }
+  for(let n=1;n<=NB;n++){
+    const cx=x0+(x1-x0)*(n-0.5)/NB, h=mx>0?(y1-y0)*amps[n-1]/mx:0;
+    const col=(n%2===0)?CW2:CW1;
+    o+='<rect x="'+f1(cx-bw/2)+'" y="'+f1(y1-h)+'" width="'+f1(bw)+'" height="'+f1(Math.max(0.4,h))+'" fill="'+col+'" fill-opacity="0.75"/>';
+    o+=TX(cx,y1+13,String(n),MUT,8.5,'middle');
+    if(Math.abs(Math.sin(n*Math.PI*ST.pluck))<0.02) o+=TX(cx,y1-6,'0',CNODT,9,'middle','500');
+  }
+  o+=TX(x1,y1+26,'倍音の次数 n',MUT,9.5,'end');
+  o+=TX(x0+4,y0-6,'弦長の '+(ST.pluck*100).toFixed(0)+'% でつまんだときの成分（青=奇数、緑=偶数）',MUT,9.5);
+  put('spec-static',o);
+  const zeros=[];
+  for(let n=2;n<=NB;n++) if(Math.abs(Math.sin(n*Math.PI*ST.pluck))<0.02) zeros.push(n);
+  document.getElementById('specnote').textContent=
+    'a_n = 2h/(n²π²p(1−p))·sin(nπp)。高さ h は共通なので、比だけ見れば sin(nπp)/n² で決まる。'+
+    (zeros.length?('いまの位置では '+zeros.join('、')+' 倍音が消えている。'):'いまの位置ではどの倍音も残っている。')+
+    ' ちょうど真ん中でつまむと偶数倍音が全部消え、音が柔らかくなる。ブリッジ近くで弾くと高次まで強く出て硬い音になるのも同じ理屈。';
+}
+
+/* ---------- 気柱 ---------- */
+function sndV(){ return VSND[ST.vsIdx].f(ST.temp); }
+function endCorr(){ return ECORR[ST.ecIdx].k*ST.pipeA; }
+function pipeObj(){ return PIPES.find(function(p){return p.id===ST.pipe;}); }
+function pipeLe(){ const d=endCorr(); return ST.pipeL+(ST.pipe==='open'?2*d:d); }
+function pipeHarm(n){ return pipeObj().harm(n); }
+function pipeLam(n){ const Le=pipeLe(); return ST.pipe==='open'?2*Le/n:4*Le/(2*n-1); }
+function pipeF(n){ return sndV()/pipeLam(n); }
+/* 変位の分布（規格化） */
+function pipeU(x,n){
+  const Le=pipeLe(), d=endCorr();
+  if(ST.pipe==='open') return Math.cos(n*Math.PI*(x+d)/Le);
+  return Math.sin((2*n-1)*Math.PI*x/(2*Le));
+}
+function pipeP(x,n){
+  const Le=pipeLe(), d=endCorr();
+  if(ST.pipe==='open') return Math.sin(n*Math.PI*(x+d)/Le);
+  return Math.cos((2*n-1)*Math.PI*x/(2*Le));
+}
+let PP={};
+function drawPipeStatic(){
+  const W=narrow?360:700, H=narrow?208:226;
+  setVB('sv-pipe',W,H);
+  const d=endCorr(), L=ST.pipeL;
+  const xLo=(ST.pipe==='open'?-d:0)-0.07*L, xHi=L+d+0.07*L;
+  const x0=narrow?26:40, x1=W-(narrow?18:28), cy=H/2, ph=narrow?30:34;
+  PP={W:W,H:H,x0:x0,x1:x1,cy:cy,ph:ph,xLo:xLo,xHi:xHi};
+  const PX=function(x){ return x0+(x1-x0)*(x-xLo)/(xHi-xLo); };
+  let o='';
+  /* 管 */
+  o+=RECT(PX(0),cy-ph,PX(L)-PX(0),2*ph,'#F3F6F4',RULE,1.4);
+  o+=LN(PX(0),cy-ph,PX(L),cy-ph,INK,2);
+  o+=LN(PX(0),cy+ph,PX(L),cy+ph,INK,2);
+  if(ST.pipe==='closed'){
+    o+=LN(PX(0),cy-ph,PX(0),cy+ph,INK,2.4);
+    for(let i=0;i<8;i++) o+=LN(PX(0),cy-ph+i*2*ph/7,PX(0)-7,cy-ph+i*2*ph/7+6,MUT,1);
+    o+=TX(PX(0)-10,cy+ph+16,'閉',INK,10,'middle','500');
+  }
+  /* 実効端 */
+  for(const e of (ST.pipe==='open'?[-d,L+d]:[L+d])){
+    o+=LN(PX(e),cy-ph-8,PX(e),cy+ph+8,CENVT,1.2,'3 3');
+  }
+  if(d>0){
+    if(ST.pipe==='open') o+=DIM(PX(-d),cy-ph-12,PX(0),CENVT,'Δ',9);
+    o+=DIM(PX(L),cy-ph-12,PX(L+d),CENVT,'Δ = '+(d*1000).toFixed(1)+' mm',9);
+  }
+  o+=DIM(PX(0),cy+ph+22,PX(L),MUT,'L = '+L.toFixed(3)+' m',9.5);
+  o+=TX(x1,H-6,'点線は実効的な端。開いた端では腹が管の外に少しはみ出す。',MUT,9,'end');
+  put('pipe-static',o);
+}
+function drawPipeDyn(){
+  const {W,H,x0,x1,cy,ph,xLo,xHi}=PP;
+  const n=ST.pMode, d=endCorr(), L=ST.pipeL, Le=pipeLe();
+  const PX=function(x){ return x0+(x1-x0)*(x-xLo)/(xHi-xLo); };
+  const ay=ph*0.82;
+  const lo=(ST.pipe==='open'?-d:0), hi=L+d;
+  const NS=200, pe=[],pen=[],pc=[];
+  const fn=ST.press?pipeP:pipeU;
+  const cph=Math.cos(TAU*pipeHarm(n)*ST.t/SLOWT);
+  for(let i=0;i<=NS;i++){
+    const x=lo+(hi-lo)*i/NS, u=fn(x,n);
+    pe.push([PX(x),cy-u*ay]); pen.push([PX(x),cy+u*ay]);
+    pc.push([PX(x),cy-u*cph*ay]);
+  }
+  let o='';
+  o+=PL(pe,CENV,1.3,'4 3');
+  o+=PL(pen,CENV,1.3,'4 3');
+  o+=PL(pc,ST.press?CW2:CSUM,2.3);
+  /* 節と腹 */
+  const NN=600;
+  let prev=fn(lo,n), px=lo;
+  for(let i=1;i<=NN;i++){
+    const x=lo+(hi-lo)*i/NN, u=fn(x,n);
+    if(prev===0||u*prev<0){
+      const xz=px+(x-px)*Math.abs(prev)/(Math.abs(prev)+Math.abs(u));
+      o+=CIRC(PX(xz),cy,3.4,CNOD);
+      o+=LN(PX(xz),cy-ph,PX(xz),cy+ph,CNOD,1,'2 4',0.5);
+    }
+    prev=u; px=x;
+  }
+  const NA2=600;
+  let a0=Math.abs(fn(lo,n)), a1=Math.abs(fn(lo+(hi-lo)/NA2,n));
+  for(let i=1;i<NA2;i++){
+    const x=lo+(hi-lo)*i/NA2, a2=Math.abs(fn(lo+(hi-lo)*(i+1)/NA2,n));
+    if(a1>a0&&a1>=a2&&a1>0.9) o+=CIRC(PX(x),cy-ay,3.6,'none',CENVT,1.4);
+    a0=a1; a1=a2;
+  }
+  if(Math.abs(fn(lo,n))>0.985) o+=CIRC(PX(lo),cy-ay,3.6,'none',CENVT,1.4);
+  if(Math.abs(fn(hi,n))>0.985) o+=CIRC(PX(hi),cy-ay,3.6,'none',CENVT,1.4);
+  o+=TX(x0+2,18,(ST.press?'圧力':'変位')+'の分布　n = '+n+'（第 '+pipeHarm(n)+' 倍音）',ST.press?CW2T:CSUMT,10,'start','500');
+  put('pipe-dyn',o);
+  drawPipeStats();
+}
+function drawPipeStats(){
+  const n=ST.pMode, v=sndV(), d=endCorr(), Le=pipeLe(), f=pipeF(n);
+  const Le0=ST.pipeL, f0=ST.pipe==='open'?n*v/(2*Le0):(2*n-1)*v/(4*Le0);
+  const vt=331.5+0.6*ST.temp, va=V0ADIA*Math.sqrt(1+ST.temp/T0K);
+  let s='';
+  s+=stt('音速 v（'+VSND[ST.vsIdx].nm+'）',v.toFixed(3)+' m/s');
+  s+=stt('教科書式との差',((vt/v-1)*100).toFixed(3)+' %');
+  s+=stt('開口端補正 Δ',(d*1000).toFixed(2)+' mm');
+  s+=stt('実効長 L'+'e',Le.toFixed(4)+' m');
+  s+=stt('波長 λ',pipeLam(n).toFixed(4)+' m');
+  s+=stt('共鳴振動数 f',f.toFixed(2)+' Hz');
+  s+=stt('補正なしなら',f0.toFixed(2)+' Hz');
+  s+=stt('補正の効き',((f/f0-1)*100).toFixed(2)+' %');
+  document.getElementById('pipestats').innerHTML=s;
+  const P=pipeObj();
+  let nt=P.desc+' '+(ST.press?'圧力で見ると節と腹が入れ替わる。開口端は圧力の節（大気圧のまま）、閉端は圧力の腹。':'開口端が変位の腹、閉端が変位の節。');
+  nt+=' 音速の式を教科書の 331.5+0.6t に切り替えると振動数は '+Math.abs((vt/v-1)*100).toFixed(3)+
+      '% しか動かない。一方で開口端補正を無視すると '+Math.abs((f/f0-1)*100).toFixed(2)+'% ずれる。'+
+      '実験値と合わないときに疑うべきはこちら。';
+  document.getElementById('pipenote').textContent=nt;
+}
+function buildPipeTable(){
+  const v=sndV(), Le=pipeLe(), P=pipeObj();
+  let h='<table><caption>'+P.nm+'（L = '+ST.pipeL.toFixed(3)+' m、Δ = '+(endCorr()*1000).toFixed(2)+
+    ' mm、v = '+v.toFixed(2)+' m/s）。倍音の比は '+P.ratio+'。</caption>'+
+    '<thead><tr><th>n</th><th>倍音</th><th class="num">λ</th><th class="num">f</th><th class="num">補正なし</th><th class="num">ずれ</th></tr></thead><tbody>';
+  for(let n=1;n<=5;n++){
+    const lam=pipeLam(n), f=v/lam;
+    const f0=ST.pipe==='open'?n*v/(2*ST.pipeL):(2*n-1)*v/(4*ST.pipeL);
+    h+='<tr class="'+(n===ST.pMode?'cur':'')+'"><td>'+n+'</td><td>第 '+pipeHarm(n)+' 倍音</td><td class="num">'+
+      lam.toFixed(4)+' m</td><td class="num">'+f.toFixed(2)+' Hz</td><td class="num">'+f0.toFixed(2)+
+      ' Hz</td><td class="num">'+((f/f0-1)*100).toFixed(2)+'%</td></tr>';
+  }
+  h+='</tbody></table>';
+  document.getElementById('pipetable').innerHTML=h;
+}
+function buildResCalc(){
+  const v=sndV(), d=endCorr(), f=500;
+  const lam=v/f, L1=lam/4-d, L2=3*lam/4-d;
+  const lamM=2*(L2-L1), dM=(L2-3*L1)/2;
+  let h='<table><caption>いまの音速と開口端補正から、振動数 500 Hz の音叉で共鳴実験をしたときの数値を逆算したもの。</caption><tbody>'+
+    '<tr><td>音叉の振動数 f</td><td class="num">'+f+' Hz</td></tr>'+
+    '<tr><td>1回目の共鳴 L₁</td><td class="num">'+(L1*1000).toFixed(1)+' mm</td></tr>'+
+    '<tr><td>2回目の共鳴 L₂</td><td class="num">'+(L2*1000).toFixed(1)+' mm</td></tr>'+
+    '<tr class="hi"><td>λ = 2(L₂−L₁)</td><td class="num">'+(lamM*1000).toFixed(1)+' mm</td></tr>'+
+    '<tr class="hi"><td>v = fλ</td><td class="num">'+(f*lamM).toFixed(2)+' m/s</td></tr>'+
+    '<tr class="hi"><td>Δ = (L₂−3L₁)/2</td><td class="num">'+(dM*1000).toFixed(2)+' mm</td></tr>'+
+    '<tr><td>もとの Δ</td><td class="num">'+(d*1000).toFixed(2)+' mm</td></tr></tbody></table>';
+  document.getElementById('rescalc').innerHTML=h;
+}
+
+/* ---------- UI の組み立て ---------- */
+function buildPresets(){
+  const box=document.getElementById('presetsel'); box.innerHTML='';
+  for(const p of PRESETS){
+    const b=document.createElement('button');
+    b.className='btn sm'; b.textContent=p.nm;
+    b.addEventListener('click',function(){ applyPreset(p); });
+    box.appendChild(b);
+  }
+}
+function applyPreset(p){
+  for(let i=0;i<2;i++){
+    ST.W[i].A=p.w[i].A; ST.W[i].lam=p.w[i].lam; ST.W[i].v=p.w[i].v;
+    ST.W[i].phi=p.w[i].phi; ST.W[i].dir=p.w[i].dir;
+  }
+  onParam();
+}
+function buildWaveUI(){
+  const host=document.getElementById('wsliders'); host.innerHTML='';
+  for(let i=0;i<2;i++){
+    const col=document.createElement('div');
+    col.className='wblk';
+    col.innerHTML='<div class="hd"><span class="sw" style="background:'+(i?CW2:CW1)+'"></span>波'+(i+1)+'</div>'+
+      '<div id="wsl'+i+'"></div>'+
+      '<div class="ctl"><span class="lab">向き</span><span class="btnrow" id="wdir'+i+'"></span></div>'+
+      '<div class="der" id="wder'+i+'"></div>';
+    host.appendChild(col);
+  }
+  for(let i=0;i<2;i++){
+    (function(j){
+      addSlider('wsl'+j,'sA'+j,'振幅 A',0,200,1,function(){return ST.W[j].A*100;},function(v){ST.W[j].A=v/100;},function(v){return (v/100).toFixed(2);},'cm');
+      addSlider('wsl'+j,'sL'+j,'波長 λ',35,200,1,function(){return ST.W[j].lam*100;},function(v){ST.W[j].lam=v/100;},function(v){return (v/100).toFixed(2);},'m');
+      addSlider('wsl'+j,'sV'+j,'速さ v',10,200,1,function(){return ST.W[j].v*10;},function(v){ST.W[j].v=v/10;},function(v){return (v/10).toFixed(1);},'m/s');
+      addSlider('wsl'+j,'sP'+j,'初期位相 φ',-180,180,1,function(){return ST.W[j].phi;},function(v){ST.W[j].phi=v;},function(v){return v.toFixed(0);},'°');
+      const box=document.getElementById('wdir'+j);
+      for(const d of [[1,'右 →'],[-1,'← 左']]){
+        const b=document.createElement('button');
+        b.className='btn sm'; b.textContent=d[1]; b.setAttribute('data-d',d[0]);
+        b.addEventListener('click',function(){ ST.W[j].dir=d[0]; onParam(); });
+        box.appendChild(b);
+      }
+    })(i);
+  }
+}
+function syncWaveUI(){
+  for(let i=0;i<2;i++){
+    for(const b of document.getElementById('wdir'+i).children)
+      b.classList.toggle('on',+b.getAttribute('data-d')===ST.W[i].dir);
+    const w=ST.W[i];
+    document.getElementById('wder'+i).innerHTML=
+      'f = v/λ = '+fOf(w).toFixed(3)+' Hz　T = '+TOf(w).toFixed(4)+' s<br>'+
+      'k = 2π/λ = '+kOf(w).toFixed(3)+' 1/m　ω = '+omOf(w).toFixed(2)+' rad/s';
+  }
+}
+function buildStrUI(){
+  const box=document.getElementById('modesel'); box.innerHTML='';
+  for(let n=1;n<=5;n++){
+    const b=document.createElement('button');
+    b.className='btn'; b.textContent='n = '+n; b.setAttribute('data-m',n);
+    b.addEventListener('click',function(){ ST.strMode=n; ST.strSyn=false; syncButtons(); drawStrDyn(); buildStrTable(); });
+    box.appendChild(b);
+  }
+  const b2=document.createElement('button');
+  b2.className='btn'; b2.textContent='はじいた形'; b2.setAttribute('data-m','syn');
+  b2.addEventListener('click',function(){ ST.strSyn=true; syncButtons(); drawStrDyn(); buildStrTable(); });
+  box.appendChild(b2);
+  addSlider('strparams','sSL','弦の長さ L',20,120,1,function(){return ST.strL*100;},function(v){ST.strL=v/100;},function(v){return (v/100).toFixed(2);},'m',onParamStr);
+  addSlider('strparams','sSS','張力 S',5,300,1,function(){return ST.strS;},function(v){ST.strS=v;},function(v){return v.toFixed(0);},'N',onParamStr);
+  addSlider('strparams','sSR','線密度 ρ',5,500,1,function(){return ST.strRho*100;},function(v){ST.strRho=v/100;},function(v){return (v/100).toFixed(2);},'g/m',onParamStr);
+  addSlider('strparams','sSP','つまむ位置',5,95,1,function(){return ST.pluck*100;},function(v){ST.pluck=v/100;},function(v){return v.toFixed(0);},'%',onParamStr);
+}
+function buildPipeUI(){
+  const box=document.getElementById('pipesel'); box.innerHTML='';
+  for(const p of PIPES){
+    const b=document.createElement('button');
+    b.className='btn'; b.textContent=p.nm; b.setAttribute('data-p',p.id);
+    b.addEventListener('click',function(){ ST.pipe=p.id; syncButtons(); onParamPipe(); });
+    box.appendChild(b);
+  }
+  const box2=document.getElementById('pmodesel'); box2.innerHTML='';
+  for(let n=1;n<=5;n++){
+    const b=document.createElement('button');
+    b.className='btn sm'; b.textContent='n = '+n; b.setAttribute('data-n',n);
+    b.addEventListener('click',function(){ ST.pMode=n; syncButtons(); onParamPipe(); });
+    box2.appendChild(b);
+  }
+  addSlider('pipeparams','sPL','管の長さ L',10,150,1,function(){return ST.pipeL*100;},function(v){ST.pipeL=v/100;},function(v){return (v/100).toFixed(2);},'m',onParamPipe);
+  addSlider('pipeparams','sPA','管の半径 a',5,60,1,function(){return ST.pipeA*1000;},function(v){ST.pipeA=v/1000;},function(v){return v.toFixed(0);},'mm',onParamPipe);
+  addSlider('pipeparams','sPT','温度',-20,40,1,function(){return ST.temp;},function(v){ST.temp=v;},function(v){return v.toFixed(0);},'°C',onParamPipe);
+  const r1=document.createElement('div'); r1.className='ctl';
+  r1.innerHTML='<span class="lab">開口端補正</span><span class="btnrow" id="ecsel"></span>';
+  document.getElementById('pipeparams').appendChild(r1);
+  ECORR.forEach(function(e,i){
+    const b=document.createElement('button');
+    b.className='btn sm'; b.textContent=e.nm; b.setAttribute('data-e',i);
+    b.addEventListener('click',function(){ ST.ecIdx=i; syncButtons(); onParamPipe(); });
+    document.getElementById('ecsel').appendChild(b);
+  });
+  const r2=document.createElement('div'); r2.className='ctl';
+  r2.innerHTML='<span class="lab">音速の式</span><span class="btnrow" id="vssel"></span>';
+  document.getElementById('pipeparams').appendChild(r2);
+  VSND.forEach(function(e,i){
+    const b=document.createElement('button');
+    b.className='btn sm'; b.textContent=e.nm; b.setAttribute('data-vs',i);
+    b.addEventListener('click',function(){ ST.vsIdx=i; syncButtons(); onParamPipe(); buildConstNote(); });
+    document.getElementById('vssel').appendChild(b);
+  });
+}
+function syncButtons(){
+  const T=function(id,on){ const e=document.getElementById(id); if(e) e.classList.toggle('on',on); };
+  T('e-fix',ST.end==='fix'); T('e-free',ST.end==='free');
+  T('s-sine',ST.src==='sine'); T('s-pulse',ST.src==='pulse');
+  T('p-disp',!ST.press); T('p-press',ST.press);
+  for(const b of document.getElementById('modesel').children){
+    const m=b.getAttribute('data-m');
+    b.classList.toggle('on',m==='syn'?ST.strSyn:(!ST.strSyn&&+m===ST.strMode));
+  }
+  for(const b of document.getElementById('pipesel').children) b.classList.toggle('on',b.getAttribute('data-p')===ST.pipe);
+  for(const b of document.getElementById('pmodesel').children) b.classList.toggle('on',+b.getAttribute('data-n')===ST.pMode);
+  const ec=document.getElementById('ecsel'); if(ec) for(const b of ec.children) b.classList.toggle('on',+b.getAttribute('data-e')===ST.ecIdx);
+  const vs=document.getElementById('vssel'); if(vs) for(const b of vs.children) b.classList.toggle('on',+b.getAttribute('data-vs')===ST.vsIdx);
+}
+function buildApprox(){
+  let h='<table><thead><tr><th>近似</th><th>効く場所</th><th>ずれの大きさ</th></tr></thead><tbody>';
+  for(const r of APPROX) h+='<tr><td>'+r[0]+'</td><td>'+r[1]+'</td><td>'+r[2]+'</td></tr>';
+  h+='</tbody></table>';
+  document.getElementById('apptable').innerHTML=h;
+}
+function buildConstNote(){
+  const t=ST.temp, va=V0ADIA*Math.sqrt(1+t/T0K), vt=331.5+0.6*t;
+  document.getElementById('constnote').innerHTML=
+    '気柱の計算で使っている音速は「'+VSND[ST.vsIdx].nm+'」。'+VSND[ST.vsIdx].note+'。いまの温度 '+t+
+    '°C では '+sndV().toFixed(3)+' m/s になる。断熱式だと '+va.toFixed(3)+' m/s、教科書式だと '+vt.toFixed(3)+
+    ' m/s で、差は '+Math.abs((vt/va-1)*100).toFixed(3)+'%。0°C の基準値そのものは断熱式が '+V0ADIA.toFixed(2)+
+    ' m/s、実測が 331.29 m/s、教科書が 331.5 m/s で、教科書だけ少し高い。';
+}
+
+/* ---------- 更新 ---------- */
+function onParam(){ syncSliders(); syncWaveUI(); refresh(); }
+function onXobs(){ syncSliders(); drawMap(); drawBeatStatic(); drawBeatDyn(); draw3DDyn(); }
+function onParamStr(){ syncSliders(); drawStrStatic(); drawStrDyn(); buildStrTable(); drawSpec(); }
+function onParamPipe(){ syncSliders(); drawPipeStatic(); drawPipeDyn(); buildPipeTable(); buildResCalc(); }
+function onParamRefl(){ syncSliders(); resetFD(); drawReflStatic(); drawReflDyn(); }
+function refresh(){
+  syncSliders(); syncWaveUI(); syncTransport(); syncButtons();
+  drawSupStatic(); drawBeatStatic(); drawStandStatic(); draw3DStatic();
+  drawReflStatic(); drawStrStatic(); drawPipeStatic();
+  buildBeatTable(); buildStrTable(); drawSpec(); buildPipeTable(); buildResCalc();
+  buildApprox(); buildConstNote();
+  dyn();
+}
+function dyn(){
+  drawMap(); drawSupDyn(); drawBeatDyn(); drawStandDyn(); draw3DDyn();
+  drawReflDyn(); drawStrDyn(); drawPipeDyn();
+}
+
+/* ---------- 操作 ---------- */
+function bindClick(id,fn){ const e=document.getElementById(id); if(e) e.addEventListener('click',fn); }
+bindClick('e-fix',function(){ ST.end='fix'; syncButtons(); onParamRefl(); });
+bindClick('e-free',function(){ ST.end='free'; syncButtons(); onParamRefl(); });
+bindClick('s-sine',function(){ ST.src='sine'; syncButtons(); onParamRefl(); });
+bindClick('s-pulse',function(){ ST.src='pulse'; syncButtons(); onParamRefl(); });
+bindClick('b-reflreset',function(){ onParamRefl(); });
+bindClick('p-disp',function(){ ST.press=false; syncButtons(); drawPipeDyn(); });
+bindClick('p-press',function(){ ST.press=true; syncButtons(); drawPipeDyn(); });
+bindClick('b-beatpre',function(){ applyPreset(PRESETS[0]); });
+bindClick('b-standpre',function(){ applyPreset(PRESETS[2]); });
+bindClick('b-standpre2',function(){ applyPreset(PRESETS[3]); });
+function setView(id,yaw,pitch){
+  ST.yaw=yaw; ST.pitch=pitch;
+  for(const q of ['v-front','v-side','v-top','v-obl']) document.getElementById(q).classList.toggle('on',q===id);
+  draw3DStatic(); draw3DDyn();
+}
+bindClick('v-front',function(){ setView('v-front',0,0); });
+bindClick('v-side',function(){ setView('v-side',Math.PI/2,0); });
+bindClick('v-top',function(){ setView('v-top',0,1.5); });
+bindClick('v-obl',function(){ setView('v-obl',-0.55,0.34); });
+
+/* 3D をドラッグして回す */
+(function(){
+  const sv=document.getElementById('sv-3d');
+  let d=false,px=0,py=0;
+  sv.addEventListener('pointerdown',function(e){ d=true;px=e.clientX;py=e.clientY;sv.setPointerCapture(e.pointerId);sv.classList.add('drag');e.preventDefault(); });
+  sv.addEventListener('pointermove',function(e){
+    if(!d) return;
+    ST.yaw+=(e.clientX-px)*0.008;
+    ST.pitch=clamp(ST.pitch+(e.clientY-py)*0.006,-1.5,1.5);
+    px=e.clientX; py=e.clientY;
+    for(const q of ['v-front','v-side','v-top','v-obl']) document.getElementById(q).classList.remove('on');
+    draw3DStatic(); draw3DDyn();
+  });
+  const up=function(){ d=false; sv.classList.remove('drag'); };
+  sv.addEventListener('pointerup',up);
+  sv.addEventListener('pointercancel',up);
+})();
+
+let rt=null;
+window.addEventListener('resize',function(){
+  clearTimeout(rt);
+  rt=setTimeout(function(){
+    const n=window.innerWidth<=430;
+    if(n!==narrow){ narrow=n; refresh(); }
+  },150);
+});
+
+/* ---------- 時間を進める ---------- */
+let last=0;
+function frame(ts){
+  if(ST.playing){
+    if(last) ST.t+=Math.min(0.05,(ts-last)/1000)*ST.speed;
+    last=ts; dyn();
+  }else last=ts;
+  requestAnimationFrame(frame);
+}
+
+/* ---------- 起動 ---------- */
+buildSinTab();
+buildFx();
+buildPresets();
+buildWaveUI();
+buildTransport('transport1');
+buildTransport('transport2');
+buildStrUI();
+buildPipeUI();
+addSlider('xobshost','sXO','観測点 x',0,400,1,function(){return ST.xobs*100;},function(v){ST.xobs=v/100;},function(v){return (v/100).toFixed(2);},'m',onXobs);
+addSlider('xobshost2','sXO2','観測点 x',0,400,1,function(){return ST.xobs*100;},function(v){ST.xobs=v/100;},function(v){return (v/100).toFixed(2);},'m',onXobs);
+addSlider('lamRhost','sLR','波長 λ',20,90,1,function(){return ST.lamR*100;},function(v){ST.lamR=v/100;},function(v){return (v/100).toFixed(2);},'m',onParamRefl);
+resetFD();
+setHl(null);
+refresh();
+requestAnimationFrame(frame);
+</script>
+</body>
+</html>

@@ -1,0 +1,219 @@
+<!doctype html>
+<html lang="ja">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>高校化学・物理 インタラクティブ教材</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500&family=IBM+Plex+Sans+JP:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+*{box-sizing:border-box}
+:root{
+  --ink:#16232B; --muted:#5E6E76; --paper:#EDF1EF; --surface:#FFFFFF;
+  --rule:#D6DDDA; --rule-soft:#E8EDEB;
+  --c0:#B87A16; --c0t:#8A5A0C;
+  --c1:#158A6D; --c1t:#0D6A53;
+  --c2:#2457A6; --c2t:#1B4380;
+  --c3:#6E3AA7; --c3t:#572D85;
+  --c4:#A82A6A; --c4t:#831F52;
+  --c5:#3B6E1E; --c5t:#2A5215;
+  --sans:"IBM Plex Sans JP","Hiragino Sans","Yu Gothic UI",system-ui,sans-serif;
+  --mono:"IBM Plex Mono",ui-monospace,SFMono-Regular,Menlo,monospace;
+}
+html,body{margin:0;padding:0}
+body{
+  background:var(--paper); color:var(--ink);
+  font-family:var(--sans);
+  font-size:13.5px; line-height:1.75; -webkit-text-size-adjust:100%;
+}
+.wrap{max-width:1200px;margin:0 auto;padding:20px 14px 72px}
+.mono{font-family:var(--mono);font-variant-numeric:tabular-nums}
+
+.eyebrow{display:flex;align-items:center;gap:10px;font-family:var(--mono);font-size:11.5px;letter-spacing:.14em;color:var(--muted)}
+.eyebrow::after{content:"";flex:1;height:1px;background:var(--rule)}
+h1{font-size:22px;font-weight:600;letter-spacing:.01em;margin:8px 0 2px;line-height:1.45}
+h2{font-size:15px;font-weight:600;letter-spacing:.01em;margin:0}
+h3{font-size:13.5px;font-weight:600;letter-spacing:.01em;margin:0 0 6px;line-height:1.6}
+p{margin:0 0 8px}
+p:last-child{margin-bottom:0}
+.note{color:var(--muted);font-size:12px;line-height:1.7}
+.sub{color:var(--muted);font-size:11.5px;font-family:var(--mono);letter-spacing:.06em}
+
+/* ---- header ---- */
+header{margin-bottom:14px}
+.counts{display:flex;flex-wrap:wrap;gap:4px 14px;margin-top:8px;font-family:var(--mono);font-size:11.5px;letter-spacing:.06em;color:var(--muted)}
+
+/* ---- toolbar ---- */
+.toolbar{background:var(--surface);border:1px solid var(--rule);border-radius:3px;padding:14px;margin-bottom:14px}
+.toolrow{display:flex;flex-wrap:wrap;align-items:center;gap:8px}
+.toolrow + .toolrow{margin-top:10px}
+.lab{font-family:var(--mono);font-size:11px;letter-spacing:.1em;color:var(--muted);white-space:nowrap}
+
+.btn{font-family:var(--sans);font-size:12.5px;line-height:1.4;border:1px solid var(--rule);background:var(--surface);color:var(--ink);border-radius:2px;padding:6px 10px;cursor:pointer}
+.btn:hover{border-color:#B4C0BC}
+.btn[aria-pressed="true"]{background:var(--ink);color:#fff;border-color:var(--ink)}
+.btn .n{font-family:var(--mono);font-variant-numeric:tabular-nums;font-size:11px;letter-spacing:.04em;margin-left:6px;color:var(--muted)}
+.btn[aria-pressed="true"] .n{color:#C8D2CE}
+.btnrow{display:flex;flex-wrap:wrap;gap:6px}
+
+input[type=search]{
+  font-family:var(--sans);font-size:13.5px;line-height:1.5;
+  border:1px solid var(--rule);border-radius:2px;padding:7px 9px;
+  background:#fff;color:var(--ink);
+  flex:1 1 220px;min-width:0;-webkit-appearance:none;appearance:none;
+}
+input[type=search]::placeholder{color:#9AA8AC}
+
+:focus-visible{outline:2px solid var(--c2);outline-offset:1px}
+input[type=search]:focus-visible{outline:2px solid var(--c2);outline-offset:-1px}
+
+.status{margin-top:10px;font-family:var(--mono);font-size:11.5px;letter-spacing:.06em;color:var(--muted)}
+
+/* ---- groups ---- */
+.group{margin:0 0 20px}
+.grouphead{display:flex;align-items:center;gap:10px;margin:0 0 10px}
+.grouphead .sep{color:var(--muted);font-weight:400;margin:0 6px}
+.grouphead::after{content:"";flex:1;height:1px;background:var(--rule)}
+.grouphead .gn{font-family:var(--mono);font-size:11px;font-weight:400;letter-spacing:.1em;color:var(--muted);white-space:nowrap}
+
+.cards{display:grid;grid-template-columns:1fr;gap:10px;align-items:start}
+
+.card{background:var(--surface);border:1px solid var(--rule);border-radius:3px;padding:14px}
+.card a{color:var(--ink);text-decoration:none;border-bottom:1px solid var(--rule)}
+.card a:hover{border-bottom-color:var(--ink)}
+.card .s{color:var(--ink);font-size:12.5px;line-height:1.7;margin:0 0 8px}
+.card .u{color:var(--muted);font-size:11.5px;font-family:var(--mono);letter-spacing:.04em;line-height:1.6;margin:0 0 8px}
+.tags{display:flex;flex-wrap:wrap;gap:4px;margin:0}
+.tag{display:inline-block;font-family:var(--mono);font-size:10.5px;letter-spacing:.06em;line-height:1.6;color:var(--muted);background:var(--rule-soft);border:1px solid var(--rule-soft);border-radius:2px;padding:1px 6px}
+.tag.adv{color:var(--c4t);background:#fff;border-color:var(--c4)}
+.tag.type{color:var(--c1t);background:#fff;border-color:var(--c1)}
+.rel{color:var(--muted);font-size:11.5px;line-height:1.6;margin:8px 0 0}
+.rel a{color:var(--muted);text-decoration:none;border-bottom:1px solid var(--rule-soft)}
+.rel a:hover{border-bottom-color:var(--muted)}
+
+/* ---- filtering ---- */
+.card.off,.group.off{display:none}
+
+.empty{background:var(--surface);border:1px solid var(--rule);border-radius:3px;padding:14px;color:var(--muted);font-size:12.5px;line-height:1.7}
+.empty.off{display:none}
+
+footer{margin-top:6px;padding-top:12px;border-top:1px solid var(--rule);color:var(--muted);font-size:11.5px;font-family:var(--mono);letter-spacing:.06em}
+
+@media (min-width:768px){
+  .cards{grid-template-columns:repeat(2,1fr)}
+}
+@media (min-width:1200px){
+  .cards{grid-template-columns:repeat(3,1fr)}
+}
+@media (max-width:430px){
+  body{font-size:13px}
+  .wrap{padding:14px 10px 56px}
+  .toolbar,.card,.empty{padding:11px}
+  h1{font-size:19px}
+  .btn{padding:6px 8px;font-size:12px}
+  input[type=search]{flex:1 1 100%;font-size:16px}
+}
+@media (prefers-reduced-motion:reduce){
+  *,*::before,*::after{transition:none!important;animation:none!important;scroll-behavior:auto!important}
+}
+</style>
+</head>
+<body>
+<div class="wrap">
+
+<header>
+  <div class="eyebrow">INTERACTIVE MATERIALS</div>
+  <h1>高校化学・物理 インタラクティブ教材</h1>
+  <p class="note">数式を動かして確かめる、高校化学と物理の教材{{COUNT_ALL}}本</p>
+  <div class="counts"><span>化学 {{COUNT_CHEM}} 本</span><span>物理 {{COUNT_PHYS}} 本</span></div>
+</header>
+
+<div class="toolbar">
+  <div class="toolrow">
+    <span class="lab" id="lab-subject">科目</span>
+    <div class="btnrow" role="group" aria-labelledby="lab-subject">
+      <button type="button" class="btn" data-subject="all" aria-pressed="true">すべて<span class="n">{{COUNT_ALL}}</span></button>
+      <button type="button" class="btn" data-subject="chemistry" aria-pressed="false">化学<span class="n">{{COUNT_CHEM}}</span></button>
+      <button type="button" class="btn" data-subject="physics" aria-pressed="false">物理<span class="n">{{COUNT_PHYS}}</span></button>
+    </div>
+  </div>
+  <div class="toolrow">
+    <label class="lab" for="q">検索</label>
+    <input type="search" id="q" placeholder="単元名・キーワードで絞り込む（例: pH、電位、格子）" autocomplete="off">
+  </div>
+  <p class="status mono" id="status" role="status" aria-live="polite">{{COUNT_ALL}} 件</p>
+</div>
+
+<main id="list">
+{{LIST}}
+</main>
+
+<div class="empty off" id="empty">
+  該当する教材がありません。検索語を短くしてください（例:「中和滴定曲線」→「滴定」）。
+</div>
+
+<footer>更新日 {{BUILD_DATE}}</footer>
+
+</div>
+
+<script id="manifest" type="application/json">{{MANIFEST_JSON}}</script>
+<script>
+(function(){
+  "use strict";
+  var manifest = JSON.parse(document.getElementById("manifest").textContent);
+
+  // 検索用インデックス: title / heading / summary / topics / unit の全文
+  var index = Object.create(null);
+  manifest.forEach(function(m){
+    index[m.id] = [m.title, m.heading, m.summary, m.unit]
+      .concat(m.topics || [])
+      .join(" ")
+      .toLowerCase();
+  });
+
+  var cards   = Array.prototype.slice.call(document.querySelectorAll(".card[data-id]"));
+  var groups  = Array.prototype.slice.call(document.querySelectorAll(".group"));
+  var tabs    = Array.prototype.slice.call(document.querySelectorAll(".btn[data-subject]"));
+  var input   = document.getElementById("q");
+  var empty   = document.getElementById("empty");
+  var status  = document.getElementById("status");
+
+  var subject = "all";
+
+  function apply(){
+    var q = input.value.trim().toLowerCase();
+    var shown = 0;
+
+    cards.forEach(function(card){
+      var id = card.getAttribute("data-id");
+      var ok = (subject === "all" || card.getAttribute("data-subject") === subject);
+      if (ok && q) ok = index[id].indexOf(q) !== -1;
+      card.classList.toggle("off", !ok);
+      if (ok) shown++;
+    });
+
+    groups.forEach(function(g){
+      var any = g.querySelector(".card[data-id]:not(.off)");
+      g.classList.toggle("off", !any);
+    });
+
+    empty.classList.toggle("off", shown !== 0);
+    status.textContent = shown + " 件";
+  }
+
+  tabs.forEach(function(b){
+    b.addEventListener("click", function(){
+      subject = b.getAttribute("data-subject");
+      tabs.forEach(function(o){ o.setAttribute("aria-pressed", String(o === b)); });
+      apply();
+    });
+  });
+
+  input.addEventListener("input", apply);
+
+  apply();
+})();
+</script>
+</body>
+</html>

@@ -1,0 +1,761 @@
+{
+  "meta": {
+    "scope": "日本の高校化学の教科書に載る範囲",
+    "generated_by": "claude-code",
+    "verified_by_human": false
+  },
+  "reactions": [
+    {
+      "id": "ninhydrin",
+      "name": "ニンヒドリン反応",
+      "reagent": "ニンヒドリン水溶液",
+      "condition": "加熱",
+      "detects": "アミノ基",
+      "positive_color": "青紫",
+      "note": "",
+      "confidence": "high"
+    },
+    {
+      "id": "xanthoproteic",
+      "name": "キサントプロテイン反応",
+      "reagent": "濃硝酸",
+      "condition": "加熱後、アンモニア水を加えて塩基性にする",
+      "detects": "ベンゼン環",
+      "positive_color": "黄→橙",
+      "note": "",
+      "confidence": "high"
+    },
+    {
+      "id": "sulfur",
+      "name": "硫黄の検出反応",
+      "reagent": "水酸化ナトリウム水溶液、酢酸鉛(II)水溶液",
+      "condition": "加熱",
+      "detects": "硫黄(S)",
+      "positive_color": "黒色沈殿",
+      "note": "",
+      "confidence": "high"
+    }
+  ],
+  "amino_acids": [
+    {
+      "id": "glycine",
+      "name": "グリシン",
+      "name_en": "glycine",
+      "abbr3": "Gly",
+      "one_letter": { "value": "G", "confidence": "high", "note": "" },
+      "formula": "C2H5NO2",
+      "molar_mass": 75,
+      "side_chain": "-H",
+      "class": "neutral",
+      "functional_groups": ["なし"],
+      "chiral": false,
+      "essential": false,
+      "atom_counts": { "C": 2, "H": 5, "N": 1, "O": 2, "S": 0 },
+      "chiral_center_count": 0,
+      "degree_of_unsaturation": {
+        "value": 1,
+        "note": "COOHのC=Oで1。他に不飽和結合なし。計1"
+      },
+      "side_chain_molar_mass": {
+        "value": 1,
+        "note": "(a)75−74=1 (b)-H=H、分子量1。両者一致"
+      },
+      "pI": {
+        "value": 5.97,
+        "confidence": "low",
+        "note": "教科書によって値が異なる"
+      },
+      "tests": {
+        "ninhydrin":     { "result": "positive", "note": "", "confidence": "high" },
+        "xanthoproteic": { "result": "negative", "note": "", "confidence": "high" },
+        "sulfur":        { "result": "negative", "note": "", "confidence": "high" }
+      },
+      "tier": "core",
+      "note": ""
+    },
+    {
+      "id": "alanine",
+      "name": "アラニン",
+      "name_en": "alanine",
+      "abbr3": "Ala",
+      "one_letter": { "value": "A", "confidence": "high", "note": "" },
+      "formula": "C3H7NO2",
+      "molar_mass": 89,
+      "side_chain": "-CH3",
+      "class": "neutral",
+      "functional_groups": ["なし"],
+      "chiral": true,
+      "essential": false,
+      "atom_counts": { "C": 3, "H": 7, "N": 1, "O": 2, "S": 0 },
+      "chiral_center_count": 1,
+      "degree_of_unsaturation": {
+        "value": 1,
+        "note": "COOHのC=Oで1。側鎖(-CH3)は不飽和なし。計1"
+      },
+      "side_chain_molar_mass": {
+        "value": 15,
+        "note": "(a)89−74=15 (b)-CH3=CH3、分子量15。両者一致"
+      },
+      "pI": {
+        "value": 6.00,
+        "confidence": "low",
+        "note": "教科書によって値が異なる"
+      },
+      "tests": {
+        "ninhydrin":     { "result": "positive", "note": "", "confidence": "high" },
+        "xanthoproteic": { "result": "negative", "note": "", "confidence": "high" },
+        "sulfur":        { "result": "negative", "note": "", "confidence": "high" }
+      },
+      "tier": "core",
+      "note": ""
+    },
+    {
+      "id": "valine",
+      "name": "バリン",
+      "name_en": "valine",
+      "abbr3": "Val",
+      "one_letter": { "value": "V", "confidence": "high", "note": "" },
+      "formula": "C5H11NO2",
+      "molar_mass": 117,
+      "side_chain": "-CH(CH3)2",
+      "class": "neutral",
+      "functional_groups": ["なし"],
+      "chiral": true,
+      "essential": true,
+      "atom_counts": { "C": 5, "H": 11, "N": 1, "O": 2, "S": 0 },
+      "chiral_center_count": 1,
+      "degree_of_unsaturation": {
+        "value": 1,
+        "note": "COOHのC=Oで1。側鎖は飽和のみ。計1"
+      },
+      "side_chain_molar_mass": {
+        "value": 43,
+        "note": "(a)117−74=43 (b)-CH(CH3)2=C3H7、分子量43。両者一致"
+      },
+      "pI": {
+        "value": 5.96,
+        "confidence": "low",
+        "note": "教科書によって値が異なる"
+      },
+      "tests": {
+        "ninhydrin":     { "result": "positive", "note": "", "confidence": "high" },
+        "xanthoproteic": { "result": "negative", "note": "", "confidence": "high" },
+        "sulfur":        { "result": "negative", "note": "", "confidence": "high" }
+      },
+      "tier": "core",
+      "note": ""
+    },
+    {
+      "id": "leucine",
+      "name": "ロイシン",
+      "name_en": "leucine",
+      "abbr3": "Leu",
+      "one_letter": { "value": "L", "confidence": "high", "note": "" },
+      "formula": "C6H13NO2",
+      "molar_mass": 131,
+      "side_chain": "-CH2-CH(CH3)2",
+      "class": "neutral",
+      "functional_groups": ["なし"],
+      "chiral": true,
+      "essential": true,
+      "atom_counts": { "C": 6, "H": 13, "N": 1, "O": 2, "S": 0 },
+      "chiral_center_count": 1,
+      "degree_of_unsaturation": {
+        "value": 1,
+        "note": "COOHのC=Oで1。側鎖は飽和のみ。計1"
+      },
+      "side_chain_molar_mass": {
+        "value": 57,
+        "note": "(a)131−74=57 (b)-CH2-CH(CH3)2=C4H9、分子量57。両者一致"
+      },
+      "pI": {
+        "value": 5.98,
+        "confidence": "low",
+        "note": "教科書によって値が異なる"
+      },
+      "tests": {
+        "ninhydrin":     { "result": "positive", "note": "", "confidence": "high" },
+        "xanthoproteic": { "result": "negative", "note": "", "confidence": "high" },
+        "sulfur":        { "result": "negative", "note": "", "confidence": "high" }
+      },
+      "tier": "extended",
+      "note": ""
+    },
+    {
+      "id": "isoleucine",
+      "name": "イソロイシン",
+      "name_en": "isoleucine",
+      "abbr3": "Ile",
+      "one_letter": { "value": "I", "confidence": "high", "note": "" },
+      "formula": "C6H13NO2",
+      "molar_mass": 131,
+      "side_chain": "-CH(CH3)-CH2-CH3",
+      "class": "neutral",
+      "functional_groups": ["なし"],
+      "chiral": true,
+      "essential": true,
+      "atom_counts": { "C": 6, "H": 13, "N": 1, "O": 2, "S": 0 },
+      "chiral_center_count": 2,
+      "degree_of_unsaturation": {
+        "value": 1,
+        "note": "COOHのC=Oで1。側鎖は飽和のみ。計1"
+      },
+      "side_chain_molar_mass": {
+        "value": 57,
+        "note": "(a)131−74=57 (b)-CH(CH3)-CH2-CH3=C4H9、分子量57。両者一致。ロイシンと側鎖分子式が同じ(C4H9)ため側鎖分子量も同一57になる"
+      },
+      "pI": {
+        "value": 6.02,
+        "confidence": "low",
+        "note": "教科書によって値が異なる"
+      },
+      "tests": {
+        "ninhydrin":     { "result": "positive", "note": "", "confidence": "high" },
+        "xanthoproteic": { "result": "negative", "note": "", "confidence": "high" },
+        "sulfur":        { "result": "negative", "note": "", "confidence": "high" }
+      },
+      "tier": "extended",
+      "note": ""
+    },
+    {
+      "id": "serine",
+      "name": "セリン",
+      "name_en": "serine",
+      "abbr3": "Ser",
+      "one_letter": { "value": "S", "confidence": "high", "note": "" },
+      "formula": "C3H7NO3",
+      "molar_mass": 105,
+      "side_chain": "-CH2-OH",
+      "class": "neutral",
+      "functional_groups": ["ヒドロキシ基"],
+      "chiral": true,
+      "essential": false,
+      "atom_counts": { "C": 3, "H": 7, "N": 1, "O": 3, "S": 0 },
+      "chiral_center_count": 1,
+      "degree_of_unsaturation": {
+        "value": 1,
+        "note": "COOHのC=Oで1。側鎖のOHは不飽和度に寄与しない。計1"
+      },
+      "side_chain_molar_mass": {
+        "value": 31,
+        "note": "(a)105−74=31 (b)-CH2-OH=CH3O、分子量31。両者一致"
+      },
+      "pI": {
+        "value": 5.68,
+        "confidence": "low",
+        "note": "教科書によって値が異なる"
+      },
+      "tests": {
+        "ninhydrin":     { "result": "positive", "note": "", "confidence": "high" },
+        "xanthoproteic": { "result": "negative", "note": "", "confidence": "high" },
+        "sulfur":        { "result": "negative", "note": "", "confidence": "high" }
+      },
+      "tier": "core",
+      "note": ""
+    },
+    {
+      "id": "threonine",
+      "name": "トレオニン",
+      "name_en": "threonine",
+      "abbr3": "Thr",
+      "one_letter": { "value": "T", "confidence": "high", "note": "" },
+      "formula": "C4H9NO3",
+      "molar_mass": 119,
+      "side_chain": "-CH(OH)-CH3",
+      "class": "neutral",
+      "functional_groups": ["ヒドロキシ基"],
+      "chiral": true,
+      "essential": true,
+      "atom_counts": { "C": 4, "H": 9, "N": 1, "O": 3, "S": 0 },
+      "chiral_center_count": 2,
+      "degree_of_unsaturation": {
+        "value": 1,
+        "note": "COOHのC=Oで1。側鎖のOHは不飽和度に寄与しない。計1"
+      },
+      "side_chain_molar_mass": {
+        "value": 45,
+        "note": "(a)119−74=45 (b)-CH(OH)-CH3=C2H5O、分子量45。両者一致"
+      },
+      "pI": {
+        "value": 5.60,
+        "confidence": "low",
+        "note": "教科書によって値が異なる"
+      },
+      "tests": {
+        "ninhydrin":     { "result": "positive", "note": "", "confidence": "high" },
+        "xanthoproteic": { "result": "negative", "note": "", "confidence": "high" },
+        "sulfur":        { "result": "negative", "note": "", "confidence": "high" }
+      },
+      "tier": "extended",
+      "note": ""
+    },
+    {
+      "id": "cysteine",
+      "name": "システイン",
+      "name_en": "cysteine",
+      "abbr3": "Cys",
+      "one_letter": { "value": "C", "confidence": "high", "note": "" },
+      "formula": "C3H7NO2S",
+      "molar_mass": 121,
+      "side_chain": "-CH2-SH",
+      "class": "neutral",
+      "functional_groups": ["チオール基"],
+      "chiral": true,
+      "essential": false,
+      "atom_counts": { "C": 3, "H": 7, "N": 1, "O": 2, "S": 1 },
+      "chiral_center_count": 1,
+      "degree_of_unsaturation": {
+        "value": 1,
+        "note": "COOHのC=Oで1。側鎖のSHは2価の硫黄のため不飽和度に寄与しない。計1"
+      },
+      "side_chain_molar_mass": {
+        "value": 47,
+        "note": "(a)121−74=47 (b)-CH2-SH=CH3S、分子量47。両者一致"
+      },
+      "pI": {
+        "value": 5.07,
+        "confidence": "low",
+        "note": "文献により5.02〜5.07などの幅がある"
+      },
+      "tests": {
+        "ninhydrin":     { "result": "positive", "note": "", "confidence": "high" },
+        "xanthoproteic": { "result": "negative", "note": "", "confidence": "high" },
+        "sulfur":        { "result": "positive", "note": "チオール基由来の硫黄が塩基性下で分解し硫化物イオンとなり、酢酸鉛(II)と反応して黒色沈殿を生じる", "confidence": "high" }
+      },
+      "tier": "core",
+      "note": ""
+    },
+    {
+      "id": "methionine",
+      "name": "メチオニン",
+      "name_en": "methionine",
+      "abbr3": "Met",
+      "one_letter": { "value": "M", "confidence": "high", "note": "" },
+      "formula": "C5H11NO2S",
+      "molar_mass": 149,
+      "side_chain": "-CH2-CH2-S-CH3",
+      "class": "neutral",
+      "functional_groups": ["スルフィド"],
+      "chiral": true,
+      "essential": true,
+      "atom_counts": { "C": 5, "H": 11, "N": 1, "O": 2, "S": 1 },
+      "chiral_center_count": 1,
+      "degree_of_unsaturation": {
+        "value": 1,
+        "note": "COOHのC=Oで1。側鎖のスルフィド(-S-)は2価の硫黄のため不飽和度に寄与しない。計1"
+      },
+      "side_chain_molar_mass": {
+        "value": 75,
+        "note": "(a)149−74=75 (b)-CH2-CH2-S-CH3=C3H7S、分子量75。両者一致"
+      },
+      "pI": {
+        "value": 5.74,
+        "confidence": "low",
+        "note": "教科書によって値が異なる"
+      },
+      "tests": {
+        "ninhydrin":     { "result": "positive", "note": "", "confidence": "high" },
+        "xanthoproteic": { "result": "negative", "note": "", "confidence": "high" },
+        "sulfur":        { "result": "conditional", "note": "システインのチオール基とは事情が異なり、側鎖の硫黄はスルフィド(-S-)であるため、通常の硫黄検出反応の条件では検出されない場合がある", "confidence": "low" }
+      },
+      "tier": "core",
+      "note": ""
+    },
+    {
+      "id": "asparagine",
+      "name": "アスパラギン",
+      "name_en": "asparagine",
+      "abbr3": "Asn",
+      "one_letter": { "value": "N", "confidence": "high", "note": "" },
+      "formula": "C4H8N2O3",
+      "molar_mass": 132,
+      "side_chain": "-CH2-CO-NH2",
+      "class": "neutral",
+      "functional_groups": ["アミド結合"],
+      "chiral": true,
+      "essential": false,
+      "atom_counts": { "C": 4, "H": 8, "N": 2, "O": 3, "S": 0 },
+      "chiral_center_count": 1,
+      "degree_of_unsaturation": {
+        "value": 2,
+        "note": "主鎖COOHのC=Oで1、側鎖アミド基(-CO-NH2)のC=Oで1。計2"
+      },
+      "side_chain_molar_mass": {
+        "value": 58,
+        "note": "(a)132−74=58 (b)-CH2-CO-NH2=C2H4NO、分子量58。両者一致"
+      },
+      "pI": {
+        "value": 5.41,
+        "confidence": "low",
+        "note": "教科書によって値が異なる"
+      },
+      "tests": {
+        "ninhydrin":     { "result": "positive", "note": "", "confidence": "high" },
+        "xanthoproteic": { "result": "negative", "note": "", "confidence": "high" },
+        "sulfur":        { "result": "negative", "note": "", "confidence": "high" }
+      },
+      "tier": "extended",
+      "note": ""
+    },
+    {
+      "id": "glutamine",
+      "name": "グルタミン",
+      "name_en": "glutamine",
+      "abbr3": "Gln",
+      "one_letter": { "value": "Q", "confidence": "high", "note": "" },
+      "formula": "C5H10N2O3",
+      "molar_mass": 146,
+      "side_chain": "-CH2-CH2-CO-NH2",
+      "class": "neutral",
+      "functional_groups": ["アミド結合"],
+      "chiral": true,
+      "essential": false,
+      "atom_counts": { "C": 5, "H": 10, "N": 2, "O": 3, "S": 0 },
+      "chiral_center_count": 1,
+      "degree_of_unsaturation": {
+        "value": 2,
+        "note": "主鎖COOHのC=Oで1、側鎖アミド基(-CO-NH2)のC=Oで1。計2"
+      },
+      "side_chain_molar_mass": {
+        "value": 72,
+        "note": "(a)146−74=72 (b)-CH2-CH2-CO-NH2=C3H6NO、分子量72。両者一致"
+      },
+      "pI": {
+        "value": 5.65,
+        "confidence": "low",
+        "note": "教科書によって値が異なる"
+      },
+      "tests": {
+        "ninhydrin":     { "result": "positive", "note": "", "confidence": "high" },
+        "xanthoproteic": { "result": "negative", "note": "", "confidence": "high" },
+        "sulfur":        { "result": "negative", "note": "", "confidence": "high" }
+      },
+      "tier": "extended",
+      "note": ""
+    },
+    {
+      "id": "aspartic_acid",
+      "name": "アスパラギン酸",
+      "name_en": "aspartic acid",
+      "abbr3": "Asp",
+      "one_letter": { "value": "D", "confidence": "high", "note": "" },
+      "formula": "C4H7NO4",
+      "molar_mass": 133,
+      "side_chain": "-CH2-COOH",
+      "class": "acidic",
+      "functional_groups": ["カルボキシ基"],
+      "chiral": true,
+      "essential": false,
+      "atom_counts": { "C": 4, "H": 7, "N": 1, "O": 4, "S": 0 },
+      "chiral_center_count": 1,
+      "degree_of_unsaturation": {
+        "value": 2,
+        "note": "主鎖COOHのC=Oで1、側鎖COOHのC=Oで1。計2"
+      },
+      "side_chain_molar_mass": {
+        "value": 59,
+        "note": "(a)133−74=59 (b)-CH2-COOH=C2H3O2、分子量59。両者一致"
+      },
+      "pI": {
+        "value": 2.77,
+        "confidence": "low",
+        "note": "文献により2.77〜2.98などの幅がある"
+      },
+      "tests": {
+        "ninhydrin":     { "result": "positive", "note": "", "confidence": "high" },
+        "xanthoproteic": { "result": "negative", "note": "", "confidence": "high" },
+        "sulfur":        { "result": "negative", "note": "", "confidence": "high" }
+      },
+      "tier": "core",
+      "note": ""
+    },
+    {
+      "id": "glutamic_acid",
+      "name": "グルタミン酸",
+      "name_en": "glutamic acid",
+      "abbr3": "Glu",
+      "one_letter": { "value": "E", "confidence": "high", "note": "" },
+      "formula": "C5H9NO4",
+      "molar_mass": 147,
+      "side_chain": "-CH2-CH2-COOH",
+      "class": "acidic",
+      "functional_groups": ["カルボキシ基"],
+      "chiral": true,
+      "essential": false,
+      "atom_counts": { "C": 5, "H": 9, "N": 1, "O": 4, "S": 0 },
+      "chiral_center_count": 1,
+      "degree_of_unsaturation": {
+        "value": 2,
+        "note": "主鎖COOHのC=Oで1、側鎖COOHのC=Oで1。計2"
+      },
+      "side_chain_molar_mass": {
+        "value": 73,
+        "note": "(a)147−74=73 (b)-CH2-CH2-COOH=C3H5O2、分子量73。両者一致"
+      },
+      "pI": {
+        "value": 3.22,
+        "confidence": "low",
+        "note": "文献により3.08〜3.22などの幅がある"
+      },
+      "tests": {
+        "ninhydrin":     { "result": "positive", "note": "", "confidence": "high" },
+        "xanthoproteic": { "result": "negative", "note": "", "confidence": "high" },
+        "sulfur":        { "result": "negative", "note": "", "confidence": "high" }
+      },
+      "tier": "core",
+      "note": ""
+    },
+    {
+      "id": "lysine",
+      "name": "リシン",
+      "name_en": "lysine",
+      "abbr3": "Lys",
+      "one_letter": { "value": "K", "confidence": "high", "note": "" },
+      "formula": "C6H14N2O2",
+      "molar_mass": 146,
+      "side_chain": "-(CH2)4-NH2",
+      "class": "basic",
+      "functional_groups": ["アミノ基"],
+      "chiral": true,
+      "essential": true,
+      "atom_counts": { "C": 6, "H": 14, "N": 2, "O": 2, "S": 0 },
+      "chiral_center_count": 1,
+      "degree_of_unsaturation": {
+        "value": 1,
+        "note": "COOHのC=Oで1。側鎖の4つのCH2は全て2個のHを持つため不斉炭素にも不飽和にもならず、末端NH2も不飽和度に寄与しない。計1"
+      },
+      "side_chain_molar_mass": {
+        "value": 72,
+        "note": "(a)146−74=72 (b)-(CH2)4-NH2=C4H10N、分子量72。両者一致"
+      },
+      "pI": {
+        "value": 9.74,
+        "confidence": "low",
+        "note": "教科書によって値が異なる"
+      },
+      "tests": {
+        "ninhydrin":     { "result": "positive", "note": "", "confidence": "high" },
+        "xanthoproteic": { "result": "negative", "note": "", "confidence": "high" },
+        "sulfur":        { "result": "negative", "note": "", "confidence": "high" }
+      },
+      "tier": "core",
+      "note": ""
+    },
+    {
+      "id": "arginine",
+      "name": "アルギニン",
+      "name_en": "arginine",
+      "abbr3": "Arg",
+      "one_letter": { "value": "R", "confidence": "high", "note": "" },
+      "formula": "C6H14N4O2",
+      "molar_mass": 174,
+      "side_chain": "-(CH2)3-NH-C(=NH)-NH2",
+      "class": "basic",
+      "functional_groups": ["グアニジノ基"],
+      "chiral": true,
+      "essential": false,
+      "atom_counts": { "C": 6, "H": 14, "N": 4, "O": 2, "S": 0 },
+      "chiral_center_count": 1,
+      "degree_of_unsaturation": {
+        "value": 2,
+        "note": "COOHのC=Oで1、グアニジノ基のC=N(-C(=NH)-)で1。側鎖の3つのCH2はいずれも2個のHを持つため不斉炭素にならず、グアニジノ基の炭素はsp2のため不斉炭素の対象外。計2"
+      },
+      "side_chain_molar_mass": {
+        "value": 100,
+        "note": "(a)174−74=100 (b)-(CH2)3-NH-C(=NH)-NH2=C4H10N3、分子量100。両者一致"
+      },
+      "pI": {
+        "value": 10.76,
+        "confidence": "low",
+        "note": "教科書によって値が異なる"
+      },
+      "tests": {
+        "ninhydrin":     { "result": "positive", "note": "", "confidence": "high" },
+        "xanthoproteic": { "result": "negative", "note": "", "confidence": "high" },
+        "sulfur":        { "result": "negative", "note": "", "confidence": "high" }
+      },
+      "tier": "extended",
+      "note": "成長期には準必須アミノ酸とされることがあるが、高校教科書の標準的な9種必須アミノ酸には含まれないため essential: false とした"
+    },
+    {
+      "id": "histidine",
+      "name": "ヒスチジン",
+      "name_en": "histidine",
+      "abbr3": "His",
+      "one_letter": { "value": "H", "confidence": "high", "note": "" },
+      "formula": "C6H9N3O2",
+      "molar_mass": 155,
+      "side_chain": "-CH2-C3H3N2（イミダゾール環）",
+      "class": "basic",
+      "functional_groups": ["複素環"],
+      "chiral": true,
+      "essential": true,
+      "atom_counts": { "C": 6, "H": 9, "N": 3, "O": 2, "S": 0 },
+      "chiral_center_count": 1,
+      "degree_of_unsaturation": {
+        "value": 4,
+        "note": "COOHのC=Oで1、イミダゾール環(5員芳香環、環構造1+C=C/C=N二重結合2)で3。計4。環内炭素はsp2のため不斉炭素の対象外"
+      },
+      "side_chain_molar_mass": {
+        "value": 81,
+        "note": "(a)155−74=81 (b)-CH2-C3H3N2=C4H5N2、分子量81。両者一致"
+      },
+      "pI": {
+        "value": 7.59,
+        "confidence": "low",
+        "note": "教科書によって値が異なる"
+      },
+      "tests": {
+        "ninhydrin":     { "result": "positive", "note": "", "confidence": "high" },
+        "xanthoproteic": { "result": "negative", "note": "", "confidence": "high" },
+        "sulfur":        { "result": "negative", "note": "", "confidence": "high" }
+      },
+      "tier": "extended",
+      "note": "統制語彙に「イミダゾール環」がないため「複素環」で代用。側鎖はイミダゾール環（五員環、N原子2個）"
+    },
+    {
+      "id": "phenylalanine",
+      "name": "フェニルアラニン",
+      "name_en": "phenylalanine",
+      "abbr3": "Phe",
+      "one_letter": { "value": "F", "confidence": "high", "note": "" },
+      "formula": "C9H11NO2",
+      "molar_mass": 165,
+      "side_chain": "-CH2-C6H5",
+      "class": "neutral",
+      "functional_groups": ["ベンゼン環"],
+      "chiral": true,
+      "essential": true,
+      "atom_counts": { "C": 9, "H": 11, "N": 1, "O": 2, "S": 0 },
+      "chiral_center_count": 1,
+      "degree_of_unsaturation": {
+        "value": 5,
+        "note": "COOHのC=Oで1、ベンゼン環(環構造1+C=C二重結合3)で4。計5。環内炭素はsp2のため不斉炭素の対象外"
+      },
+      "side_chain_molar_mass": {
+        "value": 91,
+        "note": "(a)165−74=91 (b)-CH2-C6H5=C7H7、分子量91。両者一致"
+      },
+      "pI": {
+        "value": 5.48,
+        "confidence": "low",
+        "note": "教科書によって値が異なる"
+      },
+      "tests": {
+        "ninhydrin":     { "result": "positive", "note": "", "confidence": "high" },
+        "xanthoproteic": { "result": "conditional", "note": "教科書は「ベンゼン環をもつアミノ酸」とキサントプロテイン反応を紹介するが、実際にはっきり呈色するのはチロシンとトリプトファンで、フェニルアラニン単独では呈色が弱く検出されにくい", "confidence": "low" },
+        "sulfur":        { "result": "negative", "note": "", "confidence": "high" }
+      },
+      "tier": "core",
+      "note": ""
+    },
+    {
+      "id": "tyrosine",
+      "name": "チロシン",
+      "name_en": "tyrosine",
+      "abbr3": "Tyr",
+      "one_letter": { "value": "Y", "confidence": "high", "note": "" },
+      "formula": "C9H11NO3",
+      "molar_mass": 181,
+      "side_chain": "-CH2-C6H4-OH(p)",
+      "class": "neutral",
+      "functional_groups": ["フェノール性ヒドロキシ基", "ベンゼン環"],
+      "chiral": true,
+      "essential": false,
+      "atom_counts": { "C": 9, "H": 11, "N": 1, "O": 3, "S": 0 },
+      "chiral_center_count": 1,
+      "degree_of_unsaturation": {
+        "value": 5,
+        "note": "COOHのC=Oで1、ベンゼン環(環構造1+C=C二重結合3)で4。フェノール性OHは不飽和度に寄与しない。計5。環内炭素はsp2のため不斉炭素の対象外"
+      },
+      "side_chain_molar_mass": {
+        "value": 107,
+        "note": "(a)181−74=107 (b)-CH2-C6H4-OH=C7H7O、分子量107。両者一致"
+      },
+      "pI": {
+        "value": 5.66,
+        "confidence": "low",
+        "note": "文献により5.63〜5.66などの幅がある"
+      },
+      "tests": {
+        "ninhydrin":     { "result": "positive", "note": "", "confidence": "high" },
+        "xanthoproteic": { "result": "positive", "note": "", "confidence": "high" },
+        "sulfur":        { "result": "negative", "note": "", "confidence": "high" }
+      },
+      "tier": "core",
+      "note": ""
+    },
+    {
+      "id": "tryptophan",
+      "name": "トリプトファン",
+      "name_en": "tryptophan",
+      "abbr3": "Trp",
+      "one_letter": { "value": "W", "confidence": "high", "note": "" },
+      "formula": "C11H12N2O2",
+      "molar_mass": 204,
+      "side_chain": "-CH2-C8H5NH（インドール環）",
+      "class": "neutral",
+      "functional_groups": ["ベンゼン環", "複素環"],
+      "chiral": true,
+      "essential": true,
+      "atom_counts": { "C": 11, "H": 12, "N": 2, "O": 2, "S": 0 },
+      "chiral_center_count": 1,
+      "degree_of_unsaturation": {
+        "value": 7,
+        "note": "COOHのC=Oで1、インドール環(ベンゼン環とピロール環が縮合した二環性芳香環系、標準的なインドール分子(C8H7N)のDoU=6に相当)で6。計7。環内炭素はsp2のため不斉炭素の対象外"
+      },
+      "side_chain_molar_mass": {
+        "value": 130,
+        "note": "(a)204−74=130 (b)-CH2-C8H5NH=C9H8N、分子量130。両者一致"
+      },
+      "pI": {
+        "value": 5.89,
+        "confidence": "low",
+        "note": "教科書によって値が異なる"
+      },
+      "tests": {
+        "ninhydrin":     { "result": "positive", "note": "", "confidence": "high" },
+        "xanthoproteic": { "result": "positive", "note": "", "confidence": "high" },
+        "sulfur":        { "result": "negative", "note": "", "confidence": "high" }
+      },
+      "tier": "extended",
+      "note": "統制語彙に「インドール環」がないため、ベンゼン環とピロール環が縮合した構造を「ベンゼン環」「複素環」の2語で近似。実際は独立した2つの環ではなく縮合した1つの二環性インドール環"
+    },
+    {
+      "id": "proline",
+      "name": "プロリン",
+      "name_en": "proline",
+      "abbr3": "Pro",
+      "one_letter": { "value": "P", "confidence": "high", "note": "" },
+      "formula": "C5H9NO2",
+      "molar_mass": 115,
+      "side_chain": "-(CH2)3- （Cαのアミノ基Nと環化し五員環を形成）",
+      "class": "neutral",
+      "functional_groups": ["複素環"],
+      "chiral": true,
+      "essential": false,
+      "atom_counts": { "C": 5, "H": 9, "N": 1, "O": 2, "S": 0 },
+      "chiral_center_count": 1,
+      "degree_of_unsaturation": {
+        "value": 2,
+        "note": "COOHのC=Oで1、五員環(ピロリジン環)の環構造で1。計2"
+      },
+      "side_chain_molar_mass": {
+        "value": 42,
+        "note": "プロリンは第二級アミンのため主鎖をC2H3NO2(73)として扱う。(a)115−73=42 (b)-(CH2)3-=C3H6、分子量42。両者一致。41ではなく42が正しい"
+      },
+      "pI": {
+        "value": 6.30,
+        "confidence": "low",
+        "note": "他の中性アミノ酸と異なりpIが6を明確に超える。教科書によって値が異なる"
+      },
+      "tests": {
+        "ninhydrin":     { "result": "positive", "note": "第二級アミン（イミノ酸）のため呈色が黄色になる（通常の青紫ではない）", "confidence": "low" },
+        "xanthoproteic": { "result": "negative", "note": "", "confidence": "high" },
+        "sulfur":        { "result": "negative", "note": "", "confidence": "high" }
+      },
+      "tier": "extended",
+      "note": "側鎖がα-アミノ基に環化した五員環（ピロリジン環）を形成する特殊なアミノ酸（イミノ酸）。他19種の直鎖側鎖表記とは形式が異なる"
+    }
+  ]
+}

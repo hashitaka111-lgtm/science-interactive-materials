@@ -1,0 +1,666 @@
+<!doctype html>
+<html lang="ja">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>アミノ酸マトリクス</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500&family=IBM+Plex+Sans+JP:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+*{box-sizing:border-box}
+:root{
+  --ink:#16232B; --muted:#5E6E76; --paper:#EDF1EF; --surface:#FFFFFF;
+  --rule:#D6DDDA; --rule-soft:#E8EDEB;
+  --c1:#158A6D; --c1t:#0D6A53;
+  --c2:#2457A6; --c2t:#1B4380;
+  --c4:#A82A6A; --c4t:#831F52;
+  --sans:"IBM Plex Sans JP","Hiragino Sans","Yu Gothic UI",system-ui,sans-serif;
+  --mono:"IBM Plex Mono",ui-monospace,SFMono-Regular,Menlo,monospace;
+}
+html,body{margin:0;padding:0}
+body{background:var(--paper);color:var(--ink);font-family:var(--sans);font-size:13.5px;line-height:1.75;-webkit-text-size-adjust:100%}
+.mono{font-family:var(--mono);font-variant-numeric:tabular-nums}
+.wrap{max-width:820px;margin:0 auto;padding:20px 14px 60px}
+.card{background:var(--surface);border:1px solid var(--rule);border-radius:3px;padding:14px;margin-bottom:14px}
+.card.text{max-width:820px}
+.eyebrow{display:flex;align-items:center;gap:10px;font-family:var(--mono);font-size:11.5px;letter-spacing:.14em;color:var(--muted)}
+.eyebrow::after{content:"";flex:1;height:1px;background:var(--rule)}
+h1{font-size:22px;font-weight:600;letter-spacing:.01em;margin:8px 0 2px}
+p{margin:0 0 8px} p:last-child{margin-bottom:0}
+.note{color:var(--muted);font-size:12px;line-height:1.7}
+
+.btn{font:inherit;font-size:12.5px;line-height:1.4;border:1px solid var(--rule);background:#fff;color:var(--ink);border-radius:2px;padding:6px 10px;cursor:pointer}
+.btn:hover{border-color:#B4C0BC}
+.btn.on{background:var(--ink);color:#fff;border-color:var(--ink)}
+.btn:focus-visible{outline:2px solid var(--c2);outline-offset:1px}
+.btn.sm{font-size:11.5px;padding:4px 8px}
+.btnrow{display:flex;flex-wrap:wrap;gap:6px}
+
+.view[hidden]{display:none}
+
+/* ---------- マトリクス ---------- */
+.tablewrap{overflow-x:auto;border:1px solid var(--rule-soft);border-radius:3px;position:relative;max-height:70vh}
+table{border-collapse:separate;border-spacing:0;width:max-content;min-width:100%}
+td,th{padding:6px 9px;white-space:nowrap;border-bottom:1px solid var(--rule-soft);font-size:12px}
+th{font-size:11px;letter-spacing:.04em;color:var(--muted);font-weight:500;text-align:left;border-bottom:1px solid var(--rule)}
+td.num,th.num{text-align:right}
+tbody tr:last-child td{border-bottom:none}
+.c1,.c2{position:sticky;background:var(--surface);z-index:1}
+.c1{left:0}
+.c2{left:var(--col1w,72px)}
+thead th{position:sticky;top:0;background:var(--surface);z-index:2}
+thead th.c1,thead th.c2{z-index:3}
+.vh{writing-mode:vertical-rl;text-orientation:upright;padding-top:8px;padding-bottom:8px;letter-spacing:.02em}
+.aa-name{font-weight:500}
+.tierbadge{display:inline-block;font-family:var(--mono);font-size:9.5px;letter-spacing:.06em;border:1px solid var(--rule);border-radius:2px;padding:0 4px;margin-left:5px;color:var(--muted);vertical-align:1px}
+.pos{color:var(--c1t)}
+.neg{color:var(--muted)}
+.condl{color:var(--c4t);font-weight:500}
+.tablewrap.scrolled .c2{box-shadow:6px 0 8px -6px rgba(22,35,43,.35)}
+
+/* ---------- 逆引き ---------- */
+.grp{border:1px solid var(--rule);border-radius:3px;margin-bottom:10px;background:var(--surface)}
+.grp summary{cursor:pointer;list-style:none;padding:10px 12px;font-family:var(--mono);font-size:11.5px;letter-spacing:.1em;color:var(--muted);display:flex;align-items:center;gap:8px}
+.grp summary::-webkit-details-marker{display:none}
+.grp summary::before{content:"▸";display:inline-block;transition:transform 150ms}
+.grp[open] summary::before{transform:rotate(90deg)}
+.grp summary:focus-visible{outline:2px solid var(--c2);outline-offset:-2px}
+.gcount{margin-left:auto}
+.grpbody{padding:2px 12px 10px}
+
+.trow{display:flex;flex-wrap:wrap;align-items:center;gap:5px 8px;padding:6px 0;border-bottom:1px solid var(--rule-soft)}
+.trow:last-child{border-bottom:none}
+.tlab{flex:1 1 150px;min-width:0;font-size:12.5px;line-height:1.5}
+.tbtns{display:flex;flex-wrap:wrap;gap:4px;flex:0 0 auto;align-items:center}
+.tbtn{font-size:11px;padding:3px 7px;min-width:38px;text-align:center}
+.tbtn.on{background:var(--ink);color:#fff;border-color:var(--ink)}
+.fx{font-family:var(--mono);font-size:12.5px;border:1px solid var(--rule);border-radius:2px;padding:5px 8px;width:96px;background:#fff;color:var(--ink)}
+.fx:focus-visible{outline:2px solid var(--c2);outline-offset:-1px}
+
+.counts{font-family:var(--mono);font-size:11.5px;letter-spacing:.06em;color:var(--muted);margin-top:9px}
+.counts b{color:var(--ink);font-weight:500}
+
+.cand{padding:6px 8px;margin-bottom:4px;border:1px solid var(--rule-soft);border-radius:2px;font-size:12px;line-height:1.5}
+.cand.gone{display:none}
+.cand .cn{font-weight:500}
+.cand .cf{font-family:var(--mono);font-size:11px;color:var(--c2t);margin-left:7px}
+.cand.solo{border-color:var(--c1);border-left:3px solid var(--c1);padding-left:6px}
+.cand .cnote{display:block;font-size:11px;color:var(--c4t);margin-top:2px}
+@media (prefers-reduced-motion:no-preference){
+  .cand{transition:opacity 180ms linear}
+  .cand.leaving{opacity:0}
+  .cand.solo{animation:solopop 260ms ease-out}
+  .grp summary::before{transition:transform 150ms}
+}
+@media (prefers-reduced-motion:reduce){
+  .grp summary::before{transition:none}
+}
+@keyframes solopop{from{background:#F2F6FA}to{background:#fff}}
+
+.sug{display:flex;flex-wrap:wrap;align-items:baseline;gap:1px 8px;font-size:12px;padding:4px 0;border-bottom:1px solid var(--rule-soft)}
+.sug:last-child{border-bottom:none}
+.sug .sn{font-family:var(--mono);font-size:10.5px;color:var(--muted);min-width:1.5em}
+.sug .st{flex:1 1 132px;min-width:0}
+.sug .sv{font-family:var(--mono);font-size:11px}
+.sug.flat .st,.sug.flat .sv{color:var(--muted)}
+
+.kv.wide{display:grid;grid-template-columns:130px 1fr;gap:2px 10px;font-size:12.5px;margin:6px 0}
+.kv .k{font-family:var(--mono);font-size:10.5px;letter-spacing:.06em;color:var(--muted);padding-top:2px}
+.pname{font-size:15px;font-weight:600;margin:10px 0 1px}
+.pform{font-family:var(--mono);font-size:13px;color:var(--c2t);margin:0 0 7px}
+
+.hint{border-left:2px solid var(--rule);padding:1px 0 1px 11px;margin:9px 0;font-size:12px;line-height:1.7}
+.hint:last-child{margin-bottom:0}
+.hint .hl{font-family:var(--mono);font-size:10.5px;letter-spacing:.12em;color:var(--muted);display:block}
+.hint.warn{border-left-color:var(--c4)}
+.hint.warn .hl{color:var(--c4t)}
+.hint.ok{border-left-color:var(--c1)}
+.hint.ok .hl{color:var(--c1t)}
+
+@media (max-width:430px){
+  body{font-size:13px}
+  .wrap{padding:14px 10px 50px}
+  .card{padding:11px}
+  h1{font-size:19px}
+  .btn{padding:6px 8px;font-size:12px}
+  .tlab{flex:1 1 100%}
+  .fx{width:84px}
+  td,th{padding:5px 7px}
+}
+</style>
+</head>
+<body>
+<div class="wrap">
+
+<header>
+  <div class="eyebrow">AMINO ACID MATRIX</div>
+  <h1>アミノ酸マトリクス</h1>
+  <p class="note">20種類のアミノ酸を「反応・分類」と「分子構造」の2つの見方で並べた表。下のボタンで、性質から候補を絞り込む逆引きモードにも切り替えられる。</p>
+</header>
+
+<div class="card text">
+  <div class="eyebrow">MODE</div>
+  <div class="btnrow" style="margin-top:8px">
+    <button class="btn on" id="m-matrix" aria-pressed="true">マトリクスで見る</button>
+    <button class="btn" id="m-rev" aria-pressed="false">性質から絞り込む</button>
+  </div>
+</div>
+
+<div class="view" id="view-matrix">
+  <div class="card">
+    <div class="eyebrow">TABLE</div>
+    <div class="btnrow" style="margin:8px 0 10px">
+      <button class="btn on" id="tab-a-btn" aria-pressed="true">反応・分類</button>
+      <button class="btn" id="tab-b-btn" aria-pressed="false">分子構造</button>
+    </div>
+    <div id="mtab-a" class="tablewrap">
+      <table aria-label="アミノ酸マトリクス(反応・分類)">
+        <thead><tr id="thead-a"></tr></thead>
+        <tbody id="tbody-a"></tbody>
+      </table>
+    </div>
+    <div id="mtab-b" class="tablewrap" hidden>
+      <table aria-label="アミノ酸マトリクス(分子構造)">
+        <thead><tr id="thead-b"></tr></thead>
+        <tbody id="tbody-b"></tbody>
+      </table>
+    </div>
+    <p class="note" style="margin-top:8px">名前と略号の列は横スクロールしても固定される。呈色反応が「条件による」のセルは、陽性・陰性とは別の色で示している。tierバッジの「基本」は tier: core、「発展」は tier: extended。</p>
+  </div>
+</div>
+
+<div class="view" id="view-rev" hidden>
+
+  <div class="card text">
+    <div class="eyebrow">REVERSE LOOKUP</div>
+    <p class="note" style="margin-top:8px">条件を選んでいくと、あてはまるアミノ酸が絞られる。条件はカテゴリごとに折りたたんである。</p>
+    <button class="btn sm" id="rev-reset-all" style="margin-top:2px">すべて未選択に戻す</button>
+  </div>
+
+  <div class="card">
+    <div class="eyebrow">CONDITIONS</div>
+    <div id="revgroups" style="margin-top:8px"></div>
+  </div>
+
+  <div class="card" id="sugcard" hidden>
+    <div class="eyebrow">NEXT STEP</div>
+    <div id="sugbody"></div>
+  </div>
+
+  <div class="card">
+    <div class="eyebrow">CANDIDATES</div>
+    <div class="counts" id="revcount" aria-live="polite"></div>
+    <div id="revverdict" aria-live="polite"></div>
+    <div id="candlist" style="margin-top:9px"></div>
+  </div>
+
+  <div class="card text" id="solocard" hidden>
+    <div class="eyebrow">AMINO ACID</div>
+    <div id="solobody"></div>
+  </div>
+
+</div><!-- /view-rev -->
+
+</div><!-- /wrap -->
+<script>
+/* ---------- データ(JSONをそのまま埋め込み。fetch は使わない) ---------- */
+const DATA = {"meta":{"scope":"日本の高校化学の教科書に載る範囲","generated_by":"claude-code","verified_by_human":false},"reactions":[{"id":"ninhydrin","name":"ニンヒドリン反応","reagent":"ニンヒドリン水溶液","condition":"加熱","detects":"アミノ基","positive_color":"青紫","note":"","confidence":"high"},{"id":"xanthoproteic","name":"キサントプロテイン反応","reagent":"濃硝酸","condition":"加熱後、アンモニア水を加えて塩基性にする","detects":"ベンゼン環","positive_color":"黄→橙","note":"","confidence":"high"},{"id":"sulfur","name":"硫黄の検出反応","reagent":"水酸化ナトリウム水溶液、酢酸鉛(II)水溶液","condition":"加熱","detects":"硫黄(S)","positive_color":"黒色沈殿","note":"","confidence":"high"}],"amino_acids":[{"id":"glycine","name":"グリシン","name_en":"glycine","abbr3":"Gly","one_letter":{"value":"G","confidence":"high","note":""},"formula":"C2H5NO2","molar_mass":75,"side_chain":"-H","class":"neutral","functional_groups":["なし"],"chiral":false,"essential":false,"atom_counts":{"C":2,"H":5,"N":1,"O":2,"S":0},"chiral_center_count":0,"degree_of_unsaturation":{"value":1,"note":"COOHのC=Oで1。他に不飽和結合なし。計1"},"side_chain_molar_mass":{"value":1,"note":"(a)75−74=1 (b)-H=H、分子量1。両者一致"},"pI":{"value":5.97,"confidence":"low","note":"教科書によって値が異なる"},"tests":{"ninhydrin":{"result":"positive","note":"","confidence":"high"},"xanthoproteic":{"result":"negative","note":"","confidence":"high"},"sulfur":{"result":"negative","note":"","confidence":"high"}},"tier":"core","note":""},{"id":"alanine","name":"アラニン","name_en":"alanine","abbr3":"Ala","one_letter":{"value":"A","confidence":"high","note":""},"formula":"C3H7NO2","molar_mass":89,"side_chain":"-CH3","class":"neutral","functional_groups":["なし"],"chiral":true,"essential":false,"atom_counts":{"C":3,"H":7,"N":1,"O":2,"S":0},"chiral_center_count":1,"degree_of_unsaturation":{"value":1,"note":"COOHのC=Oで1。側鎖(-CH3)は不飽和なし。計1"},"side_chain_molar_mass":{"value":15,"note":"(a)89−74=15 (b)-CH3=CH3、分子量15。両者一致"},"pI":{"value":6,"confidence":"low","note":"教科書によって値が異なる"},"tests":{"ninhydrin":{"result":"positive","note":"","confidence":"high"},"xanthoproteic":{"result":"negative","note":"","confidence":"high"},"sulfur":{"result":"negative","note":"","confidence":"high"}},"tier":"core","note":""},{"id":"valine","name":"バリン","name_en":"valine","abbr3":"Val","one_letter":{"value":"V","confidence":"high","note":""},"formula":"C5H11NO2","molar_mass":117,"side_chain":"-CH(CH3)2","class":"neutral","functional_groups":["なし"],"chiral":true,"essential":true,"atom_counts":{"C":5,"H":11,"N":1,"O":2,"S":0},"chiral_center_count":1,"degree_of_unsaturation":{"value":1,"note":"COOHのC=Oで1。側鎖は飽和のみ。計1"},"side_chain_molar_mass":{"value":43,"note":"(a)117−74=43 (b)-CH(CH3)2=C3H7、分子量43。両者一致"},"pI":{"value":5.96,"confidence":"low","note":"教科書によって値が異なる"},"tests":{"ninhydrin":{"result":"positive","note":"","confidence":"high"},"xanthoproteic":{"result":"negative","note":"","confidence":"high"},"sulfur":{"result":"negative","note":"","confidence":"high"}},"tier":"core","note":""},{"id":"leucine","name":"ロイシン","name_en":"leucine","abbr3":"Leu","one_letter":{"value":"L","confidence":"high","note":""},"formula":"C6H13NO2","molar_mass":131,"side_chain":"-CH2-CH(CH3)2","class":"neutral","functional_groups":["なし"],"chiral":true,"essential":true,"atom_counts":{"C":6,"H":13,"N":1,"O":2,"S":0},"chiral_center_count":1,"degree_of_unsaturation":{"value":1,"note":"COOHのC=Oで1。側鎖は飽和のみ。計1"},"side_chain_molar_mass":{"value":57,"note":"(a)131−74=57 (b)-CH2-CH(CH3)2=C4H9、分子量57。両者一致"},"pI":{"value":5.98,"confidence":"low","note":"教科書によって値が異なる"},"tests":{"ninhydrin":{"result":"positive","note":"","confidence":"high"},"xanthoproteic":{"result":"negative","note":"","confidence":"high"},"sulfur":{"result":"negative","note":"","confidence":"high"}},"tier":"extended","note":""},{"id":"isoleucine","name":"イソロイシン","name_en":"isoleucine","abbr3":"Ile","one_letter":{"value":"I","confidence":"high","note":""},"formula":"C6H13NO2","molar_mass":131,"side_chain":"-CH(CH3)-CH2-CH3","class":"neutral","functional_groups":["なし"],"chiral":true,"essential":true,"atom_counts":{"C":6,"H":13,"N":1,"O":2,"S":0},"chiral_center_count":2,"degree_of_unsaturation":{"value":1,"note":"COOHのC=Oで1。側鎖は飽和のみ。計1"},"side_chain_molar_mass":{"value":57,"note":"(a)131−74=57 (b)-CH(CH3)-CH2-CH3=C4H9、分子量57。両者一致。ロイシンと側鎖分子式が同じ(C4H9)ため側鎖分子量も同一57になる"},"pI":{"value":6.02,"confidence":"low","note":"教科書によって値が異なる"},"tests":{"ninhydrin":{"result":"positive","note":"","confidence":"high"},"xanthoproteic":{"result":"negative","note":"","confidence":"high"},"sulfur":{"result":"negative","note":"","confidence":"high"}},"tier":"extended","note":""},{"id":"serine","name":"セリン","name_en":"serine","abbr3":"Ser","one_letter":{"value":"S","confidence":"high","note":""},"formula":"C3H7NO3","molar_mass":105,"side_chain":"-CH2-OH","class":"neutral","functional_groups":["ヒドロキシ基"],"chiral":true,"essential":false,"atom_counts":{"C":3,"H":7,"N":1,"O":3,"S":0},"chiral_center_count":1,"degree_of_unsaturation":{"value":1,"note":"COOHのC=Oで1。側鎖のOHは不飽和度に寄与しない。計1"},"side_chain_molar_mass":{"value":31,"note":"(a)105−74=31 (b)-CH2-OH=CH3O、分子量31。両者一致"},"pI":{"value":5.68,"confidence":"low","note":"教科書によって値が異なる"},"tests":{"ninhydrin":{"result":"positive","note":"","confidence":"high"},"xanthoproteic":{"result":"negative","note":"","confidence":"high"},"sulfur":{"result":"negative","note":"","confidence":"high"}},"tier":"core","note":""},{"id":"threonine","name":"トレオニン","name_en":"threonine","abbr3":"Thr","one_letter":{"value":"T","confidence":"high","note":""},"formula":"C4H9NO3","molar_mass":119,"side_chain":"-CH(OH)-CH3","class":"neutral","functional_groups":["ヒドロキシ基"],"chiral":true,"essential":true,"atom_counts":{"C":4,"H":9,"N":1,"O":3,"S":0},"chiral_center_count":2,"degree_of_unsaturation":{"value":1,"note":"COOHのC=Oで1。側鎖のOHは不飽和度に寄与しない。計1"},"side_chain_molar_mass":{"value":45,"note":"(a)119−74=45 (b)-CH(OH)-CH3=C2H5O、分子量45。両者一致"},"pI":{"value":5.6,"confidence":"low","note":"教科書によって値が異なる"},"tests":{"ninhydrin":{"result":"positive","note":"","confidence":"high"},"xanthoproteic":{"result":"negative","note":"","confidence":"high"},"sulfur":{"result":"negative","note":"","confidence":"high"}},"tier":"extended","note":""},{"id":"cysteine","name":"システイン","name_en":"cysteine","abbr3":"Cys","one_letter":{"value":"C","confidence":"high","note":""},"formula":"C3H7NO2S","molar_mass":121,"side_chain":"-CH2-SH","class":"neutral","functional_groups":["チオール基"],"chiral":true,"essential":false,"atom_counts":{"C":3,"H":7,"N":1,"O":2,"S":1},"chiral_center_count":1,"degree_of_unsaturation":{"value":1,"note":"COOHのC=Oで1。側鎖のSHは2価の硫黄のため不飽和度に寄与しない。計1"},"side_chain_molar_mass":{"value":47,"note":"(a)121−74=47 (b)-CH2-SH=CH3S、分子量47。両者一致"},"pI":{"value":5.07,"confidence":"low","note":"文献により5.02〜5.07などの幅がある"},"tests":{"ninhydrin":{"result":"positive","note":"","confidence":"high"},"xanthoproteic":{"result":"negative","note":"","confidence":"high"},"sulfur":{"result":"positive","note":"チオール基由来の硫黄が塩基性下で分解し硫化物イオンとなり、酢酸鉛(II)と反応して黒色沈殿を生じる","confidence":"high"}},"tier":"core","note":""},{"id":"methionine","name":"メチオニン","name_en":"methionine","abbr3":"Met","one_letter":{"value":"M","confidence":"high","note":""},"formula":"C5H11NO2S","molar_mass":149,"side_chain":"-CH2-CH2-S-CH3","class":"neutral","functional_groups":["スルフィド"],"chiral":true,"essential":true,"atom_counts":{"C":5,"H":11,"N":1,"O":2,"S":1},"chiral_center_count":1,"degree_of_unsaturation":{"value":1,"note":"COOHのC=Oで1。側鎖のスルフィド(-S-)は2価の硫黄のため不飽和度に寄与しない。計1"},"side_chain_molar_mass":{"value":75,"note":"(a)149−74=75 (b)-CH2-CH2-S-CH3=C3H7S、分子量75。両者一致"},"pI":{"value":5.74,"confidence":"low","note":"教科書によって値が異なる"},"tests":{"ninhydrin":{"result":"positive","note":"","confidence":"high"},"xanthoproteic":{"result":"negative","note":"","confidence":"high"},"sulfur":{"result":"conditional","note":"システインのチオール基とは事情が異なり、側鎖の硫黄はスルフィド(-S-)であるため、通常の硫黄検出反応の条件では検出されない場合がある","confidence":"low"}},"tier":"core","note":""},{"id":"asparagine","name":"アスパラギン","name_en":"asparagine","abbr3":"Asn","one_letter":{"value":"N","confidence":"high","note":""},"formula":"C4H8N2O3","molar_mass":132,"side_chain":"-CH2-CO-NH2","class":"neutral","functional_groups":["アミド結合"],"chiral":true,"essential":false,"atom_counts":{"C":4,"H":8,"N":2,"O":3,"S":0},"chiral_center_count":1,"degree_of_unsaturation":{"value":2,"note":"主鎖COOHのC=Oで1、側鎖アミド基(-CO-NH2)のC=Oで1。計2"},"side_chain_molar_mass":{"value":58,"note":"(a)132−74=58 (b)-CH2-CO-NH2=C2H4NO、分子量58。両者一致"},"pI":{"value":5.41,"confidence":"low","note":"教科書によって値が異なる"},"tests":{"ninhydrin":{"result":"positive","note":"","confidence":"high"},"xanthoproteic":{"result":"negative","note":"","confidence":"high"},"sulfur":{"result":"negative","note":"","confidence":"high"}},"tier":"extended","note":""},{"id":"glutamine","name":"グルタミン","name_en":"glutamine","abbr3":"Gln","one_letter":{"value":"Q","confidence":"high","note":""},"formula":"C5H10N2O3","molar_mass":146,"side_chain":"-CH2-CH2-CO-NH2","class":"neutral","functional_groups":["アミド結合"],"chiral":true,"essential":false,"atom_counts":{"C":5,"H":10,"N":2,"O":3,"S":0},"chiral_center_count":1,"degree_of_unsaturation":{"value":2,"note":"主鎖COOHのC=Oで1、側鎖アミド基(-CO-NH2)のC=Oで1。計2"},"side_chain_molar_mass":{"value":72,"note":"(a)146−74=72 (b)-CH2-CH2-CO-NH2=C3H6NO、分子量72。両者一致"},"pI":{"value":5.65,"confidence":"low","note":"教科書によって値が異なる"},"tests":{"ninhydrin":{"result":"positive","note":"","confidence":"high"},"xanthoproteic":{"result":"negative","note":"","confidence":"high"},"sulfur":{"result":"negative","note":"","confidence":"high"}},"tier":"extended","note":""},{"id":"aspartic_acid","name":"アスパラギン酸","name_en":"aspartic acid","abbr3":"Asp","one_letter":{"value":"D","confidence":"high","note":""},"formula":"C4H7NO4","molar_mass":133,"side_chain":"-CH2-COOH","class":"acidic","functional_groups":["カルボキシ基"],"chiral":true,"essential":false,"atom_counts":{"C":4,"H":7,"N":1,"O":4,"S":0},"chiral_center_count":1,"degree_of_unsaturation":{"value":2,"note":"主鎖COOHのC=Oで1、側鎖COOHのC=Oで1。計2"},"side_chain_molar_mass":{"value":59,"note":"(a)133−74=59 (b)-CH2-COOH=C2H3O2、分子量59。両者一致"},"pI":{"value":2.77,"confidence":"low","note":"文献により2.77〜2.98などの幅がある"},"tests":{"ninhydrin":{"result":"positive","note":"","confidence":"high"},"xanthoproteic":{"result":"negative","note":"","confidence":"high"},"sulfur":{"result":"negative","note":"","confidence":"high"}},"tier":"core","note":""},{"id":"glutamic_acid","name":"グルタミン酸","name_en":"glutamic acid","abbr3":"Glu","one_letter":{"value":"E","confidence":"high","note":""},"formula":"C5H9NO4","molar_mass":147,"side_chain":"-CH2-CH2-COOH","class":"acidic","functional_groups":["カルボキシ基"],"chiral":true,"essential":false,"atom_counts":{"C":5,"H":9,"N":1,"O":4,"S":0},"chiral_center_count":1,"degree_of_unsaturation":{"value":2,"note":"主鎖COOHのC=Oで1、側鎖COOHのC=Oで1。計2"},"side_chain_molar_mass":{"value":73,"note":"(a)147−74=73 (b)-CH2-CH2-COOH=C3H5O2、分子量73。両者一致"},"pI":{"value":3.22,"confidence":"low","note":"文献により3.08〜3.22などの幅がある"},"tests":{"ninhydrin":{"result":"positive","note":"","confidence":"high"},"xanthoproteic":{"result":"negative","note":"","confidence":"high"},"sulfur":{"result":"negative","note":"","confidence":"high"}},"tier":"core","note":""},{"id":"lysine","name":"リシン","name_en":"lysine","abbr3":"Lys","one_letter":{"value":"K","confidence":"high","note":""},"formula":"C6H14N2O2","molar_mass":146,"side_chain":"-(CH2)4-NH2","class":"basic","functional_groups":["アミノ基"],"chiral":true,"essential":true,"atom_counts":{"C":6,"H":14,"N":2,"O":2,"S":0},"chiral_center_count":1,"degree_of_unsaturation":{"value":1,"note":"COOHのC=Oで1。側鎖の4つのCH2は全て2個のHを持つため不斉炭素にも不飽和にもならず、末端NH2も不飽和度に寄与しない。計1"},"side_chain_molar_mass":{"value":72,"note":"(a)146−74=72 (b)-(CH2)4-NH2=C4H10N、分子量72。両者一致"},"pI":{"value":9.74,"confidence":"low","note":"教科書によって値が異なる"},"tests":{"ninhydrin":{"result":"positive","note":"","confidence":"high"},"xanthoproteic":{"result":"negative","note":"","confidence":"high"},"sulfur":{"result":"negative","note":"","confidence":"high"}},"tier":"core","note":""},{"id":"arginine","name":"アルギニン","name_en":"arginine","abbr3":"Arg","one_letter":{"value":"R","confidence":"high","note":""},"formula":"C6H14N4O2","molar_mass":174,"side_chain":"-(CH2)3-NH-C(=NH)-NH2","class":"basic","functional_groups":["グアニジノ基"],"chiral":true,"essential":false,"atom_counts":{"C":6,"H":14,"N":4,"O":2,"S":0},"chiral_center_count":1,"degree_of_unsaturation":{"value":2,"note":"COOHのC=Oで1、グアニジノ基のC=N(-C(=NH)-)で1。側鎖の3つのCH2はいずれも2個のHを持つため不斉炭素にならず、グアニジノ基の炭素はsp2のため不斉炭素の対象外。計2"},"side_chain_molar_mass":{"value":100,"note":"(a)174−74=100 (b)-(CH2)3-NH-C(=NH)-NH2=C4H10N3、分子量100。両者一致"},"pI":{"value":10.76,"confidence":"low","note":"教科書によって値が異なる"},"tests":{"ninhydrin":{"result":"positive","note":"","confidence":"high"},"xanthoproteic":{"result":"negative","note":"","confidence":"high"},"sulfur":{"result":"negative","note":"","confidence":"high"}},"tier":"extended","note":"成長期には準必須アミノ酸とされることがあるが、高校教科書の標準的な9種必須アミノ酸には含まれないため essential: false とした"},{"id":"histidine","name":"ヒスチジン","name_en":"histidine","abbr3":"His","one_letter":{"value":"H","confidence":"high","note":""},"formula":"C6H9N3O2","molar_mass":155,"side_chain":"-CH2-C3H3N2（イミダゾール環）","class":"basic","functional_groups":["複素環"],"chiral":true,"essential":true,"atom_counts":{"C":6,"H":9,"N":3,"O":2,"S":0},"chiral_center_count":1,"degree_of_unsaturation":{"value":4,"note":"COOHのC=Oで1、イミダゾール環(5員芳香環、環構造1+C=C/C=N二重結合2)で3。計4。環内炭素はsp2のため不斉炭素の対象外"},"side_chain_molar_mass":{"value":81,"note":"(a)155−74=81 (b)-CH2-C3H3N2=C4H5N2、分子量81。両者一致"},"pI":{"value":7.59,"confidence":"low","note":"教科書によって値が異なる"},"tests":{"ninhydrin":{"result":"positive","note":"","confidence":"high"},"xanthoproteic":{"result":"negative","note":"","confidence":"high"},"sulfur":{"result":"negative","note":"","confidence":"high"}},"tier":"extended","note":"統制語彙に「イミダゾール環」がないため「複素環」で代用。側鎖はイミダゾール環（五員環、N原子2個）"},{"id":"phenylalanine","name":"フェニルアラニン","name_en":"phenylalanine","abbr3":"Phe","one_letter":{"value":"F","confidence":"high","note":""},"formula":"C9H11NO2","molar_mass":165,"side_chain":"-CH2-C6H5","class":"neutral","functional_groups":["ベンゼン環"],"chiral":true,"essential":true,"atom_counts":{"C":9,"H":11,"N":1,"O":2,"S":0},"chiral_center_count":1,"degree_of_unsaturation":{"value":5,"note":"COOHのC=Oで1、ベンゼン環(環構造1+C=C二重結合3)で4。計5。環内炭素はsp2のため不斉炭素の対象外"},"side_chain_molar_mass":{"value":91,"note":"(a)165−74=91 (b)-CH2-C6H5=C7H7、分子量91。両者一致"},"pI":{"value":5.48,"confidence":"low","note":"教科書によって値が異なる"},"tests":{"ninhydrin":{"result":"positive","note":"","confidence":"high"},"xanthoproteic":{"result":"conditional","note":"教科書は「ベンゼン環をもつアミノ酸」とキサントプロテイン反応を紹介するが、実際にはっきり呈色するのはチロシンとトリプトファンで、フェニルアラニン単独では呈色が弱く検出されにくい","confidence":"low"},"sulfur":{"result":"negative","note":"","confidence":"high"}},"tier":"core","note":""},{"id":"tyrosine","name":"チロシン","name_en":"tyrosine","abbr3":"Tyr","one_letter":{"value":"Y","confidence":"high","note":""},"formula":"C9H11NO3","molar_mass":181,"side_chain":"-CH2-C6H4-OH(p)","class":"neutral","functional_groups":["フェノール性ヒドロキシ基","ベンゼン環"],"chiral":true,"essential":false,"atom_counts":{"C":9,"H":11,"N":1,"O":3,"S":0},"chiral_center_count":1,"degree_of_unsaturation":{"value":5,"note":"COOHのC=Oで1、ベンゼン環(環構造1+C=C二重結合3)で4。フェノール性OHは不飽和度に寄与しない。計5。環内炭素はsp2のため不斉炭素の対象外"},"side_chain_molar_mass":{"value":107,"note":"(a)181−74=107 (b)-CH2-C6H4-OH=C7H7O、分子量107。両者一致"},"pI":{"value":5.66,"confidence":"low","note":"文献により5.63〜5.66などの幅がある"},"tests":{"ninhydrin":{"result":"positive","note":"","confidence":"high"},"xanthoproteic":{"result":"positive","note":"","confidence":"high"},"sulfur":{"result":"negative","note":"","confidence":"high"}},"tier":"core","note":""},{"id":"tryptophan","name":"トリプトファン","name_en":"tryptophan","abbr3":"Trp","one_letter":{"value":"W","confidence":"high","note":""},"formula":"C11H12N2O2","molar_mass":204,"side_chain":"-CH2-C8H5NH（インドール環）","class":"neutral","functional_groups":["ベンゼン環","複素環"],"chiral":true,"essential":true,"atom_counts":{"C":11,"H":12,"N":2,"O":2,"S":0},"chiral_center_count":1,"degree_of_unsaturation":{"value":7,"note":"COOHのC=Oで1、インドール環(ベンゼン環とピロール環が縮合した二環性芳香環系、標準的なインドール分子(C8H7N)のDoU=6に相当)で6。計7。環内炭素はsp2のため不斉炭素の対象外"},"side_chain_molar_mass":{"value":130,"note":"(a)204−74=130 (b)-CH2-C8H5NH=C9H8N、分子量130。両者一致"},"pI":{"value":5.89,"confidence":"low","note":"教科書によって値が異なる"},"tests":{"ninhydrin":{"result":"positive","note":"","confidence":"high"},"xanthoproteic":{"result":"positive","note":"","confidence":"high"},"sulfur":{"result":"negative","note":"","confidence":"high"}},"tier":"extended","note":"統制語彙に「インドール環」がないため、ベンゼン環とピロール環が縮合した構造を「ベンゼン環」「複素環」の2語で近似。実際は独立した2つの環ではなく縮合した1つの二環性インドール環"},{"id":"proline","name":"プロリン","name_en":"proline","abbr3":"Pro","one_letter":{"value":"P","confidence":"high","note":""},"formula":"C5H9NO2","molar_mass":115,"side_chain":"-(CH2)3- （Cαのアミノ基Nと環化し五員環を形成）","class":"neutral","functional_groups":["複素環"],"chiral":true,"essential":false,"atom_counts":{"C":5,"H":9,"N":1,"O":2,"S":0},"chiral_center_count":1,"degree_of_unsaturation":{"value":2,"note":"COOHのC=Oで1、五員環(ピロリジン環)の環構造で1。計2"},"side_chain_molar_mass":{"value":42,"note":"プロリンは第二級アミンのため主鎖をC2H3NO2(73)として扱う。(a)115−73=42 (b)-(CH2)3-=C3H6、分子量42。両者一致。41ではなく42が正しい"},"pI":{"value":6.3,"confidence":"low","note":"他の中性アミノ酸と異なりpIが6を明確に超える。教科書によって値が異なる"},"tests":{"ninhydrin":{"result":"positive","note":"第二級アミン（イミノ酸）のため呈色が黄色になる（通常の青紫ではない）","confidence":"low"},"xanthoproteic":{"result":"negative","note":"","confidence":"high"},"sulfur":{"result":"negative","note":"","confidence":"high"}},"tier":"extended","note":"側鎖がα-アミノ基に環化した五員環（ピロリジン環）を形成する特殊なアミノ酸（イミノ酸）。他19種の直鎖側鎖表記とは形式が異なる"}]};
+const AMINO_ACIDS = DATA.amino_acids;
+
+/* ---------- 起動時チェック: 全件が name/abbr3/tests/atom_counts を持つか ---------- */
+(function checkData(){
+  const msg=[];
+  AMINO_ACIDS.forEach(p=>{
+    if(!p.tests||!p.tests.ninhydrin||!p.tests.xanthoproteic||!p.tests.sulfur) msg.push(p.id+' : tests が欠落');
+    if(!p.atom_counts) msg.push(p.id+' : atom_counts が欠落');
+  });
+  if(msg.length) console.warn('[DATA] 不整合 '+msg.length+'件\n'+msg.join('\n'));
+  else console.info('[DATA] 全 '+AMINO_ACIDS.length+' 件のアミノ酸を読み込んだ');
+})();
+
+const esc = s => String(s).replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+
+/* ---------- 条件の定義 ----------
+   kind test3       : JSON が positive/negative/conditional。選択肢は陽性/陰性の2つ、conditionalは選ばせない
+   kind bool         : JSON が true/false
+   kind enumFixed    : 固定の選択肢(class)
+   kind enumFromData : 実データに現れる値を昇順収集してボタン化(distinct値が5以下)
+   kind exactNumber  : 自由入力・完全一致(distinct値が6以上) */
+const CONDS = [
+  {id:'ninhydrin',    label:'ニンヒドリン反応',   group:'呈色反応', kind:'test3', get:p=>p.tests.ninhydrin.result},
+  {id:'xanthoproteic',label:'キサントプロテイン反応', group:'呈色反応', kind:'test3', get:p=>p.tests.xanthoproteic.result},
+  {id:'sulfur',       label:'硫黄の検出反応',     group:'呈色反応', kind:'test3', get:p=>p.tests.sulfur.result},
+  {id:'class',        label:'分類(酸性・中性・塩基性)', group:'分類', kind:'enumFixed', get:p=>p.class,
+    options:[['neutral','中性'],['acidic','酸性'],['basic','塩基性']]},
+  {id:'chiral_center_count', label:'不斉炭素の数', group:'分類', kind:'enumFromData', unit:'個', get:p=>p.chiral_center_count},
+  {id:'essential',    label:'必須アミノ酸',       group:'分類', kind:'bool', get:p=>p.essential,
+    options:[['true','必須'],['false','非必須']]},
+  {id:'C', label:'炭素原子数(C)', group:'元素組成', kind:'exactNumber', get:p=>p.atom_counts.C},
+  {id:'H', label:'水素原子数(H)', group:'元素組成', kind:'exactNumber', get:p=>p.atom_counts.H},
+  {id:'N', label:'窒素原子数(N)', group:'元素組成', kind:'enumFromData', unit:'個', get:p=>p.atom_counts.N},
+  {id:'O', label:'酸素原子数(O)', group:'元素組成', kind:'enumFromData', unit:'個', get:p=>p.atom_counts.O},
+  {id:'S', label:'硫黄原子数(S)', group:'元素組成', kind:'enumFromData', unit:'個', get:p=>p.atom_counts.S},
+  {id:'molar_mass', label:'分子量', group:'分子量系', kind:'exactNumber', get:p=>p.molar_mass},
+  {id:'degree_of_unsaturation', label:'不飽和度', group:'分子量系', kind:'enumFromData', unit:'', get:p=>p.degree_of_unsaturation.value},
+  {id:'side_chain_molar_mass', label:'側鎖の分子量', group:'分子量系', kind:'exactNumber', get:p=>p.side_chain_molar_mass.value},
+];
+CONDS.filter(c=>c.kind==='enumFromData').forEach(c=>{
+  const vals=Array.from(new Set(AMINO_ACIDS.map(p=>c.get(p)))).sort((a,b)=>a-b);
+  c._opts = vals.map(v=>[String(v), String(v)+(c.unit||'')]);
+});
+const CONDS_BY_ID={}; CONDS.forEach(c=>CONDS_BY_ID[c.id]=c);
+const AA_BY_ID={}; AMINO_ACIDS.forEach(p=>AA_BY_ID[p.id]=p);
+
+/* 決定打条件の走査順(固定)。呈色反応→class→不斉炭素数→元素組成(C,H,N,O,S)→不飽和度→分子量→側鎖分子量→必須アミノ酸(順序の指定が無かったため末尾に置いた) */
+const DECISIVE_ORDER=['ninhydrin','xanthoproteic','sulfur','class','chiral_center_count',
+  'C','H','N','O','S','degree_of_unsaturation','molar_mass','side_chain_molar_mass','essential'];
+
+function optionsOf(c){
+  if(c.kind==='exactNumber') return null;
+  if(c.kind==='test3') return [['positive','陽性'],['negative','陰性']];
+  if(c.kind==='enumFromData') return c._opts;
+  return c.options; /* enumFixed, bool */
+}
+function outcomeOf(c,p){ return c.get(p); }
+function outcomeLabel(c,val){
+  const s=String(val);
+  if(c.kind==='test3') return s==='conditional' ? '条件による' : (s==='positive'?'陽性':'陰性');
+  const opts=optionsOf(c);
+  if(opts){ const o=opts.find(x=>x[0]===s); if(o) return o[1]; }
+  return s;
+}
+
+/* ---------- 状態 ---------- */
+const rev={values:{}};
+CONDS.forEach(c=>{ rev.values[c.id] = c.kind==='exactNumber' ? '' : null; });
+const isSelected = c => c.kind==='exactNumber' ? (rev.values[c.id].trim()!=='') : (rev.values[c.id]!==null);
+
+/* ---------- 照合 ----------
+   test3 は「選んだ値と一致」または「conditional」なら通す(2-4 案1)。
+   exactNumber は入力値を数値化して完全一致のみ通す。 */
+function passCond(cond,item,skipId){
+  if(cond.id===skipId) return true;
+  if(cond.kind==='exactNumber'){
+    const raw=rev.values[cond.id].trim();
+    if(raw==='') return true;
+    const n=Number(raw);
+    if(!Number.isFinite(n)) return true;
+    return Number(outcomeOf(cond,item))===n;
+  }
+  const v=rev.values[cond.id];
+  if(v===null) return true;
+  const o=String(outcomeOf(cond,item));
+  if(cond.kind==='test3') return o===v || o==='conditional';
+  return o===v;
+}
+function matches(item,skipId){ return CONDS.every(c=>passCond(c,item,skipId)); }
+const listOf = skipId => AMINO_ACIDS.filter(p=>matches(p,skipId));
+
+/* ---------- 全条件の結果ベクトルによる等価クラス(起動時1回) ---------- */
+const profileKey = p => CONDS.map(c=>String(outcomeOf(c,p))).join('|');
+const PROFGRP={};
+AMINO_ACIDS.forEach(p=>{ const k=profileKey(p); (PROFGRP[k]=PROFGRP[k]||[]).push(p.id); });
+
+/* ---------- 決定打条件の検出 ----------
+   残り候補(cands.length>=2)に対して、未選択の条件を DECISIVE_ORDER の順に走査し、
+   その条件だけで全候補が別々の結果値に分かれる(=完全に分離できる)ものを探す。
+   test3 は conditional も含めた生値でビン分けする(通過条件とは別ロジック)。 */
+function findDecisiveCondition(cands){
+  if(cands.length<2) return null;
+  for(const id of DECISIVE_ORDER){
+    const cond=CONDS_BY_ID[id];
+    if(isSelected(cond)) continue;
+    const seen=new Map();
+    let ok=true;
+    for(const item of cands){
+      const v=String(outcomeOf(cond,item));
+      const n=(seen.get(v)||0)+1;
+      seen.set(v,n);
+      if(n>1){ ok=false; break; }
+    }
+    if(ok && seen.size===cands.length) return cond;
+  }
+  return null;
+}
+
+/* ---------- 次の一手(ミニマックス)。全条件を対象に、未選択のものだけ ---------- */
+function suggest(cands){
+  const rows=[];
+  CONDS.forEach(cond=>{
+    if(isSelected(cond)) return;
+    const b=new Map();
+    cands.forEach(p=>{ const k=String(outcomeOf(cond,p)); b.set(k,(b.get(k)||0)+1); });
+    let worst=0; b.forEach(v=>{ if(v>worst) worst=v; });
+    rows.push({cond:cond,bins:b,worst:worst,split:b.size});
+  });
+  rows.sort((x,y)=>(x.worst-y.worst)||(y.split-x.split));
+  return rows;
+}
+function drawSuggestCard(cands){
+  const card=document.getElementById('sugcard');
+  card.hidden=false;
+  let h='';
+  const dec=findDecisiveCondition(cands);
+  if(dec){
+    h+='<div class="hint ok"><span class="hl">この1問で決まる</span>「'+esc(dec.label)+
+       '」を確認すれば、残り'+cands.length+'件がすべて別々の結果になり、1件に絞れる。</div>';
+  }
+  h+='<p class="note" style="margin-top:8px">いまの候補 <b>'+cands.length+'</b> 件に対して、次にこの条件を確認すると候補がこう分かれる。上にあるものほど、結果がどちらに転んでも候補が少なく残る。</p>';
+  const rows=suggest(cands);
+  if(!rows.length){
+    h+='<p class="note">条件はすべて選び終えている。</p>';
+  }
+  rows.forEach((r,i)=>{
+    const parts=[];
+    const opts=optionsOf(r.cond);
+    if(opts){
+      opts.forEach(([val,text])=>{ const n=r.bins.get(val)||0; parts.push(esc(text)+' → '+n+'件'); });
+      r.bins.forEach((n,k)=>{ if(!opts.some(o=>o[0]===k)) parts.push(esc(outcomeLabel(r.cond,k))+' → '+n+'件'); });
+    }else{
+      Array.from(r.bins.keys()).sort((a,b)=>Number(a)-Number(b)).forEach(k=>parts.push(esc(k)+' → '+r.bins.get(k)+'件'));
+    }
+    h+='<div class="sug'+(r.split<=1?' flat':'')+'"><span class="sn">'+(i+1)+'</span>'+
+       '<span class="st">'+esc(r.cond.label)+'</span>'+
+       '<span class="sv">'+(r.split<=1?'この条件では絞れない':parts.join(' / '))+'</span></div>';
+  });
+  document.getElementById('sugbody').innerHTML=h;
+}
+
+/* ---------- 0件のとき、どれを外せば候補が出るか ---------- */
+function drawZero(){
+  const relax=[];
+  CONDS.forEach(cond=>{
+    if(!isSelected(cond)) return;
+    const n=listOf(cond.id).length;
+    if(n>0){
+      const val = cond.kind==='exactNumber' ? rev.values[cond.id] : outcomeLabel(cond,rev.values[cond.id]);
+      relax.push({label:cond.label+'（'+val+'）',n:n});
+    }
+  });
+  relax.sort((a,b)=>b.n-a.n);
+  let h='<div class="hint warn"><span class="hl">候補なし</span>この条件をすべて満たすアミノ酸は、この20件の中には無い。';
+  if(relax.length){
+    h+='<br>次のどれか1つを外すと候補が出る。<br>'+relax.map(r=>'・'+esc(r.label)+' を外す → <b>'+r.n+'件</b>').join('<br>');
+  }else{
+    h+='<br>条件を1つ外しただけでは候補は出ない。2つ以上外す必要がある。';
+  }
+  h+='</div>';
+  return h;
+}
+
+/* ---------- 1件に決まったときの表示 ---------- */
+function drawSolo(p){
+  let h='';
+  const used=CONDS.filter(isSelected);
+  if(used.length){
+    const parts=used.map(c=>esc(c.label)+'：'+esc(c.kind==='exactNumber'?rev.values[c.id]:outcomeLabel(c,rev.values[c.id])));
+    h+='<div class="hint ok"><span class="hl">この条件で決まった</span>'+parts.join('・')+'</div>';
+  }
+  const grp=PROFGRP[profileKey(p)]||[p.id];
+  if(grp.length>1){
+    const others=grp.filter(id=>id!==p.id).map(id=>AA_BY_ID[id].name);
+    h+='<div class="hint warn"><span class="hl">他にも該当がある</span>'+esc(p.name)+'は、すべての条件の結果が '+
+       esc(others.join('・'))+' と完全に同じ。条件をこれ以上増やしても区別できない。</div>';
+  }
+  const condFlags=used.filter(c=>c.kind==='test3' && String(outcomeOf(c,p))==='conditional');
+  if(condFlags.length){
+    h+='<div class="hint warn"><span class="hl">この反応の出方は条件による</span>'+
+       condFlags.map(c=>esc(c.label)).join('・')+'は、実際には出る場合と出ない場合がある。</div>';
+  }
+  h+='<p class="pname">'+esc(p.name)+'<span class="tierbadge">'+(p.tier==='core'?'基本':'発展')+'</span></p>';
+  h+='<p class="pform">'+esc(p.abbr3)+'　'+esc(p.formula)+'</p>';
+  h+='<div class="kv wide">';
+  CONDS.forEach(c=>{
+    const raw=outcomeOf(c,p);
+    const label = c.kind==='exactNumber' ? String(raw) : outcomeLabel(c,raw);
+    h+='<div class="k">'+esc(c.label)+'</div><div class="mono">'+esc(label)+'</div>';
+  });
+  h+='</div>';
+  return h;
+}
+
+/* ---------- 候補一覧(20件を1度だけ生成し、以後は表示/非表示を切り替え) ---------- */
+const candHost=document.getElementById('candlist');
+const candEl={};
+function buildCandList(){
+  let h='';
+  AMINO_ACIDS.forEach(p=>{
+    h+='<div class="cand" id="cand-'+p.id+'">'+
+       '<span class="cn">'+esc(p.name)+'</span>'+
+       '<span class="cf">'+esc(p.abbr3)+'</span>'+
+       '<span class="tierbadge">'+(p.tier==='core'?'基本':'発展')+'</span>'+
+       '<span class="cnote" id="candnote-'+p.id+'"></span>'+
+       '</div>';
+  });
+  candHost.innerHTML=h;
+  AMINO_ACIDS.forEach(p=>candEl[p.id]=document.getElementById('cand-'+p.id));
+}
+let fadeTimer=0;
+const reduceMotion = () => window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+function showCands(ids){
+  const keep=new Set(ids), leaving=[];
+  AMINO_ACIDS.forEach(p=>{
+    const el=candEl[p.id];
+    if(keep.has(p.id)){ el.classList.remove('gone','leaving'); }
+    else if(!el.classList.contains('gone')){ leaving.push(el); }
+  });
+  clearTimeout(fadeTimer);
+  if(reduceMotion()){
+    leaving.forEach(el=>{ el.classList.remove('leaving'); el.classList.add('gone'); });
+  }else{
+    leaving.forEach(el=>el.classList.add('leaving'));
+    fadeTimer=setTimeout(()=>{
+      leaving.forEach(el=>{ if(el.classList.contains('leaving')){ el.classList.remove('leaving'); el.classList.add('gone'); } });
+    },180);
+  }
+  AMINO_ACIDS.forEach(p=>candEl[p.id].classList.remove('solo'));
+  if(ids.length===1) candEl[ids[0]].classList.add('solo');
+}
+function updateCandNotes(ids){
+  const idset=new Set(ids);
+  AMINO_ACIDS.forEach(p=>{
+    const el=document.getElementById('candnote-'+p.id);
+    if(!idset.has(p.id)){ el.textContent=''; return; }
+    const flagged=CONDS.filter(c=>c.kind==='test3' && isSelected(c) && String(outcomeOf(c,p))==='conditional');
+    el.textContent = flagged.length ? '条件による: '+flagged.map(c=>c.label).join('・') : '';
+  });
+}
+
+/* ---------- 条件グループUI ---------- */
+const GROUP_ORDER=['呈色反応','分類','元素組成','分子量系'];
+const GROUP_OPEN={'呈色反応':true,'分類':true,'元素組成':false,'分子量系':false};
+function condRowHTML(c){
+  if(c.kind==='exactNumber'){
+    return '<div class="trow"><div class="tlab">'+esc(c.label)+'</div><div class="tbtns">'+
+      '<input type="text" inputmode="numeric" class="fx" id="fx-'+c.id+'" placeholder="例: 131" '+
+      'aria-label="'+esc(c.label)+'で絞り込む(完全一致)">'+
+      '<button class="btn sm" id="fxc-'+c.id+'" aria-label="'+esc(c.label)+'の入力をクリア">クリア</button>'+
+      '</div></div>';
+  }
+  const opts=[[null,'未選択']].concat(optionsOf(c));
+  const btns=opts.map(([val,text])=>
+    '<button class="btn sm tbtn" data-cond="'+c.id+'" data-val="'+(val===null?'':esc(String(val)))+'" '+
+    'aria-label="'+esc(c.label)+' '+esc(text)+'">'+esc(text)+'</button>').join('');
+  return '<div class="trow"><div class="tlab">'+esc(c.label)+'</div>'+
+    '<div class="tbtns" role="group" aria-label="'+esc(c.label)+'の選択">'+btns+'</div></div>';
+}
+function buildRevGroups(){
+  const host=document.getElementById('revgroups');
+  let h='';
+  GROUP_ORDER.forEach(g=>{
+    const conds=CONDS.filter(c=>c.group===g);
+    h+='<details'+(GROUP_OPEN[g]?' open':'')+' class="grp"><summary>'+esc(g)+
+       '<span class="gcount">'+conds.length+'件</span></summary><div class="grpbody">';
+    conds.forEach(c=>{ h+=condRowHTML(c); });
+    h+='</div></details>';
+  });
+  host.innerHTML=h;
+  CONDS.forEach(c=>{ wireCondRow(c); if(c.kind!=='exactNumber') syncCondButtons(c); });
+}
+function syncCondButtons(c){
+  document.querySelectorAll('button[data-cond="'+c.id+'"]').forEach(b=>{
+    const val=b.dataset.val===''?null:b.dataset.val;
+    const on=rev.values[c.id]===val;
+    b.classList.toggle('on',on);
+    b.setAttribute('aria-pressed',on?'true':'false');
+  });
+}
+function wireCondRow(c){
+  if(c.kind==='exactNumber'){
+    const input=document.getElementById('fx-'+c.id);
+    const clr=document.getElementById('fxc-'+c.id);
+    input.addEventListener('input',()=>{ rev.values[c.id]=input.value; revRender(); });
+    clr.addEventListener('click',()=>{ input.value=''; rev.values[c.id]=''; revRender(); });
+  }else{
+    document.querySelectorAll('button[data-cond="'+c.id+'"]').forEach(b=>{
+      b.addEventListener('click',()=>{
+        rev.values[c.id]= b.dataset.val===''?null:b.dataset.val;
+        syncCondButtons(c);
+        revRender();
+      });
+    });
+  }
+}
+document.getElementById('rev-reset-all').addEventListener('click',()=>{
+  CONDS.forEach(c=>{
+    if(c.kind==='exactNumber'){
+      rev.values[c.id]='';
+      const el=document.getElementById('fx-'+c.id); if(el) el.value='';
+    }else{
+      rev.values[c.id]=null;
+      syncCondButtons(c);
+    }
+  });
+  revRender();
+});
+
+/* ---------- 逆引き全体の描画 ---------- */
+function revRender(){
+  const all=listOf(null);
+  const ids=all.map(p=>p.id);
+  const nCond=CONDS.filter(isSelected).length;
+  document.getElementById('revcount').innerHTML=
+    '候補 <b>'+all.length+'</b> / '+AMINO_ACIDS.length+' &nbsp;&nbsp;条件 <b>'+nCond+'</b> 件';
+  showCands(ids);
+  updateCandNotes(ids);
+
+  const vd=document.getElementById('revverdict');
+  const solo=document.getElementById('solocard');
+  if(all.length===0){
+    vd.innerHTML=drawZero();
+    solo.hidden=true;
+    document.getElementById('sugcard').hidden=true;
+  }else if(all.length===1){
+    vd.innerHTML='';
+    solo.hidden=false;
+    document.getElementById('solobody').innerHTML=drawSolo(all[0]);
+    document.getElementById('sugcard').hidden=true;
+  }else{
+    vd.innerHTML = nCond===0 ? '<p class="note">まだ条件を選んでいない。上のグループから条件を選ぶと絞り込まれる。</p>' : '';
+    solo.hidden=true;
+    drawSuggestCard(all);
+  }
+}
+
+/* ---------- マトリクス表 ---------- */
+function testCellHTML(result){
+  if(result==='positive') return '<span class="pos">陽性</span>';
+  if(result==='negative') return '<span class="neg">陰性</span>';
+  return '<span class="condl">条件による</span>';
+}
+function buildTabA(){
+  document.getElementById('thead-a').innerHTML=
+    '<th class="c1">名前</th><th class="c2">略号</th><th>分類</th>'+
+    '<th class="vh">不斉炭素数</th><th class="num">pI</th>'+
+    '<th class="vh">ニンヒドリン反応</th><th class="vh">キサントプロテイン反応</th><th class="vh">硫黄の検出反応</th>';
+  let h='';
+  AMINO_ACIDS.forEach(p=>{
+    h+='<tr>'+
+      '<td class="c1"><span class="aa-name">'+esc(p.name)+'</span><span class="tierbadge">'+(p.tier==='core'?'基本':'発展')+'</span></td>'+
+      '<td class="c2 mono">'+esc(p.abbr3)+'</td>'+
+      '<td>'+outcomeLabel(CONDS_BY_ID.class,p.class)+'</td>'+
+      '<td class="num mono">'+outcomeLabel(CONDS_BY_ID.chiral_center_count,p.chiral_center_count)+'</td>'+
+      '<td class="num mono">'+p.pI.value.toFixed(2)+'</td>'+
+      '<td>'+testCellHTML(p.tests.ninhydrin.result)+'</td>'+
+      '<td>'+testCellHTML(p.tests.xanthoproteic.result)+'</td>'+
+      '<td>'+testCellHTML(p.tests.sulfur.result)+'</td>'+
+      '</tr>';
+  });
+  document.getElementById('tbody-a').innerHTML=h;
+}
+function buildTabB(){
+  document.getElementById('thead-b').innerHTML=
+    '<th class="c1">名前</th><th class="c2">略号</th><th>分子式</th>'+
+    '<th class="num">C</th><th class="num">H</th><th class="num">N</th><th class="num">O</th><th class="num">S</th>'+
+    '<th class="vh num">全体の分子量</th><th class="vh num">側鎖の分子量</th>';
+  let h='';
+  AMINO_ACIDS.forEach(p=>{
+    h+='<tr>'+
+      '<td class="c1"><span class="aa-name">'+esc(p.name)+'</span><span class="tierbadge">'+(p.tier==='core'?'基本':'発展')+'</span></td>'+
+      '<td class="c2 mono">'+esc(p.abbr3)+'</td>'+
+      '<td class="mono">'+esc(p.formula)+'</td>'+
+      '<td class="num mono">'+p.atom_counts.C+'</td>'+
+      '<td class="num mono">'+p.atom_counts.H+'</td>'+
+      '<td class="num mono">'+p.atom_counts.N+'</td>'+
+      '<td class="num mono">'+p.atom_counts.O+'</td>'+
+      '<td class="num mono">'+p.atom_counts.S+'</td>'+
+      '<td class="num mono">'+p.molar_mass+'</td>'+
+      '<td class="num mono">'+p.side_chain_molar_mass.value+'</td>'+
+      '</tr>';
+  });
+  document.getElementById('tbody-b').innerHTML=h;
+}
+function wireScrollShadow(id){
+  const el=document.getElementById(id);
+  el.addEventListener('scroll',()=>{ el.classList.toggle('scrolled', el.scrollLeft>0); },{passive:true});
+}
+function fixStickyWidth(){
+  const wrapId = st.mtab==='a' ? 'mtab-a' : 'mtab-b';
+  const c1=document.querySelector('#'+wrapId+' td.c1, #'+wrapId+' th.c1');
+  if(!c1) return;
+  const w=Math.ceil(c1.getBoundingClientRect().width);
+  if(w>0) document.getElementById('view-matrix').style.setProperty('--col1w', w+'px');
+}
+function setMTab(t){
+  document.getElementById('mtab-a').hidden = t!=='a';
+  document.getElementById('mtab-b').hidden = t!=='b';
+  document.getElementById('tab-a-btn').classList.toggle('on', t==='a');
+  document.getElementById('tab-a-btn').setAttribute('aria-pressed', t==='a');
+  document.getElementById('tab-b-btn').classList.toggle('on', t==='b');
+  document.getElementById('tab-b-btn').setAttribute('aria-pressed', t==='b');
+  ['mtab-a','mtab-b'].forEach(id=>{ const el=document.getElementById(id); el.scrollLeft=0; el.classList.remove('scrolled'); });
+  st.mtab=t;
+  requestAnimationFrame(fixStickyWidth);
+}
+document.getElementById('tab-a-btn').addEventListener('click',()=>setMTab('a'));
+document.getElementById('tab-b-btn').addEventListener('click',()=>setMTab('b'));
+
+/* ---------- モード切り替え ---------- */
+const st={mode:'matrix',mtab:'a'};
+function setMode(m){
+  document.getElementById('view-matrix').hidden = m!=='matrix';
+  document.getElementById('view-rev').hidden = m!=='rev';
+  document.getElementById('m-matrix').classList.toggle('on', m==='matrix');
+  document.getElementById('m-matrix').setAttribute('aria-pressed', m==='matrix');
+  document.getElementById('m-rev').classList.toggle('on', m==='rev');
+  document.getElementById('m-rev').setAttribute('aria-pressed', m==='rev');
+  st.mode=m;
+  if(m==='matrix') requestAnimationFrame(fixStickyWidth);
+  if(m==='rev') revRender();
+}
+document.getElementById('m-matrix').addEventListener('click',()=>setMode('matrix'));
+document.getElementById('m-rev').addEventListener('click',()=>setMode('rev'));
+window.addEventListener('resize',()=>{ if(st.mode==='matrix') fixStickyWidth(); });
+
+/* ---------- 初期化 ---------- */
+buildTabA();
+buildTabB();
+wireScrollShadow('mtab-a');
+wireScrollShadow('mtab-b');
+buildRevGroups();
+buildCandList();
+requestAnimationFrame(fixStickyWidth);
+</script>
+</body>
+</html>

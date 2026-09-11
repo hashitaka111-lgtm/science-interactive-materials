@@ -1,0 +1,1925 @@
+<!doctype html>
+<html lang="ja">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>荷電粒子の3D運動インタラクティブ</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500&family=IBM+Plex+Sans+JP:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+*{box-sizing:border-box}
+:root{
+  --ink:#16232B; --muted:#5E6E76; --paper:#EDF1EF; --surface:#FFFFFF;
+  --rule:#D6DDDA; --rule-soft:#E8EDEB;
+  --c0:#B87A16; --c0t:#8A5A0C;
+  --c1:#158A6D; --c1t:#0D6A53;
+  --c2:#2457A6; --c2t:#1B4380;
+  --c3:#6E3AA7; --c3t:#572D85;
+  --c4:#A82A6A; --c4t:#831F52;
+  --c5:#3B6E1E; --c5t:#2A5215;
+  --mono:"IBM Plex Mono",ui-monospace,SFMono-Regular,Menlo,monospace;
+}
+html,body{margin:0;padding:0}
+body{
+  background:var(--paper); color:var(--ink);
+  font-family:"IBM Plex Sans JP","Hiragino Sans","Yu Gothic UI",system-ui,sans-serif;
+  font-size:13.5px; line-height:1.75; -webkit-text-size-adjust:100%;
+}
+.mono{font-family:var(--mono);font-variant-numeric:tabular-nums}
+.wrap{max-width:820px;margin:0 auto;padding:20px 14px 72px}
+.card{background:var(--surface);border:1px solid var(--rule);border-radius:3px;padding:14px;margin-bottom:14px}
+.eyebrow{display:flex;align-items:center;gap:10px;font-family:var(--mono);font-size:11.5px;letter-spacing:.14em;color:var(--muted)}
+.eyebrow::after{content:"";flex:1;height:1px;background:var(--rule)}
+h1{font-size:22px;font-weight:600;letter-spacing:.01em;margin:8px 0 2px}
+h2{font-size:13.5px;font-weight:600;margin:14px 0 6px;letter-spacing:.01em}
+h2:first-child{margin-top:0}
+p{margin:0 0 8px}
+p:last-child{margin-bottom:0}
+.note{color:var(--muted);font-size:12px;line-height:1.7}
+.sub{color:var(--muted);font-size:11.5px;font-family:var(--mono);letter-spacing:.06em}
+hr{border:none;border-top:1px solid var(--rule-soft);margin:12px 0}
+
+.btn{font:inherit;font-size:12.5px;line-height:1.4;border:1px solid var(--rule);background:#fff;color:var(--ink);border-radius:2px;padding:6px 10px;cursor:pointer}
+.btn:hover{border-color:#B4C0BC}
+.btn.on{background:var(--ink);color:#fff;border-color:var(--ink)}
+.btn:focus-visible{outline:2px solid var(--c2);outline-offset:1px}
+.btn.sm{padding:4px 8px;font-size:11.5px}
+.btn.pos.on{background:var(--c4);border-color:var(--c4)}
+.btn.neg.on{background:var(--c2);border-color:var(--c2)}
+.btnrow{display:flex;flex-wrap:wrap;gap:6px}
+.ctl{display:flex;flex-wrap:wrap;align-items:center;gap:8px;margin-top:10px}
+.ctl .lab{font-family:var(--mono);font-size:11px;letter-spacing:.1em;color:var(--muted);white-space:nowrap}
+.ctl .val{font-family:var(--mono);font-variant-numeric:tabular-nums;font-size:12.5px;min-width:86px}
+
+.viewer{position:relative;border:1px solid var(--rule-soft);border-radius:3px;background:#FBFCFB;overflow:hidden;margin-top:10px}
+svg.stage{display:block;width:100%;height:auto;touch-action:none}
+svg.stage.grab{cursor:grab}
+svg.stage.grab.drag{cursor:grabbing}
+
+.legend{display:flex;flex-wrap:wrap;gap:4px 14px;margin-top:9px;font-size:11.5px;color:var(--muted)}
+.sw{display:inline-block;width:10px;height:10px;border-radius:50%;margin-right:5px;vertical-align:-1px}
+.swl{display:inline-block;width:14px;height:0;border-top:2px solid;margin-right:5px;vertical-align:3px}
+
+table{width:100%;border-collapse:collapse;font-size:12.5px}
+th{font-weight:500;color:var(--muted);text-align:left;border-bottom:1px solid var(--rule);padding:5px 6px;font-size:11px;letter-spacing:.06em;font-family:var(--mono)}
+td{border-bottom:1px solid var(--rule-soft);padding:5px 6px;vertical-align:top}
+.num{text-align:right;font-family:var(--mono);font-variant-numeric:tabular-nums}
+tr.hi td{background:#FAFBFA;font-weight:600}
+tr.cur td{background:#F2F6FA}
+caption{caption-side:top;text-align:left;font-size:11.5px;color:var(--muted);padding:0 6px 6px}
+
+.stats{display:grid;grid-template-columns:1fr 1fr;gap:0 18px}
+.stat{display:flex;justify-content:space-between;align-items:baseline;gap:10px;border-bottom:1px solid var(--rule-soft);padding:6px 0}
+.stat .k{font-size:12px;color:var(--muted);white-space:nowrap}
+.stat .v{font-family:var(--mono);font-variant-numeric:tabular-nums;font-size:13px;text-align:right}
+
+.grid2{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.grid3{display:grid;grid-template-columns:repeat(3,1fr);gap:10px}
+input[type=range]{width:100%;max-width:220px;accent-color:#16232B;height:22px}
+
+.step{border-left:2px solid var(--rule);padding:1px 0 1px 11px;margin-bottom:10px}
+.step:last-child{margin-bottom:0;border-left-color:var(--ink)}
+.step .lbl{font-family:var(--mono);font-size:10.5px;letter-spacing:.12em;color:var(--muted)}
+.step .eq{font-family:var(--mono);font-size:12.5px;line-height:1.95;word-break:break-word}
+.step .eq sup{font-size:.78em}
+
+.warn{color:var(--c4t);font-size:11.5px;line-height:1.7}
+ul.tight{margin:0;padding-left:1.1em}
+ul.tight li{margin-bottom:5px}
+
+.fx{font-family:var(--mono);font-size:16px;line-height:2.2;padding:4px 0 2px;letter-spacing:.01em}
+.fx.small{font-size:13px;line-height:2}
+.fx .sym{cursor:pointer;padding:2px 3px;border-radius:2px;border-bottom:1px dashed var(--rule);-webkit-tap-highlight-color:transparent;touch-action:manipulation}
+.fx .sym:hover{background:#F6EEDC}
+.fx .sym.on{background:#F6E3BC;border-bottom:1px solid var(--c0);font-weight:500}
+.symdesc{font-size:12px;color:var(--muted);border-left:2px solid var(--c0);padding:2px 0 2px 10px;margin-top:4px;min-height:3.4em;line-height:1.7}
+.symdesc b{color:var(--ink);font-weight:600}
+
+.frac{display:inline-flex;flex-direction:column;vertical-align:middle;text-align:center;margin:0 5px;line-height:1.42}
+.frac .n{padding:0 7px 2px}
+.frac .d{padding:2px 7px 0;border-top:1.4px solid var(--ink)}
+.cV{color:var(--c2t)} .cW{color:var(--c1t)} .cO{color:var(--c3t)} .cS{color:var(--c4t)} .cF{color:var(--c0t)}
+
+.tag{display:inline-block;font-family:var(--mono);font-size:10.5px;letter-spacing:.08em;border:1px solid var(--rule);border-radius:2px;padding:0 5px;color:var(--muted)}
+.tag.lit{border-color:var(--c0);background:#F6E3BC;color:var(--c0t)}
+.tag.bad{border-color:var(--c4);background:#F5DCE8;color:var(--c4t)}
+
+.qgrid{display:grid;grid-template-columns:repeat(4,1fr);gap:7px;margin-top:11px}
+.qc{border:1px solid var(--rule);border-radius:3px;padding:7px 8px 8px;background:#fff}
+.qc .qk{font-family:var(--mono);font-size:10px;letter-spacing:.09em;color:var(--muted);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.qc .qv{font-family:var(--mono);font-variant-numeric:tabular-nums;font-size:13.5px;line-height:1.4;margin-top:2px;word-break:break-all}
+.qc .qw{font-size:10.5px;line-height:1.55;color:var(--muted);margin-top:4px}
+.qc.up{background:#FAEDF3;border-color:#DFAFC8}
+.qc.up .qv{color:var(--c4t)}
+.qc.dn{background:#ECF1F8;border-color:#B2C5E0}
+.qc.dn .qv{color:var(--c2t)}
+.qc.flat{background:#F4F6F5}
+.qc.flat .qv{color:var(--muted)}
+.qc.ok{background:#EAF4F0;border-color:#A9CFC2}
+.qc.ok .qv{color:var(--c1t)}
+.qc.lock{background:#F6EEDC;border-color:#E0C68A}
+.qc.lock .qv{color:var(--c0t)}
+
+.chip{display:inline-flex;align-items:center;gap:5px}
+.chip .dot{width:9px;height:9px;border-radius:50%;display:inline-block}
+
+.bigrow{display:flex;align-items:baseline;flex-wrap:wrap;gap:6px 20px;border:1px solid var(--rule);border-radius:3px;background:#FAFBFA;padding:9px 12px;margin-top:10px}
+.bigrow .bk{font-family:var(--mono);font-size:10.5px;letter-spacing:.1em;color:var(--muted);display:block}
+.bigrow .bv{font-family:var(--mono);font-variant-numeric:tabular-nums;font-size:25px;line-height:1.25;display:block}
+.bigrow .bu{font-size:11px;color:var(--muted);display:block}
+
+@media (max-width:430px){
+  body{font-size:13px}
+  .wrap{padding:14px 10px 56px}
+  .card{padding:11px}
+  h1{font-size:19px}
+  .grid2,.grid3,.stats{grid-template-columns:1fr}
+  table{font-size:12px}
+  th,td{padding:4px 4px}
+  .btn{padding:6px 8px;font-size:12px}
+  input[type=range]{max-width:none;flex:1 1 100%}
+  .step .eq{font-size:11.5px}
+  .ctl .val{min-width:0}
+  .fx{font-size:14px;line-height:2.3}
+  .fx.small{font-size:11.5px}
+  .symdesc{min-height:5em}
+  .qgrid{grid-template-columns:repeat(2,1fr);gap:6px}
+  .qc .qv{font-size:13px}
+  .bigrow{gap:6px 14px}
+  .bigrow .bv{font-size:20px}
+}
+</style>
+</head>
+<body>
+<div class="wrap">
+
+<header>
+  <div class="eyebrow">CHARGED PARTICLE IN E &amp; B</div>
+  <h1>荷電粒子の3D運動インタラクティブ</h1>
+  <p class="note">磁場は速さを変えずに向きだけを曲げ、電場は速さを変える。両方かかると軌道は「一定の流れ」と「円運動」と「磁場方向の等加速度」が重なった形になる。箱をドラッグして回すと、らせんが本当にらせんであること、E&times;B ドリフトが電荷の符号によらないことが、真下の投影図と見比べながら確かめられる。軌道は運動方程式を数値積分して出しているが、一様な場では厳密解が閉じた形で書けるので、そちらとの差もそのつど表示している。</p>
+</header>
+
+<div class="card">
+  <div class="eyebrow">ORBIT</div>
+  <div class="btnrow" id="presel" style="margin-top:10px"></div>
+  <div class="viewer"><svg class="stage grab" id="sv-main" role="img" aria-label="電磁場中の荷電粒子の3D軌道"><g id="main-g"></g><g id="main-fg"></g></svg></div>
+  <p class="note" id="mainhint" style="margin-top:7px"></p>
+  <div class="ctl"><span class="lab">再生</span><span class="btnrow" id="playrow"></span><span class="lab">視点</span><span class="btnrow" id="viewbtn"></span></div>
+  <div class="grid2" style="margin-top:4px" id="timesliders"></div>
+  <div class="qgrid" id="qgrid"></div>
+  <h2>xy・yz・zx への投影</h2>
+  <p class="note">同じ軌道を3つの面に落としたもの。縮尺は3枚とも共通なので、どの面で広がっているかがそのまま比べられる。B は常に z 方向にとってある。</p>
+  <div class="viewer"><svg class="stage" id="sv-proj" role="img" aria-label="軌道のxy・yz・zx各面への投影"><g id="proj-g"></g><g id="proj-fg"></g></svg></div>
+  <div class="grid2" style="margin-top:4px" id="viewsliders"></div>
+  <hr>
+  <h2>場と粒子</h2>
+  <div class="ctl"><span class="lab">粒子</span><span class="btnrow" id="partsel"></span></div>
+  <div class="grid2" style="margin-top:4px" id="fldsliders"></div>
+  <p class="note" id="mainnote" style="margin-top:9px"></p>
+  <p class="warn" id="mainwarn" style="margin-top:6px"></p>
+  <div class="legend" id="legend"></div>
+</div>
+
+<div class="card">
+  <div class="eyebrow">EQUATION OF MOTION</div>
+  <h2>解くべき式と、閉じた形の答え</h2>
+  <p class="note">力はローレンツ力ひとつだけ。磁気力は速度に垂直なので仕事をせず、速さを変えるのは電場だけになる。記号をタップすると中身が出る。</p>
+  <div class="fx" id="fx1"></div>
+  <div class="symdesc" id="fx1d">記号をタップすると説明が出る。</div>
+  <h2>成分に分けるとほどける</h2>
+  <p class="note">磁場の向きを z 軸に選ぶ。&omega; = qB/m を使って書き直すと、z 成分だけが他から切れているのが見える。だから磁場方向の運動は磁場の影響を受けない。</p>
+  <div class="fx small" id="fx2"></div>
+  <p class="note">横方向は、まず定常解（加速度がゼロになる速度）を見つけると片づく。それが E&times;B ドリフト。そこからのずれ u = v<sub>&perp;</sub> &minus; v<sub>d</sub> は角速度 &omega; の等速回転になる。</p>
+  <div class="fx small" id="fx3"></div>
+  <p class="note" id="exactnote" style="margin-top:6px"></p>
+  <h2>3D を描くのに使っている式</h2>
+  <p class="note">外部ライブラリは使わず、回転と投影を内積3本で計算している。方位角 &theta; と仰角 &phi; からカメラの視線と画面の右・上の向きを作り、点の座標との内積を取るだけ。奥行きは視線方向の内積で決めて、遠いものから順に描く。</p>
+  <div class="fx small" id="fx4"></div>
+  <div class="viewer"><svg class="stage" id="sv-cam" role="img" aria-label="投影に使う3つの基底ベクトル"><g id="cam-g"></g></svg></div>
+</div>
+
+<div class="card">
+  <div class="eyebrow">RADIUS &amp; PERIOD</div>
+  <h2>速さを変えても周期は動かない</h2>
+  <p class="note">磁場に垂直な成分だけが円を描く。半径は速さに比例して伸びるのに、1周に要する時間は速さが消えて残らない。上の v<sub>0</sub> スライダーを動かしながら下の2つの数字を見比べてほしい。左は動き、右は動かない。</p>
+  <div class="bigrow" id="bigrow"></div>
+  <div class="viewer"><svg class="stage" id="sv-circ" role="img" aria-label="半径と周期の速度依存性"><g id="circ-g"></g></svg></div>
+  <div class="stats" id="circstats" style="margin-top:10px"></div>
+  <p class="note" id="circnote" style="margin-top:9px"></p>
+  <h2>数字で確かめる</h2>
+  <div id="circtab" style="margin-top:4px"></div>
+  <p class="note" id="circtabnote" style="margin-top:9px"></p>
+</div>
+
+<div class="card">
+  <div class="eyebrow">E &times; B DRIFT</div>
+  <h2>電荷にも質量にもよらない流れ</h2>
+  <p class="note">E を B に直角にかけて、4種類の粒子を同時に静止から出発させた。輪の大きさも回る向きもばらばらなのに、横に流れる速さは全部同じになる。正電荷と負電荷が同じ向きに流れるので、この流れでは電流が生じない。</p>
+  <div class="viewer"><svg class="stage" id="sv-drift" role="img" aria-label="E×Bドリフトのサイクロイド軌道"><g id="drift-g"></g></svg></div>
+  <div id="drifttab" style="margin-top:10px"></div>
+  <p class="note" id="driftnote" style="margin-top:9px"></p>
+</div>
+
+<div class="card">
+  <div class="eyebrow">VELOCITY SELECTOR</div>
+  <h2>通り抜ける条件に q も m も入らない</h2>
+  <p class="note">電場による力と磁気力が釣り合うのは v = E/B のときだけ。これはドリフト速度の大きさそのもので、直進する粒子とは円運動の成分を持たない粒子のこと。教科書は極板間の変位を放物線で扱うが、厳密解と比べるとどこでずれるかが見える。</p>
+  <div class="viewer"><svg class="stage" id="sv-sel" role="img" aria-label="速度選択器を通る粒子の変位"><g id="sel-g"></g></svg></div>
+  <div class="grid2" style="margin-top:4px" id="selsliders"></div>
+  <div class="stats" id="selstats" style="margin-top:10px"></div>
+  <p class="note" id="selnote" style="margin-top:9px"></p>
+  <h2>放物線近似と厳密解の差</h2>
+  <div id="seltab" style="margin-top:4px"></div>
+  <p class="note" id="seltabnote" style="margin-top:9px"></p>
+</div>
+
+<div class="card">
+  <div class="eyebrow">CYCLOTRON</div>
+  <h2>周期が一定だから、同じ周波数で加速し続けられる</h2>
+  <p class="note">ギャップにだけ交流電場を置き、周波数を f<sub>c</sub> = |q|B/2&pi;m に固定する。粒子は速くなるほど大きな円を描くが、戻ってくる時刻は変わらないので、いつ来ても電場が加速の向きを向いている。半径は加速回数の平方根で伸びる。</p>
+  <div class="grid2" style="margin-top:4px" id="cycsliders"></div>
+  <div class="viewer"><svg class="stage" id="sv-cyc" role="img" aria-label="サイクロトロンの半径の伸び方"><g id="cyc-g"></g></svg></div>
+  <div class="stats" id="cycstats" style="margin-top:10px"></div>
+  <p class="note" id="cycnote" style="margin-top:9px"></p>
+  <h2>1回の横断で本当に qU もらえるのか</h2>
+  <p class="note">ギャップには幅があるので、横断中に電場が弱まる。速い粒子ほど一瞬で通り抜けるので取りこぼしが減る。数値積分から実測した値と、速度一定を仮定した通過時間因子の式を並べた。</p>
+  <div id="cyctab" style="margin-top:4px"></div>
+  <p class="note" id="cyctabnote" style="margin-top:9px"></p>
+</div>
+
+<div class="card">
+  <div class="eyebrow">MASS SPECTROMETER</div>
+  <h2>質量ごとに着地点が分かれる</h2>
+  <div class="ctl"><span class="lab">イオン</span><span class="btnrow" id="msset"></span></div>
+  <div class="ctl"><span class="lab">入れ方</span><span class="btnrow" id="msmode"></span></div>
+  <div class="viewer"><svg class="stage" id="sv-ms" role="img" aria-label="質量分析器の検出位置"><g id="ms-g"></g></svg></div>
+  <div class="grid2" style="margin-top:4px" id="mssliders"></div>
+  <div class="stats" id="msstats" style="margin-top:10px"></div>
+  <p class="note" id="msnote" style="margin-top:9px"></p>
+  <h2>質量数 A で代用したときのずれ</h2>
+  <div id="mstab" style="margin-top:4px"></div>
+  <p class="note" id="mstabnote" style="margin-top:9px"></p>
+</div>
+
+<div class="card">
+  <div class="eyebrow">NUMERICS</div>
+  <h2>RK4 と Boris 法を厳密解と突き合わせる</h2>
+  <p class="note">一様な場なら閉じた式で答えが書けるので、数値解の誤差をそのまま測れる。下の表は磁場だけ（E = 0）にして2周ぶん走らせたもの。1周あたりの刻み数を変えると、位置の誤差と速さの保存がどう変わるかが出る。</p>
+  <div class="grid2" style="margin-top:4px" id="numsliders"></div>
+  <div id="numtab" style="margin-top:10px"></div>
+  <p class="note" id="numnote" style="margin-top:9px"></p>
+  <h2>電場があるときのエネルギー収支</h2>
+  <p class="note">磁気力は仕事をしないので、運動エネルギーの変化は電場のした仕事 qE&middot;&Delta;r だけで決まるはず。いまの設定でその2つを突き合わせる。</p>
+  <div id="enertab" style="margin-top:4px"></div>
+  <p class="note" id="enernote" style="margin-top:9px"></p>
+</div>
+
+<div class="card">
+  <div class="eyebrow">MEDICAL</div>
+  <h2>粒子線治療とブラッグピーク</h2>
+  <p class="note">陽子や炭素イオンは、止まる直前で急に大きなエネルギーを落とす。この山がブラッグピークで、深さは入射エネルギーだけで決まる。X線が入口で一番強く、そこから指数関数的に減っていくのとは逆の形になるので、腫瘍の深さに山を合わせれば手前と奥の正常組織を避けられる。その陽子を 70&ndash;250 MeV まで持ち上げるのがサイクロトロンやシンクロトロンで、曲げて患者に向けるのが上の r = mv/qB そのもの。</p>
+  <div class="viewer"><svg class="stage" id="sv-bragg" role="img" aria-label="陽子線とX線の深部線量分布"><g id="bragg-g"></g></svg></div>
+  <div class="grid2" style="margin-top:4px" id="bragsliders"></div>
+  <div id="bragtab" style="margin-top:10px"></div>
+  <p class="note" id="bragnote" style="margin-top:9px"></p>
+</div>
+
+<div class="card">
+  <div class="eyebrow">NOTES</div>
+  <h2>どの近似がどこで効くか</h2>
+  <div id="apptable"></div>
+  <h2>使った定数</h2>
+  <div id="consttable" style="margin-top:4px"></div>
+  <p class="note" id="constnote" style="margin-top:8px"></p>
+  <h2>取り違えやすいところ</h2>
+  <ul class="tight note" id="misslist"></ul>
+</div>
+
+</div>
+<script>
+"use strict";
+const TAU=Math.PI*2, D2R=Math.PI/180, R2D=180/Math.PI;
+const INK='#16232B',MUT='#5E6E76',RULE='#D6DDDA',SOFT='#E8EDEB',PAPER='#EDF1EF';
+const CGOLD='#B87A16',CGRN='#158A6D',CBLU='#2457A6',CPUR='#6E3AA7',CCRM='#A82A6A',COLV='#3B6E1E';
+const CGOLDT='#8A5A0C',CGRNT='#0D6A53',CBLUT='#1B4380',CPURT='#572D85',CCRMT='#831F52',COLVT='#2A5215';
+
+/* ---------- 定数（データ駆動） ---------- */
+const QE=1.602176634e-19;        /* 素電荷 [C] SI定義値 */
+const UAMU=1.66053906660e-27;    /* 統一原子質量単位 [kg] CODATA2018 */
+const MEU=5.48579909065e-4;      /* 電子質量 [u] */
+const CL=299792458;              /* 光速 [m/s] 定義値 */
+const MPU=1.007276466621;        /* 陽子 [u] */
+const MPMEV=938.27208816;        /* 陽子の静止エネルギー [MeV] */
+const JMEV=1.602176634e-13;      /* 1 MeV [J] */
+const EPS0=8.8541878128e-12;
+
+const CONSTS=[
+  ['素電荷 e','1.602176634&times;10<sup>&minus;19</sup> C','SI 定義値（2019 改定）','測定値ではなく定義。以後 q = Z e として扱う'],
+  ['統一原子質量単位 u','1.66053906660&times;10<sup>&minus;27</sup> kg','CODATA 2018','教科書の 1.66&times;10<sup>&minus;27</sup> との差は 0.032%。画面の数字は CODATA 値で出している'],
+  ['陽子の質量','1.007276466 u','CODATA 2018','質量数 1 だからと m = 1 u と置くと 0.72% 軽くなる。半径も周期もそのぶんずれる'],
+  ['電子の質量','5.48579909&times;10<sup>&minus;4</sup> u','CODATA 2018','イオンの質量は中性原子から電子ぶんを引いて出す。1 価で 0.0005 u ほど'],
+  ['光速 c','299792458 m/s','SI 定義値','v/c が 1% を超えたら非相対論の式を疑う。画面上部に常時表示している'],
+  ['陽子の静止エネルギー','938.272 MeV','CODATA 2018','&gamma; = 1 + K/938.272。250 MeV で 1.266 になり、周期が 26.6% 延びる'],
+  ['真空の誘電率 &epsilon;<sub>0</sub>','8.8541878128&times;10<sup>&minus;12</sup> F/m','CODATA 2018','放射減衰の見積もりにだけ使っている']
+];
+
+const APPROX=[
+  ['ニュートンの運動方程式（非相対論）','全編','&gamma; = 1 と置いている。いまの v/c と &gamma;&minus;1 はダッシュボードに出る。250 MeV の陽子なら &gamma; = 1.266 で、周期が 26.6% 長くなり半径も 6.5% 大きくなる'],
+  ['放射減衰（ラーモア放射）の無視','全編','加速度運動する電荷は電磁波を出してエネルギーを失う。いまの設定での 1 周あたりの損失率はダッシュボード下の注記に数値で出している'],
+  ['重力の無視','全編','mg とローレンツ力の比は下の注記に出る。陽子と 100 mT では 10<sup>&minus;12</sup> のオーダー'],
+  ['場は一様','円運動・らせん・ドリフト・質量分析','実際の電磁石は端で漏れる。有限の極板では境界付近で E が落ちる'],
+  ['ギャップの外では E = 0','サイクロトロン','境界で不連続に切り替えている。実機ではフリンジ電場が数ミリにわたって伸び、実効的なギャップ幅がやや広くなる'],
+  ['RF は正弦波で周波数固定','サイクロトロン','相対論で周期が延びると位相がずれる。ずれ量は下に数値で出している。実機では周波数変調（シンクロサイクロトロン）で逃げる'],
+  ['空間電荷の無視','質量分析器','ビーム内のイオンどうしのクーロン反発を入れていない。電流が大きいと軌道が膨らむ'],
+  ['粒子は点、スピンと磁気モーメントは無視','全編','ローレンツ力だけ。実際には磁気モーメントの歳差（ラーモア歳差）もある'],
+  ['変位を放物線で近似','速度選択器の教科書式','厳密には円運動が重なるので、極板が長いほど放物線からずれる。差は表で数値化している'],
+  ['イオンの質量を A&middot;u とする','質量スライダー','実測質量とのずれは陽子で +0.73%、&sup2;&sup3;&#8312;U&#8314; で +0.021%。質量分析器の表で並べている'],
+  ['数値積分の打ち切り誤差','全編','Boris 法は 2 次、RK4 は 4 次。一様場の厳密解との差は NUMERICS の表に出している']
+];
+
+const MISS=[
+  '磁気力は仕事をしない。磁場の中で速さは変わらず、変わるのは向きだけ。速さを変えられるのは電場だけ。',
+  'r = mv/(qB) の v は磁場に垂直な成分。斜めに入ったら v sin&alpha; を使う。まるごと v を入れると半径を大きく見積もる。',
+  '周期は速さにも半径にもよらない。この一点だけでサイクロトロンが成立している。',
+  'v &times; B の順番を逆にすると符号が反転する。B &times; v と書いた時点で向きが逆になる。',
+  '負電荷は回る向きが逆になるが、半径は同じ。r も T も |q| で決まる。',
+  'E&times;B ドリフトの速さ E/B には電荷も質量も入らない。正イオンと電子が同じ向きに流れるので、この流れ自体は電流を作らない。',
+  '速度選択器を通る条件 v = E/B にも q と m が入らない。だから選別できるのは速度だけで、質量は選べない。',
+  '質量分析器で分かれるのは m/q であって m ではない。&sup1;&sup2;C&#8314; と &sup2;&#8308;Mg&sup2;&#8314; のように m/q がほぼ同じ組は分離しにくい。',
+  'サイクロトロンの共鳴周波数は q/m で決まる。陽子用の機械で重陽子を同じ周波数で回すことはできない。',
+  'フレミングの左手則の「電流の向き」は正電荷が動く向き。電子ならその逆向きに指を当てる。',
+  '電場と磁場が両方あるとき、運動エネルギーの変化は電場のした仕事だけで決まる。磁場の項は最初から落としてよい。',
+  'らせんのピッチは v cos&alpha; &times; T。半径の式と同じ T を使うので、傾けても 1 周の時間は変わらない。'
+];
+
+/* ---------- イオン（実測質量） ---------- */
+/* mu は中性原子質量から電子 z 個ぶんを引いた値 [u]。原子質量は AME2020 準拠 */
+const ION={
+  H1:  {nm:'&sup1;H&#8314;',      A:1,   mu:1.00782503207-1*MEU,   z:1},
+  H2:  {nm:'&sup2;H&#8314;',      A:2,   mu:2.01410177811-1*MEU,   z:1},
+  He4: {nm:'&#8308;He&sup2;&#8314;',A:4, mu:4.00260325413-2*MEU,   z:2},
+  C12: {nm:'&sup1;&sup2;C&#8314;', A:12,  mu:12-1*MEU,              z:1},
+  C13: {nm:'&sup1;&sup3;C&#8314;', A:13,  mu:13.00335483507-1*MEU,  z:1},
+  N14: {nm:'&sup1;&#8308;N&#8314;',A:14,  mu:14.0030740048-1*MEU,   z:1},
+  Ne20:{nm:'&sup2;&#8304;Ne&#8314;',A:20, mu:19.9924401762-1*MEU,   z:1},
+  Ne21:{nm:'&sup2;&sup1;Ne&#8314;',A:21, mu:20.99384669-1*MEU,     z:1},
+  Ne22:{nm:'&sup2;&sup2;Ne&#8314;',A:22, mu:21.991385114-1*MEU,    z:1},
+  N2:  {nm:'N&#8322;&#8314;',     A:28,  mu:2*14.0030740048-1*MEU, z:1},
+  CO:  {nm:'CO&#8314;',           A:28,  mu:12+15.9949146196-1*MEU,z:1},
+  C2H4:{nm:'C&#8322;H&#8324;&#8314;',A:28,mu:24+4*1.00782503207-1*MEU,z:1},
+  U235:{nm:'&sup2;&sup3;&#8309;U&#8314;',A:235,mu:235.0439299-1*MEU,z:1},
+  U238:{nm:'&sup2;&sup3;&#8312;U&#8314;',A:238,mu:238.0507882-1*MEU,z:1}
+};
+const IONSETS=[
+  {id:'ne', nm:'ネオン同位体', ids:['Ne20','Ne21','Ne22'],
+   note:'アストンが 1919 年に質量分析で分けた組み合わせ。天然ネオンの 90.5% が &sup2;&#8304;Ne、9.3% が &sup2;&sup2;Ne。'},
+  {id:'light',nm:'水素・重水素・ヘリウム', ids:['H1','H2','He4'],
+   note:'&#8308;He&sup2;&#8314; は電荷が 2 倍なので m/q が 2 になり、&sup2;H&#8314; とほとんど同じ位置に来る。分かれるのは質量ではなく m/q。'},
+  {id:'m28',nm:'質量数 28 の三つ子', ids:['CO','N2','C2H4'],
+   note:'整数の質量数はどれも 28。実測質量が 0.04% ずつ違うので、分解能の高い装置でだけ分かれる。有機質量分析で毎日問題になる組み合わせ。'},
+  {id:'u',  nm:'ウラン同位体', ids:['U235','U238'],
+   note:'差は 1.3%。第二次大戦中のカルトロンはこれを電磁石で物理的に分けて濃縮した。'}
+];
+
+/* ---------- 粒子プリセット ---------- */
+const PARTS=[
+  {id:'e', nm:'電子', Z:-1, mu:MEU},
+  {id:'p', nm:'陽子', Z:1, mu:MPU},
+  {id:'d', nm:'重陽子', Z:1, mu:ION.H2.mu},
+  {id:'a', nm:'&alpha;粒子', Z:2, mu:ION.He4.mu},
+  {id:'c', nm:'&sup1;&sup2;C&#8310;&#8314;', Z:6, mu:12-6*MEU},
+  {id:'ne',nm:'&sup2;&#8304;Ne&#8314;', Z:1, mu:ION.Ne20.mu}
+];
+
+/* ---------- プリセット ---------- */
+const PRESETS=[
+  {id:'circle',nm:'磁場中の円運動',mode:'free',
+   set:{E:0,aE:90,B:120,v0:1.00,aV:90,bV:0,Z:1,mu:MPU,turns:1.2},
+   note:'磁場だけ。速度が磁場に垂直なので軌道は xy 面内の円になる。v<sub>0</sub> を動かすと円は大きくなるが、1 周の時間は動かない。'},
+  {id:'helix',nm:'らせん運動',mode:'free',
+   set:{E:0,aE:90,B:120,v0:1.00,aV:74,bV:0,Z:1,mu:MPU,turns:2.2},
+   note:'速度を磁場から 16&deg; 倒した。磁場に垂直な成分だけが円を描き、平行な成分はそのまま残る。重ねるとらせん。yz と zx の投影が正弦波になっているのが、その分解そのもの。'},
+  {id:'exb',nm:'E&times;B ドリフト',mode:'free',
+   set:{E:60,aE:90,B:150,v0:0.02,aV:90,bV:0,Z:1,mu:MPU,turns:3.5},
+   note:'E を B と直角に入れて、ほぼ静止から出発させた。円運動と一定の流れが重なってサイクロイドになる。流れる向きは E でも B でもなく、その外積の向き。'},
+  {id:'sel',nm:'速度選択器',mode:'sel',
+   set:{E:11,aE:90,B:22,v0:0.50,aV:90,bV:0,Z:1,mu:MPU,turns:1},
+   note:'速さの違う 3 つを同時に撃ち込んだ。まん中の粒子だけが v = E/B を満たして直進する。速い粒子は磁気力が勝って一方に、遅い粒子は電場が勝って逆に曲がる。'},
+  {id:'cyc',nm:'サイクロトロン',mode:'cyc',
+   set:{E:0,aE:90,B:500,v0:0.02,aV:90,bV:0,Z:1,mu:MPU,turns:1},
+   note:'ギャップにだけ交流電場を置いた。周期が速さによらないので、周波数を固定したまま何十回でも加速できる。半径は加速回数の平方根で伸びる。'},
+  {id:'ms',nm:'質量分析器',mode:'ms',
+   set:{E:0,aE:90,B:400,v0:0.14,aV:90,bV:0,Z:1,mu:MPU,turns:0.5},
+   note:'複数の質量を同時に打ち込んで半円を描かせた。戻ってきた位置が質量ごとに分かれる。下のカードで検出位置と分解能を数値で見られる。'}
+];
+
+/* ---------- 小道具 ---------- */
+const clamp=(v,a,b)=>v<a?a:(v>b?b:v);
+const f1=v=>(Math.round(v*100)/100).toString();
+function fmtCore(v,sig,inf,exa,exb){
+  sig=sig||4;
+  if(!isFinite(v)) return inf;
+  if(v===0) return '0';
+  const av=Math.abs(v);
+  if(av>=1e-3&&av<1e6){
+    const dec=clamp(sig-1-Math.floor(Math.log10(av)),0,17);
+    let s=v.toFixed(dec);
+    if(s.indexOf('.')>=0) s=s.replace(/0+$/,'').replace(/\.$/,'');
+    return s.replace('-','\u2212');
+  }
+  let e=Math.floor(Math.log10(av));
+  let m=v/Math.pow(10,e);
+  if(Math.abs(+m.toFixed(sig-1))>=10){ m/=10; e++; }
+  return m.toFixed(sig-1).replace('-','\u2212')+exa+String(e).replace('-','\u2212')+exb;
+}
+function fmt(v,sig){ return fmtCore(v,sig,'&infin;','&times;10<sup>','</sup>'); }
+function fmtP(v,sig){ return fmtCore(v,sig,'\u221E','\u00D710^',''); }
+function expo(v,d){
+  if(v===0) return '0';
+  if(!isFinite(v)) return '&infin;';
+  const parts=v.toExponential(d===undefined?2:d).split('e');
+  return parts[0].replace('-','\u2212')+'&times;10<sup>'+String(parseInt(parts[1],10)).replace('-','\u2212')+'</sup>';
+}
+function mn(v){ return String(v).replace(/-/g,'\u2212'); }
+const PFX=[[1e-15,'f'],[1e-12,'p'],[1e-9,'n'],[1e-6,'\u00B5'],[1e-3,'m'],[1,''],[1e3,'k'],[1e6,'M'],[1e9,'G'],[1e12,'T']];
+function fmtU(v,u,sig){
+  if(!isFinite(v)) return '&infin;';
+  if(v===0) return '0 '+u;
+  const a=Math.abs(v);
+  let best=PFX[0];
+  for(const p of PFX) if(a>=p[0]*0.9999) best=p;
+  return fmt(v/best[0],sig||4)+' '+best[1]+u;
+}
+function niceCeil(v){
+  if(v<=0) return 1;
+  const e=Math.floor(Math.log10(v)), m=v/Math.pow(10,e);
+  const lad=[1,1.2,1.5,2,2.5,3,4,5,6,8,10];
+  for(const q of lad) if(m<=q+1e-12) return q*Math.pow(10,e);
+  return 10*Math.pow(10,e);
+}
+function vlen(a){ return Math.sqrt(a[0]*a[0]+a[1]*a[1]+a[2]*a[2]); }
+
+/* ---------- SVG 組み立て ---------- */
+function LN(x1,y1,x2,y2,c,w,dash,op){
+  return '<line x1="'+f1(x1)+'" y1="'+f1(y1)+'" x2="'+f1(x2)+'" y2="'+f1(y2)+'" stroke="'+c+'" stroke-width="'+(w||1)+'"'+
+    (dash?' stroke-dasharray="'+dash+'"':'')+(op!==undefined?' opacity="'+op+'"':'')+' stroke-linecap="round"/>';
+}
+/* SVG の <text> は HTML の sup/sub を描けないので、渡す前に平文へ落とす */
+function svgTxt(s){
+  return String(s).replace(/<sup>/g,'^').replace(/<\/sup>/g,'').replace(/<sub>/g,'_').replace(/<\/sub>/g,'')
+                  .replace(/<[^>]*>/g,'');
+}
+function TX(x,y,s,c,size,anchor,weight,op){
+  s=svgTxt(s);
+  return '<text x="'+f1(x)+'" y="'+f1(y)+'" fill="'+c+'" font-family="IBM Plex Mono, monospace" font-size="'+(size||10)+'"'+
+    (anchor?' text-anchor="'+anchor+'"':'')+(weight?' font-weight="'+weight+'"':'')+(op!==undefined?' opacity="'+op+'"':'')+'>'+s+'</text>';
+}
+function TXJ(x,y,s,c,size,anchor,weight,op){
+  s=svgTxt(s);
+  return '<text x="'+f1(x)+'" y="'+f1(y)+'" fill="'+c+'" font-family="IBM Plex Sans JP, sans-serif" font-size="'+(size||10)+'"'+
+    (anchor?' text-anchor="'+anchor+'"':'')+(weight?' font-weight="'+weight+'"':'')+(op!==undefined?' opacity="'+op+'"':'')+'>'+s+'</text>';
+}
+function PL(pts,c,w,dash,op){
+  if(pts.length<2) return '';
+  let d='M'+f1(pts[0][0])+' '+f1(pts[0][1]);
+  for(let i=1;i<pts.length;i++) d+='L'+f1(pts[i][0])+' '+f1(pts[i][1]);
+  return '<path d="'+d+'" fill="none" stroke="'+c+'" stroke-width="'+(w||1.6)+'"'+
+    (dash?' stroke-dasharray="'+dash+'"':'')+(op!==undefined?' opacity="'+op+'"':'')+' stroke-linejoin="round" stroke-linecap="round"/>';
+}
+function PLF(pts,fill,op){
+  if(pts.length<3) return '';
+  let d='M'+f1(pts[0][0])+' '+f1(pts[0][1]);
+  for(let i=1;i<pts.length;i++) d+='L'+f1(pts[i][0])+' '+f1(pts[i][1]);
+  return '<path d="'+d+'Z" fill="'+fill+'" stroke="none"'+(op!==undefined?' opacity="'+op+'"':'')+'/>';
+}
+function POLY(pts,fill,stroke,sw,op){
+  if(pts.length<3) return '';
+  let s='';
+  for(const p of pts) s+=f1(p[0])+','+f1(p[1])+' ';
+  return '<polygon points="'+s.trim()+'" fill="'+(fill||'none')+'"'+
+    (stroke?' stroke="'+stroke+'" stroke-width="'+(sw||1)+'"':'')+(op!==undefined?' opacity="'+op+'"':'')+'/>';
+}
+function AR(x1,y1,x2,y2,c,w,hs,op){
+  const dx=x2-x1, dy=y2-y1, len=Math.hypot(dx,dy);
+  if(len<0.6) return '';
+  hs=hs||6;
+  const ux=dx/len, uy=dy/len, px=-uy, py=ux;
+  const bx=x2-ux*hs, by=y2-uy*hs;
+  return LN(x1,y1,bx,by,c,w||1.6,null,op)+
+    '<polygon points="'+f1(x2)+','+f1(y2)+' '+f1(bx+px*hs*0.42)+','+f1(by+py*hs*0.42)+' '+f1(bx-px*hs*0.42)+','+f1(by-py*hs*0.42)+'" fill="'+c+'"'+(op!==undefined?' opacity="'+op+'"':'')+'/>';
+}
+function ARH(x,y,ux,uy,c,hs,op){
+  const px=-uy, py=ux, bx=x-ux*hs, by=y-uy*hs;
+  return '<polygon points="'+f1(x)+','+f1(y)+' '+f1(bx+px*hs*0.45)+','+f1(by+py*hs*0.45)+' '+f1(bx-px*hs*0.45)+','+f1(by-py*hs*0.45)+'" fill="'+c+'"'+(op!==undefined?' opacity="'+op+'"':'')+'/>';
+}
+function CIRC(x,y,r,fill,stroke,sw,dash,op){
+  return '<circle cx="'+f1(x)+'" cy="'+f1(y)+'" r="'+f1(r)+'" fill="'+(fill||'none')+'"'+
+    (stroke?' stroke="'+stroke+'" stroke-width="'+(sw||1)+'"':'')+(dash?' stroke-dasharray="'+dash+'"':'')+(op!==undefined?' opacity="'+op+'"':'')+'/>';
+}
+function RECT(x,y,w,h,fill,stroke,sw,dash,op,rx){
+  return '<rect x="'+f1(x)+'" y="'+f1(y)+'" width="'+f1(Math.max(0,w))+'" height="'+f1(Math.max(0,h))+'" fill="'+(fill||'none')+'"'+
+    (stroke?' stroke="'+stroke+'" stroke-width="'+(sw||1)+'"':'')+(dash?' stroke-dasharray="'+dash+'"':'')+
+    (op!==undefined?' opacity="'+op+'"':'')+(rx?' rx="'+rx+'"':'')+'/>';
+}
+function setVB(id,w,h){ const s=document.getElementById(id); if(s) s.setAttribute('viewBox','0 0 '+w+' '+h); }
+function put(id,s){ const e=document.getElementById(id); if(e) e.innerHTML=s; }
+function stt(k,v){ return '<div class="stat"><span class="k">'+k+'</span><span class="v">'+v+'</span></div>'; }
+
+function mkPlot(x,y,w,h,xmin,xmax,ymin,ymax,xt,yt,xlab,ylab,fx,fy){
+  const X=v=>x+(v-xmin)/(xmax-xmin)*w;
+  const Y=v=>y+h-(v-ymin)/(ymax-ymin)*h;
+  let s=RECT(x,y,w,h,'#fff',SOFT,1);
+  for(const t of xt){ s+=LN(X(t),y,X(t),y+h,SOFT,1); s+=TX(X(t),y+h+12,(fx?fx(t):f1(t)),MUT,9,'middle'); }
+  for(const t of yt){ s+=LN(x,Y(t),x+w,Y(t),SOFT,1); s+=TX(x-5,Y(t)+3,(fy?fy(t):f1(t)),MUT,9,'end'); }
+  s+=LN(x,y,x,y+h,RULE,1.2)+LN(x,y+h,x+w,y+h,RULE,1.2);
+  if(xlab) s+=TX(x+w,y+h+24,xlab,MUT,9.5,'end');
+  if(ylab) s+=TX(x,y-7,ylab,MUT,9.5,'start');
+  return {s:s,X:X,Y:Y};
+}
+function ticks(a,b,n){
+  const stp=niceCeil((b-a)/n), out=[];
+  const st=Math.ceil(a/stp-1e-9)*stp;
+  for(let v=st;v<=b+1e-9;v+=stp) out.push(Math.abs(v)<stp*1e-9?0:v);
+  return out;
+}
+
+let narrow=window.innerWidth<=430;
+
+/* ---------- スライダー登録 ---------- */
+const SLREG=[];
+function addSlider(host,id,lab,min,max,step,getv,setv,fmtf,unit,cb,dispf){
+  const h=document.getElementById(host); if(!h) return;
+  const row=document.createElement('div'); row.className='ctl';
+  row.innerHTML='<span class="lab">'+lab+'</span><input type="range" id="sl-'+id+'" min="'+min+'" max="'+max+'" step="'+step+'"><span class="val mono" id="vv-'+id+'"></span>';
+  h.appendChild(row);
+  const el=row.querySelector('input');
+  el.addEventListener('input',function(){ setv(+el.value); (cb||onParam)(); });
+  SLREG.push({id:id,getv:getv,fmtf:fmtf,unit:unit,el:el,row:row,dispf:dispf});
+}
+function syncOne(r){
+  const raw=clamp(Math.round(r.getv()),+r.el.min,+r.el.max);
+  if(+r.el.value!==raw) r.el.value=raw;
+  const box=document.getElementById('vv-'+r.id);
+  if(box) box.innerHTML=(r.dispf?r.dispf():r.fmtf(raw))+(r.unit?' '+r.unit:'');
+}
+function syncSliders(){ for(const r of SLREG) syncOne(r); }
+function syncSlider(id){ for(const r of SLREG) if(r.id===id) syncOne(r); }
+function showSlider(id,on){ for(const r of SLREG) if(r.id===id) r.row.style.display=on?'':'none'; }
+function mkBtnRow(host,items,isOn,onPick){
+  const box=document.getElementById(host); if(!box) return;
+  box.innerHTML='';
+  for(const it of items){
+    const b=document.createElement('button');
+    b.className='btn sm'+(isOn(it)?' on':'')+(it.cls?' '+it.cls:''); b.innerHTML=it.nm;
+    b.addEventListener('click',function(){ onPick(it); });
+    box.appendChild(b);
+  }
+}
+
+/* ---------- 状態 ---------- */
+const ST={
+  pre:'circle', mode:'free',
+  E:0, aE:90, B:120, v0:1.00, aV:90, bV:0, Z:1, mu:MPU, turns:1.15,
+  scheme:'boris', spt:260,
+  az:-42, el:24,
+  play:false, tf:0, rate:1.0,
+  selL:24, selSlit:3.0,
+  cycU:20, cycGap:20, cycR:0.25,
+  msSet:'ne', msMode:'sameV', msV:2.0,
+  bragE:150
+};
+
+/* ---------- 物理量 ---------- */
+function qOf(){ return ST.Z*QE; }
+function mOf(){ return ST.mu*UAMU; }
+function Bt(){ return ST.B*1e-3; }
+function omg(){ return qOf()*Bt()/mOf(); }           /* 符号つき角振動数 */
+function tcyc(){ const w=Math.abs(omg()); return w>1e-12?TAU/w:Infinity; }
+/* cos90° が 6×10⁻¹⁷ として残ると「ピッチ 0.03 fm」のような幽霊が出るので、丸めておく */
+const snap0=x=>Math.abs(x)<1e-12?0:x;
+function eVec(){ const E=ST.E*1e3, a=ST.aE*D2R; return [0,E*snap0(Math.sin(a)),E*snap0(Math.cos(a))]; }
+function vVec(){ const v=ST.v0*1e6, a=ST.aV*D2R, b=ST.bV*D2R;
+  return [v*snap0(Math.sin(a)*Math.cos(b)), v*snap0(Math.sin(a)*Math.sin(b)), v*snap0(Math.cos(a))]; }
+function vSel(){ const B=Bt(); return B>0?ST.E*1e3/B:Infinity; }
+function rGyro(){ const B=Bt(), q=Math.abs(qOf()); if(B<=0||q<=0) return Infinity;
+  const v=vVec(); return mOf()*Math.hypot(v[0],v[1])/(q*B); }
+function driftV(){ const B=Bt(); if(B<=0) return [0,0,0]; const E=eVec(); return [E[1]/B,-E[0]/B,0]; }
+
+function baseP(){
+  return {q:qOf(),m:mOf(),B:Bt(),E:eVec(),x0:[0,0,0],v0:vVec(),
+          gapE:0,gapW:0,wrf:0,tEnd:1e-6,n:600};
+}
+function cloneP(P){
+  return {q:P.q,m:P.m,B:P.B,E:[P.E[0],P.E[1],P.E[2]],x0:[P.x0[0],P.x0[1],P.x0[2]],
+          v0:[P.v0[0],P.v0[1],P.v0[2]],gapE:P.gapE,gapW:P.gapW,wrf:P.wrf,tEnd:P.tEnd,n:P.n};
+}
+
+/* ---------- 場 ---------- */
+function fldE(P,x,t,o){
+  if(P.gapE!==0){
+    if(Math.abs(x)<P.gapW*0.5){ o[0]=P.gapE*Math.cos(P.wrf*t); o[1]=0; o[2]=0; }
+    else { o[0]=0; o[1]=0; o[2]=0; }
+    return o;
+  }
+  o[0]=P.E[0]; o[1]=P.E[1]; o[2]=P.E[2]; return o;
+}
+
+/* ---------- 数値積分 ----------
+   Boris 法: 位置を半ステップ進める → 電場で半ステップ加速 → 磁場で純回転 → 残り半ステップ加速
+   → 位置をもう半ステップ。回転が厳密な直交変換なので E = 0 のとき |v| が機械精度で保存し、
+   位置と速度が同じ時刻にそろうので 2 次精度になる。
+   RK4: 4 次精度。ただしシンプレクティックでないので粗い刻みだと速さが痩せる。 */
+const EB3=[0,0,0];
+function integrate(P,scheme){
+  const n=P.n, dt=P.tEnd/n, qm=P.q/P.m, Bz=P.B;
+  const a=new Float64Array((n+1)*7);
+  let x=P.x0[0],y=P.x0[1],z=P.x0[2],vx=P.v0[0],vy=P.v0[1],vz=P.v0[2],t=0;
+  a[0]=0;a[1]=x;a[2]=y;a[3]=z;a[4]=vx;a[5]=vy;a[6]=vz;
+  const S=[0,0,0,0,0,0],k1=[0,0,0,0,0,0],k2=[0,0,0,0,0,0],k3=[0,0,0,0,0,0],k4=[0,0,0,0,0,0],tm=[0,0,0,0,0,0];
+  const drv=function(tt,s,o){
+    fldE(P,s[0],tt,EB3);
+    o[0]=s[3];o[1]=s[4];o[2]=s[5];
+    o[3]=qm*(EB3[0]+s[4]*Bz);
+    o[4]=qm*(EB3[1]-s[3]*Bz);
+    o[5]=qm*EB3[2];
+  };
+  for(let i=1;i<=n;i++){
+    if(scheme==='rk4'){
+      S[0]=x;S[1]=y;S[2]=z;S[3]=vx;S[4]=vy;S[5]=vz;
+      drv(t,S,k1);
+      for(let j=0;j<6;j++) tm[j]=S[j]+dt*0.5*k1[j];
+      drv(t+dt*0.5,tm,k2);
+      for(let j=0;j<6;j++) tm[j]=S[j]+dt*0.5*k2[j];
+      drv(t+dt*0.5,tm,k3);
+      for(let j=0;j<6;j++) tm[j]=S[j]+dt*k3[j];
+      drv(t+dt,tm,k4);
+      for(let j=0;j<6;j++) S[j]+=dt/6*(k1[j]+2*k2[j]+2*k3[j]+k4[j]);
+      x=S[0];y=S[1];z=S[2];vx=S[3];vy=S[4];vz=S[5];
+    }else{
+      x+=vx*dt*0.5; y+=vy*dt*0.5; z+=vz*dt*0.5;
+      fldE(P,x,t+dt*0.5,EB3);
+      const hx=qm*EB3[0]*dt*0.5, hy=qm*EB3[1]*dt*0.5, hz=qm*EB3[2]*dt*0.5;
+      const vmx=vx+hx, vmy=vy+hy, vmz=vz+hz;
+      const tz=qm*Bz*dt*0.5, sz=2*tz/(1+tz*tz);
+      const vpx=vmx+vmy*tz, vpy=vmy-vmx*tz;
+      vx=vmx+vpy*sz+hx; vy=vmy-vpx*sz+hy; vz=vmz+hz;
+      x+=vx*dt*0.5; y+=vy*dt*0.5; z+=vz*dt*0.5;
+    }
+    t=i*dt;
+    const k=i*7; a[k]=t;a[k+1]=x;a[k+2]=y;a[k+3]=z;a[k+4]=vx;a[k+5]=vy;a[k+6]=vz;
+  }
+  return {a:a,n:n,dt:dt};
+}
+
+/* ---------- 一様場の厳密解 ---------- */
+function exactAt(P,t,o){
+  const qm=P.q/P.m, w=qm*P.B, E=P.E, x0=P.x0, v0=P.v0;
+  o[2]=x0[2]+v0[2]*t+0.5*qm*E[2]*t*t;
+  o[5]=v0[2]+qm*E[2]*t;
+  if(Math.abs(w)<1e-9){
+    o[0]=x0[0]+v0[0]*t+0.5*qm*E[0]*t*t;
+    o[1]=x0[1]+v0[1]*t+0.5*qm*E[1]*t*t;
+    o[3]=v0[0]+qm*E[0]*t;
+    o[4]=v0[1]+qm*E[1]*t;
+    return o;
+  }
+  const vdx=E[1]/P.B, vdy=-E[0]/P.B;
+  const ux=v0[0]-vdx, uy=v0[1]-vdy;
+  const c=Math.cos(w*t), s=Math.sin(w*t);
+  o[0]=x0[0]+vdx*t+(ux*s+uy*(1-c))/w;
+  o[1]=x0[1]+vdy*t+(-ux*(1-c)+uy*s)/w;
+  o[3]=vdx+ux*c+uy*s;
+  o[4]=vdy-ux*s+uy*c;
+  return o;
+}
+
+/* ---------- 軌道 ---------- */
+function spanT(){
+  const T=tcyc();
+  if(isFinite(T)) return ST.turns*T;
+  const v=vlen(vVec()), acc=vlen(eVec())*Math.abs(qOf())/mOf(), L=0.4;
+  if(acc>1e-6) return (Math.sqrt(v*v+2*acc*L)-v)/acc;
+  return L/Math.max(v,1e3);
+}
+function trimBy(tr,fn){
+  const a=tr.a; let n=tr.n;
+  for(let i=1;i<=tr.n;i++){ if(fn(a[i*7+1],a[i*7+2],a[i*7+3])){ n=i; break; } }
+  return {a:a,n:n,dt:tr.dt};
+}
+function tracksFree(){
+  const P=baseP();
+  P.tEnd=spanT();
+  P.n=clamp(Math.round(ST.spt*Math.max(ST.turns,0.4)),240,24000);
+  return [{lab:'粒子',col:CPUR,P:P,tr:integrate(P,ST.scheme)}];
+}
+function selRun(){
+  const fr=[0.75,1.0,1.25], cols=[CGOLD,CGRN,CBLU], out=[];
+  const L=ST.selL*0.01;
+  const vmid=ST.v0*1e6;
+  const tEnd=L/Math.max(vmid*0.75,1e3)*1.02;
+  for(let i=0;i<3;i++){
+    const P=baseP();
+    P.v0=[vmid*fr[i],0,0]; P.x0=[0,0,0];
+    P.tEnd=tEnd; P.n=1200;
+    let tr=integrate(P,'boris');
+    tr=trimBy(tr,function(x){ return x>L; });
+    out.push({lab:'v = '+fr[i].toFixed(2)+' v<sub>0</sub>',col:cols[i],P:P,tr:tr,fr:fr[i]});
+  }
+  return out;
+}
+function msIons(){
+  const set=IONSETS.filter(s=>s.id===ST.msSet)[0]||IONSETS[0];
+  return set.ids.map(id=>ION[id]);
+}
+function msSpeed(io){
+  if(ST.msMode==='sameV'){
+    const q=io.z*QE, m=io.mu*UAMU;
+    return Math.sqrt(2*q*ST.msV*1e3/m);
+  }
+  return ST.v0*1e6;
+}
+function msRun(){
+  const ions=msIons(), B=Bt(), cols=[CPUR,CGRN,CGOLD,CBLU,CCRM,COLV], out=[];
+  for(let i=0;i<ions.length;i++){
+    const io=ions[i], q=io.z*QE, m=io.mu*UAMU, v=msSpeed(io);
+    const P=baseP();
+    P.q=q; P.m=m; P.B=B; P.E=[0,0,0];
+    P.v0=[v,0,0]; P.x0=[0,0,0];
+    const T=(B>0)?TAU*m/(q*B):1e-6;
+    P.tEnd=T*0.5; P.n=800;
+    out.push({lab:io.nm,col:cols[i%cols.length],P:P,tr:integrate(P,'boris'),
+              ion:io,v:v,r:(B>0?m*v/(q*B):Infinity)});
+  }
+  return out;
+}
+function cycRun(){
+  const q=qOf(), m=mOf(), B=Bt();
+  const U=ST.cycU*1e3, g=ST.cycGap*1e-3, R=ST.cycR;
+  const w=(B>0&&q!==0)?Math.abs(q*B/m):0;
+  if(w<=0) return {P:null,tr:null,ev:[],w:0,nturn:0,R:R,U:U,g:g};
+  const Kmax=q*q*B*B*R*R/(2*m);
+  const ncross=clamp(Math.ceil(Kmax/(Math.abs(q)*U)),2,600);
+  const nturn=ncross/2+0.6;
+  const P=baseP();
+  P.E=[0,0,0]; P.B=B;
+  P.gapE=(q>=0?1:-1)*U/g; P.gapW=g; P.wrf=w;
+  P.x0=[-g*0.4995,0,0]; P.v0=[0,0,0];
+  P.tEnd=nturn*TAU/w;
+  P.n=clamp(Math.round(240*nturn),600,48000);
+  let tr=integrate(P,'boris');
+  tr=trimBy(tr,function(x,y){ return Math.hypot(x,y)>R; });
+  return {P:P,tr:tr,ev:gapEvents(P,tr),w:w,nturn:nturn,R:R,U:U,g:g,Kmax:Kmax,ncross:ncross};
+}
+/* ギャップ横断ごとの運動エネルギー変化を数値から拾う */
+function gapEvents(P,tr){
+  const a=tr.a, n=tr.n, g=P.gapW*0.5, m=P.m, ev=[];
+  let inside=Math.abs(a[1])<g, kin=0, tin=0;
+  const K=i=>{const k=i*7; return 0.5*m*(a[k+4]*a[k+4]+a[k+5]*a[k+5]+a[k+6]*a[k+6]);};
+  const V=i=>{const k=i*7; return Math.hypot(a[k+4],a[k+5],a[k+6]);};
+  if(inside){ kin=K(0); tin=a[0]; }
+  for(let i=1;i<=n;i++){
+    const now=Math.abs(a[i*7+1])<g;
+    if(now&&!inside){ kin=K(i); tin=a[i*7]; }
+    if(!now&&inside){
+      const kout=K(i), rr=Math.hypot(a[i*7+1],a[i*7+2]);
+      ev.push({n:ev.length+1,kin:kin,kout:kout,dk:kout-kin,dt:a[i*7]-tin,r:rr,vout:V(i),
+               tmid:(a[i*7]+tin)*0.5});
+    }
+    inside=now;
+  }
+  return ev;
+}
+function computeTracks(){
+  if(ST.mode==='sel') return selRun();
+  if(ST.mode==='ms')  return MSR;
+  if(ST.mode==='cyc'){
+    if(!CYC||!CYC.tr) return [];
+    return [{lab:'加速される粒子',col:CPUR,P:CYC.P,tr:CYC.tr}];
+  }
+  return tracksFree();
+}
+let TRK=[], CYC=null;
+
+/* ---------- 視野合わせ ---------- */
+let FIT={c:[0,0,0],L:0.1};
+function fitTracks(TR){
+  const mn=[1e18,1e18,1e18], mx=[-1e18,-1e18,-1e18];
+  let any=false;
+  for(const t of TR){
+    const a=t.tr.a, n=t.tr.n;
+    const st=Math.max(1,Math.floor(n/400));
+    for(let i=0;i<=n;i+=st){
+      const k=i*7;
+      for(let d=0;d<3;d++){ const v=a[k+1+d]; if(v<mn[d])mn[d]=v; if(v>mx[d])mx[d]=v; any=true; }
+    }
+  }
+  if(!any){ FIT={c:[0,0,0],L:0.1}; return; }
+  const c=[0,0,0]; let L=0;
+  for(let d=0;d<3;d++){
+    if(mn[d]>0) mn[d]=0;
+    if(mx[d]<0) mx[d]=0;
+    c[d]=(mn[d]+mx[d])/2;
+    L=Math.max(L,(mx[d]-mn[d])/2);
+  }
+  FIT={c:c,L:Math.max(L*1.12,1e-6)};
+}
+
+/* ---------- 3D の投影（自前計算） ---------- */
+const CAM={};
+function setCam(W,H,zlo,zhi){
+  const th=ST.az*D2R, ph=ST.el*D2R;
+  const ca=Math.cos(th), sa=Math.sin(th), ce=Math.cos(ph), se=Math.sin(ph);
+  CAM.ca=ca; CAM.sa=sa; CAM.ce=ce; CAM.se=se;
+  let mnx=1e9,mxx=-1e9,mny=1e9,mxy=-1e9;
+  for(const sx of [-1,1]) for(const sy of [-1,1]) for(const sz of [zlo,zhi]){
+    const px=-sx*sa+sy*ca;
+    const py=se*(sx*ca+sy*sa)-sz*ce;
+    if(px<mnx) mnx=px; if(px>mxx) mxx=px;
+    if(py<mny) mny=py; if(py>mxy) mxy=py;
+  }
+  const padL=narrow?28:40, padR=narrow?16:24, padT=narrow?18:22, padB=narrow?26:30;
+  const sc=Math.min((W-padL-padR)/(mxx-mnx), (H-padT-padB)/(mxy-mny));
+  CAM.s=sc; CAM.cx=padL+(-mnx)*sc; CAM.cy=padT+(-mny)*sc;
+}
+function P3(x,y,z){
+  const sx=-x*CAM.sa+y*CAM.ca;
+  const sy=CAM.se*(x*CAM.ca+y*CAM.sa)-z*CAM.ce;
+  return [CAM.cx+sx*CAM.s, CAM.cy+sy*CAM.s];
+}
+function DEP(x,y,z){ return CAM.ce*(x*CAM.ca+y*CAM.sa)+z*CAM.se; }
+function NW(x,y,z){ return [(x-FIT.c[0])/FIT.L,(y-FIT.c[1])/FIT.L,(z-FIT.c[2])/FIT.L]; }
+function W3(x,y,z){ const q=NW(x,y,z); return {p:P3(q[0],q[1],q[2]), d:DEP(q[0],q[1],q[2]), n:q}; }
+
+/* ---------- 主ステージ（3D） ---------- */
+function mainSize(){ return {W:narrow?360:740, H:narrow?344:470}; }
+function trackChunks(items,tr,col,W){
+  const a=tr.a, n=tr.n;
+  if(n<2) return;
+  const st=Math.max(1,Math.ceil((n+1)/1100));
+  const per=Math.max(3,Math.ceil((n/st+1)/380));
+  let buf=[], ds=0, cn=0;
+  for(let i=0;i<=n;i+=st){
+    const k=i*7, q=W3(a[k+1],a[k+2],a[k+3]);
+    buf.push(q.p); ds+=q.d; cn++;
+    if(buf.length>=per+1){
+      items.push([ds/cn,PL(buf,col,2,null,0.95)]);
+      buf=[q.p]; ds=q.d; cn=1;
+    }
+  }
+  if(buf.length>1) items.push([ds/cn,PL(buf,col,2,null,0.95)]);
+  /* 進む向きの矢じり */
+  for(const f of [0.3,0.62,0.9]){
+    const i=Math.min(n-1,Math.max(1,Math.round(n*f)));
+    const p0=W3(a[(i-1)*7+1],a[(i-1)*7+2],a[(i-1)*7+3]).p;
+    const q1=W3(a[i*7+1],a[i*7+2],a[i*7+3]);
+    const dx=q1.p[0]-p0[0], dy=q1.p[1]-p0[1], mlen=Math.hypot(dx,dy);
+    if(mlen>0.4) items.push([q1.d+1e-6,ARH(q1.p[0],q1.p[1],dx/mlen,dy/mlen,col,7,0.95)]);
+  }
+}
+function drawMain(){
+  const S=mainSize();
+  setVB('sv-main',S.W,S.H);
+  setCam(S.W,S.H,-1,1);
+  const zf=-1;
+  let o='';
+  const fc=[[-1,-1],[1,-1],[1,1],[-1,1]].map(p=>P3(p[0],p[1],zf));
+  o+=POLY(fc,'#F5F7F6',SOFT,1);
+  for(let k=-4;k<=4;k++){
+    const t=k/4;
+    o+=PL([P3(t,-1,zf),P3(t,1,zf)],SOFT,0.8,null,0.9);
+    o+=PL([P3(-1,t,zf),P3(1,t,zf)],SOFT,0.8,null,0.9);
+  }
+  for(const sx of [-1,1]) for(const sy of [-1,1]) o+=PL([P3(sx,sy,-1),P3(sx,sy,1)],RULE,0.8,'3 3',0.5);
+  o+=PL([P3(-1,-1,1),P3(1,-1,1),P3(1,1,1),P3(-1,1,1),P3(-1,-1,1)],RULE,0.8,'3 3',0.5);
+  /* 床に落とした影 */
+  for(const t of TRK){
+    const a=t.tr.a, n=t.tr.n, st=Math.max(1,Math.ceil((n+1)/500)), pts=[];
+    for(let i=0;i<=n;i+=st){ const q=NW(a[i*7+1],a[i*7+2],a[i*7+3]); pts.push(P3(q[0],q[1],zf)); }
+    o+=PL(pts,MUT,1,null,0.28);
+  }
+  const items=[];
+  /* 磁場 */
+  if(ST.B>0){
+    for(const sx of [-0.72,0.72]) for(const sy of [-0.72,0.72]){
+      const a=P3(sx,sy,-0.92), b=P3(sx,sy,0.92);
+      items.push([DEP(sx,sy,0),AR(a[0],a[1],b[0],b[1],CBLU,1.2,7,0.42)]);
+    }
+    const lp=P3(0.72,0.72,0.99);
+    items.push([DEP(0.72,0.72,1),TX(lp[0]+6,lp[1]-3,'B',CBLUT,12,'start','600')]);
+  }
+  /* 電場 */
+  const Ev=eVec(), Em=vlen(Ev);
+  if(Em>0&&ST.mode!=='cyc'){
+    const u=[Ev[0]/Em,Ev[1]/Em,Ev[2]/Em], o0=NW(0,0,0);
+    for(const off of [[0,0],[0.55,0.55],[-0.55,-0.55]]){
+      const bx=o0[0]+off[0], by=o0[1]+off[1];
+      const a=P3(bx,by,o0[2]), b=P3(bx+u[0]*0.5,by+u[1]*0.5,o0[2]+u[2]*0.5);
+      items.push([DEP(bx,by,o0[2]),AR(a[0],a[1],b[0],b[1],CCRM,1.6,7,0.75)]);
+    }
+    const e2=P3(o0[0]+u[0]*0.55,o0[1]+u[1]*0.55,o0[2]+u[2]*0.55);
+    items.push([DEP(o0[0],o0[1],o0[2])+1e-5,TX(e2[0]+5,e2[1]-2,'E',CCRMT,12,'start','600')]);
+  }
+  /* 装置の飾り */
+  items.push.apply(items,deco3D());
+  /* 座標軸 */
+  {
+    const o0=NW(0,0,0), ax=[[1,0,0,'x'],[0,1,0,'y'],[0,0,1,'z']], LN0=0.30;
+    for(const v of ax){
+      const a=P3(o0[0],o0[1],o0[2]), b=P3(o0[0]+v[0]*LN0,o0[1]+v[1]*LN0,o0[2]+v[2]*LN0);
+      items.push([DEP(o0[0],o0[1],o0[2]),AR(a[0],a[1],b[0],b[1],MUT,1.1,5.5,0.85)+TX(b[0]+4,b[1]+3,v[3],MUT,10,'start')]);
+    }
+  }
+  /* 軌道 */
+  for(const t of TRK) trackChunks(items,t.tr,t.col,S.W);
+  /* 出発点 */
+  for(const t of TRK){
+    const a=t.tr.a, q=W3(a[1],a[2],a[3]);
+    items.push([q.d,CIRC(q.p[0],q.p[1],3.4,'#fff',t.col,1.6)]);
+  }
+  items.sort((p,q)=>p[0]-q[0]);
+  for(const it of items) o+=it[1];
+  o+=TX(S.W-6,S.H-8,'az '+Math.round(ST.az)+'\u00B0  el '+Math.round(ST.el)+'\u00B0',MUT,9.5,'end');
+  o+=TX(narrow?6:12,S.H-8,'箱の 1 辺 = '+fmtU(2*FIT.L,'m',3),MUT,9.5,'start');
+  put('main-g',o);
+  drawMainFg();
+}
+function deco3D(){
+  const it=[];
+  if(ST.mode==='cyc'&&CYC&&CYC.tr){
+    const g=CYC.g*0.5, R=CYC.R;
+    for(const sx of [-1,1]){
+      const p1=W3(sx*g,-R,0), p2=W3(sx*g,R,0);
+      it.push([Math.min(p1.d,p2.d),LN(p1.p[0],p1.p[1],p2.p[0],p2.p[1],CCRM,1.4,'4 3',0.8)]);
+    }
+    const lp=W3(0,R,0);
+    it.push([lp.d,TXJ(lp.p[0],lp.p[1]-6,'加速ギャップ',CCRMT,10,'middle','600')]);
+    /* ディー電極の輪郭 */
+    const arc1=[],arc2=[];
+    for(let k=0;k<=24;k++){
+      const th=-Math.PI/2+Math.PI*k/24;
+      arc1.push(W3(R*Math.cos(th),R*Math.sin(th),0).p);
+      arc2.push(W3(-R*Math.cos(th),R*Math.sin(th),0).p);
+    }
+    it.push([-9,PL(arc1,RULE,1.2,'2 3',0.9)]);
+    it.push([-9,PL(arc2,RULE,1.2,'2 3',0.9)]);
+  }
+  if(ST.mode==='ms'&&TRK.length){
+    let rmax=0;
+    for(const t of TRK) rmax=Math.max(rmax,t.r||0);
+    const p1=W3(0,0,0), p2=W3(0,-2.05*rmax,0);
+    it.push([Math.min(p1.d,p2.d),LN(p1.p[0],p1.p[1],p2.p[0],p2.p[1],INK,2.6,null,0.55)]);
+    const lp=W3(0,-2.05*rmax,0);
+    it.push([lp.d,TXJ(lp.p[0]-6,lp.p[1]+12,'検出面',MUT,10,'middle')]);
+  }
+  if(ST.mode==='sel'){
+    const L=ST.selL*0.01, s=ST.selSlit*1e-3;
+    const h=Math.max(FIT.L*0.55,4*s);
+    for(const sy of [1,-1]){
+      const p1=W3(0,sy*h,0), p2=W3(L,sy*h,0);
+      it.push([Math.min(p1.d,p2.d),LN(p1.p[0],p1.p[1],p2.p[0],p2.p[1],CCRM,3,null,0.5)]);
+    }
+    for(const sy of [1,-1]){
+      const p1=W3(L,sy*s,0), p2=W3(L,sy*h,0);
+      it.push([p1.d,LN(p1.p[0],p1.p[1],p2.p[0],p2.p[1],INK,2.4,null,0.7)]);
+    }
+    const lp=W3(L,h,0);
+    it.push([lp.d,TXJ(lp.p[0]+4,lp.p[1]-4,'スリット',MUT,10,'start')]);
+  }
+  return it;
+}
+function drawMainFg(){
+  const S=mainSize();
+  setCam(S.W,S.H,-1,1);
+  let o='';
+  let info='';
+  for(let ti=0;ti<TRK.length;ti++){
+    const t=TRK[ti], a=t.tr.a, n=t.tr.n;
+    if(n<2) continue;
+    const i=clamp(Math.round(ST.tf*n),0,n), k=i*7;
+    const q=W3(a[k+1],a[k+2],a[k+3]);
+    const g=NW(a[k+1],a[k+2],a[k+3]);
+    o+=LN(P3(g[0],g[1],-1)[0],P3(g[0],g[1],-1)[1],q.p[0],q.p[1],t.col,1,'2 2',0.35);
+    const vx=a[k+4],vy=a[k+5],vz=a[k+6], vm=Math.hypot(vx,vy,vz);
+    if(vm>0){
+      const sc=0.30/vm;
+      const bb=P3(g[0]+vx*sc,g[1]+vy*sc,g[2]+vz*sc);
+      o+=AR(q.p[0],q.p[1],bb[0],bb[1],CGRN,2,7,0.95);
+    }
+    o+=CIRC(q.p[0],q.p[1],5,t.col,'#fff',1.8);
+    if(ti===0){
+      const K=0.5*t.P.m*vm*vm;
+      info='t = '+fmtU(a[k],'s',3)+'   |v| = '+fmt(vm,4)+' m/s   v/c = '+fmt(vm/CL,3)+'   K = '+fmtU(K/QE,'eV',4);
+    }
+  }
+  o+=TXJ(narrow?6:12,15,'ドラッグで回る。再生ボタンで粒子が動く',MUT,narrow?10:11,'start');
+  if(info) o+=TX(narrow?6:12,narrow?29:30,info,INK,narrow?9.5:11,'start');
+  put('main-fg',o);
+}
+
+/* ---------- 投影 ---------- */
+const PDEF=[{i:0,j:1,ul:'x',vl:'y',nm:'xy 面（B に垂直）'},
+            {i:1,j:2,ul:'y',vl:'z',nm:'yz 面'},
+            {i:2,j:0,ul:'z',vl:'x',nm:'zx 面'}];
+function projLayout(){
+  return narrow?[{x:52,y:26,s:256},{x:16,y:330,s:150},{x:194,y:330,s:150}]
+               :[{x:38,y:28,s:196},{x:284,y:28,s:196},{x:530,y:28,s:196}];
+}
+let PMAP=[];
+function drawProj(){
+  const W=narrow?360:740, H=narrow?520:266;
+  setVB('sv-proj',W,H);
+  const lay=projLayout();
+  let o=''; PMAP=[];
+  for(let k=0;k<3;k++){
+    const d=PDEF[k], g=lay[k], s=g.s;
+    const ci=FIT.c[d.i], cj=FIT.c[d.j], L=FIT.L;
+    const X=u=>g.x+s/2+(u-ci)/L*(s/2);
+    const Y=v=>g.y+s/2-(v-cj)/L*(s/2);
+    PMAP.push({d:d,X:X,Y:Y});
+    o+=RECT(g.x,g.y,s,s,'#fff',SOFT,1);
+    for(let m=1;m<4;m++){
+      o+=LN(g.x+s*m/4,g.y,g.x+s*m/4,g.y+s,SOFT,0.8);
+      o+=LN(g.x,g.y+s*m/4,g.x+s,g.y+s*m/4,SOFT,0.8);
+    }
+    o+=LN(X(0),g.y,X(0),g.y+s,RULE,1,'3 3',0.9);
+    o+=LN(g.x,Y(0),g.x+s,Y(0),RULE,1,'3 3',0.9);
+    for(const t of TRK){
+      const a=t.tr.a,n=t.tr.n,st=Math.max(1,Math.ceil((n+1)/600)),pts=[];
+      for(let i=0;i<=n;i+=st) pts.push([X(a[i*7+1+d.i]),Y(a[i*7+1+d.j])]);
+      if(pts.length>1) o+=PL(pts,t.col,1.5,null,0.9);
+      o+=CIRC(X(a[1+d.i]),Y(a[1+d.j]),2.6,'#fff',t.col,1.3);
+    }
+    o+=TXJ(g.x,g.y-7,d.nm,MUT,10,'start');
+    o+=TX(g.x+s-2,g.y+s+11,d.ul+' \u2192',MUT,9.5,'end');
+    o+=TX(g.x+2,g.y+11,'\u2191 '+d.vl,MUT,9.5,'start');
+  }
+  o+=TX(W-8,H-8,'各枠の 1 辺 = '+fmtU(2*FIT.L,'m',3),MUT,9.5,'end');
+  put('proj-g',o);
+  drawProjFg();
+}
+function drawProjFg(){
+  let o='';
+  for(const pm of PMAP){
+    for(const t of TRK){
+      const a=t.tr.a,n=t.tr.n;
+      if(n<2) continue;
+      const i=clamp(Math.round(ST.tf*n),0,n),k=i*7;
+      o+=CIRC(pm.X(a[k+1+pm.d.i]),pm.Y(a[k+1+pm.d.j]),3.6,t.col,'#fff',1.4);
+    }
+  }
+  put('proj-fg',o);
+}
+
+/* ---------- カメラの説明図 ---------- */
+function drawCam(){
+  const W=narrow?360:740, H=narrow?230:210;
+  setVB('sv-cam',W,H);
+  setCam(W,H,-1,1);
+  let o='';
+  for(const sx of [-1,1]) for(const sy of [-1,1]) o+=PL([P3(sx,sy,-1),P3(sx,sy,1)],SOFT,1);
+  for(const sz of [-1,1]) o+=PL([P3(-1,-1,sz),P3(1,-1,sz),P3(1,1,sz),P3(-1,1,sz),P3(-1,-1,sz)],SOFT,1);
+  const th=ST.az*D2R, ph=ST.el*D2R;
+  const d=[Math.cos(ph)*Math.cos(th),Math.cos(ph)*Math.sin(th),Math.sin(ph)];
+  const r=[-Math.sin(th),Math.cos(th),0];
+  const u=[d[1]*r[2]-d[2]*r[1],d[2]*r[0]-d[0]*r[2],d[0]*r[1]-d[1]*r[0]];
+  const A=[['x',[1,0,0],MUT],['y',[0,1,0],MUT],['z',[0,0,1],MUT]];
+  const o0=P3(0,0,0);
+  for(const a of A){
+    const b=P3(a[1][0]*0.85,a[1][1]*0.85,a[1][2]*0.85);
+    o+=AR(o0[0],o0[1],b[0],b[1],a[2],1.1,6,0.9)+TX(b[0]+4,b[1]+3,a[0],a[2],10.5,'start');
+  }
+  const V=[['d（視線）',d,CBLU],['r（画面の右）',r,CGRN],['u（画面の上）',u,CGOLD]];
+  for(const v of V){
+    const b=P3(v[1][0]*0.62,v[1][1]*0.62,v[1][2]*0.62);
+    o+=AR(o0[0],o0[1],b[0],b[1],v[2],2.2,8,0.95);
+  }
+  const bd=P3(d[0]*0.62,d[1]*0.62,d[2]*0.62);
+  o+=TXJ(bd[0]+5,bd[1]-4,'d',CBLUT,11,'start','600');
+  const br=P3(r[0]*0.62,r[1]*0.62,r[2]*0.62);
+  o+=TXJ(br[0]+5,br[1]+10,'r',CGRNT,11,'start','600');
+  const bu=P3(u[0]*0.62,u[1]*0.62,u[2]*0.62);
+  o+=TXJ(bu[0]+5,bu[1]-4,'u',CGOLDT,11,'start','600');
+  o+=TX(6,14,'d = ('+f1(d[0])+', '+f1(d[1])+', '+f1(d[2])+')',MUT,10,'start');
+  o+=TX(6,28,'r = ('+f1(r[0])+', '+f1(r[1])+', '+f1(r[2])+')',MUT,10,'start');
+  o+=TX(6,42,'u = ('+f1(u[0])+', '+f1(u[1])+', '+f1(u[2])+')',MUT,10,'start');
+  o+=TXJ(W-6,H-8,'視点スライダーと連動している',MUT,10,'end');
+  put('cam-g',o);
+}
+
+/* ---------- 単位の選び方 ---------- */
+function uLen(v){ v=Math.abs(v);
+  if(v<1e-3) return {k:1e-6,u:'\u00B5m'};
+  if(v<1) return {k:1e-3,u:'mm'};
+  return {k:1,u:'m'};
+}
+function uTime(v){ v=Math.abs(v);
+  if(v<1e-9) return {k:1e-12,u:'ps'};
+  if(v<1e-6) return {k:1e-9,u:'ns'};
+  if(v<1e-3) return {k:1e-6,u:'\u00B5s'};
+  return {k:1e-3,u:'ms'};
+}
+function msg(id,W,H,s){
+  setVB(id.replace('-g','').replace('sv','sv'),W,H);
+  return TXJ(W/2,H/2,s,MUT,12,'middle');
+}
+
+/* ---------- 半径と周期 ---------- */
+function drawCirc(){
+  const W=narrow?360:740, H=narrow?430:252;
+  setVB('sv-circ',W,H);
+  const q=Math.abs(qOf()), m=mOf(), B=Bt(), T=tcyc();
+  if(!(q>0&&B>0)){ put('circ-g',TXJ(W/2,H/2,'磁場か電荷がゼロなので円運動にならない',MUT,12,'middle')); return; }
+  const vmax=Math.max(ST.v0*2,0.6)*1e6;
+  const sa=Math.sin(ST.aV*D2R);
+  const rAt=v=>m*v*sa/(q*B);
+  const rmax=Math.max(rAt(vmax),1e-9);
+  const ur=uLen(rmax), ut=uTime(T);
+  const g1=narrow?{x:48,y:28,w:284,h:148}:{x:52,y:28,w:274,h:172};
+  const g2=narrow?{x:48,y:256,w:284,h:148}:{x:424,y:28,w:274,h:172};
+  const xt=ticks(0,vmax/1e6,4), fxv=t=>f1(t);
+  let o='';
+  const p1=mkPlot(g1.x,g1.y,g1.w,g1.h,0,vmax/1e6,0,rmax/ur.k*1.08,xt,ticks(0,rmax/ur.k*1.08,4),
+    'v [10\u2076 m/s]','r ['+ur.u+']',fxv);
+  o+=p1.s;
+  o+=PL([[p1.X(0),p1.Y(0)],[p1.X(vmax/1e6),p1.Y(rmax/ur.k)]],CCRM,2.2);
+  const p2=mkPlot(g2.x,g2.y,g2.w,g2.h,0,vmax/1e6,0,T/ut.k*2,xt,ticks(0,T/ut.k*2,4),
+    'v [10\u2076 m/s]','T ['+ut.u+']',fxv);
+  o+=p2.s;
+  o+=PL([[p2.X(0),p2.Y(T/ut.k)],[p2.X(vmax/1e6),p2.Y(T/ut.k)]],CGRN,2.2);
+  const v0=ST.v0, r0=rAt(v0*1e6);
+  o+=LN(p1.X(v0),g1.y,p1.X(v0),g1.y+g1.h,CPUR,1.4,'4 3',0.9);
+  o+=CIRC(p1.X(v0),p1.Y(r0/ur.k),4.6,CPUR,'#fff',1.6);
+  o+=TX(p1.X(v0)+6,p1.Y(r0/ur.k)-7,fmt(r0/ur.k,3)+' '+ur.u,CPURT,10.5,'start','600');
+  o+=LN(p2.X(v0),g2.y,p2.X(v0),g2.y+g2.h,CPUR,1.4,'4 3',0.9);
+  o+=CIRC(p2.X(v0),p2.Y(T/ut.k),4.6,CPUR,'#fff',1.6);
+  o+=TX(p2.X(v0)+6,p2.Y(T/ut.k)-7,fmt(T/ut.k,4)+' '+ut.u,CPURT,10.5,'start','600');
+  o+=TXJ(g1.x,g1.y-18,'半径は速さに比例して伸びる',CCRMT,11,'start','600');
+  o+=TXJ(g2.x,g2.y-18,'周期は速さによらず一定',CGRNT,11,'start','600');
+  put('circ-g',o);
+
+  const v=vVec(), vpe=Math.hypot(v[0],v[1]), vpa=Math.abs(v[2]);
+  put('bigrow','<span><span class="bk">半径 r = mv<sub>&perp;</sub>/|q|B</span><span class="bv">'+fmt(r0/ur.k,4)+'</span><span class="bu">'+ur.u+'　v<sub>0</sub> を動かすと変わる</span></span>'+
+    '<span><span class="bk">周期 T = 2&pi;m/|q|B</span><span class="bv">'+fmt(T/ut.k,4)+'</span><span class="bu">'+ut.u+'　v<sub>0</sub> を動かしても変わらない</span></span>'+
+    '<span><span class="bk">共鳴周波数 f = 1/T</span><span class="bv">'+fmt(1/T/1e6,4)+'</span><span class="bu">MHz</span></span>');
+  put('circstats',
+    stt('磁場に垂直な成分 v<sub>&perp;</sub>',fmt(vpe,4)+' m/s')+
+    stt('磁場に平行な成分 v<sub>&parallel;</sub>',fmt(vpa,4)+' m/s')+
+    stt('回転半径 r',fmtU(m*vpe/(q*B),'m',4))+
+    stt('らせんのピッチ p = v<sub>&parallel;</sub>T',fmtU(vpa*T,'m',4))+
+    stt('角振動数 &omega; = qB/m',fmt(Math.abs(omg()),4)+' rad/s')+
+    stt('回る向き（+z から見て）',omg()>0?'時計回り':'反時計回り'));
+  put('circnote','いまの傾き '+f1(ST.aV)+'\u00B0 では、速さのうち '+fmt(vpe/Math.max(vlen(v),1e-9)*100,3)+
+    ' % が回転に、残りが磁場方向の並進に回っている。ピッチが 0 になるのは v<sub>&parallel;</sub> = 0、つまり垂直入射のときだけ。'+
+    (omg()>0?'正電荷なので +z から見て時計回り。':'負電荷なので +z から見て反時計回り。')+
+    '電荷の符号を変えると回る向きは逆になるが、半径も周期も |q| で決まるので大きさは変わらない。');
+  let tb='<table><caption>速さを変えたときの半径と周期（いまの q, m, B, 傾きのまま）</caption><thead><tr><th>v [10\u2076 m/s]</th><th>r</th><th>T</th><th>f</th><th>1 周で進む距離</th></tr></thead><tbody>';
+  for(const vv of [0.25,0.5,1,2,4]){
+    const rr=rAt(vv*1e6);
+    tb+='<tr'+(Math.abs(vv-ST.v0)<1e-9?' class="cur"':'')+'><td class="num">'+vv.toFixed(2)+'</td><td class="num">'+fmtU(rr,'m',4)+
+      '</td><td class="num">'+fmtU(T,'s',5)+'</td><td class="num">'+fmt(1/T/1e6,4)+' MHz</td><td class="num">'+fmtU(TAU*rr,'m',4)+'</td></tr>';
+  }
+  tb+='</tbody></table>';
+  put('circtab',tb);
+  put('circtabnote','T の列だけが 5 桁そろって同じ値になる。速さが 16 倍違っても 1 周の時間は同じ。'+
+    '周の長さは 16 倍になるが速さも 16 倍なので割り算で消える、というだけの話ではあるが、'+
+    'これがあるから加速電圧の周波数を固定したまま何十周でも加速し続けられる。'+
+    '逆に言うと、速さが光速に近づいて質量が実効的に増えると、この前提が崩れてサイクロトロンは使えなくなる。');
+}
+
+/* ---------- E×B ドリフト ---------- */
+function drawDrift(){
+  const W=narrow?360:740, H=narrow?300:286;
+  setVB('sv-drift',W,H);
+  const fbB=!(Bt()>0), fbE=!(vlen(eVec())>0);
+  const B=fbB?0.15:Bt();
+  const E=fbE?[0,60e3,0]:eVec();
+  const vd=[E[1]/B,-E[0]/B,0], vdm=vlen(vd);
+  const fbs=(fbB||fbE)?('上の '+(fbE&&fbB?'E と B':(fbE?'E':'B'))+' がゼロなので、この節だけ E = '+
+    fmt(vlen(E)/1e3,3)+' kV/m・B = '+fmt(B*1e3,3)+' mT として描いている。'):'';
+  const SP=[{nm:'陽子 (+e, 1 u)',Z:1,mu:MPU,col:CPUR},
+            {nm:'重陽子 (+e, 2 u)',Z:1,mu:ION.H2.mu,col:CGRN},
+            {nm:'&alpha; 粒子 (+2e, 4 u)',Z:2,mu:ION.He4.mu,col:CGOLD},
+            {nm:'負イオン (&minus;e, 1 u)',Z:-1,mu:MPU,col:CBLU}];
+  let Tmax=0;
+  for(const s of SP) Tmax=Math.max(Tmax,TAU*s.mu*UAMU/(Math.abs(s.Z)*QE*B));
+  const tEnd=1.6*Tmax, NS=420;
+  const curves=[]; let ymin=0,ymax=0;
+  for(const s of SP){
+    const P={q:s.Z*QE,m:s.mu*UAMU,B:B,E:E,x0:[0,0,0],v0:[0,0,0]};
+    const pts=[], oo=[0,0,0,0,0,0];
+    for(let i=0;i<=NS;i++){
+      exactAt(P,tEnd*i/NS,oo);
+      pts.push([oo[0],oo[1]]);
+      if(oo[1]<ymin) ymin=oo[1];
+      if(oo[1]>ymax) ymax=oo[1];
+    }
+    curves.push({s:s,pts:pts,T:TAU*s.mu*UAMU/(Math.abs(s.Z)*QE*B),rl:s.mu*UAMU*vdm/(Math.abs(s.Z)*QE*B)});
+  }
+  const xr=vdm*tEnd, yr=Math.max(ymax-ymin,1e-12);
+  const bx=narrow?36:52, by=26, bw=W-bx-16, bh=H-by-42;
+  const sc=Math.min(bw/xr,bh/yr);
+  const ox=bx+(bw-xr*sc)/2, oy=by+(bh-yr*sc)/2;
+  const X=x=>ox+x*sc, Y=y=>oy+(ymax-y)*sc;
+  let o=RECT(bx,by,bw,bh,'#fff',SOFT,1);
+  o+=LN(X(0),Y(0),X(xr),Y(0),RULE,1,'4 3',0.9);
+  o+=AR(X(xr*0.72),Y(0),X(xr*0.92),Y(0),MUT,1.6,7,0.8);
+  o+=TXJ(X(xr*0.82),Y(0)-7,'v_d = E&times;B/B\u00B2',MUT,10.5,'middle');
+  for(const c of curves){
+    const pp=c.pts.map(p=>[X(p[0]),Y(p[1])]);
+    o+=PL(pp,c.s.col,1.8,null,0.92);
+    o+=CIRC(pp[pp.length-1][0],pp[pp.length-1][1],3.4,c.s.col,'#fff',1.3);
+  }
+  o+=LN(X(vdm*tEnd),by,X(vdm*tEnd),by+bh,MUT,1,'3 3',0.5);
+  o+=TXJ(bx,by-8,'同じ時間だけ走らせた 4 種類。輪の大きさは違うが、右への進み方はどれも同じ',MUT,narrow?10:11,'start');
+  o+=TX(bx+bw,by+bh+14,'横 '+fmtU(xr,'m',3)+' \u00D7 縦 '+fmtU(yr,'m',3)+'（縦横同縮尺）',MUT,9.5,'end');
+  o+=TX(bx,by+bh+14,'t = 0 \u2192 '+fmtU(tEnd,'s',3),MUT,9.5,'start');
+  put('drift-g',o);
+  let tb='<table><caption>静止から出発させた 4 種類。v<sub>d</sub> の列だけが完全に一致する</caption><thead><tr><th>粒子</th><th>周期 T</th><th>輪の半径 mE/qB\u00B2</th><th>ドリフト v<sub>d</sub> = E/B</th><th>t 終端での x</th></tr></thead><tbody>';
+  for(const c of curves){
+    tb+='<tr><td><span class="chip"><span class="dot" style="background:'+c.s.col+'"></span>'+c.s.nm+'</span></td>'+
+      '<td class="num">'+fmtU(c.T,'s',4)+'</td><td class="num">'+fmtU(c.rl,'m',4)+'</td>'+
+      '<td class="num">'+fmt(vdm,6)+' m/s</td><td class="num">'+fmtU(c.pts[NS][0],'m',5)+'</td></tr>';
+  }
+  tb+='</tbody></table>';
+  put('drifttab',tb);
+  put('driftnote',fbs+'v<sub>d</sub> = E/B = '+fmt(vdm,5)+' m/s。式に q も m も現れないので、4 行とも同じ数字になる。'+
+    '右端の列がわずかに違うのは、出発時の円運動の位相がまだ 1 周ぶんきれいに戻っていないから。'+
+    '整数周ちょうどで切ると完全に一致する。負イオンだけ輪が反対側にふくらむのは回る向きが逆だからで、'+
+    '進む向きは変わらない。正負が同じ向きに流れるので、このドリフト自体は電流を作らない。'+
+    '磁気圏やトカマクでプラズマ全体がまとめて流されるのはこの効果。');
+}
+
+/* ---------- 速度選択器 ---------- */
+function selCfg(){
+  const fbB=!(Bt()>0), fbE=!(ST.E>0);
+  return {B:fbB?0.022:Bt(), E:fbE?11e3:ST.E*1e3, fb:(fbB||fbE)};
+}
+function selExit(v,cf){
+  cf=cf||selCfg();
+  const q=qOf(), m=mOf(), B=cf.B, E=cf.E;
+  if(!(B>0)||q===0||E<=0||v<=0) return null;
+  const w=q*B/m, vs=E/B, L=ST.selL*0.01;
+  const f=t=>vs*t+(v-vs)*Math.sin(w*t)/w-L;
+  let lo=0, hi=4*L/Math.max(vs,1e-9);
+  if(f(hi)<0) return null;
+  for(let i=0;i<70;i++){ const mid=(lo+hi)*0.5; if(f(mid)<0) lo=mid; else hi=mid; }
+  const t=(lo+hi)*0.5;
+  const y=-(v-vs)*(1-Math.cos(w*t))/w;
+  const yp=0.5*(q*(E-v*B)/m)*Math.pow(L/v,2);
+  return {t:t,y:y,yp:yp,vs:vs};
+}
+function drawSel(){
+  const W=narrow?360:740, H=narrow?300:262;
+  setVB('sv-sel',W,H);
+  const cf=selCfg(), vs=cf.E/cf.B;
+  if(!isFinite(vs)||vs<=0||qOf()===0){
+    put('sel-g',TXJ(W/2,H/2,'E と B の両方をゼロでない値にすると選別が起きる',MUT,12,'middle'));
+    put('seltab',''); put('selstats',''); put('selnote',''); put('seltabnote',''); return;
+  }
+  const N=144, ex=[], pa=[], RLO=0.7, RHI=1.3;
+  let ym=0;
+  for(let i=0;i<=N;i++){
+    const rt=RLO+(RHI-RLO)*i/N, r=selExit(rt*vs,cf);
+    if(!r) continue;
+    ex.push([rt,r.y*1e3]); pa.push([rt,r.yp*1e3]);
+    ym=Math.max(ym,Math.abs(r.y*1e3));
+  }
+  ym=Math.max(ym*1.12,ST.selSlit*2.2);
+  const g={x:narrow?44:56,y:26,w:(narrow?360:740)-(narrow?60:80),h:H-92};
+  const p=mkPlot(g.x,g.y,g.w,g.h,RLO,RHI,-ym,ym,ticks(RLO,RHI,5),ticks(-ym,ym,4),'v / v_sel','変位 y [mm]');
+  let o=p.s;
+  o+=RECT(p.X(RLO),p.Y(ST.selSlit),g.w,Math.abs(p.Y(-ST.selSlit)-p.Y(ST.selSlit)),CGRN,null,0,null,0.10);
+  o+=LN(p.X(RLO),p.Y(0),p.X(RHI),p.Y(0),RULE,1.2);
+  o+=PL(pa.map(q=>[p.X(q[0]),p.Y(clamp(q[1],-ym,ym))]),CGOLD,1.8,'5 3',0.95);
+  o+=PL(ex.map(q=>[p.X(q[0]),p.Y(clamp(q[1],-ym,ym))]),CPUR,2.2);
+  o+=LN(p.X(1),g.y,p.X(1),g.y+g.h,CGRN,1.4,'4 3',0.9);
+  o+=TXJ(p.X(1)+5,g.y+12,'v = E/B なら直進',CGRNT,10.5,'start','600');
+  const rat=ST.v0*1e6/vs;
+  if(rat>=RLO&&rat<=RHI){
+    const r=selExit(ST.v0*1e6,cf);
+    if(r){
+      o+=CIRC(p.X(rat),p.Y(clamp(r.y*1e3,-ym,ym)),4.6,CPUR,'#fff',1.6);
+      o+=TX(p.X(rat)+6,p.Y(clamp(r.y*1e3,-ym,ym))-7,'いまの v\u2080',CPURT,10,'start','600');
+    }
+  }
+  o+=TXJ(g.x,g.y-8,'極板を抜けた位置での横ずれ。帯はスリットの開口',MUT,narrow?10:11,'start');
+  o+=TX(g.x+g.w,H-8,'\u2014 厳密解　- - 放物線近似',MUT,10,'end');
+  put('sel-g',o);
+  let pass=[0,0];
+  for(let i=0;i<ex.length;i++) if(Math.abs(ex[i][1])<=ST.selSlit){ if(!pass[0]) pass[0]=ex[i][0]; pass[1]=ex[i][0]; }
+  put('selstats',
+    stt('選別される速さ v = E/B',fmt(vs,5)+' m/s')+
+    stt('この節で使う E と B',fmt(cf.E/1e3,4)+' kV/m / '+fmt(cf.B*1e3,4)+' mT')+
+    stt('いまの v<sub>0</sub> / v_sel',fmt(rat,4))+
+    stt('極板の長さ L',fmt(ST.selL,3)+' cm')+
+    stt('スリット半幅',fmt(ST.selSlit,3)+' mm')+
+    stt('通過する速度の幅',pass[0]?(fmt(pass[0],3)+' \u2013 '+fmt(pass[1],3)+' \u00D7 v_sel'):'なし')+
+    stt('速度分解能 &Delta;v/v',pass[0]?fmt((pass[1]-pass[0])*100,3)+' %':'\u2014'));
+  put('selnote',(cf.fb?'上の E か B がゼロなので、この節だけ E = '+fmt(cf.E/1e3,3)+' kV/m・B = '+fmt(cf.B*1e3,3)+' mT を使っている。':'')+
+    'v = E/B のとき、電場から受ける力 qE と磁気力 qvB がちょうど打ち消し合う。'+
+    'この条件に q も m も入らないので、電子でもウランイオンでも同じ速さのものだけが残る。'+
+    '厳密解で見ると、直進しない粒子は放物線を描くのではなく、ドリフト速度 v_sel の上に半径 |v &minus; v_sel|/&omega; の円運動が乗った軌道になる。'+
+    'だから横ずれは無限に増えず 2|v &minus; v_sel|/&omega; で頭打ちになる。極板が短いうちは放物線とほとんど区別がつかない。');
+  let tb='<table><caption>厳密解と、教科書の放物線 y = &frac12;&middot;q(E &minus; vB)/m&middot;(L/v)&sup2; の比較</caption><thead><tr><th>v / v_sel</th><th>通過時間</th><th>厳密な y</th><th>放物線の y</th><th>ずれ</th></tr></thead><tbody>';
+  for(const rt of [0.8,0.9,0.95,1.05,1.1,1.2]){
+    const r=selExit(rt*vs,cf);
+    if(!r) continue;
+    const d=(r.yp-r.y)/Math.abs(r.y)*100;
+    tb+='<tr><td class="num">'+rt.toFixed(2)+'</td><td class="num">'+fmtU(r.t,'s',4)+'</td><td class="num">'+fmt(r.y*1e3,4)+' mm</td>'+
+      '<td class="num">'+fmt(r.yp*1e3,4)+' mm</td><td class="num">'+(Math.abs(r.y)>1e-12?fmt(d,3)+' %':'\u2014')+'</td></tr>';
+  }
+  tb+='</tbody></table>';
+  put('seltab',tb);
+  const rr=selExit(1.2*vs,cf);
+  put('seltabnote','放物線近似は、通過中に速度の向きが変わらないと置いたもの。'+
+    'いま L = '+fmt(ST.selL,3)+' cm での回転角は &omega;t = '+(rr?fmt(Math.abs(omg())*rr.t*R2D,3):'\u2014')+'\u00B0 程度で、'+
+    'これが小さいうちはずれも小さい。極板を長くする（L のスライダーを右に）と回転角が増え、'+
+    '放物線のほうが横ずれを過大に見積もるようになる。'+
+    (rr&&Math.abs((rr.yp-rr.y)/rr.y)>0.05?'いまの設定ではすでに 5 % を超えているので、放物線で解いた答えは有効数字 1 桁ぶんしか信用できない。':'いまの設定なら放物線で解いても実害はない。'));
+}
+
+/* ---------- サイクロトロン ---------- */
+function drawCyc(){
+  const W=narrow?360:740, H=narrow?290:262;
+  setVB('sv-cyc',W,H);
+  const c=CYC;
+  if(!c||!c.tr||!c.ev.length){
+    put('cyc-g',TXJ(W/2,H/2,'磁場を 0 より大きくすると加速が始まる',MUT,12,'middle'));
+    put('cyctab',''); put('cycstats',''); put('cycnote',''); put('cyctabnote',''); return;
+  }
+  const q=Math.abs(qOf()), m=mOf(), B=Bt(), U=c.U, ev=c.ev, N=ev.length;
+  const rg=e=>m*e.vout/(q*B);
+  const rth=n=>Math.sqrt(2*m*n*q*U)/(q*B);
+  let rmax=0;
+  for(const e of ev) rmax=Math.max(rmax,rg(e));
+  rmax=Math.max(rmax,rth(N))*1.08;
+  const ur=uLen(rmax);
+  const g={x:narrow?46:58,y:26,w:(narrow?360:740)-(narrow?62:82),h:H-86};
+  const p=mkPlot(g.x,g.y,g.w,g.h,0,N+1,0,rmax/ur.k,ticks(0,N+1,5),ticks(0,rmax/ur.k,4),'加速回数 n','半径 ['+ur.u+']');
+  let o=p.s;
+  const cv=[];
+  for(let i=0;i<=120;i++){ const nn=(N+1)*i/120; cv.push([p.X(nn),p.Y(rth(nn)/ur.k)]); }
+  o+=PL(cv,CGOLD,1.8,'5 3',0.95);
+  const pp=ev.map(e=>[p.X(e.n),p.Y(rg(e)/ur.k)]);
+  o+=PL(pp,CPUR,1.6,null,0.5);
+  for(const q2 of pp) o+=CIRC(q2[0],q2[1],2.6,CPUR,null,0,null,0.95);
+  o+=TXJ(g.x,g.y-8,'\u25CF 数値積分から出した半径　- - r = \u221A(2mnqU)/qB',MUT,narrow?10:11,'start');
+  o+=TX(g.x+g.w,H-8,'加速 '+N+' 回 = '+f1(N/2)+' 周',MUT,10,'end');
+  put('cyc-g',o);
+  const last=ev[N-1], Kf=last.kout, gam=1+Kf/(m*CL*CL);
+  let slip=0;
+  for(const e of ev) slip+=Math.PI*(e.kout/(m*CL*CL));
+  const ttot=c.tr.a[c.tr.n*7];
+  put('cycstats',
+    stt('共鳴周波数 f = |q|B/2&pi;m',fmt(c.w/TAU/1e6,5)+' MHz')+
+    stt('加速回数（ギャップ横断）',String(N)+' 回')+
+    stt('取り出し半径 R',fmt(c.R*100,3)+' cm')+
+    stt('最終運動エネルギー',fmt(Kf/JMEV,4)+' MeV')+
+    stt('最終速度 v/c',fmt(last.vout/CL,4))+
+    stt('加速に要した時間',fmtU(ttot,'s',4))+
+    stt('最終の &gamma; &minus; 1',fmt(gam-1,3))+
+    stt('相対論による位相の累積ずれ',fmt(slip*R2D,3)+'\u00B0'));
+  put('cycnote','古典式 K = q\u00B2B\u00B2R\u00B2/2m にいまの値を入れると '+fmt(q*q*B*B*c.R*c.R/(2*m)/JMEV,4)+' MeV。'+
+    '数値積分の結果 '+fmt(Kf/JMEV,4)+' MeV とわずかに違うのは、取り出し半径をまたいだ時点で切っているのと、'+
+    'ギャップ通過で取りこぼしがあるため。相対論の効果は位相のずれとして '+fmt(slip*R2D,3)+'\u00B0 たまっている。'+
+    (slip*R2D>25?'これだけずれると加速の位相から外れはじめる。実機では周波数を落としていくシンクロサイクロトロンにする。':
+     '90\u00B0 に達すると加速から減速に変わるので、この範囲ならまだ固定周波数で押し切れる。')+
+    ' 陽子線治療で使う 250 MeV では &gamma; = 1.266、周期が 26.6 % 延びるので固定周波数では届かない。');
+  let tb='<table><caption>ギャップ横断ごとの実測（U = '+f1(ST.cycU)+' kV, ギャップ '+f1(ST.cycGap)+' mm）</caption><thead><tr><th>n</th><th>通過後 K</th><th>&Delta;K / qU 実測</th><th>sin(&theta;/2)/(&theta;/2)</th><th>cos &phi;</th><th>予測</th><th>半径</th></tr></thead><tbody>';
+  const idx=[];
+  for(let i=0;i<Math.min(5,N);i++) idx.push(i);
+  if(N>7){ idx.push(-1); idx.push(N-2); idx.push(N-1); }
+  else for(let i=5;i<N;i++) idx.push(i);
+  for(const i of idx){
+    if(i<0){ tb+='<tr><td colspan="7" class="num" style="color:#5E6E76">\u22EE</td></tr>'; continue; }
+    const e=ev[i], th=c.w*c.g/Math.max(e.vout,1), ttf=Math.abs(th)>1e-9?Math.sin(th/2)/(th/2):1;
+    const cph=Math.abs(Math.cos(c.w*e.tmid));
+    tb+='<tr'+(i===0?' class="hi"':'')+'><td class="num">'+e.n+'</td>'+
+      '<td class="num">'+fmt(e.kout/QE/1e3,4)+' keV</td><td class="num">'+fmt(e.dk/(Math.abs(qOf())*U),4)+'</td>'+
+      '<td class="num">'+fmt(ttf,4)+'</td><td class="num">'+fmt(cph,4)+'</td><td class="num">'+fmt(ttf*cph,4)+'</td>'+
+      '<td class="num">'+fmt(rg(e)*100,4)+' cm</td></tr>';
+  }
+  tb+='</tbody></table>';
+  put('cyctab',tb);
+  const e0=ev[0], eL=ev[N-1];
+  put('cyctabnote','横断中の速度が一定なら、得るエネルギーは &Delta;K = qU &middot; sin(&theta;/2)/(&theta;/2) &middot; cos&phi; と厳密に書ける。'+
+    '&theta; = &omega;g/v は横断のあいだに RF が回る角度、&phi; は横断のまん中での位相。表の右 3 列がその内訳で、予測と実測がほぼ一致する。'+
+    '1 回目だけ外れるのは静止から出発して速度が一定でないから。その 1 回目に '+fmtU(e0.dt,'s',3)+'、'+
+    '周期 '+fmtU(TAU/c.w,'s',3)+' の '+fmt(e0.dt/(TAU/c.w)*100,3)+' % もかかっている。'+
+    'ディーの中の半周はきっかり T/2 なので、ここで食った時間はそのままあとの横断の位相をずらし、cos&phi; の列が 1 から離れていく。'+
+    '最後の横断では通過そのものは '+fmtU(eL.dt,'s',3)+' まで縮むのに、実測は qU の '+fmt(eL.dk/(Math.abs(qOf())*U),3)+' 倍にとどまる。'+
+    'ギャップを狭くするか加速電圧を上げると横断が速くなり、位相のずれも小さくなる。'+
+    '実機で加速電圧に数十 kV かけるのは、速く加速したいからだけでなくこの位相を守るため。');
+}
+
+/* ---------- 質量分析器 ---------- */
+function drawMS(){
+  const W=narrow?360:740, H=narrow?260:236;
+  setVB('sv-ms',W,H);
+  const runs=MSR, B=Bt();
+  if(!(B>0)||!runs.length){
+    put('ms-g',TXJ(W/2,H/2,'磁束密度を 0 より大きくすると半円を描く',MUT,12,'middle'));
+    put('mstab',''); put('msstats',''); put('msnote',''); put('mstabnote',''); return;
+  }
+  let xmin=1e18,xmax=-1e18;
+  for(const r of runs){ const d=2*r.r; if(d<xmin)xmin=d; if(d>xmax)xmax=d; }
+  const pad=Math.max((xmax-xmin)*0.35,xmax*0.02);
+  const lo=(xmin-pad)*100, hi=(xmax+pad)*100;
+  const g={x:narrow?40:54,y:26,w:(narrow?360:740)-(narrow?54:74),h:H-86};
+  const p=mkPlot(g.x,g.y,g.w,g.h,lo,hi,0,1.18,ticks(lo,hi,5),[],'検出位置 2r [cm]','強度');
+  let o=p.s;
+  const sg=0.05; /* 想定ビーム幅 0.5 mm を標準偏差 [cm] で */
+  const NC=280, cv=[];
+  for(let i=0;i<=NC;i++){
+    const x=lo+(hi-lo)*i/NC;
+    let s=0;
+    for(const r of runs) s+=Math.exp(-0.5*Math.pow((x-2*r.r*100)/sg,2));
+    cv.push([p.X(x),p.Y(Math.min(s,1.1))]);
+  }
+  o+=PLF(cv.concat([[p.X(hi),p.Y(0)],[p.X(lo),p.Y(0)]]),CPUR,0.10);
+  o+=PL(cv,CPUR,1.8);
+  for(const r of runs){
+    const x=2*r.r*100;
+    o+=LN(p.X(x),p.Y(0),p.X(x),p.Y(1.05),r.col,1.4,'3 2',0.9);
+    o+=TXJ(p.X(x),p.Y(1.05)-5,r.ion.nm,r.col,10.5,'middle','600');
+  }
+  o+=TXJ(g.x,g.y-8,'検出面に届いた位置。山の幅はビーム径 0.5 mm と仮定した目安',MUT,narrow?10:11,'start');
+  put('ms-g',o);
+  const set=IONSETS.filter(s=>s.id===ST.msSet)[0];
+  const sorted=runs.slice().sort((a,b)=>a.r-b.r);
+  let dmin=1e18;
+  for(let i=1;i<sorted.length;i++) dmin=Math.min(dmin,2*(sorted[i].r-sorted[i-1].r));
+  put('msstats',
+    stt('磁束密度 B',fmt(ST.B,4)+' mT')+
+    stt('入れ方',ST.msMode==='sameV'?('加速電圧 '+fmt(ST.msV,3)+' kV'):('共通の速さ '+fmt(ST.v0,3)+'\u00D710\u2076 m/s'))+
+    stt('検出位置の範囲',fmt(2*sorted[0].r*100,4)+' \u2013 '+fmt(2*sorted[sorted.length-1].r*100,4)+' cm')+
+    stt('いちばん近い 2 本の間隔',fmt(dmin*1e3,4)+' mm')+
+    stt('位置と質量の関係',ST.msMode==='sameV'?'2r &prop; \u221A(m/q)':'2r &prop; m/q')+
+    stt('必要な分解能 m/&Delta;m',fmt(msResolve(sorted),4)));
+  put('msnote',(set?set.note+' ':'')+
+    (ST.msMode==='sameV'
+      ? '同じ電圧で加速すると重いイオンほど遅くなるので、v = \u221A(2qV/m) を代入して 2r = 2\u221A(2mV/q)/B。位置は \u221Am に比例する。'
+      : '速度選択器を通して同じ速さで入れると 2r = 2mv/qB。位置がそのまま m に比例するので、\u221Am の場合より分離が 2 倍よく効く。')+
+    ' どちらの式でも m ではなく m/q で決まるので、電荷数の違うイオンは質量が違っても同じ位置に来ることがある。');
+  let tb='<table><caption>質量数 A で代用した場合との比較。r は実測質量で計算している</caption><thead><tr><th>イオン</th><th>A</th><th>実測質量 [u]</th><th>A&middot;u とのずれ</th><th>速さ</th><th>検出位置 2r</th><th>A 換算との差</th></tr></thead><tbody>';
+  for(const r of runs){
+    const io=r.ion, mA=io.A*UAMU, q=io.z*QE;
+    const vA=(ST.msMode==='sameV')?Math.sqrt(2*q*ST.msV*1e3/mA):msSpeed(io);
+    const rA=mA*vA/(q*B);
+    tb+='<tr><td><span class="chip"><span class="dot" style="background:'+r.col+'"></span>'+io.nm+'</span></td>'+
+      '<td class="num">'+io.A+'</td><td class="num">'+io.mu.toFixed(6)+'</td>'+
+      '<td class="num">'+fmt((io.mu/io.A-1)*100,3)+' %</td>'+
+      '<td class="num">'+fmt(r.v,4)+' m/s</td>'+
+      '<td class="num">'+fmt(2*r.r*100,5)+' cm</td>'+
+      '<td class="num">'+fmt((2*r.r-2*rA)*1e3,3)+' mm</td></tr>';
+  }
+  tb+='</tbody></table>';
+  put('mstab',tb);
+  put('mstabnote','右端の列が、質量数をそのまま質量に使ったときに生じる位置のずれ。'+
+    '陽子は +0.73 % も重いのでずれが大きく、重いイオンほど質量欠損の相対量が減ってずれも小さくなる。'+
+    'ただし隣り合う同位体の間隔がもともと数 mm しかない装置では、この程度のずれでもピークの帰属を間違える。'+
+    '実際の質量分析は逆で、位置から質量を 6 桁以上の精度で読み取り、そこから原子核の結合エネルギーを出す。');
+}
+function msResolve(sorted){
+  let best=1;
+  for(let i=1;i<sorted.length;i++){
+    const m1=sorted[i-1].ion.mu, m2=sorted[i].ion.mu;
+    const dm=Math.abs(m2-m1);
+    if(dm>0) best=Math.max(best,(m1+m2)/2/dm);
+  }
+  return best;
+}
+
+/* ---------- 数値解の検証 ---------- */
+function drawNum(){
+  const T=tcyc();
+  if(!isFinite(T)){ put('numtab',''); put('numnote','磁場がゼロなので回転周期が定義できない。B を上げると表が出る。'); put('enertab',''); put('enernote',''); return; }
+  const P0=baseP(); P0.E=[0,0,0]; P0.tEnd=2*T;
+  const rg=rGyro();
+  const ex=[0,0,0,0,0,0];
+  exactAt(P0,P0.tEnd,ex);
+  const v00=vlen(P0.v0);
+  let tb='<table><caption>磁場だけ・2 周ぶん。位置の誤差は回転半径で割った相対値</caption><thead><tr><th>1 周の刻み数</th><th>RK4 位置誤差</th><th>RK4 |v| のずれ</th><th>Boris 位置誤差</th><th>Boris |v| のずれ</th></tr></thead><tbody>';
+  const list=[6,12,24,48,96,192,384];
+  for(const spt of list){
+    const P=cloneP(P0); P.n=spt*2;
+    const a=integrate(P,'rk4'), b=integrate(P,'boris');
+    const ka=a.n*7, kb=b.n*7;
+    const ea=Math.hypot(a.a[ka+1]-ex[0],a.a[ka+2]-ex[1],a.a[ka+3]-ex[2])/rg;
+    const eb=Math.hypot(b.a[kb+1]-ex[0],b.a[kb+2]-ex[1],b.a[kb+3]-ex[2])/rg;
+    const va=Math.hypot(a.a[ka+4],a.a[ka+5],a.a[ka+6])/v00-1;
+    const vb=Math.hypot(b.a[kb+4],b.a[kb+5],b.a[kb+6])/v00-1;
+    tb+='<tr'+(spt===ST.spt?' class="cur"':'')+'><td class="num">'+spt+'</td><td class="num">'+expo(ea,2)+'</td><td class="num">'+expo(va,2)+
+      '</td><td class="num">'+expo(eb,2)+'</td><td class="num">'+expo(vb,2)+'</td></tr>';
+  }
+  tb+='</tbody></table>';
+  put('numtab',tb);
+  put('numnote','刻みを半分にすると RK4 の位置誤差は 1/16、Boris は 1/4 になる。次数どおり。'+
+    'ただし |v| の列を見ると性格の違いが出る。RK4 は毎ステップわずかに速さを削るので、粗い刻みでは円がじわじわ縮む。'+
+    'Boris は回転を厳密な直交変換で行うため、刻みがどれだけ粗くても |v| が機械精度（10\u207B\u00B9\u2076 桁）で保たれる。'+
+    'ずれるのは回る角度だけで、1 ステップの回転が &omega;&Delta;t ではなく 2 arctan(&omega;&Delta;t/2) になるぶん、周期が (&omega;&Delta;t)\u00B2/12 の割合で長く出る。'+
+    '長時間走らせる計算で Boris が標準的に使われるのはこのため。画面の軌道も既定では Boris で解いている。');
+  /* エネルギー収支 */
+  const P1=baseP(); P1.tEnd=spanT(); P1.n=clamp(Math.round(ST.spt*Math.max(ST.turns,0.4)),240,24000);
+  if(vlen(P1.E)<=0){
+    put('enertab','');
+    put('enernote','いま電場がゼロなので、運動エネルギーは変化しないはず。上の表の |v| の列がその確認になっている。E を上げるとこの節に収支表が出る。');
+    return;
+  }
+  const tr=integrate(P1,ST.scheme), a=tr.a, k=tr.n*7;
+  const K0=0.5*P1.m*(P1.v0[0]*P1.v0[0]+P1.v0[1]*P1.v0[1]+P1.v0[2]*P1.v0[2]);
+  const K1=0.5*P1.m*(a[k+4]*a[k+4]+a[k+5]*a[k+5]+a[k+6]*a[k+6]);
+  const Wq=P1.q*(P1.E[0]*(a[k+1]-P1.x0[0])+P1.E[1]*(a[k+2]-P1.x0[1])+P1.E[2]*(a[k+3]-P1.x0[2]));
+  const dK=K1-K0;
+  let e2='<table><thead><tr><th>量</th><th>値</th><th>電子ボルト換算</th></tr></thead><tbody>';
+  e2+='<tr><td>運動エネルギーの変化 &Delta;K</td><td class="num">'+expo(dK,4)+' J</td><td class="num">'+fmtU(dK/QE,'eV',4)+'</td></tr>';
+  e2+='<tr><td>電場のした仕事 qE&middot;&Delta;r</td><td class="num">'+expo(Wq,4)+' J</td><td class="num">'+fmtU(Wq/QE,'eV',4)+'</td></tr>';
+  e2+='<tr><td>磁気力のした仕事</td><td class="num">0（厳密）</td><td class="num">0</td></tr>';
+  e2+='<tr class="hi"><td>差</td><td class="num">'+expo(dK-Wq,3)+' J</td><td class="num">'+
+    (Math.abs(Wq)>0?fmt(Math.abs(dK-Wq)/Math.abs(Wq)*100,3)+' %':'\u2014')+'</td></tr>';
+  e2+='</tbody></table>';
+  put('enertab',e2);
+  put('enernote','磁気力の項は v&middot;(v&times;B) = 0 から厳密にゼロ。だから収支は電場だけで閉じるはずで、'+
+    '残った差 '+(Math.abs(Wq)>0?fmt(Math.abs(dK-Wq)/Math.abs(Wq)*100,3)+' %':'\u2014')+
+    ' は数値積分の打ち切り誤差そのもの。刻み数を増やすとこの差が縮む。'+
+    'エネルギー保存を「仮定」せずに独立に測っているので、解が壊れていないかの検査に使える。');
+}
+
+/* ---------- ブラッグピーク ---------- */
+function bragg(E,zs){
+  /* Bortfeld の飛程則 R = αE^p（水、α = 0.0022 cm/MeV^p, p = 1.77）から
+     未拡がりの深部線量 (R−z)^(1/p−1) を作り、飛程ストラグリング σ = 0.012R^0.935 [cm] で数値畳み込みする */
+  const p=1.77, al=0.0022, R=al*Math.pow(E,p), sg=0.012*Math.pow(R,0.935), ex=1/p-1;
+  const out=[], NQ=80;
+  for(const z of zs){
+    let s=0;
+    for(let i=0;i<NQ;i++){
+      const Rp=R-4*sg+8*sg*(i+0.5)/NQ;
+      if(Rp<=z) continue;
+      s+=Math.exp(-0.5*Math.pow((Rp-R)/sg,2))*Math.pow(Rp-z,ex);
+    }
+    out.push(s*8*sg/NQ);
+  }
+  return {R:R,sg:sg,d:out};
+}
+const PSTAR=[[70,4.080],[100,7.718],[150,15.77],[200,25.96],[250,37.94]];
+function drawBragg(){
+  const W=narrow?360:740, H=narrow?280:250;
+  setVB('sv-bragg',W,H);
+  const E=ST.bragE, zmaxAll=0.0022*Math.pow(250,1.77)*1.12;
+  const NZ=240, zs=[];
+  for(let i=0;i<=NZ;i++) zs.push(zmaxAll*i/NZ);
+  const b=bragg(E,zs);
+  let dm=0;
+  for(const v of b.d) dm=Math.max(dm,v);
+  const g={x:narrow?40:54,y:26,w:(narrow?360:740)-(narrow?54:74),h:H-84};
+  const p=mkPlot(g.x,g.y,g.w,g.h,0,zmaxAll,0,1.15,ticks(0,zmaxAll,5),[0,0.25,0.5,0.75,1],'水中の深さ [cm]','相対線量');
+  let o=p.s;
+  const xr=[];
+  for(let i=0;i<=NZ;i++){ const z=zs[i]; xr.push([p.X(z),p.Y((1-Math.exp(-z/1.5))*Math.exp(-0.0317*z)/0.62)]); }
+  o+=PL(xr,CBLU,1.8,'5 3',0.9);
+  const pr=[];
+  for(let i=0;i<=NZ;i++) pr.push([p.X(zs[i]),p.Y(b.d[i]/dm)]);
+  o+=PLF(pr.concat([[p.X(zmaxAll),p.Y(0)],[p.X(0),p.Y(0)]]),CCRM,0.10);
+  o+=PL(pr,CCRM,2.2);
+  o+=LN(p.X(b.R),g.y,p.X(b.R),g.y+g.h,MUT,1,'3 3',0.7);
+  o+=TXJ(p.X(b.R)-4,g.y+12,'R = '+f1(b.R)+' cm',MUT,10,'end');
+  o+=TXJ(g.x+6,g.y+14,'\u2014 陽子 '+E+' MeV　- - X 線（形の目安）',MUT,narrow?10:11,'start');
+  put('bragg-g',o);
+  let tb='<table><caption>水中の飛程。Bortfeld の近似式と、NIST PSTAR の CSDA 飛程の比較</caption><thead><tr><th>エネルギー</th><th>近似式 0.0022E<sup>1.77</sup></th><th>PSTAR</th><th>差</th><th>ストラグリング &sigma;</th><th>磁気剛性 B&rho;</th></tr></thead><tbody>';
+  for(const r of PSTAR){
+    const Rap=0.0022*Math.pow(r[0],1.77), sg=0.012*Math.pow(Rap,0.935);
+    const pc=Math.sqrt(r[0]*r[0]+2*r[0]*MPMEV);
+    tb+='<tr'+(r[0]===E?' class="cur"':'')+'><td class="num">'+r[0]+' MeV</td><td class="num">'+f1(Rap)+' cm</td><td class="num">'+r[1].toFixed(2)+
+      ' cm</td><td class="num">'+fmt((Rap/r[1]-1)*100,2)+' %</td><td class="num">'+f1(sg*10)+' mm</td><td class="num">'+f1(pc/1000/0.299792458)+' T&middot;m</td></tr>';
+  }
+  tb+='</tbody></table>';
+  put('bragtab',tb);
+  const pc=Math.sqrt(250*250+2*250*MPMEV), pnr=Math.sqrt(2*MPMEV*250);
+  put('bragnote','ピークの深さは入射エネルギーだけで決まる。腫瘍の厚みに合わせるにはエネルギーを何段階か振って山を重ねる（拡大ブラッグピーク）。'+
+    '曲線は Bortfeld の飛程則から作った未拡がりの分布を、飛程のばらつき &sigma; = 0.012R<sup>0.935</sup> cm で数値的に畳み込んだもの。'+
+    '核反応による減衰は入れていないので、実測より入口側がやや低く出る。X 線の曲線は 6 MV 相当の &mu; = 0.032 /cm に立ち上がりを掛けただけの形の目安で、実測値ではない。'+
+    '　右端の B&rho; = p/q は、そのエネルギーの陽子を曲げるのに要る「磁束密度 &times; 半径」。250 MeV では pc = '+f1(pc)+' MeV に対し '+f1(pc/1000/0.299792458)+' T&middot;m で、'+
+    '1.5 T の電磁石なら曲率半径 '+f1(pc/1000/0.299792458/1.5)+' m。回転ガントリーが 10 m 級・100 t 超になるのはこれが理由。'+
+    '非相対論の p = \u221A(2mK) で計算すると '+f1(pnr)+' MeV/c となり '+fmt((1-pnr/pc)*100,3)+' % 小さく見積もってしまう。');
+}
+
+/* ---------- 記号つきの式 ---------- */
+const FX1=[
+  {k:'m',t:'<b>質量</b>　イオンなら実測質量を使う。質量数 A をそのまま u 倍すると陽子で 0.73% ずれる'},
+  {k:'a',t:'<b>加速度</b>　速度の変化率。向きだけ変わる場合も加速度はゼロではない'},
+  {k:'q',t:'<b>電荷</b>　符号つき。負電荷では力の向きが反転し、回る向きも逆になる'},
+  {k:'E',t:'<b>電場</b>　速度に関係なく qE の力を与える。運動エネルギーを変えられるのはこの項だけ'},
+  {k:'vB',t:'<b>磁気力</b>　v と B の両方に垂直。外積の順番を逆にすると符号が反転する'},
+  {k:'w',t:'<b>仕事率</b>　磁気力の項は v&middot;(v&times;B) = 0 で必ず消える。だから磁場は速さを変えない'},
+  {k:'om',t:'<b>角振動数</b>　&omega; = qB/m。符号つきで、正なら +z から見て時計回り。大きさが 2&pi;/T'},
+  {k:'vd',t:'<b>ドリフト速度</b>　(E&times;B)/B\u00B2。加速度がゼロになる速度で、q も m も入らない'},
+  {k:'u',t:'<b>ドリフトからのずれ</b>　これが角速度 &omega; で回る。円運動の正体'},
+  {k:'r',t:'<b>回転半径</b>　磁場に垂直な速度成分だけで決まる。斜め入射なら v sin&alpha;'},
+  {k:'T',t:'<b>周期</b>　速さも半径も入らない。サイクロトロンが成立する理由そのもの'}
+];
+function buildFx(){
+  put('fx1','<span class="sym" data-k="m">m</span> <span class="frac"><span class="n">d<span class="sym" data-k="a">v</span></span><span class="d">dt</span></span> = '+
+    '<span class="sym" data-k="q">q</span>(<span class="sym" data-k="E">E</span> + <span class="sym" data-k="vB">v &times; B</span>)'+
+    '　　<span class="frac"><span class="n">d</span><span class="d">dt</span></span>(&frac12;mv\u00B2) = <span class="sym" data-k="w">qE&middot;v</span>');
+  const box=document.getElementById('fx1');
+  if(box) box.addEventListener('click',function(e){
+    const t=e.target.closest('.sym'); if(!t) return;
+    for(const s of box.querySelectorAll('.sym')) s.classList.remove('on');
+    t.classList.add('on');
+    const d=FX1.filter(x=>x.k===t.getAttribute('data-k'))[0];
+    put('fx1d',d?d.t:'');
+  });
+  put('fx2','B = (0, 0, B) と置くと<br>'+
+    'v&#775;<sub>x</sub> = (q/m)E<sub>x</sub> + <span class="cF">&omega;</span> v<sub>y</sub>　　'+
+    'v&#775;<sub>y</sub> = (q/m)E<sub>y</sub> &minus; <span class="cF">&omega;</span> v<sub>x</sub>　　'+
+    'v&#775;<sub>z</sub> = (q/m)E<sub>z</sub>　　（<span class="cF">&omega;</span> = qB/m）');
+  put('fx3','v<sub>d</sub> = <span class="frac"><span class="n">E &times; B</span><span class="d">B\u00B2</span></span>　　'+
+    'u = v<sub>&perp;</sub> &minus; v<sub>d</sub> は角速度 &omega; で回る<br>'+
+    'r = <span class="frac"><span class="n">m v<sub>&perp;</sub></span><span class="d">|q| B</span></span>　　'+
+    'T = <span class="frac"><span class="n">2&pi;m</span><span class="d">|q| B</span></span>　　'+
+    'p = v<sub>&parallel;</sub> T');
+  put('fx4','d = (cos&phi;cos&theta;, cos&phi;sin&theta;, sin&phi;)<br>'+
+    'r = (&minus;sin&theta;, cos&theta;, 0)　　u = d &times; r<br>'+
+    's<sub>x</sub> = P&middot;r　　s<sub>y</sub> = &minus;P&middot;u　　depth = P&middot;d');
+  put('exactnote','一様な場ならこの 3 つを足し合わせた閉じた式で厳密解が書ける。'+
+    '画面の軌道は運動方程式を数値積分して出しているが、その答えをこの厳密解と突き合わせて誤差を測っている（NUMERICS の節）。'+
+    'サイクロトロンのように場が場所と時刻で変わる場合は厳密解が使えないので、そこは数値解だけが頼りになる。');
+}
+
+/* ---------- ダッシュボード ---------- */
+function drawQ(){
+  const q=Math.abs(qOf()), m=mOf(), B=Bt(), T=tcyc();
+  const v=vVec(), vpe=Math.hypot(v[0],v[1]), vpa=Math.abs(v[2]), vm=vlen(v);
+  const r=(q>0&&B>0)?m*vpe/(q*B):Infinity;
+  const vd=vlen(driftV());
+  const K=0.5*m*vm*vm;
+  const bet=vm/CL, gam=1/Math.sqrt(1-Math.min(bet*bet,0.999999));
+  const items=[
+    {k:'粒子',v:mn(ST.Z)+' e / '+fmt(ST.mu,5)+' u',cls:'flat',w:'m = '+expo(m,3)+' kg'},
+    {k:'回転半径 r',v:fmtU(r,'m',4),cls:'up',w:'v<sub>&perp;</sub> に比例'},
+    {k:'周期 T',v:fmtU(T,'s',4),cls:'lock',w:'v を変えても動かない'},
+    {k:'共鳴周波数 f',v:fmt(1/T/1e6,4)+' MHz',cls:'lock',w:'|q|B / 2&pi;m'},
+    {k:'らせんのピッチ',v:vpa>0?fmtU(vpa*T,'m',4):'0（垂直入射）',cls:'ok',w:'v<sub>&parallel;</sub> = '+fmt(vpa,3)+' m/s'},
+    {k:'ドリフト E/B',v:fmt(vd,4)+' m/s',cls:vd>0?'dn':'flat',w:'q にも m にもよらない'},
+    {k:'運動エネルギー',v:fmtU(K/QE,'eV',4),cls:'flat',w:expo(K,3)+' J'},
+    {k:'v/c と &gamma;&minus;1',v:fmt(bet,3)+' / '+expo(gam-1,2),cls:bet>0.01?'up':'ok',w:bet>0.01?'非相対論の式が怪しい':'非相対論で十分'}
+  ];
+  let h='';
+  for(const x of items) h+='<div class="qc '+x.cls+'"><div class="qk">'+x.k+'</div><div class="qv">'+x.v+'</div><div class="qw">'+x.w+'</div></div>';
+  put('qgrid',h);
+}
+
+/* ---------- 表 ---------- */
+function buildTables(){
+  let h='<table><thead><tr><th>近似</th><th>効く場所</th><th>ずれの中身</th></tr></thead><tbody>';
+  for(const r of APPROX) h+='<tr><td>'+r[0]+'</td><td>'+r[1]+'</td><td>'+r[2]+'</td></tr>';
+  h+='</tbody></table>';
+  put('apptable',h);
+  let c='<table><thead><tr><th>定数</th><th>採用値</th><th>出どころ</th><th>注記</th></tr></thead><tbody>';
+  for(const r of CONSTS) c+='<tr><td>'+r[0]+'</td><td class="mono">'+r[1]+'</td><td>'+r[2]+'</td><td>'+r[3]+'</td></tr>';
+  c+='</tbody></table>';
+  put('consttable',c);
+  let m='';
+  for(const s of MISS) m+='<li>'+s+'</li>';
+  put('misslist',m);
+}
+function updConstNote(){
+  const m=mOf();
+  put('constnote','質量は u を単位に持っていて、SI に直すときだけ CODATA の 1.66053906660\u00D710\u207B\u00B2\u2077 kg を掛けている。'+
+    '教科書の 1.66\u00D710\u207B\u00B2\u2077 に置き換えると半径も周期も 0.032 % ずれるが、これは画面の 4 桁表示の最後の桁に出るかどうかという量。'+
+    'それより効くのは「質量数をそのまま質量にする」ほうで、陽子なら 0.73 % ずれる。'+
+    'いま使っている質量は '+fmt(ST.mu,7)+' u = '+expo(m,4)+' kg。'+
+    '電荷は素電荷の整数倍で、素電荷そのものは 2019 年の SI 改定で定義値になったので誤差はない。');
+}
+
+/* ---------- 凡例と注記 ---------- */
+function updLegend(){
+  const L=[
+    '<span class="swl" style="border-color:'+CBLU+'"></span>磁束密度 B（+z）',
+    '<span class="swl" style="border-color:'+CCRM+'"></span>電場 E',
+    '<span class="swl" style="border-color:'+CPUR+'"></span>軌道',
+    '<span class="swl" style="border-color:'+CGRN+'"></span>速度ベクトル',
+    '<span class="swl" style="border-color:'+MUT+'"></span>床に落とした影（xy 投影）'
+  ];
+  let h='';
+  for(const x of L) h+='<span>'+x+'</span>';
+  put('legend',h);
+}
+function updMainNote(){
+  const p=PRESETS.filter(x=>x.id===ST.pre)[0];
+  const q=Math.abs(qOf()), m=mOf(), B=Bt();
+  const v=vVec(), vpe=Math.hypot(v[0],v[1]), vm=vlen(v);
+  const w=Math.abs(omg());
+  let rad='\u2014', grav='\u2014';
+  if(w>0&&vpe>0){
+    const acc=w*vpe;
+    const P=q*q*acc*acc/(6*Math.PI*EPS0*CL*CL*CL);
+    const K=0.5*m*vm*vm;
+    if(K>0) rad=expo(P*(TAU/w)/K,2);
+  }
+  {
+    const E=eVec();
+    const F=[E[0]+v[1]*B, E[1]-v[0]*B, E[2]];
+    const Fm=q*vlen(F);
+    if(Fm>0) grav=expo(m*9.80665/Fm,2);
+  }
+  put('mainnote',(p?p.note+' ':'')+
+    (ST.mu<0.1?'電子はスライダーの下限（0.1 u）より軽いので、つまみは左端に張りついたままになる。数値表示のほうが実際の値。 ':'')+
+    'いま箱の 1 辺は '+fmtU(2*FIT.L,'m',3)+'。箱の大きさは軌道に合わせて自動で決めているので、'+
+    '粒子を変えると縮尺ごと変わる（電子だと軌道が 1836 分の 1 になる）。'+
+    ' 1 周で放射に取られるエネルギーの割合は '+rad+'、重力とローレンツ力の比は '+grav+'。'+
+    'どちらも桁が違うので無視している。');
+  const bet=vm/CL;
+  put('mainwarn', bet>0.01
+    ? 'v/c = '+fmt(bet,3)+' に達している。非相対論の式では周期が &gamma; 倍ずれるので、この設定の数字は '+fmt((1/Math.sqrt(1-bet*bet)-1)*100,2)+' % ほど信用できない。'
+    : '');
+  put('mainhint', ST.mode==='cyc'
+    ? '中心から出発してギャップを何度も横切りながら外へ広がっていく。半円の中心が少しずつ動くので、渦の中心は出発点とはずれる。'
+    : (ST.mode==='ms'
+      ? '複数のイオンを同時に打ち込んで半円を描かせている。戻ってきた位置の違いがそのまま質量の違い。'
+      : 'ドラッグで回る。再生を押すと粒子が軌道をなぞる。'));
+}
+
+/* ---------- UI ---------- */
+function buildPreUI(){
+  mkBtnRow('presel',PRESETS,it=>ST.pre===it.id,it=>applyPreset(it));
+}
+function buildPartUI(){
+  mkBtnRow('partsel',PARTS,it=>Math.abs(ST.mu-it.mu)<1e-9&&ST.Z===it.Z,
+    it=>{ ST.Z=it.Z; ST.mu=it.mu; onParam(); });
+}
+function buildViewBtn(){
+  mkBtnRow('viewbtn',[{id:'iso',nm:'斜め'},{id:'z',nm:'+z から'},{id:'x',nm:'+x から'},{id:'y',nm:'+y から'}],
+    ()=>false,
+    it=>{
+      if(it.id==='iso'){ ST.az=-42; ST.el=24; }
+      if(it.id==='z'){ ST.az=-90; ST.el=84; }
+      if(it.id==='x'){ ST.az=0; ST.el=6; }
+      if(it.id==='y'){ ST.az=-90; ST.el=6; }
+      refreshLight();
+    });
+}
+function buildPlayRow(){
+  mkBtnRow('playrow',[{id:'play',nm:ST.play?'\u25A0 停止':'\u25B6 再生'},{id:'top',nm:'先頭へ'}],
+    it=>it.id==='play'&&ST.play,
+    it=>{
+      if(it.id==='play'){ ST.play=!ST.play; if(ST.play) startAnim(); buildPlayRow(); }
+      else { ST.tf=0; drawMainFg(); drawProjFg(); syncSlider('tf'); }
+    });
+}
+function buildMsUI(){
+  mkBtnRow('msset',IONSETS,it=>ST.msSet===it.id,it=>{ ST.msSet=it.id; autoMsSpeed(); onParam(); });
+  mkBtnRow('msmode',[{id:'sameV',nm:'同じ電圧で加速'},{id:'sameSpeed',nm:'同じ速さで入れる'}],
+    it=>ST.msMode===it.id,it=>{ ST.msMode=it.id; autoMsSpeed(); onParam(); });
+}
+function autoMsSpeed(){
+  if(ST.msMode!=='sameSpeed') return;
+  const B=Bt(); if(!(B>0)) return;
+  let mmax=0, zz=1;
+  for(const io of msIons()){ if(io.mu>mmax){ mmax=io.mu; zz=io.z; } }
+  const v=zz*QE*B*0.22/(mmax*UAMU);
+  ST.v0=clamp(Math.round(v/1e6*50)/50,0.02,5);
+}
+function applyPreset(p){
+  ST.pre=p.id; ST.mode=p.mode;
+  for(const k in p.set) ST[k]=p.set[k];
+  ST.tf=0;
+  if(p.mode==='ms') autoMsSpeed();
+  onParam();
+}
+function applyMode(){
+  const m=ST.mode;
+  if(m==='sel'){ ST.aE=90; ST.aV=90; ST.bV=0; }
+  if(m==='ms'){ ST.aE=90; ST.aV=90; ST.bV=0; ST.E=0; }
+  if(m==='cyc'){ ST.E=0; ST.aV=90; ST.bV=0; }
+  showSlider('E',m==='free'||m==='sel');
+  showSlider('aE',m==='free');
+  showSlider('v0',m!=='cyc'&&!(m==='ms'&&ST.msMode==='sameV'));
+  showSlider('aV',m==='free');
+  showSlider('bV',m==='free');
+  showSlider('Z',m!=='ms');
+  showSlider('mu',m!=='ms');
+  showSlider('turns',m==='free');
+  showSlider('msV',ST.msMode==='sameV');
+}
+const SPTL=[65,130,260,520,1040];
+function buildSliders(){
+  addSlider('fldsliders','E','電場 E',0,200,1,()=>ST.E,v=>{ST.E=v;},v=>f1(v),'kV/m');
+  addSlider('fldsliders','aE','E の向き（z から）',0,180,1,()=>ST.aE,v=>{ST.aE=v;},v=>mn(v)+'\u00B0','');
+  addSlider('fldsliders','B','磁束密度 B',0,500,1,()=>ST.B,v=>{ST.B=v;},v=>f1(v),'mT');
+  addSlider('fldsliders','v0','初速 v<sub>0</sub>',1,250,1,()=>ST.v0*50,v=>{ST.v0=v/50;},v=>(v/50).toFixed(2),'\u00D710\u2076 m/s');
+  addSlider('fldsliders','aV','v<sub>0</sub> の傾き（z から）',0,180,1,()=>ST.aV,v=>{ST.aV=v;},v=>mn(v)+'\u00B0','');
+  addSlider('fldsliders','bV','v<sub>0</sub> の方位（xy）',-180,180,1,()=>ST.bV,v=>{ST.bV=v;},v=>mn(v)+'\u00B0','');
+  addSlider('fldsliders','Z','電荷 q',-4,4,1,()=>ST.Z,v=>{ST.Z=v;},v=>mn(v),'e');
+  addSlider('fldsliders','mu','質量 m',1,2400,1,()=>ST.mu*10,v=>{ST.mu=v/10;},v=>(v/10).toFixed(1),'u',null,()=>fmt(ST.mu,6));
+  addSlider('fldsliders','turns','描く周回数',2,80,1,()=>ST.turns*10,v=>{ST.turns=v/10;},v=>(v/10).toFixed(1),'周');
+
+  addSlider('viewsliders','az','方位角 \u03B8',-180,180,1,()=>ST.az,v=>{ST.az=v;},v=>mn(v)+'\u00B0','',refreshLight);
+  addSlider('viewsliders','el','仰角 \u03C6',6,84,1,()=>ST.el,v=>{ST.el=v;},v=>v+'\u00B0','',refreshLight);
+
+  addSlider('timesliders','tf','時刻',0,1000,1,()=>ST.tf*1000,v=>{ST.tf=v/1000;},v=>(v/10).toFixed(1),'%',onTime);
+  addSlider('timesliders','rate','再生速度',1,40,1,()=>ST.rate*10,v=>{ST.rate=v/10;},v=>(v/10).toFixed(1),'\u00D7',onTime);
+
+  addSlider('selsliders','selL','極板の長さ L',5,80,1,()=>ST.selL,v=>{ST.selL=v;},v=>f1(v),'cm');
+  addSlider('selsliders','selSlit','スリット半幅',1,200,1,()=>ST.selSlit*10,v=>{ST.selSlit=v/10;},v=>(v/10).toFixed(1),'mm');
+
+  addSlider('cycsliders','cycU','加速電圧 U',1,100,1,()=>ST.cycU,v=>{ST.cycU=v;},v=>f1(v),'kV');
+  addSlider('cycsliders','cycGap','ギャップ幅 g',2,60,1,()=>ST.cycGap,v=>{ST.cycGap=v;},v=>f1(v),'mm');
+  addSlider('cycsliders','cycR','取り出し半径 R',5,60,1,()=>ST.cycR*100,v=>{ST.cycR=v/100;},v=>(v/100).toFixed(2),'m');
+
+  addSlider('mssliders','msV','加速電圧 V',1,200,1,()=>ST.msV*10,v=>{ST.msV=v/10;},v=>(v/10).toFixed(1),'kV');
+
+  addSlider('numsliders','spt','1 周あたりの刻み数',0,4,1,()=>SPTL.indexOf(ST.spt),v=>{ST.spt=SPTL[v];},v=>String(SPTL[v]),'');
+  addSlider('numsliders','scheme','解法',0,1,1,()=>ST.scheme==='rk4'?1:0,v=>{ST.scheme=v?'rk4':'boris';},v=>v?'RK4':'Boris','');
+
+  addSlider('bragsliders','bragE','陽子の入射エネルギー',60,250,5,()=>ST.bragE,v=>{ST.bragE=v;},v=>String(v),'MeV',onBrag);
+}
+
+/* ---------- 更新 ---------- */
+let MSR=[];
+let heavyTid=null;
+function scheduleHeavy(){
+  clearTimeout(heavyTid);
+  heavyTid=setTimeout(function(){
+    if(ST.mode!=='cyc') CYC=cycRun();
+    if(ST.mode!=='ms') MSR=msRun();
+    drawCirc(); drawDrift(); drawSel(); drawCyc(); drawMS(); drawNum(); drawBragg();
+  },170);
+}
+function refresh(){
+  applyMode();
+  if(ST.mode==='cyc') CYC=cycRun();
+  if(ST.mode==='ms') MSR=msRun();
+  TRK=computeTracks();
+  fitTracks(TRK);
+  buildPreUI(); buildPartUI(); buildViewBtn(); buildPlayRow(); buildMsUI();
+  drawMain(); drawProj(); drawCam(); drawQ();
+  updLegend(); updMainNote(); updConstNote();
+  syncSliders();
+  scheduleHeavy();
+}
+function refreshLight(){ drawMain(); drawProj(); drawCam(); syncSlider('az'); syncSlider('el'); }
+function onParam(){ refresh(); }
+function onTime(){ drawMainFg(); drawProjFg(); syncSlider('tf'); syncSlider('rate'); }
+function onBrag(){ drawBragg(); syncSlider('bragE'); }
+
+/* ---------- アニメーション ---------- */
+let RAF=null, lastTS=0;
+function startAnim(){ if(RAF) return; lastTS=0; RAF=requestAnimationFrame(tick); }
+function tick(ts){
+  RAF=null;
+  if(!ST.play) return;
+  if(!lastTS) lastTS=ts;
+  const dt=Math.min(0.08,(ts-lastTS)/1000);
+  lastTS=ts;
+  ST.tf+=dt*ST.rate*0.25;
+  while(ST.tf>1) ST.tf-=1;
+  drawMainFg(); drawProjFg(); syncSlider('tf');
+  RAF=requestAnimationFrame(tick);
+}
+
+/* ---------- ポインタ操作 ---------- */
+function bindMain(){
+  const sv=document.getElementById('sv-main');
+  if(!sv) return;
+  let g=null;
+  sv.addEventListener('pointerdown',function(e){
+    g={x:e.clientX,y:e.clientY,az:ST.az,el:ST.el};
+    try{ sv.setPointerCapture(e.pointerId); }catch(err){}
+    sv.classList.add('drag');
+  });
+  sv.addEventListener('pointermove',function(e){
+    if(!g) return;
+    e.preventDefault();
+    ST.az=((g.az+(e.clientX-g.x)*0.42)%360+540)%360-180;
+    ST.el=clamp(g.el-(e.clientY-g.y)*0.30,6,84);
+    drawMain();
+  });
+  const up=function(){
+    if(g){ g=null; sv.classList.remove('drag'); drawProj(); drawCam(); syncSlider('az'); syncSlider('el'); }
+  };
+  sv.addEventListener('pointerup',up);
+  sv.addEventListener('pointercancel',up);
+  sv.addEventListener('pointerleave',up);
+}
+
+let rt=null;
+window.addEventListener('resize',function(){
+  clearTimeout(rt);
+  rt=setTimeout(function(){
+    const n=window.innerWidth<=430;
+    if(n!==narrow){ narrow=n; refresh(); }
+  },160);
+});
+
+/* ---------- 起動 ---------- */
+buildSliders();
+buildFx();
+buildTables();
+bindMain();
+applyPreset(PRESETS[0]);
+</script>
+</body>
+</html>
