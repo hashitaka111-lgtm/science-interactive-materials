@@ -780,7 +780,8 @@
     "related": [
       "phys-wave-superposition",
       "phys-doppler-effect",
-      "phys-projectile-motion"
+      "phys-projectile-motion",
+      "phys-circular-motion"
     ]
   },
   {
@@ -957,7 +958,8 @@
     "type": "simulator",
     "related": [
       "phys-projectile-motion",
-      "phys-momentum-impulse"
+      "phys-momentum-impulse",
+      "phys-circular-motion"
     ]
   },
   {
@@ -987,7 +989,40 @@
     "type": "simulator",
     "related": [
       "phys-projectile-motion",
-      "phys-rigid-body-equilibrium"
+      "phys-rigid-body-equilibrium",
+      "phys-circular-motion"
+    ]
+  },
+  {
+    "id": "phys-circular-motion",
+    "file": "html/phys-circular-motion.html",
+    "subject": "physics",
+    "unit": "力学 / 円運動",
+    "course": "物理",
+    "section": "様々な運動",
+    "order": 13,
+    "title": "円運動インタラクティブ",
+    "heading": "円運動インタラクティブ",
+    "summary": "水平面・鉛直面・円錐振り子の3つの場面で向心力の担い手を切り替え、弧度法からv=rω・a=rω²を正しく導く",
+    "topics": [
+      "弧度法とω・T",
+      "v=rω(接線方向)・a=rω²=v²/r(向心方向)",
+      "水平面内の円運動(摩擦力が向心力)",
+      "鉛直面内の円運動(v²≥grの境界条件)",
+      "円錐振り子"
+    ],
+    "interactions": [
+      "スライダー",
+      "グラフ連動",
+      "3D",
+      "アニメーション"
+    ],
+    "confidence": "high",
+    "type": "simulator",
+    "related": [
+      "phys-shm-oscillation",
+      "phys-rigid-body-equilibrium",
+      "phys-momentum-impulse"
     ]
   }
 ]

@@ -321,6 +321,34 @@ function stripMomentumImpulseLayoutWiring(text) {
     .replace(/\n\nexport\s*{[^}]*};\n?$/, "");
 }
 
+// scripts/projection-engine.mjs 用のtransformSource(phys-circular-motion専用)。
+// phys-circular-motionは vector-diagram-engine.mjs と projection-engine.mjs の両方を
+// 同じ<script type="module">に埋め込む(円錐振り子の3D投影のため)。ところが両ファイルは
+// それぞれ独立に `const D2R = Math.PI / 180;` を持っていて、同じスコープに両方を
+// そのまま埋め込むと「Identifier 'D2R' has already been declared」で構文エラーになる。
+// vector-diagram-engine.mjsの方を先に埋め込み、projection-engine.mjs側の重複した
+// D2R宣言だけを取り除く(値はどちらも Math.PI / 180 で全く同じなので、先に埋め込んだ
+// vector-diagram-engine.mjsのD2RをprojectionEngineの関数からもそのまま使い回せる)。
+// それ以外の内容は一切変更しない。
+function stripProjectionEngineD2RForCircularMotion(text) {
+  return text.replace("const D2R = Math.PI / 180;\n\n", "");
+}
+
+// scripts/phys-circular-motion-layout.mjs 用のtransformSource。
+// 先頭の `import {...} from "./vector-diagram-engine.mjs";` を1箇所取り除く点は
+// stripMomentumImpulseLayoutWiring と同じ。加えてこのファイルは単体(Node実行・
+// import解決)のために独自の `const D2R`/`const R2D` を持っているが、埋め込み先の
+// <script>では直前に埋め込んだ vector-diagram-engine.mjs が同じ値のD2R/R2Dを
+// 既に宣言しているため、重複宣言のSyntaxErrorを避けるためにこの2行だけ取り除く
+// (`const TAU`はどちらのエンジンにも無いためそのまま残す)。末尾の`export {...};`は
+// stripMomentumImpulseLayoutWiring と同じ理由で取り除く。それ以外は書き換えない。
+function stripCircularMotionLayoutWiring(text) {
+  return text
+    .replace(/import\s*{[^}]*}\s*from\s*"\.\/vector-diagram-engine\.mjs";\n\n/, "")
+    .replace("const D2R = Math.PI / 180;\nconst R2D = 180 / Math.PI;\n", "")
+    .replace(/\n\nexport\s*{[^}]*};\n?$/, "");
+}
+
 const EMBED_SCRIPT_CHECKS = [
   {
     materialId: "protein-structure",
@@ -357,6 +385,29 @@ const EMBED_SCRIPT_CHECKS = [
     startMarker: "/* ---------- ここから scripts/phys-momentum-impulse-layout.mjs をそのまま埋め込み ----------\n   ただし先頭の import 文だけは省略している(vector-diagram-engine.mjsを直前に同じ\n   <script type=\"module\">内へ埋め込み済みで、同一スコープの関数をそのまま参照できるため。\n   相対パスの import 文をそのまま残すと、ブラウザが実ファイルへのfetchを試みてしまい、\n   単一ファイル完結・fetch不使用の方針に反する)。それ以外の内容は書き換えていない。 ---------- */",
     endMarker: "/* ---------- ここまで scripts/phys-momentum-impulse-layout.mjs の埋め込み ---------- */",
     transformSource: stripMomentumImpulseLayoutWiring,
+  },
+  {
+    materialId: "phys-circular-motion",
+    html: "html/phys-circular-motion.html",
+    sourceFile: "scripts/vector-diagram-engine.mjs",
+    startMarker: "/* ---------- ここから scripts/vector-diagram-engine.mjs をそのまま埋め込み(内容は書き換えない) ---------- */",
+    endMarker: "/* ---------- ここまで scripts/vector-diagram-engine.mjs の埋め込み ---------- */",
+  },
+  {
+    materialId: "phys-circular-motion",
+    html: "html/phys-circular-motion.html",
+    sourceFile: "scripts/projection-engine.mjs",
+    startMarker: "/* ---------- ここから scripts/projection-engine.mjs をそのまま埋め込み ----------\n   ただし vector-diagram-engine.mjs と同じスコープに埋め込むため、重複する\n   `const D2R = Math.PI / 180;` の宣言だけを省略している(値は同じで、直前に\n   埋め込んだ vector-diagram-engine.mjs のD2Rをそのまま使い回せる)。\n   それ以外の内容は書き換えていない。 ---------- */",
+    endMarker: "/* ---------- ここまで scripts/projection-engine.mjs の埋め込み ---------- */",
+    transformSource: stripProjectionEngineD2RForCircularMotion,
+  },
+  {
+    materialId: "phys-circular-motion",
+    html: "html/phys-circular-motion.html",
+    sourceFile: "scripts/phys-circular-motion-layout.mjs",
+    startMarker: "/* ---------- ここから scripts/phys-circular-motion-layout.mjs をそのまま埋め込み ----------\n   ただし先頭の import 文と、vector-diagram-engine.mjsと重複する\n   `const D2R`/`const R2D` の宣言は省略している(直前に埋め込んだ vector-diagram-engine.mjs・\n   projection-engine.mjsの関数・定数を同一スコープでそのまま参照できるため。相対パスの\n   import 文をそのまま残すと、ブラウザが実ファイルへのfetchを試みてしまい、単一ファイル\n   完結・fetch不使用の方針に反する)。それ以外の内容は書き換えていない。 ---------- */",
+    endMarker: "/* ---------- ここまで scripts/phys-circular-motion-layout.mjs の埋め込み ---------- */",
+    transformSource: stripCircularMotionLayoutWiring,
   },
 ];
 
@@ -479,4 +530,6 @@ export {
   extractEmbeddedScript,
   diffScriptText,
   stripMomentumImpulseLayoutWiring,
+  stripProjectionEngineD2RForCircularMotion,
+  stripCircularMotionLayoutWiring,
 };
