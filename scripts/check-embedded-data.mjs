@@ -349,6 +349,19 @@ function stripCircularMotionLayoutWiring(text) {
     .replace(/\n\nexport\s*{[^}]*};\n?$/, "");
 }
 
+// scripts/phys-gravitation-layout.mjs 用のtransformSource。
+// 先頭の `import {...} from "./vector-diagram-engine.mjs";` を1箇所取り除く点は
+// stripMomentumImpulseLayoutWiring と同じ。このファイルはD2Rを使わない(未使用のため
+// 定義自体を削ってある)ので、vector-diagram-engine.mjsと重複する`const R2D`の宣言
+// だけを取り除けばよい(`const TAU`はどちらのエンジンにも無いためそのまま残す)。
+// 末尾の`export {...};`も同じ理由で取り除く。それ以外は書き換えない。
+function stripGravitationLayoutWiring(text) {
+  return text
+    .replace(/import\s*{[^}]*}\s*from\s*"\.\/vector-diagram-engine\.mjs";\n\n/, "")
+    .replace("const R2D = 180 / Math.PI;\n", "")
+    .replace(/\n\nexport\s*{[^}]*};\n?$/, "");
+}
+
 const EMBED_SCRIPT_CHECKS = [
   {
     materialId: "protein-structure",
@@ -408,6 +421,21 @@ const EMBED_SCRIPT_CHECKS = [
     startMarker: "/* ---------- ここから scripts/phys-circular-motion-layout.mjs をそのまま埋め込み ----------\n   ただし先頭の import 文と、vector-diagram-engine.mjsと重複する\n   `const D2R`/`const R2D` の宣言は省略している(直前に埋め込んだ vector-diagram-engine.mjs・\n   projection-engine.mjsの関数・定数を同一スコープでそのまま参照できるため。相対パスの\n   import 文をそのまま残すと、ブラウザが実ファイルへのfetchを試みてしまい、単一ファイル\n   完結・fetch不使用の方針に反する)。それ以外の内容は書き換えていない。 ---------- */",
     endMarker: "/* ---------- ここまで scripts/phys-circular-motion-layout.mjs の埋め込み ---------- */",
     transformSource: stripCircularMotionLayoutWiring,
+  },
+  {
+    materialId: "phys-gravitation",
+    html: "html/phys-gravitation.html",
+    sourceFile: "scripts/vector-diagram-engine.mjs",
+    startMarker: "/* ---------- ここから scripts/vector-diagram-engine.mjs をそのまま埋め込み(内容は書き換えない) ---------- */",
+    endMarker: "/* ---------- ここまで scripts/vector-diagram-engine.mjs の埋め込み ---------- */",
+  },
+  {
+    materialId: "phys-gravitation",
+    html: "html/phys-gravitation.html",
+    sourceFile: "scripts/phys-gravitation-layout.mjs",
+    startMarker: "/* ---------- ここから scripts/phys-gravitation-layout.mjs をそのまま埋め込み ----------\n   ただし先頭の import 文と、vector-diagram-engine.mjsと重複する\n   `const R2D` の宣言は省略している(直前に埋め込んだ vector-diagram-engine.mjs の\n   関数・定数を同一スコープでそのまま参照できるため。相対パスの import 文をそのまま\n   残すと、ブラウザが実ファイルへのfetchを試みてしまい、単一ファイル完結・fetch不使用の\n   方針に反する)。それ以外の内容は書き換えていない。 ---------- */",
+    endMarker: "/* ---------- ここまで scripts/phys-gravitation-layout.mjs の埋め込み ---------- */",
+    transformSource: stripGravitationLayoutWiring,
   },
 ];
 
@@ -532,4 +560,5 @@ export {
   stripMomentumImpulseLayoutWiring,
   stripProjectionEngineD2RForCircularMotion,
   stripCircularMotionLayoutWiring,
+  stripGravitationLayoutWiring,
 };
