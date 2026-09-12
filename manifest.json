@@ -959,7 +959,8 @@
     "related": [
       "phys-projectile-motion",
       "phys-momentum-impulse",
-      "phys-circular-motion"
+      "phys-circular-motion",
+      "phys-gravitation"
     ]
   },
   {
@@ -990,7 +991,8 @@
     "related": [
       "phys-projectile-motion",
       "phys-rigid-body-equilibrium",
-      "phys-circular-motion"
+      "phys-circular-motion",
+      "phys-gravitation"
     ]
   },
   {
@@ -1022,7 +1024,39 @@
     "related": [
       "phys-shm-oscillation",
       "phys-rigid-body-equilibrium",
-      "phys-momentum-impulse"
+      "phys-momentum-impulse",
+      "phys-gravitation"
+    ]
+  },
+  {
+    "id": "phys-gravitation",
+    "file": "html/phys-gravitation.html",
+    "subject": "physics",
+    "unit": "力学 / 万有引力",
+    "course": "物理",
+    "section": "様々な運動",
+    "order": 14,
+    "title": "万有引力インタラクティブ",
+    "heading": "万有引力インタラクティブ",
+    "summary": "円運動教材のF=mv²/rを使って第一宇宙速度を導き、ケプラーの法則と脱出速度を実データで確かめる",
+    "topics": [
+      "万有引力の法則F=GMm/r²",
+      "第一宇宙速度v=√(GM/r)",
+      "ケプラー第2法則(面積速度一定)",
+      "ケプラー第3法則T²∝a³",
+      "脱出速度v=√(2GM/r)=√2×第一宇宙速度"
+    ],
+    "interactions": [
+      "スライダー",
+      "グラフ連動",
+      "アニメーション"
+    ],
+    "confidence": "high",
+    "type": "simulator",
+    "related": [
+      "phys-circular-motion",
+      "phys-momentum-impulse",
+      "phys-rigid-body-equilibrium"
     ]
   }
 ]

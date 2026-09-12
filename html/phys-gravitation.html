@@ -1,0 +1,1629 @@
+<!doctype html>
+<html lang="ja">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>万有引力インタラクティブ</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500&family=IBM+Plex+Sans+JP:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+*{box-sizing:border-box}
+:root{
+  --ink:#16232B; --muted:#5E6E76; --paper:#EDF1EF; --surface:#FFFFFF;
+  --rule:#D6DDDA; --rule-soft:#E8EDEB;
+  --c0:#B87A16; --c0t:#8A5A0C;
+  --c1:#158A6D; --c1t:#0D6A53;
+  --c2:#2457A6; --c2t:#1B4380;
+  --c3:#6E3AA7; --c3t:#572D85;
+  --c4:#A82A6A; --c4t:#831F52;
+  --c5:#3B6E1E; --c5t:#2A5215;
+  --mono:"IBM Plex Mono",ui-monospace,SFMono-Regular,Menlo,monospace;
+}
+html,body{margin:0;padding:0}
+body{
+  background:var(--paper); color:var(--ink);
+  font-family:"IBM Plex Sans JP","Hiragino Sans","Yu Gothic UI",system-ui,sans-serif;
+  font-size:13.5px; line-height:1.75; -webkit-text-size-adjust:100%;
+}
+.mono{font-family:var(--mono);font-variant-numeric:tabular-nums}
+.wrap{max-width:820px;margin:0 auto;padding:20px 14px 72px}
+.card{background:var(--surface);border:1px solid var(--rule);border-radius:3px;padding:14px;margin-bottom:14px}
+.eyebrow{display:flex;align-items:center;gap:10px;font-family:var(--mono);font-size:11.5px;letter-spacing:.14em;color:var(--muted)}
+.eyebrow::after{content:"";flex:1;height:1px;background:var(--rule)}
+h1{font-size:22px;font-weight:600;letter-spacing:.01em;margin:8px 0 2px}
+h2{font-size:13.5px;font-weight:600;margin:14px 0 6px;letter-spacing:.01em}
+h2:first-child{margin-top:0}
+p{margin:0 0 8px}
+p:last-child{margin-bottom:0}
+.note{color:var(--muted);font-size:12px;line-height:1.7}
+hr{border:none;border-top:1px solid var(--rule-soft);margin:12px 0}
+
+.btn{font:inherit;font-size:12.5px;line-height:1.4;border:1px solid var(--rule);background:#fff;color:var(--ink);border-radius:2px;padding:6px 10px;cursor:pointer}
+.btn:hover{border-color:#B4C0BC}
+.btn.on{background:var(--ink);color:#fff;border-color:var(--ink)}
+.btn:focus-visible{outline:2px solid var(--c2);outline-offset:1px}
+.btn:disabled{opacity:.4;cursor:not-allowed}
+.btnrow{display:flex;flex-wrap:wrap;gap:6px}
+
+.ctl{display:flex;flex-wrap:wrap;align-items:center;gap:8px;margin-top:10px}
+.ctl .lab{font-family:var(--mono);font-size:11px;letter-spacing:.06em;color:var(--muted);white-space:nowrap;min-width:96px}
+.ctl .val{font-family:var(--mono);font-variant-numeric:tabular-nums;font-size:12.5px;min-width:92px;text-align:right}
+.ctl.hide{display:none}
+input[type=range]{width:100%;max-width:220px;accent-color:#16232B;height:22px}
+input[type=range]:disabled{opacity:.35;cursor:not-allowed;accent-color:#A9B4B8}
+input[type=range]:focus-visible{outline:2px solid var(--c2);outline-offset:2px}
+
+.viewer{position:relative;border:1px solid var(--rule-soft);border-radius:3px;background:#FBFCFB;overflow:hidden;margin-top:10px}
+svg.stage{display:block;width:100%;height:auto;touch-action:none}
+
+.legend{display:flex;flex-wrap:wrap;gap:5px 16px;margin-top:9px;font-size:11.5px;color:var(--muted)}
+.chip{display:inline-flex;align-items:center;gap:6px}
+.dot{display:inline-block;width:10px;height:10px;border-radius:2px;vertical-align:-1px}
+
+.stats{display:grid;grid-template-columns:1fr 1fr;gap:0 18px;margin-top:10px}
+.stat{display:flex;justify-content:space-between;align-items:baseline;gap:10px;border-bottom:1px solid var(--rule-soft);padding:6px 0}
+.stat .k{font-size:12px;color:var(--muted);white-space:nowrap}
+.stat .v{font-family:var(--mono);font-variant-numeric:tabular-nums;font-size:13px;text-align:right;white-space:nowrap}
+@media (max-width:430px){
+  .stats{grid-template-columns:1fr}
+  .stat{flex-direction:column;align-items:flex-start;gap:2px}
+  .stat .v{text-align:left}
+}
+
+.step{border-left:2px solid var(--rule);padding:1px 0 1px 11px;margin-bottom:10px}
+.step:last-child{margin-bottom:0;border-left-color:var(--ink)}
+.step .lbl{font-family:var(--mono);font-size:10.5px;letter-spacing:.12em;color:var(--muted)}
+.step .eq{font-family:var(--mono);font-size:13px;line-height:1.95;word-break:break-word}
+.step .eq sup{font-size:.78em}
+
+.timerow{display:flex;flex-wrap:wrap;align-items:center;gap:8px;margin-top:12px}
+.timerow input[type=range]{max-width:none;flex:1 1 140px}
+.timeval{font-family:var(--mono);font-variant-numeric:tabular-nums;font-size:12px;color:var(--muted);white-space:nowrap;min-width:60px;text-align:right}
+
+table.data{width:100%;border-collapse:collapse;margin-top:10px;font-size:12.5px}
+table.data th,table.data td{padding:6px 8px;border-bottom:1px solid var(--rule-soft);text-align:right}
+table.data th:first-child,table.data td:first-child{text-align:left;color:var(--muted);font-weight:400}
+table.data td{font-family:var(--mono);font-variant-numeric:tabular-nums}
+table.data th{font-family:var(--mono);font-weight:600;color:var(--ink);font-size:11px;letter-spacing:.04em}
+table.data tr.hi td{color:var(--c4t);font-weight:600}
+@media (max-width:430px){
+  table.data{font-size:11px}
+  table.data th,table.data td{padding:5px 4px}
+}
+
+ul.tight{margin:0;padding-left:18px}
+ul.tight li{margin-bottom:6px}
+ul.tight li:last-child{margin-bottom:0}
+
+@media (prefers-reduced-motion: reduce){
+  .btn{transition:none}
+}
+</style>
+</head>
+<body>
+<div class="wrap">
+
+<header>
+  <div class="eyebrow">GRAVITATION</div>
+  <h1>万有引力インタラクティブ</h1>
+  <p class="note">2つの物体は、質量を持つというだけの理由でたがいに引き合う。この力(万有引力)F=GMm/r²は距離の2乗に反比例する—これが「逆二乗則」。地球のまわりを回る人工衛星も、太陽のまわりを回る惑星も、支配する法則は同じ1つの式だけである。この教材では、4本目「円運動」で確立した向心力の式F=mv²/rを既知の道具として使い、そこに万有引力を代入するだけで、人工衛星が円軌道を保つ速さ(第一宇宙速度)や、惑星が描く楕円軌道の速さの変化(ケプラー第2法則)、公転周期と軌道の大きさの関係(ケプラー第3法則)、そして地球の重力を振り切るために必要な速さ(脱出速度)までが、すべて同じ1つの式から出てくることを確かめる。軌道はすべて平面内の運動として2Dで表す(高校物理の範囲を超える双曲線軌道などは扱わない)。</p>
+</header>
+
+<div class="card">
+  <div class="eyebrow">LAW</div>
+  <h2>万有引力の法則 F=GMm/r² —距離を変えると力はどう変わるか</h2>
+  <p class="note">質量M・mの2物体は、たがいの中心を結ぶ向きに、大きさが等しく向きが逆の力(作用・反作用)を及ぼし合う。距離rを2倍にすると力は1/4に、3倍にすると1/9になる—これが逆二乗則。図中の2物体の間隔は模式的なもので、実際の距離に比例して描いているわけではない(見やすさのための配置)。</p>
+
+  <div class="ctl">
+    <span class="lab">中心天体</span>
+    <span class="btnrow" id="lawBodyBar" role="group" aria-label="中心天体のプリセット"></span>
+  </div>
+  <div class="ctl hide" id="lawCustomMRow">
+    <span class="lab">質量 M</span>
+    <input type="range" id="lawCustomM" min="22" max="31" step="0.02" value="25">
+    <span class="val mono" id="lawValCustomM">—</span>
+  </div>
+
+  <div class="viewer">
+    <svg class="stage" id="lawStage" viewBox="0 0 520 200" role="img" aria-label="中心天体と試験物体、それぞれが受ける万有引力">
+      <g id="lawBodyLayer"></g>
+      <g id="lawVectorLayer"></g>
+    </svg>
+  </div>
+  <div class="legend">
+    <span class="chip"><span class="dot" style="background:var(--c4)"></span>F(試験物体mが受ける万有引力・中心向き)</span>
+    <span class="chip"><span class="dot" style="background:var(--c3)"></span>F&prime;(中心天体Mが受ける反作用・mへ向く。F&prime;=&minus;F)</span>
+  </div>
+
+  <div class="ctl" id="lawDistRow">
+    <span class="lab">距離 r/R</span>
+    <input type="range" id="lawDist" min="1" max="10" step="0.1" value="2">
+    <span class="val mono" id="lawValDist">—</span>
+  </div>
+  <div class="ctl hide" id="lawCustomRRow">
+    <span class="lab">距離 r</span>
+    <input type="range" id="lawCustomR" min="6" max="12" step="0.02" value="7">
+    <span class="val mono" id="lawValCustomR">—</span>
+  </div>
+  <div class="ctl">
+    <span class="lab">試験物体 m</span>
+    <input type="range" id="lawM" min="1" max="1000" step="1" value="100">
+    <span class="val mono" id="lawValM">100 kg</span>
+  </div>
+
+  <div class="stats" id="lawStats"></div>
+  <p class="note">距離を2倍・3倍にしたときの力を並べて確認: r で F、2r で F/4、3r で F/9 になる(逆二乗則)。</p>
+</div>
+
+<div class="card">
+  <div class="eyebrow">CIRCULAR ORBIT</div>
+  <h2>円軌道—向心力=万有引力から第一宇宙速度を導く</h2>
+  <p class="note">人工衛星が高度hで地球のまわりを円軌道で回り続けるとき、衛星を軌道に留めている力は万有引力だけである。4本目「円運動」で確立した向心力の式F=mv²/rを、この教材では<strong>すでに証明済みの道具</strong>として使い、その向心力の担い手が万有引力そのものだとおくと、軌道を保つのに必要な速さが求まる。</p>
+  <div class="step">
+    <div class="lbl">STEP 1 — 向心力=万有引力とおく</div>
+    <div class="eq">mv²/r = GMm/r²</div>
+  </div>
+  <div class="step">
+    <div class="lbl">STEP 2 — 整理する(両辺にrを掛けてmで割る)</div>
+    <div class="eq">v² = GM/r</div>
+  </div>
+  <div class="step">
+    <div class="lbl">STEP 3 — 第一宇宙速度</div>
+    <div class="eq">v = &radic;(GM/r)</div>
+  </div>
+  <div class="step">
+    <div class="lbl">STEP 4 — 周期(円周&divide;速さ)</div>
+    <div class="eq">T = 2&pi;r/v = 2&pi;&radic;(r&sup3;/GM)</div>
+  </div>
+
+  <div class="ctl">
+    <span class="lab">中心天体</span>
+    <span class="btnrow" id="cirBodyBar" role="group" aria-label="中心天体のプリセット"></span>
+  </div>
+  <div class="ctl hide" id="cirCustomMRow">
+    <span class="lab">質量 M</span>
+    <input type="range" id="cirCustomM" min="22" max="31" step="0.02" value="25">
+    <span class="val mono" id="cirValCustomM">—</span>
+  </div>
+
+  <div class="viewer">
+    <svg class="stage" id="cirStage" viewBox="0 0 480 480" role="img" aria-label="円軌道上を回る衛星と、速度・万有引力ベクトル">
+      <g id="cirRingLayer"></g>
+      <g id="cirVectorLayer"></g>
+    </svg>
+  </div>
+  <div class="legend">
+    <span class="chip"><span class="dot" style="background:var(--c2)"></span>v(速度・接線方向)</span>
+    <span class="chip"><span class="dot" style="background:var(--c4)"></span>F(万有引力=向心力・中心向き)</span>
+  </div>
+
+  <div class="timerow">
+    <button class="btn sm" id="cirPlay" type="button">一時停止</button>
+    <input type="range" id="cirPhi" min="0" max="359" step="1" value="0" aria-label="公転位相をスクラブ(演出用。実際の周期とは無関係)">
+  </div>
+  <p class="note">円周上を回る速さの演出は見やすさのための固定速度で、実際の周期T(下の数値パネル)とは無関係。</p>
+
+  <div class="ctl" id="cirHRow">
+    <span class="lab">高度 h/R</span>
+    <input type="range" id="cirHR" min="0" max="5" step="0.05" value="0.5">
+    <span class="val mono" id="cirValHR">—</span>
+  </div>
+  <div class="ctl hide" id="cirCustomRRow">
+    <span class="lab">距離 r</span>
+    <input type="range" id="cirCustomR" min="6" max="12" step="0.02" value="7">
+    <span class="val mono" id="cirValCustomR">—</span>
+  </div>
+  <div class="ctl">
+    <span class="lab">衛星 m</span>
+    <input type="range" id="cirM" min="1" max="2000" step="1" value="500">
+    <span class="val mono" id="cirValM">500 kg</span>
+  </div>
+
+  <div class="stats" id="cirStats"></div>
+  <p class="note">v・T は m によらない(数値パネルのFの大きさ表示にだけmを使う)。</p>
+</div>
+
+<div class="card">
+  <div class="eyebrow">ELLIPTICAL ORBIT</div>
+  <h2>楕円軌道—ケプラー第2法則(面積速度一定)</h2>
+  <p class="note">惑星は太陽を1つの焦点とする楕円軌道を描く。近日点(太陽に最も近い点)付近では速く、遠日点(最も遠い点)付近では遅く動く—これは角運動量保存則 m&middot;r<sub>p</sub>v<sub>p</sub> = m&middot;r<sub>a</sub>v<sub>a</sub> の帰結で、同じ短い時間に扇形が掃く面積が、近日点付近でも遠日点付近でも等しくなる(ケプラー第2法則)。</p>
+
+  <div class="ctl">
+    <span class="lab">中心天体</span>
+    <span class="btnrow" id="ellBodyBar" role="group" aria-label="中心天体のプリセット"></span>
+  </div>
+  <div class="ctl hide" id="ellCustomMRow">
+    <span class="lab">質量 M</span>
+    <input type="range" id="ellCustomM" min="22" max="31" step="0.02" value="25">
+    <span class="val mono" id="ellValCustomM">—</span>
+  </div>
+
+  <div class="viewer">
+    <svg class="stage" id="ellStage" viewBox="0 0 500 340" role="img" aria-label="楕円軌道上を動く天体と速度ベクトル、等時間で掃く2つの扇形">
+      <g id="ellSectorLayer"></g>
+      <g id="ellOrbitLayer"></g>
+      <g id="ellVectorLayer"></g>
+    </svg>
+  </div>
+  <div class="legend">
+    <span class="chip"><span class="dot" style="background:var(--c2)"></span>v(速度)</span>
+    <span class="chip"><span class="dot" style="background:var(--c2)"></span>近日点付近で掃く面積</span>
+    <span class="chip"><span class="dot" style="background:var(--c1)"></span>遠日点付近で掃く面積(同じ時間・ほぼ同じ面積)</span>
+  </div>
+
+  <div class="timerow">
+    <button class="btn sm" id="ellPlay" type="button">一時停止</button>
+    <input type="range" id="ellT" min="0" max="8" step="0.02" value="0" aria-label="軌道アニメーションをスクラブ(演出用。実際の周期とは無関係)">
+  </div>
+  <p class="note">アニメーションの周期は見やすさのための演出(8秒で1周)で、実際の周期T(下の数値パネル)とは無関係。ただし近日点で速く・遠日点で遅く動く様子そのものは、実際のケプラー方程式を解いて求めている。</p>
+
+  <div class="ctl" id="ellRpRow">
+    <span class="lab">近日点 r<sub>p</sub>/R</span>
+    <input type="range" id="ellRpR" min="1" max="5" step="0.05" value="1.2">
+    <span class="val mono" id="ellValRpR">—</span>
+  </div>
+  <div class="ctl" id="ellRaRow">
+    <span class="lab">遠日点 r<sub>a</sub>/R</span>
+    <input type="range" id="ellRaR" min="1" max="20" step="0.1" value="4">
+    <span class="val mono" id="ellValRaR">—</span>
+  </div>
+  <div class="ctl hide" id="ellCustomRpRow">
+    <span class="lab">近日点 r<sub>p</sub></span>
+    <input type="range" id="ellCustomRp" min="6" max="12" step="0.02" value="7">
+    <span class="val mono" id="ellValCustomRp">—</span>
+  </div>
+  <div class="ctl hide" id="ellCustomRaRow">
+    <span class="lab">遠日点 r<sub>a</sub></span>
+    <input type="range" id="ellCustomRa" min="6" max="12" step="0.02" value="7.6">
+    <span class="val mono" id="ellValCustomRa">—</span>
+  </div>
+  <div class="ctl">
+    <span class="lab">質量 m</span>
+    <input type="range" id="ellM" min="1" max="2000" step="1" value="500">
+    <span class="val mono" id="ellValM">500 kg</span>
+  </div>
+
+  <div class="stats" id="ellStats"></div>
+</div>
+
+<div class="card">
+  <div class="eyebrow">KEPLER'S THIRD LAW</div>
+  <h2>ケプラー第3法則—T&sup2;/a&sup3;は惑星によらずほぼ一定</h2>
+  <p class="note">太陽系の惑星6つについて、軌道長半径a(天文単位AU)・公転周期T(年)の実測値からT&sup2;/a&sup3;を計算すると、惑星によらずほぼ一定の値になる。これはケプラー第3法則 T&sup2; = (4&pi;&sup2;/GM<sub>太陽</sub>)&middot;a&sup3; の直接の帰結—右辺のGM<sub>太陽</sub>は惑星によらない定数なので、T&sup2;/a&sup3;も定数になる。</p>
+  <div id="kepTableWrap"></div>
+  <p class="note">数値は文献値(NASA Planetary Fact Sheet等に基づく標準的な値)。1%未満のばらつきは観測誤差・他惑星からの摂動などによるもので、法則そのものが破れているわけではない。</p>
+</div>
+
+<div class="card">
+  <div class="eyebrow">ENERGY &amp; ESCAPE VELOCITY</div>
+  <h2>エネルギーと脱出速度—U=&minus;GMm/rと力学的エネルギー保存</h2>
+  <p class="note">万有引力による位置エネルギーは、無限遠を基準(U=0)にとるとU=&minus;GMm/r(常に負の値)になる。物体の力学的エネルギーE=運動エネルギー+U は、万有引力だけが働くとき(空気抵抗などがないとき)常に保存される。E&lt;0なら物体は無限遠まで届かず戻ってくる(束縛軌道)。E&ge;0になる最小の速さが脱出速度v<sub>esc</sub>=&radic;(2GM/r)=&radic;2&times;(第一宇宙速度)。</p>
+
+  <div class="ctl">
+    <span class="lab">中心天体</span>
+    <span class="btnrow" id="enBodyBar" role="group" aria-label="中心天体のプリセット"></span>
+  </div>
+  <div class="ctl hide" id="enCustomMRow">
+    <span class="lab">質量 M</span>
+    <input type="range" id="enCustomM" min="22" max="31" step="0.02" value="25">
+    <span class="val mono" id="enValCustomM">—</span>
+  </div>
+
+  <div class="viewer">
+    <svg class="stage" id="enStage" viewBox="0 0 460 230" role="img" aria-label="位置エネルギーU対距離rのグラフ">
+      <g id="enAxisLayer"></g>
+      <g id="enCurveLayer"></g>
+    </svg>
+  </div>
+
+  <div class="ctl" id="enDistRow">
+    <span class="lab">距離 r/R</span>
+    <input type="range" id="enDistR" min="1" max="8" step="0.05" value="2">
+    <span class="val mono" id="enValDistR">—</span>
+  </div>
+  <div class="ctl hide" id="enCustomRRow">
+    <span class="lab">距離 r</span>
+    <input type="range" id="enCustomR" min="6" max="12" step="0.02" value="7">
+    <span class="val mono" id="enValCustomR">—</span>
+  </div>
+  <div class="ctl">
+    <span class="lab">物体 m</span>
+    <input type="range" id="enM" min="1" max="5000" step="1" value="1000">
+    <span class="val mono" id="enValM">1000 kg</span>
+  </div>
+  <div class="ctl">
+    <span class="lab">速さ v/v<sub>esc</sub></span>
+    <input type="range" id="enSpeedRatio" min="0" max="1.6" step="0.02" value="0.8">
+    <span class="val mono" id="enValSpeedRatio">0.80</span>
+  </div>
+
+  <div class="stats" id="enStats"></div>
+</div>
+
+<div class="card">
+  <div class="eyebrow">CONSTANTS &amp; PITFALLS</div>
+  <h2>使った定数・取り違えやすいところ</h2>
+  <table class="data">
+    <thead><tr><th>天体</th><th>質量 M (kg)</th><th>半径 R (m)</th></tr></thead>
+    <tbody id="bodyTableWrap"></tbody>
+  </table>
+  <p class="note mono" style="margin-top:8px">G = 6.6743&times;10<sup>&minus;11</sup> m&sup3;&middot;kg<sup>&minus;1</sup>&middot;s<sup>&minus;2</sup>(CODATA 2022)</p>
+  <hr>
+  <ul class="tight note">
+    <li><strong>万有引力定数Gと重力加速度gは別物。</strong>地表付近の重力加速度g&asymp;9.8 m/s²は、実はGM/R²(万有引力の法則を地表r=Rで評価した値)そのもの。GそのものはM・Rによらない普遍定数。</li>
+    <li><strong>高度hと距離rを混同しない。</strong>万有引力の式に入るrは天体の「中心」からの距離。地表からの高さhで軌道を指定するときは必ずr=R+hに直してから代入する。</li>
+    <li><strong>第一宇宙速度v=&radic;(GM/r)はmによらない。</strong>衛星がどれだけ重くても、同じ高度なら同じ速さで円軌道を保てる(F=mv²/r=GMm/r²の両辺にmがあるため、mが消える)。</li>
+    <li><strong>脱出速度もmによらない</strong>が、位置エネルギーU・運動エネルギーKEはmに比例する。エネルギーの大きさそのものを比べるときはmを揃えて考える。</li>
+    <li><strong>vis-viva方程式v²=GM(2/r&minus;1/a)は近日点・遠日点に限らず、楕円軌道上のどの位置でも使える。</strong>円軌道はa=rの特別な場合(2/r&minus;1/r=1/r)になっていて、第一宇宙速度の式と一致する。</li>
+    <li><strong>位置エネルギーUは無限遠を基準に必ず負の値。</strong>「地表でのmghのような正の値」という直感で符号を間違えやすい—基準の取り方が違うだけで、どちらも間違いではない。</li>
+  </ul>
+</div>
+
+</div>
+
+<script type="module">
+"use strict";
+/* ---------- ここから scripts/vector-diagram-engine.mjs をそのまま埋め込み(内容は書き換えない) ---------- */
+// 汎用の2Dベクトル矢印描画エンジン。成分分解・合成・スケール変換・矢印の幾何計算だけを扱う。
+// 力学の知識(力とは何か、質量、単位)は一切持ち込まない。「原点・角度・大きさ」の
+// 組から矢印のSVG座標を作るだけの純粋関数の集まりで、力にも速度にも同じ関数を使い回せる。
+//
+// projection-engine.mjs は import しない。教材HTMLには埋め込みJSONと同様、
+// このファイルの中身をそのまま1つの<script>ブロックに埋め込む運用のため、
+// 3D教材のように projection-engine.mjs も同じ画面で埋め込む場合に
+// 関数名が衝突しない・importの解決が要らない、という2点を優先した設計。
+//
+// ブラウザでもそのまま動くこと。Node固有のAPIは使わない。ESM export のみ。外部ライブラリ禁止。
+//
+// 角度の規約: 度数法、0°=+x方向、反時計回りが正（物理でふつうに使う向き）。
+// SVGの画面座標はy軸が下向きに正なので、その変換(反転)は各関数の内部で閉じる。
+//
+// 型（コメントのみ、実行時チェックはしない）
+//   Vector    = { fx: number, fy: number }                 物理座標系での成分(y上向き正)
+//   Point     = { x: number, y: number }
+//   ArrowOpts = { headLength?: number, headWidth?: number }
+//   Arrow     = { x1, y1, x2, y2: number, head: [Point, Point, Point] }  すべて画面px
+
+const D2R = Math.PI / 180;
+const R2D = 180 / Math.PI;
+
+// ---------- toCartesian ----------
+// 角度(度)と大きさから成分に分解する。
+function toCartesian(angleDeg, magnitude) {
+  const rad = angleDeg * D2R;
+  return {
+    fx: magnitude * Math.cos(rad),
+    fy: magnitude * Math.sin(rad),
+  };
+}
+
+// ---------- toPolar ----------
+// 成分から角度(度, [0,360)に正規化)と大きさに戻す。fx=fy=0のときangleDegは0とする。
+function toPolar(fx, fy) {
+  const magnitude = Math.hypot(fx, fy);
+  if (magnitude === 0) return { angleDeg: 0, magnitude: 0 };
+  const deg = Math.atan2(fy, fx) * R2D;
+  return { angleDeg: ((deg % 360) + 360) % 360, magnitude };
+}
+
+// ---------- sumVectors ----------
+// 複数のベクトル(成分表示)を単純に足し合わせる。合力にも速度の合成にも使う。
+// 空配列は{fx:0, fy:0}を返す(「その方向には何もない」を自然に表せるようにする)。
+function sumVectors(vectors) {
+  let fx = 0, fy = 0;
+  for (const v of vectors) {
+    fx += v.fx;
+    fy += v.fy;
+  }
+  return { fx, fy };
+}
+
+// ---------- flipToScreen ----------
+// 物理座標(y上向き正)の点を、画面座標の向き(y下向き正)に直す。xはそのまま。
+// まだpx化はしない(ワールド座標→px座標のスケール・原点位置は教材ごとのステージに
+// 依存するため、この関数の外、教材側のコードが担当する)。
+function flipToScreen(point) {
+  return { x: point.x, y: -point.y };
+}
+
+// ---------- magnitudeToLength ----------
+// 大きさをpxの矢印長に変換する。magnitudeが0以下なら0(=描画しない扱い)を返す。
+// minPxを指定すると、それより短くならない下限を設けられる(既定0、つまり比例を厳守)。
+function magnitudeToLength(magnitude, pxPerUnit, minPx = 0) {
+  if (magnitude <= 0) return 0;
+  return Math.max(magnitude * pxPerUnit, minPx);
+}
+
+// ---------- computeScale ----------
+// 同じ画面・同じフレームで並べて描く一群の大きさ(magnitudes)から、
+// 最大値がmaxPxになるようなpxPerUnitを作る。単位の異なる量(速度と力など)を
+// 混ぜて渡さないこと(呼び出し側がグループを分けて別々に呼ぶ)。
+// 全て0以下ならスケール0を返す(何も描かれない)。
+function computeScale(magnitudes, maxPx) {
+  const maxMag = Math.max(0, ...magnitudes);
+  if (maxMag === 0) return 0;
+  return maxPx / maxMag;
+}
+
+// ---------- arrowGeometry ----------
+// 画面px座標の原点・物理角度(度)・矢印の長さ(px)から、軸線と矢じり(三角形)の
+// 座標を作る。角度は物理座標の向き(0°=+x, 反時計回り正)のまま渡してよく、
+// y反転を含む画面上の方向への変換はこの関数の内部で行う。
+// 矢じりの長さが軸線長を超えて軸線からはみ出さないよう、headLengthはlengthPxで頭打ちにする。
+function arrowGeometry(originPx, angleDeg, lengthPx, opts = {}) {
+  const headLength = Math.min(opts.headLength ?? 10, lengthPx);
+  const headWidth = opts.headWidth ?? 7;
+
+  const rad = angleDeg * D2R;
+  const dx = Math.cos(rad);
+  const dy = -Math.sin(rad);
+
+  const x2 = originPx.x + dx * lengthPx;
+  const y2 = originPx.y + dy * lengthPx;
+  const baseX = x2 - dx * headLength;
+  const baseY = y2 - dy * headLength;
+  const nx = -dy;
+  const ny = dx;
+
+  return {
+    x1: originPx.x,
+    y1: originPx.y,
+    x2,
+    y2,
+    head: [
+      { x: x2, y: y2 },
+      { x: baseX + (nx * headWidth) / 2, y: baseY + (ny * headWidth) / 2 },
+      { x: baseX - (nx * headWidth) / 2, y: baseY - (ny * headWidth) / 2 },
+    ],
+  };
+}
+
+// ---------- labelAnchor ----------
+// 矢じりの先端から、同じ角度の延長線上にgapPxだけ離れた位置を返す。
+// 矢印の大きさを示す数値ラベルの置き場所に使う。
+function labelAnchor(tipPx, angleDeg, gapPx) {
+  const rad = angleDeg * D2R;
+  return {
+    x: tipPx.x + Math.cos(rad) * gapPx,
+    y: tipPx.y - Math.sin(rad) * gapPx,
+  };
+}
+
+export {
+  toCartesian,
+  toPolar,
+  sumVectors,
+  flipToScreen,
+  magnitudeToLength,
+  computeScale,
+  arrowGeometry,
+  labelAnchor,
+};
+/* ---------- ここまで scripts/vector-diagram-engine.mjs の埋め込み ---------- */
+
+/* ---------- ここから scripts/phys-gravitation-layout.mjs をそのまま埋め込み ----------
+   ただし先頭の import 文と、vector-diagram-engine.mjsと重複する
+   `const R2D` の宣言は省略している(直前に埋め込んだ vector-diagram-engine.mjs の
+   関数・定数を同一スコープでそのまま参照できるため。相対パスの import 文をそのまま
+   残すと、ブラウザが実ファイルへのfetchを試みてしまい、単一ファイル完結・fetch不使用の
+   方針に反する)。それ以外の内容は書き換えていない。 ---------- */
+// 万有引力(5シーン: 万有引力の法則・円軌道・楕円軌道・ケプラー第3法則・エネルギーと脱出速度)の
+// 物理計算とレイアウト計算。DOM・ブラウザAPIに依存しない純粋関数のみで構成する。
+// html/phys-gravitation.html にそのまま埋め込んで使うのと同時に、
+// scripts/check-phys-gravitation-overlaps.mjs から直接importして重なり検査にも使う
+// (実装と検査で計算式が食い違うのを避けるため)。
+//
+// vector-diagram-engine.mjs の関数だけを使う。projection-engine.mjs はimportしない
+// (この教材は軌道をすべて平面内の運動として2Dで表現し、3Dを必要としないため)。
+//
+// KEPLER'S THIRD LAW(ケプラー第3法則)のシーンだけは、太陽系惑星の実データを
+// そのままHTML側の表(DOM)で見せる方針のため、SVGの矢印・ラベルを一切使わない。
+// そのためこのシーンには「レイアウト」関数がなく、keplerRatio() という物理計算の
+// 純粋関数だけを持つ(check-phys-gravitation-overlaps.mjs の対象にも含まれない)。
+
+const TAU = Math.PI * 2;
+
+/* ---------- 物理定数・データ(検証済み。書き換えない) ---------- */
+const G = 6.6743e-11; // m^3 kg^-1 s^-2 (CODATA 2022)
+
+const BODIES = [
+  { id: "earth", name: "地球", M: 5.97217e24, R: 6.371e6 },
+  { id: "moon", name: "月", M: 7.342e22, R: 1.7374e6 },
+  { id: "sun", name: "太陽", M: 1.989e30, R: 6.957e8 },
+];
+
+// ケプラー第3法則の確認用(太陽まわり、a=AU単位、T=年単位)
+const PLANETS = [
+  { name: "水星", a_AU: 0.3871, T_year: 0.2408 },
+  { name: "金星", a_AU: 0.7233, T_year: 0.6152 },
+  { name: "地球", a_AU: 1.0, T_year: 1.0 },
+  { name: "火星", a_AU: 1.5273, T_year: 1.8809 },
+  { name: "木星", a_AU: 5.2028, T_year: 11.862 },
+  { name: "土星", a_AU: 9.5388, T_year: 29.458 },
+];
+
+/* ---------- 物理計算(全シーン共通の基礎式) ---------- */
+function gravForce(M, m, r) {
+  return (G * M * m) / (r * r);
+}
+function gravPotentialEnergy(M, m, r) {
+  return -(G * M * m) / r;
+}
+function firstCosmicVelocity(M, r) {
+  // mv²/r = GMm/r² を v について解いた式。4本目(円運動)のF=mv²/rを
+  // 与えられた道具として使い、万有引力=向心力とおくとこの式が出る。
+  return Math.sqrt((G * M) / r);
+}
+function orbitalPeriod(M, r) {
+  // 円軌道はr、楕円軌道は半長軸aを渡せばそのまま使える(ケプラー第3法則)。
+  return TAU * Math.sqrt((r * r * r) / (G * M));
+}
+function escapeVelocity(M, r) {
+  return Math.sqrt((2 * G * M) / r);
+}
+function kineticEnergy(m, v) {
+  return 0.5 * m * v * v;
+}
+
+/* ---------- 楕円軌道 ---------- */
+function semiMajorAxis(rp, ra) {
+  return (rp + ra) / 2;
+}
+function eccentricity(rp, ra) {
+  return (ra - rp) / (ra + rp);
+}
+// vis-viva方程式: v(r)² = GM(2/r - 1/a)。近日点・遠日点に限らずどの位置でも使える。
+function visVivaSpeed(M, r, a) {
+  return Math.sqrt(G * M * (2 / r - 1 / a));
+}
+// ケプラー方程式 M = E - e sinE をニュートン法で解く(Mは平均近点角、Eは離心近点角、rad)。
+function solveEccentricAnomaly(meanAnomaly, e, iterations = 10) {
+  let E = meanAnomaly;
+  for (let i = 0; i < iterations; i++) {
+    E = E - (E - e * Math.sin(E) - meanAnomaly) / (1 - e * Math.cos(E));
+  }
+  return E;
+}
+// 焦点(万有引力を及ぼす中心天体の位置)を原点とした位置。E=0が近日点(+x方向)、
+// E=πが遠日点(-x方向)になる標準的なパラメータ表示。
+function ellipsePositionAtE(a, e, E) {
+  const b = a * Math.sqrt(1 - e * e);
+  return { x: a * (Math.cos(E) - e), y: b * Math.sin(E) };
+}
+function ellipsePositionAtMeanAnomaly(a, e, meanAnomaly) {
+  const E = solveEccentricAnomaly(meanAnomaly, e);
+  const pos = ellipsePositionAtE(a, e, E);
+  return { x: pos.x, y: pos.y, E };
+}
+function radiusAtE(a, e, E) {
+  return a * (1 - e * Math.cos(E));
+}
+
+/* ---------- ケプラー第3法則(表示はHTML側のDOM表。ここでは比の計算だけ) ---------- */
+function keplerRatio(a_AU, T_year) {
+  return (T_year * T_year) / (a_AU * a_AU * a_AU);
+}
+
+/* ---------- 表示用の数値整形 ----------
+   万有引力は扱う量の桁が極端(力は1e-5N〜1e13N、質量は1e22kg〜1e30kgなど)なので、
+   toFixedで固定桁にすると0.0や桁あふれになる。指数表記が要る範囲だけ切り替える。 */
+function fmt(n, digits) {
+  return n.toFixed(digits);
+}
+function fmtCompact(n) {
+  const a = Math.abs(n);
+  if (a !== 0 && (a >= 1e5 || a < 1e-2)) {
+    return n.toExponential(2);
+  }
+  if (a >= 100) return n.toFixed(0);
+  if (a >= 10) return n.toFixed(1);
+  return n.toFixed(2);
+}
+
+/* ---------- ラベル矩形(他教材と同じ式) ---------- */
+const LABEL_CHAR_W = 6.3;
+const LABEL_PAD = 6;
+const LABEL_H = 13;
+function labelBox(x, y, text) {
+  const w = text.length * LABEL_CHAR_W + LABEL_PAD;
+  const h = LABEL_H;
+  return { x0: x - w / 2, y0: y - h / 2, x1: x + w / 2, y1: y + h / 2 };
+}
+
+/* ---------- 矢印一式(線分・矢じり・ラベル位置)を作る共通ヘルパー ----------
+   大きさが0以下、またはスケール0で長さが0になるなら null(=描画しない)。 */
+function cappedLengthPx(magnitude, pxPerUnit, hardCap) {
+  const len = magnitudeToLength(magnitude, pxPerUnit, 0);
+  return Math.min(len, hardCap);
+}
+function buildArrowAt(id, originPx, angleDeg, magnitude, pxPerUnit, hardCap, color, opts) {
+  if (!(magnitude > 0)) return null;
+  const lengthPx = cappedLengthPx(magnitude, pxPerUnit, hardCap);
+  if (lengthPx <= 0) return null;
+  const geo = arrowGeometry(originPx, angleDeg, lengthPx, {
+    headLength: opts.headLength ?? 9,
+    headWidth: opts.headWidth ?? 6.5,
+  });
+  const labelPos = labelAnchor({ x: geo.x2, y: geo.y2 }, angleDeg, opts.labelGap ?? 44);
+  // 単位(N・m/sなど)はラベルに付けない(数値パネル側に表示する)。指数表記を含む
+  // 数値だけでも桁の大きいこの教材では文字数が伸びやすく、単位まで足すとラベル幅の
+  // 見積もりが崩れて重なりの原因になりやすいため。
+  const text = `${opts.labelPrefix} ${fmtCompact(magnitude)}`;
+  return {
+    id,
+    color,
+    strokeWidth: opts.strokeWidth ?? 2.2,
+    geo,
+    label: {
+      x: labelPos.x,
+      y: labelPos.y,
+      text,
+      color: opts.labelColor ?? color,
+      box: labelBox(labelPos.x, labelPos.y, text),
+    },
+  };
+}
+
+/* =====================================================================
+   LAW(万有引力の法則): F=GMm/r² を2物体アニメーション+力ベクトルで見せる
+   ===================================================================== */
+const LAW_BOX = { w: 520, h: 200 };
+const LAW_CY = 62;
+const LAW_CENTRAL_X = 66;
+const LAW_BODY_R_MIN = 14;
+const LAW_BODY_R_MAX = 30;
+const LAW_TEST_R = 6;
+const LAW_X_MIN = 196;
+const LAW_X_MAX = 480;
+const LAW_LANE_Y1 = LAW_CY + 62; // 試験物体mが受ける力Fのレーン(中心へ向く=左向き)
+const LAW_LANE_Y2 = LAW_CY + 96; // 中心天体Mが受ける反作用力F'のレーン(mへ向く=右向き、作用・反作用)
+const LAW_FORCE_REF_MAX_PX = 90;
+const LAW_FORCE_HARD_CAP_RATIO = 0.82;
+const LAW_FORCE_HARD_CAP_MAX = 74;
+
+function lawBodyRadiusPx(M) {
+  const r = 14 + 3.0 * (Math.log10(M) - 22);
+  return Math.min(Math.max(r, LAW_BODY_R_MIN), LAW_BODY_R_MAX);
+}
+
+// params: { M, m, r, rNorm, refForce }
+//   rNorm(0〜1): 試験物体を画面上のどこに置くかだけを決める模式的な位置(実距離に比例しない)。
+//   refForce: 現在のスライダー可動域で最大になる力(=最も近い距離での力)。矢印の基準長に使う。
+function computeLawLayout(params) {
+  const { M, m, r, rNorm, refForce } = params;
+  const centralR = lawBodyRadiusPx(M);
+  const testX = LAW_X_MIN + rNorm * (LAW_X_MAX - LAW_X_MIN);
+  const testR = LAW_TEST_R;
+  const F = gravForce(M, m, r);
+
+  const pxPerUnit = computeScale([refForce], LAW_FORCE_REF_MAX_PX);
+  const gapLeft = LAW_CENTRAL_X + centralR;
+  const gapRight = testX - testR;
+  const gapWidth = Math.max(gapRight - gapLeft, 1);
+  const hardCap = Math.min(gapWidth * LAW_FORCE_HARD_CAP_RATIO, LAW_FORCE_HARD_CAP_MAX);
+
+  const arrows = [];
+  const fOnTest = buildArrowAt(
+    "Fm",
+    { x: gapRight, y: LAW_LANE_Y1 },
+    180,
+    F,
+    pxPerUnit,
+    hardCap,
+    "var(--c4)",
+    { labelPrefix: "F", labelColor: "var(--c4t)" }
+  );
+  if (fOnTest) arrows.push(fOnTest);
+  const fOnCentral = buildArrowAt(
+    "FM",
+    { x: gapLeft, y: LAW_LANE_Y2 },
+    0,
+    F,
+    pxPerUnit,
+    hardCap,
+    "var(--c3)",
+    { labelPrefix: "F'", labelColor: "var(--c3t)" }
+  );
+  if (fOnCentral) arrows.push(fOnCentral);
+
+  return {
+    box: LAW_BOX,
+    central: { x: LAW_CENTRAL_X, y: LAW_CY, r: centralR },
+    test: { x: testX, y: LAW_CY, r: testR },
+    connector: { x1: gapLeft, y1: LAW_CY, x2: gapRight, y2: LAW_CY },
+    arrows,
+    axisTicks: [],
+    stats: { F, r, M, m },
+  };
+}
+
+/* =====================================================================
+   CIRCULAR ORBIT(円軌道): mv²/r = GMm/r² から v=√(GM/r)、T=2π√(r³/GM)
+   ===================================================================== */
+const CIRC_BOX = { w: 480, h: 480 };
+const CIRC_CENTER = { x: 240, y: 240 };
+const CIRC_RING_MAX_PX = 108;
+const CIRC_CENTRAL_PX = 11;
+const CIRC_VEL_REF_MAX_PX = 40;
+const CIRC_FORCE_REF_MAX_PX = 40;
+const CIRC_VEL_HARD_CAP = 40;
+const CIRC_FORCE_HARD_CAP = 40;
+// v(接線方向)とF(中心方向)は常に90°離れているので、同じ間隔でラベルを置くと
+// 斜め(45°刻み)の位相で2つのラベルが接近しやすい。gapを変えて距離を稼ぐ。
+const CIRC_VEL_LABEL_GAP = 40;
+const CIRC_FORCE_LABEL_GAP = 68;
+
+// params: { M, m, r, rMax, refV, refF, phi }
+//   rMax: 現在のスライダー可動域の最大r(輪の描画スケールを決めるためだけに使う)。
+//   refV, refF: スライダー可動域で最大になるv・F(=最も低い高度での値)。矢印の基準長。
+//   phi(rad): 見やすさのための演出用の回転位相(実際の公転周期Tとは無関係)。
+function computeCircularOrbitLayout(params) {
+  const { M, m, r, rMax, refV, refF, phi } = params;
+  const v = firstCosmicVelocity(M, r);
+  const F = gravForce(M, m, r);
+  const T = orbitalPeriod(M, r);
+
+  // rが小さいところ(低高度)ほど見た目の変化がわかるよう、線形ではなく平方根で
+  // 縮尺をとる(r/rMaxそのままだと、よくある低高度がどれも輪の中心近くの
+  // 点になってしまい、高度による違いが見えにくいため)。
+  const ringPx = Math.sqrt(r / rMax) * CIRC_RING_MAX_PX;
+  const marker = {
+    x: CIRC_CENTER.x + ringPx * Math.cos(phi),
+    y: CIRC_CENTER.y - ringPx * Math.sin(phi),
+  };
+
+  const velAngleDeg = phi * R2D + 90; // 接線方向(反時計回りに前向き)
+  const forceAngleDeg = phi * R2D + 180; // 中心向き(万有引力=向心力)
+
+  const velScale = computeScale([refV], CIRC_VEL_REF_MAX_PX);
+  const forceScale = computeScale([refF], CIRC_FORCE_REF_MAX_PX);
+
+  const arrows = [];
+  const vArrow = buildArrowAt(
+    "v",
+    marker,
+    velAngleDeg,
+    v,
+    velScale,
+    Math.min(CIRC_VEL_HARD_CAP, Math.max(ringPx * 0.85, 14)),
+    "var(--c2)",
+    { labelPrefix: "v", labelColor: "var(--c2t)", labelGap: CIRC_VEL_LABEL_GAP }
+  );
+  if (vArrow) arrows.push(vArrow);
+  const fArrow = buildArrowAt(
+    "F",
+    marker,
+    forceAngleDeg,
+    F,
+    forceScale,
+    Math.min(CIRC_FORCE_HARD_CAP, Math.max(ringPx * 0.85, 14)),
+    "var(--c4)",
+    { labelPrefix: "F", labelColor: "var(--c4t)", labelGap: CIRC_FORCE_LABEL_GAP }
+  );
+  if (fArrow) arrows.push(fArrow);
+
+  return {
+    box: CIRC_BOX,
+    center: CIRC_CENTER,
+    centralPx: CIRC_CENTRAL_PX,
+    ringPx,
+    marker,
+    arrows,
+    axisTicks: [],
+    stats: { v, F, T, r, M, m },
+  };
+}
+
+/* =====================================================================
+   ELLIPTICAL ORBIT(楕円軌道): ケプラー第2法則(面積速度一定)
+   ===================================================================== */
+const ELL_BOX = { w: 500, h: 340 };
+// マージンは「矢印の最大長+ラベルまでの隙間+ラベル半幅」を確実に収める大きさにする
+// (近日点・遠日点はステージのマージン境界ちょうどに来るため、はみ出しの余地がない)。
+const ELL_MARGIN_X = 125;
+const ELL_MARGIN_Y = 115;
+const ELL_VEL_REF_MAX_PX = 34;
+const ELL_VEL_HARD_CAP = 34;
+const ELL_VISUAL_PERIOD = 8; // s。演出上のアニメーション周期(実際の周期Tとは無関係)
+const ELL_SECTOR_DM = TAU * 0.07; // 「同じ時間」として比べる2つの扇形の平均近点角の幅
+
+function ellTransform(a, b) {
+  const availW = ELL_BOX.w - ELL_MARGIN_X * 2;
+  const availH = ELL_BOX.h - ELL_MARGIN_Y * 2;
+  const scale = Math.min(availW / (2 * a), availH / (2 * b));
+  // 世界座標(焦点=中心天体が原点)のx範囲は[-ra, rp]=[-(a+ae)... ]ではなく、
+  // 実際には[-(a+c), (a-c)] = [-ra, rp](c=aeで近日点=a-c, 遠日点=a+c)。
+  // 焦点を原点として、xの取りうる最小値-raがステージ左端に来るようにする。
+  return { scale, focusPx: { x: ELL_MARGIN_X, y: ELL_BOX.h / 2 }, a, b };
+}
+function ellWorldToPx(x, y, transform, rp, ra) {
+  // 世界座標のxは[-ra, rp]の範囲。左端(-ra)がステージ左マージンに来るよう、
+  // (x+ra)を使ってオフセットする。
+  return {
+    x: transform.focusPx.x + (x + ra) * transform.scale,
+    y: transform.focusPx.y - y * transform.scale,
+  };
+}
+
+function ellOrbitPathPx(a, e, rp, ra, transform, samples = 72) {
+  const pts = [];
+  for (let i = 0; i <= samples; i++) {
+    const E = (i / samples) * TAU;
+    const p = ellipsePositionAtE(a, e, E);
+    pts.push(ellWorldToPx(p.x, p.y, transform, rp, ra));
+  }
+  return pts;
+}
+
+function ellSectorPolygonPx(a, e, startM, dM, transform, rp, ra, steps = 6) {
+  const pts = [ellWorldToPx(0, 0, transform, rp, ra)];
+  for (let i = 0; i <= steps; i++) {
+    const M = startM + (dM * i) / steps;
+    const p = ellipsePositionAtMeanAnomaly(a, e, M);
+    pts.push(ellWorldToPx(p.x, p.y, transform, rp, ra));
+  }
+  return pts;
+}
+
+// params: { M, m, rp, ra, t }  t(s): アニメーション時刻(ELL_VISUAL_PERIODで一周)
+function computeEllipticalOrbitLayout(params) {
+  const { M, m, rp, ra, t } = params;
+  const a = semiMajorAxis(rp, ra);
+  const e = eccentricity(rp, ra);
+  const b = a * Math.sqrt(1 - e * e);
+  const T = orbitalPeriod(M, a);
+  const vp = visVivaSpeed(M, rp, a);
+  const va = visVivaSpeed(M, ra, a);
+
+  const transform = ellTransform(a, b);
+  const orbitPath = ellOrbitPathPx(a, e, rp, ra, transform);
+
+  const frac = (t % ELL_VISUAL_PERIOD) / ELL_VISUAL_PERIOD;
+  const meanAnomaly = TAU * frac;
+  const pos = ellipsePositionAtMeanAnomaly(a, e, meanAnomaly);
+  const r = radiusAtE(a, e, pos.E);
+  const v = visVivaSpeed(M, r, a);
+
+  // 速度の向きは、ごく短い時間だけ先の位置との差分から求める(向きだけを使う。
+  // 大きさはvis-viva方程式の解析式を使う方が正確なのでそちらを採用する)。
+  const dFrac = 0.0015;
+  const pos2 = ellipsePositionAtMeanAnomaly(a, e, meanAnomaly + TAU * dFrac);
+  const dir = toPolar(pos2.x - pos.x, pos2.y - pos.y);
+  const velAngleDeg = dir.angleDeg;
+
+  const markerPx = ellWorldToPx(pos.x, pos.y, transform, rp, ra);
+  const focusPx = ellWorldToPx(0, 0, transform, rp, ra);
+
+  const refV = vp; // 近日点(最速)を基準長にする
+  const velScale = computeScale([refV], ELL_VEL_REF_MAX_PX);
+  const arrows = [];
+  const vArrow = buildArrowAt(
+    "v",
+    markerPx,
+    velAngleDeg,
+    v,
+    velScale,
+    ELL_VEL_HARD_CAP,
+    "var(--c2)",
+    { labelPrefix: "v", labelColor: "var(--c2t)" }
+  );
+  if (vArrow) arrows.push(vArrow);
+
+  const sectorPerihelion = ellSectorPolygonPx(a, e, 0, ELL_SECTOR_DM, transform, rp, ra);
+  const sectorAphelion = ellSectorPolygonPx(a, e, Math.PI, ELL_SECTOR_DM, transform, rp, ra);
+
+  return {
+    box: ELL_BOX,
+    focus: focusPx,
+    marker: markerPx,
+    orbitPath,
+    sectors: [
+      { points: sectorPerihelion, fill: "var(--c2)" },
+      { points: sectorAphelion, fill: "var(--c1)" },
+    ],
+    arrows,
+    axisTicks: [],
+    stats: { a, e, b, T, vp, va, rp, ra, r, v, M, m },
+  };
+}
+
+/* =====================================================================
+   ENERGY & ESCAPE VELOCITY(エネルギーと脱出速度): U=-GMm/r のグラフ
+   ===================================================================== */
+const EN_BOX = { w: 460, h: 230 };
+const EN_PLOT_LEFT = 58;
+const EN_PLOT_RIGHT = 440;
+const EN_PLOT_TOP = 42;
+const EN_PLOT_BOTTOM = 176;
+const EN_TICK_ROW_Y = 198;
+const EN_READOUT_Y = 16;
+const EN_CURVE_SAMPLES = 48;
+
+function enXToPx(r, rMin, rMax) {
+  const frac = (r - rMin) / (rMax - rMin);
+  return EN_PLOT_LEFT + frac * (EN_PLOT_RIGHT - EN_PLOT_LEFT);
+}
+function enYToPx(U, uMin) {
+  // U∈[uMin, 0]。uMinが最も負(グラフ下端)、0が上端(漸近線)。
+  const frac = (U - uMin) / (0 - uMin);
+  return EN_PLOT_BOTTOM - frac * (EN_PLOT_BOTTOM - EN_PLOT_TOP);
+}
+
+function enNiceTicks(rMin, rMax, count = 5) {
+  const ticks = [];
+  for (let i = 0; i < count; i++) {
+    ticks.push(rMin + ((rMax - rMin) * i) / (count - 1));
+  }
+  return ticks;
+}
+
+// params: { M, m, r, rMin, rMax, speedRatio }
+//   speedRatio: 現在の速さを、その距離での脱出速度に対する比(v/v_esc)で指定する
+//   (惑星ごとに脱出速度の桁が大きく違うため、比で操作できるようにしてある)。
+function computeEnergyLayout(params) {
+  const { M, m, r, rMin, rMax, speedRatio } = params;
+  const uMin = gravPotentialEnergy(M, m, rMin);
+  const U = gravPotentialEnergy(M, m, r);
+  const v1 = firstCosmicVelocity(M, r);
+  const vEsc = escapeVelocity(M, r);
+  const v = speedRatio * vEsc;
+  const KE = kineticEnergy(m, v);
+  const E = KE + U;
+  const bound = E < 0;
+
+  const curve = [];
+  for (let i = 0; i <= EN_CURVE_SAMPLES; i++) {
+    const rr = rMin + ((rMax - rMin) * i) / EN_CURVE_SAMPLES;
+    const uu = gravPotentialEnergy(M, m, rr);
+    curve.push({ x: enXToPx(rr, rMin, rMax), y: enYToPx(uu, uMin) });
+  }
+
+  const markerPx = { x: enXToPx(r, rMin, rMax), y: enYToPx(U, uMin) };
+
+  const xTicks = enNiceTicks(rMin, rMax, 5).map((rr) => {
+    const px = enXToPx(rr, rMin, rMax);
+    const text = `${fmtCompact(rr)}`;
+    return { x: px, y: EN_TICK_ROW_Y, text, box: labelBox(px, EN_TICK_ROW_Y, text) };
+  });
+  const yTicks = [
+    {
+      x: EN_PLOT_LEFT - 26,
+      y: EN_PLOT_TOP,
+      text: "0",
+      box: labelBox(EN_PLOT_LEFT - 26, EN_PLOT_TOP, "0"),
+    },
+    {
+      x: EN_PLOT_LEFT - 26,
+      y: EN_PLOT_BOTTOM,
+      text: fmtCompact(uMin),
+      box: labelBox(EN_PLOT_LEFT - 26, EN_PLOT_BOTTOM, fmtCompact(uMin)),
+    },
+  ];
+  const axisTicks = [...xTicks, ...yTicks];
+
+  const readoutText = `r=${fmtCompact(r)}m  U=${fmtCompact(U)}J`;
+  const readout = {
+    x: EN_PLOT_LEFT + (EN_PLOT_RIGHT - EN_PLOT_LEFT) / 2,
+    y: EN_READOUT_Y,
+    text: readoutText,
+    color: "var(--c4t)",
+    box: labelBox(EN_PLOT_LEFT + (EN_PLOT_RIGHT - EN_PLOT_LEFT) / 2, EN_READOUT_Y, readoutText),
+  };
+
+  return {
+    box: EN_BOX,
+    plot: { left: EN_PLOT_LEFT, right: EN_PLOT_RIGHT, top: EN_PLOT_TOP, bottom: EN_PLOT_BOTTOM },
+    curve,
+    marker: markerPx,
+    arrows: [],
+    axisTicks,
+    readout,
+    stats: { U, v1, vEsc, v, KE, E, bound, r, M, m },
+  };
+}
+/* ---------- ここまで scripts/phys-gravitation-layout.mjs の埋め込み ---------- */
+
+/* ---------- 共通ヘルパー ---------- */
+const $ = (id) => document.getElementById(id);
+const reducedMotion = window.matchMedia && window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+
+const NS = "http://www.w3.org/2000/svg";
+function svgEl(tag, attrs) {
+  const el = document.createElementNS(NS, tag);
+  for (const k in attrs) el.setAttribute(k, attrs[k]);
+  return el;
+}
+function drawArrow(layer, arrow) {
+  layer.appendChild(svgEl("line", {
+    x1: arrow.geo.x1, y1: arrow.geo.y1, x2: arrow.geo.x2, y2: arrow.geo.y2,
+    stroke: arrow.color, "stroke-width": arrow.strokeWidth,
+  }));
+  const pts = arrow.geo.head.map((p) => `${p.x.toFixed(1)},${p.y.toFixed(1)}`).join(" ");
+  layer.appendChild(svgEl("polygon", { points: pts, fill: arrow.color }));
+}
+function drawLabel(layer, label) {
+  const w = label.box.x1 - label.box.x0;
+  const h = label.box.y1 - label.box.y0;
+  layer.appendChild(svgEl("rect", {
+    x: label.box.x0, y: label.box.y0, width: w, height: h,
+    fill: "var(--surface)", "fill-opacity": 1, rx: 2,
+  }));
+  const t = svgEl("text", {
+    x: label.x, y: label.y, "font-size": 10, "font-family": "var(--mono)", fill: label.color,
+    "text-anchor": "middle", "dominant-baseline": "middle",
+  });
+  t.textContent = label.text;
+  layer.appendChild(t);
+}
+
+// 数値を「1.23×10^n」形式のHTMLにする(桁の大きい物理量を数値パネルで見せるため)。
+function sciHTML(n, digits = 2) {
+  if (!isFinite(n)) return String(n);
+  if (n === 0) return "0";
+  const sign = n < 0 ? "&minus;" : "";
+  const a = Math.abs(n);
+  let exp = Math.floor(Math.log10(a));
+  let mant = a / Math.pow(10, exp);
+  let mantStr = mant.toFixed(digits);
+  if (parseFloat(mantStr) >= 10) {
+    exp += 1;
+    mant = a / Math.pow(10, exp);
+    mantStr = mant.toFixed(digits);
+  }
+  if (exp === 0) return `${sign}${mantStr}`;
+  if (exp > -3 && exp < 3) return `${sign}${a.toFixed(Math.max(0, digits - exp))}`;
+  return `${sign}${mantStr}&times;10<sup>${exp}</sup>`;
+}
+function expValue(exp) {
+  return Math.pow(10, exp);
+}
+
+/* ---------- 中心天体プリセット選択(4シーン共通の部品) ---------- */
+function setupBodyPicker(barId, onSelect) {
+  const bar = $(barId);
+  const items = [...BODIES.map((b) => ({ id: b.id, label: b.name })), { id: "custom", label: "カスタム" }];
+  const buttons = {};
+  items.forEach((item) => {
+    const b = document.createElement("button");
+    b.type = "button";
+    b.className = "btn";
+    b.textContent = item.label;
+    b.setAttribute("aria-pressed", "false");
+    b.addEventListener("click", () => select(item.id));
+    bar.appendChild(b);
+    buttons[item.id] = b;
+  });
+  let current = "earth";
+  function setActive(id) {
+    current = id;
+    for (const k in buttons) {
+      const on = k === id;
+      buttons[k].classList.toggle("on", on);
+      buttons[k].setAttribute("aria-pressed", String(on));
+    }
+  }
+  function select(id) {
+    setActive(id);
+    onSelect(id);
+  }
+  // 初期状態(地球)はHTML側のマークアップ(カスタム行はhide済み)とすでに一致しているので、
+  // ここではボタンの見た目だけ揃え、onSelectは呼ばない。onSelectの中でrender()を呼ぶ
+  // ようにしていると、まだ代入が終わっていない外側の`const picker`をrender()内から
+  // 参照してしまい、初期化順序エラー(TDZ)になるため。
+  setActive("earth");
+  return { current: () => current };
+}
+function bodyById(id) {
+  return BODIES.find((b) => b.id === id);
+}
+
+/* =====================================================================
+   LAW シーン
+   ===================================================================== */
+(function initLaw() {
+  const stage = $("lawStage");
+  const bodyLayer = $("lawBodyLayer");
+  const vectorLayer = $("lawVectorLayer");
+  const distRow = $("lawDistRow");
+  const customRRow = $("lawCustomRRow");
+  const customMRow = $("lawCustomMRow");
+  const dist = $("lawDist"), customR = $("lawCustomR"), customM = $("lawCustomM"), mSlider = $("lawM");
+  const valDist = $("lawValDist"), valCustomR = $("lawValCustomR"), valCustomM = $("lawValCustomM"), valM = $("lawValM");
+  const statsEl = $("lawStats");
+
+  const picker = setupBodyPicker("lawBodyBar", (id) => {
+    const isCustom = id === "custom";
+    customMRow.classList.toggle("hide", !isCustom);
+    distRow.classList.toggle("hide", isCustom);
+    customRRow.classList.toggle("hide", !isCustom);
+    render();
+  });
+
+  function params() {
+    const id = picker.current();
+    const m = Number(mSlider.value);
+    if (id === "custom") {
+      const M = expValue(Number(customM.value));
+      const rMin = expValue(6);
+      const rMax = expValue(12);
+      const r = expValue(Number(customR.value));
+      const rNorm = (Number(customR.value) - 6) / (12 - 6);
+      return { M, m, r, rNorm, refForce: gravForce(M, m, rMin) };
+    }
+    const body = bodyById(id);
+    const k = Number(dist.value); // r = k * R
+    const r = k * body.R;
+    const rNorm = (k - 1) / (10 - 1);
+    return { M: body.M, m, r, rNorm, refForce: gravForce(body.M, m, body.R) };
+  }
+
+  function render() {
+    const p = params();
+    const layout = computeLawLayout(p);
+
+    bodyLayer.textContent = "";
+    bodyLayer.appendChild(svgEl("line", {
+      x1: layout.connector.x1, y1: layout.connector.y1, x2: layout.connector.x2, y2: layout.connector.y2,
+      stroke: "var(--rule)", "stroke-width": 1.4,
+    }));
+    bodyLayer.appendChild(svgEl("circle", { cx: layout.central.x, cy: layout.central.y, r: layout.central.r, fill: "var(--c0)" }));
+    bodyLayer.appendChild(svgEl("circle", { cx: layout.test.x, cy: layout.test.y, r: layout.test.r, fill: "var(--c2)" }));
+
+    vectorLayer.textContent = "";
+    for (const arrow of layout.arrows) {
+      drawArrow(vectorLayer, arrow);
+      drawLabel(vectorLayer, arrow.label);
+    }
+
+    const st = layout.stats;
+    statsEl.innerHTML = [
+      statRow("万有引力 F", `${sciHTML(st.F)} N`),
+      statRow("距離 r", `${sciHTML(st.r)} m`),
+      statRow("中心天体 質量 M", `${sciHTML(st.M)} kg`),
+      statRow("試験物体 m", `${fmt(st.m, 0)} kg`),
+      statRow("2r での F", `${sciHTML(gravForce(st.M, st.m, st.r * 2))} N`),
+      statRow("3r での F", `${sciHTML(gravForce(st.M, st.m, st.r * 3))} N`),
+    ].join("");
+  }
+
+  dist.addEventListener("input", () => {
+    valDist.innerHTML = `${fmt(Number(dist.value), 1)}&times;R`;
+    render();
+  });
+  customR.addEventListener("input", () => {
+    valCustomR.innerHTML = sciHTML(expValue(Number(customR.value))) + " m";
+    render();
+  });
+  customM.addEventListener("input", () => {
+    valCustomM.innerHTML = sciHTML(expValue(Number(customM.value))) + " kg";
+    render();
+  });
+  mSlider.addEventListener("input", () => {
+    valM.textContent = `${fmt(Number(mSlider.value), 0)} kg`;
+    render();
+  });
+
+  valDist.innerHTML = `${fmt(Number(dist.value), 1)}&times;R`;
+  valCustomR.innerHTML = sciHTML(expValue(Number(customR.value))) + " m";
+  valCustomM.innerHTML = sciHTML(expValue(Number(customM.value))) + " kg";
+  valM.textContent = `${fmt(Number(mSlider.value), 0)} kg`;
+  render();
+})();
+
+/* =====================================================================
+   CIRCULAR ORBIT シーン
+   ===================================================================== */
+(function initCircular() {
+  const ringLayer = $("cirRingLayer");
+  const vectorLayer = $("cirVectorLayer");
+  const hRow = $("cirHRow"), customRRow = $("cirCustomRRow"), customMRow = $("cirCustomMRow");
+  const hR = $("cirHR"), customR = $("cirCustomR"), customM = $("cirCustomM"), mSlider = $("cirM");
+  const valHR = $("cirValHR"), valCustomR = $("cirValCustomR"), valCustomM = $("cirValCustomM"), valM = $("cirValM");
+  const statsEl = $("cirStats");
+  const phiSlider = $("cirPhi");
+  const playBtn = $("cirPlay");
+
+  const picker = setupBodyPicker("cirBodyBar", (id) => {
+    const isCustom = id === "custom";
+    customMRow.classList.toggle("hide", !isCustom);
+    hRow.classList.toggle("hide", isCustom);
+    customRRow.classList.toggle("hide", !isCustom);
+    render();
+  });
+
+  function params() {
+    const id = picker.current();
+    const m = Number(mSlider.value);
+    const phi = (Number(phiSlider.value) * Math.PI) / 180;
+    if (id === "custom") {
+      const M = expValue(Number(customM.value));
+      const rMin = expValue(6);
+      const rMax = expValue(12);
+      const r = expValue(Number(customR.value));
+      return { M, m, r, rMax, refV: firstCosmicVelocity(M, rMin), refF: gravForce(M, m, rMin), phi };
+    }
+    const body = bodyById(id);
+    const r = body.R * (1 + Number(hR.value));
+    const rMax = body.R * 6;
+    return { M: body.M, m, r, rMax, refV: firstCosmicVelocity(body.M, body.R), refF: gravForce(body.M, m, body.R), phi };
+  }
+
+  function render() {
+    const p = params();
+    const layout = computeCircularOrbitLayout(p);
+
+    ringLayer.textContent = "";
+    ringLayer.appendChild(svgEl("circle", {
+      cx: layout.center.x, cy: layout.center.y, r: layout.ringPx,
+      fill: "none", stroke: "var(--rule)", "stroke-width": 1.4,
+    }));
+    ringLayer.appendChild(svgEl("circle", { cx: layout.center.x, cy: layout.center.y, r: layout.centralPx, fill: "var(--c0)" }));
+    ringLayer.appendChild(svgEl("circle", { cx: layout.marker.x, cy: layout.marker.y, r: 5, fill: "var(--c2)" }));
+
+    vectorLayer.textContent = "";
+    for (const arrow of layout.arrows) {
+      drawArrow(vectorLayer, arrow);
+      drawLabel(vectorLayer, arrow.label);
+    }
+
+    const st = layout.stats;
+    statsEl.innerHTML = [
+      statRow("第一宇宙速度 v", `${sciHTML(st.v)} m/s`),
+      statRow("周期 T", `${sciHTML(st.T)} s`),
+      statRow("万有引力=向心力 F", `${sciHTML(st.F)} N`),
+      statRow("軌道半径 r", `${sciHTML(st.r)} m`),
+      statRow("中心天体 質量 M", `${sciHTML(st.M)} kg`),
+      statRow("衛星 質量 m", `${fmt(st.m, 0)} kg`),
+    ].join("");
+  }
+
+  let playing = !reducedMotion;
+  let lastMs = null;
+  const VISUAL_DEG_PER_S = 60;
+  playBtn.textContent = playing ? "一時停止" : "+1コマ進める";
+
+  function tick(nowMs) {
+    if (!playing) return;
+    if (lastMs == null) lastMs = nowMs;
+    const dt = (nowMs - lastMs) / 1000;
+    lastMs = nowMs;
+    let phi = (Number(phiSlider.value) + VISUAL_DEG_PER_S * dt) % 360;
+    phiSlider.value = phi;
+    render();
+    requestAnimationFrame(tick);
+  }
+  playBtn.addEventListener("click", () => {
+    if (reducedMotion) {
+      phiSlider.value = (Number(phiSlider.value) + 15) % 360;
+      render();
+      return;
+    }
+    playing = !playing;
+    playBtn.textContent = playing ? "一時停止" : "再生";
+    if (playing) {
+      lastMs = null;
+      requestAnimationFrame(tick);
+    }
+  });
+  phiSlider.addEventListener("input", () => {
+    playing = false;
+    playBtn.textContent = reducedMotion ? "+1コマ進める" : "再生";
+    render();
+  });
+
+  hR.addEventListener("input", () => {
+    valHR.innerHTML = `${fmt(Number(hR.value), 2)}&times;R`;
+    render();
+  });
+  customR.addEventListener("input", () => {
+    valCustomR.innerHTML = sciHTML(expValue(Number(customR.value))) + " m";
+    render();
+  });
+  customM.addEventListener("input", () => {
+    valCustomM.innerHTML = sciHTML(expValue(Number(customM.value))) + " kg";
+    render();
+  });
+  mSlider.addEventListener("input", () => {
+    valM.textContent = `${fmt(Number(mSlider.value), 0)} kg`;
+    render();
+  });
+
+  valHR.innerHTML = `${fmt(Number(hR.value), 2)}&times;R`;
+  valCustomR.innerHTML = sciHTML(expValue(Number(customR.value))) + " m";
+  valCustomM.innerHTML = sciHTML(expValue(Number(customM.value))) + " kg";
+  valM.textContent = `${fmt(Number(mSlider.value), 0)} kg`;
+  render();
+  if (playing) requestAnimationFrame(tick);
+})();
+
+/* =====================================================================
+   ELLIPTICAL ORBIT シーン
+   ===================================================================== */
+(function initElliptical() {
+  const sectorLayer = $("ellSectorLayer");
+  const orbitLayer = $("ellOrbitLayer");
+  const vectorLayer = $("ellVectorLayer");
+  const rpRow = $("ellRpRow"), raRow = $("ellRaRow");
+  const customRpRow = $("ellCustomRpRow"), customRaRow = $("ellCustomRaRow"), customMRow = $("ellCustomMRow");
+  const rpR = $("ellRpR"), raR = $("ellRaR");
+  const customRp = $("ellCustomRp"), customRa = $("ellCustomRa"), customM = $("ellCustomM"), mSlider = $("ellM");
+  const valRpR = $("ellValRpR"), valRaR = $("ellValRaR");
+  const valCustomRp = $("ellValCustomRp"), valCustomRa = $("ellValCustomRa"), valCustomM = $("ellValCustomM"), valM = $("ellValM");
+  const statsEl = $("ellStats");
+  const tSlider = $("ellT");
+  const playBtn = $("ellPlay");
+
+  const picker = setupBodyPicker("ellBodyBar", (id) => {
+    const isCustom = id === "custom";
+    customMRow.classList.toggle("hide", !isCustom);
+    rpRow.classList.toggle("hide", isCustom);
+    raRow.classList.toggle("hide", isCustom);
+    customRpRow.classList.toggle("hide", !isCustom);
+    customRaRow.classList.toggle("hide", !isCustom);
+    render();
+  });
+
+  function params() {
+    const id = picker.current();
+    const m = Number(mSlider.value);
+    const t = Number(tSlider.value);
+    if (id === "custom") {
+      // 遠日点は近日点より内側に来られない(ra≥rp)。
+      if (Number(customRa.value) < Number(customRp.value)) customRa.value = customRp.value;
+      const M = expValue(Number(customM.value));
+      const rp = expValue(Number(customRp.value));
+      const ra = expValue(Number(customRa.value));
+      return { M, m, rp, ra, t };
+    }
+    const body = bodyById(id);
+    if (Number(raR.value) < Number(rpR.value)) raR.value = rpR.value;
+    const rp = body.R * Number(rpR.value);
+    const ra = body.R * Number(raR.value);
+    return { M: body.M, m, rp, ra, t };
+  }
+
+  function render() {
+    const p = params();
+    const layout = computeEllipticalOrbitLayout(p);
+
+    sectorLayer.textContent = "";
+    for (const sector of layout.sectors) {
+      const pts = sector.points.map((pt) => `${pt.x.toFixed(1)},${pt.y.toFixed(1)}`).join(" ");
+      sectorLayer.appendChild(svgEl("polygon", { points: pts, fill: sector.fill, "fill-opacity": 0.22 }));
+    }
+
+    orbitLayer.textContent = "";
+    const pathPts = layout.orbitPath.map((pt) => `${pt.x.toFixed(1)},${pt.y.toFixed(1)}`).join(" ");
+    orbitLayer.appendChild(svgEl("polyline", { points: pathPts, fill: "none", stroke: "var(--rule)", "stroke-width": 1.4 }));
+    orbitLayer.appendChild(svgEl("circle", { cx: layout.focus.x, cy: layout.focus.y, r: 9, fill: "var(--c0)" }));
+    orbitLayer.appendChild(svgEl("circle", { cx: layout.marker.x, cy: layout.marker.y, r: 5, fill: "var(--c2)" }));
+
+    vectorLayer.textContent = "";
+    for (const arrow of layout.arrows) {
+      drawArrow(vectorLayer, arrow);
+      drawLabel(vectorLayer, arrow.label);
+    }
+
+    const st = layout.stats;
+    statsEl.innerHTML = [
+      statRow("半長軸 a", `${sciHTML(st.a)} m`),
+      statRow("離心率 e", fmt(st.e, 3)),
+      statRow("周期 T", `${sciHTML(st.T)} s`),
+      statRow("近日点速度 v_p", `${sciHTML(st.vp)} m/s`),
+      statRow("遠日点速度 v_a", `${sciHTML(st.va)} m/s`),
+      statRow("角運動量 m&middot;r_p&middot;v_p", `${sciHTML(st.m * st.rp * st.vp)} kg&middot;m&sup2;/s`),
+      statRow("角運動量 m&middot;r_a&middot;v_a", `${sciHTML(st.m * st.ra * st.va)} kg&middot;m&sup2;/s`),
+      statRow("現在の距離 r", `${sciHTML(st.r)} m`),
+      statRow("現在の速さ v", `${sciHTML(st.v)} m/s`),
+    ].join("");
+  }
+
+  let playing = !reducedMotion;
+  let lastMs = null;
+  playBtn.textContent = playing ? "一時停止" : "+1コマ進める";
+
+  function tick(nowMs) {
+    if (!playing) return;
+    if (lastMs == null) lastMs = nowMs;
+    const dt = (nowMs - lastMs) / 1000;
+    lastMs = nowMs;
+    let t = (Number(tSlider.value) + dt) % 8;
+    tSlider.value = t;
+    render();
+    requestAnimationFrame(tick);
+  }
+  playBtn.addEventListener("click", () => {
+    if (reducedMotion) {
+      tSlider.value = (Number(tSlider.value) + 0.5) % 8;
+      render();
+      return;
+    }
+    playing = !playing;
+    playBtn.textContent = playing ? "一時停止" : "再生";
+    if (playing) {
+      lastMs = null;
+      requestAnimationFrame(tick);
+    }
+  });
+  tSlider.addEventListener("input", () => {
+    playing = false;
+    playBtn.textContent = reducedMotion ? "+1コマ進める" : "再生";
+    render();
+  });
+
+  rpR.addEventListener("input", () => {
+    valRpR.innerHTML = `${fmt(Number(rpR.value), 2)}&times;R`;
+    render();
+  });
+  raR.addEventListener("input", () => {
+    valRaR.innerHTML = `${fmt(Number(raR.value), 2)}&times;R`;
+    render();
+  });
+  customRp.addEventListener("input", () => {
+    valCustomRp.innerHTML = sciHTML(expValue(Number(customRp.value))) + " m";
+    render();
+  });
+  customRa.addEventListener("input", () => {
+    valCustomRa.innerHTML = sciHTML(expValue(Number(customRa.value))) + " m";
+    render();
+  });
+  customM.addEventListener("input", () => {
+    valCustomM.innerHTML = sciHTML(expValue(Number(customM.value))) + " kg";
+    render();
+  });
+  mSlider.addEventListener("input", () => {
+    valM.textContent = `${fmt(Number(mSlider.value), 0)} kg`;
+    render();
+  });
+
+  valRpR.innerHTML = `${fmt(Number(rpR.value), 2)}&times;R`;
+  valRaR.innerHTML = `${fmt(Number(raR.value), 2)}&times;R`;
+  valCustomRp.innerHTML = sciHTML(expValue(Number(customRp.value))) + " m";
+  valCustomRa.innerHTML = sciHTML(expValue(Number(customRa.value))) + " m";
+  valCustomM.innerHTML = sciHTML(expValue(Number(customM.value))) + " kg";
+  valM.textContent = `${fmt(Number(mSlider.value), 0)} kg`;
+  render();
+  if (playing) requestAnimationFrame(tick);
+})();
+
+/* =====================================================================
+   KEPLER'S THIRD LAW シーン(静的な表。スライダーは無い)
+   ===================================================================== */
+(function initKepler() {
+  const wrap = $("kepTableWrap");
+  const rows = PLANETS.map((p) => ({ ...p, ratio: keplerRatio(p.a_AU, p.T_year) }));
+  const avg = rows.reduce((s, r) => s + r.ratio, 0) / rows.length;
+  const rowsHtml = rows
+    .map(
+      (r) =>
+        `<tr><td>${r.name}</td><td>${fmt(r.a_AU, 4)}</td><td>${fmt(r.T_year, 4)}</td><td>${fmt(r.ratio, 4)}</td></tr>`
+    )
+    .join("");
+  wrap.innerHTML = `
+    <table class="data">
+      <thead><tr><th>惑星</th><th>a (AU)</th><th>T (年)</th><th>T&sup2;/a&sup3;</th></tr></thead>
+      <tbody>${rowsHtml}</tbody>
+      <tfoot><tr class="hi"><td>平均</td><td></td><td></td><td>${fmt(avg, 4)}</td></tr></tfoot>
+    </table>`;
+})();
+
+/* =====================================================================
+   ENERGY & ESCAPE VELOCITY シーン
+   ===================================================================== */
+(function initEnergy() {
+  const axisLayer = $("enAxisLayer");
+  const curveLayer = $("enCurveLayer");
+  const distRow = $("enDistRow"), customRRow = $("enCustomRRow"), customMRow = $("enCustomMRow");
+  const distR = $("enDistR"), customR = $("enCustomR"), customM = $("enCustomM"), mSlider = $("enM"), speedRatio = $("enSpeedRatio");
+  const valDistR = $("enValDistR"), valCustomR = $("enValCustomR"), valCustomM = $("enValCustomM"), valM = $("enValM"), valSpeedRatio = $("enValSpeedRatio");
+  const statsEl = $("enStats");
+
+  const picker = setupBodyPicker("enBodyBar", (id) => {
+    const isCustom = id === "custom";
+    customMRow.classList.toggle("hide", !isCustom);
+    distRow.classList.toggle("hide", isCustom);
+    customRRow.classList.toggle("hide", !isCustom);
+    render();
+  });
+
+  function params() {
+    const id = picker.current();
+    const m = Number(mSlider.value);
+    const ratio = Number(speedRatio.value);
+    if (id === "custom") {
+      const M = expValue(Number(customM.value));
+      const rMin = expValue(6);
+      const rMax = expValue(12);
+      const r = expValue(Number(customR.value));
+      return { M, m, r, rMin, rMax, speedRatio: ratio };
+    }
+    const body = bodyById(id);
+    const rMin = body.R;
+    const rMax = body.R * 8;
+    const r = body.R * Number(distR.value);
+    return { M: body.M, m, r, rMin, rMax, speedRatio: ratio };
+  }
+
+  function render() {
+    const p = params();
+    const layout = computeEnergyLayout(p);
+
+    axisLayer.textContent = "";
+    axisLayer.appendChild(svgEl("line", {
+      x1: layout.plot.left, y1: layout.plot.top, x2: layout.plot.left, y2: layout.plot.bottom,
+      stroke: "var(--rule)", "stroke-width": 1.2,
+    }));
+    axisLayer.appendChild(svgEl("line", {
+      x1: layout.plot.left, y1: layout.plot.bottom, x2: layout.plot.right, y2: layout.plot.bottom,
+      stroke: "var(--rule)", "stroke-width": 1.2,
+    }));
+    for (const tick of layout.axisTicks) {
+      const t = svgEl("text", {
+        x: tick.x, y: tick.y, "font-size": 9.5, "font-family": "var(--mono)", fill: "var(--muted)", "text-anchor": "middle",
+      });
+      t.textContent = tick.text;
+      axisLayer.appendChild(t);
+    }
+
+    curveLayer.textContent = "";
+    const pathPts = layout.curve.map((pt) => `${pt.x.toFixed(1)},${pt.y.toFixed(1)}`).join(" ");
+    curveLayer.appendChild(svgEl("polyline", { points: pathPts, fill: "none", stroke: "var(--c1)", "stroke-width": 2 }));
+    curveLayer.appendChild(svgEl("circle", { cx: layout.marker.x, cy: layout.marker.y, r: 4.5, fill: "var(--c4)" }));
+    drawLabel(curveLayer, layout.readout);
+
+    const st = layout.stats;
+    statsEl.innerHTML = [
+      statRow("第一宇宙速度 v<sub>1</sub>", `${sciHTML(st.v1)} m/s`),
+      statRow("脱出速度 v<sub>esc</sub>", `${sciHTML(st.vEsc)} m/s`),
+      statRow("現在の速さ v", `${sciHTML(st.v)} m/s`),
+      statRow("位置エネルギー U", `${sciHTML(st.U)} J`),
+      statRow("運動エネルギー KE", `${sciHTML(st.KE)} J`),
+      statRow("力学的エネルギー E=KE+U", `${sciHTML(st.E)} J`),
+      statRow("判定", st.bound ? "束縛(戻ってくる)" : "脱出(戻らない)"),
+      statRow("距離 r", `${sciHTML(st.r)} m`),
+    ].join("");
+  }
+
+  distR.addEventListener("input", () => {
+    valDistR.innerHTML = `${fmt(Number(distR.value), 2)}&times;R`;
+    render();
+  });
+  customR.addEventListener("input", () => {
+    valCustomR.innerHTML = sciHTML(expValue(Number(customR.value))) + " m";
+    render();
+  });
+  customM.addEventListener("input", () => {
+    valCustomM.innerHTML = sciHTML(expValue(Number(customM.value))) + " kg";
+    render();
+  });
+  mSlider.addEventListener("input", () => {
+    valM.textContent = `${fmt(Number(mSlider.value), 0)} kg`;
+    render();
+  });
+  speedRatio.addEventListener("input", () => {
+    valSpeedRatio.textContent = fmt(Number(speedRatio.value), 2);
+    render();
+  });
+
+  valDistR.innerHTML = `${fmt(Number(distR.value), 2)}&times;R`;
+  valCustomR.innerHTML = sciHTML(expValue(Number(customR.value))) + " m";
+  valCustomM.innerHTML = sciHTML(expValue(Number(customM.value))) + " kg";
+  valM.textContent = `${fmt(Number(mSlider.value), 0)} kg`;
+  valSpeedRatio.textContent = fmt(Number(speedRatio.value), 2);
+  render();
+})();
+
+/* ---------- 定数カードの天体テーブル ---------- */
+(function initBodyTable() {
+  const wrap = $("bodyTableWrap");
+  wrap.innerHTML = BODIES.map((b) => `<tr><td>${b.name}</td><td>${sciHTML(b.M)}</td><td>${sciHTML(b.R)}</td></tr>`).join("");
+})();
+
+/* ---------- 数値パネルの1行を作る共通ヘルパー ---------- */
+function statRow(k, v) {
+  return `<div class="stat"><span class="k">${k}</span><span class="v mono">${v}</span></div>`;
+}
+</script>
+</body>
+</html>

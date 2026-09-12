@@ -18,3 +18,16 @@
 - 教材数: 化学21件・物理13件、合計34件
 - 保留: manifest.jsonの`phys-circular-motion`のrelatedに`phys-gravitation`をまだ含めていない(5本目「万有引力」がまだ存在しないため、含めるとbuild.mjsのvalidateが落ちる)。5本目の実装時にrelatedへの追加と、phys-gravitation側からの逆リンクを両方行うこと
 - 次: 力学シリーズ5本目「万有引力」(phys-gravitation)の実装
+
+## 2026-09-12 — 力学シリーズ5本目「万有引力」の実装(力学シリーズ完結)
+
+- 変更: `html/phys-gravitation.html`(新規)、`scripts/phys-gravitation-layout.mjs`(新規)、`scripts/check-phys-gravitation-overlaps.mjs`(新規)、`scripts/check-embedded-data.mjs`(EMBED_SCRIPT_CHECKSに2エントリ追加、`stripGravitationLayoutWiring`を追加)、`manifest.json`(`phys-gravitation`を新規追加、`phys-circular-motion`・`phys-momentum-impulse`・`phys-rigid-body-equilibrium`のrelatedに相互リンクを追加)、`index.html`(build.mjsで再生成)
+- LAW(万有引力の法則F=GMm/r²・2物体と力ベクトル)・CIRCULAR ORBIT(円軌道・第一宇宙速度v=√(GM/r)の導出)・ELLIPTICAL ORBIT(楕円軌道・ケプラー第2法則)・KEPLER'S THIRD LAW(ケプラー第3法則・太陽系惑星の実データでT²/a³がほぼ一定なことを表で確認)・ENERGY & ESCAPE VELOCITY(U=-GMm/rのグラフと脱出速度)の5シーンを実装。CIRCULAR ORBITでは4本目(phys-circular-motion)で確立したF=mv²/rを「すでに証明済みの道具」として明示的に使い、mv²/r=GMm/r²から段階を追ってv=√(GM/r)を導く形にした。軌道は指示どおりすべて2D(projection-engine.mjsは使わない)。中心天体は地球・月・太陽のプリセットに加えて、質量M(・距離r)を指数(10^x)で直接動かせる「カスタム」モードを4シーン(LAW/CIRCULAR ORBIT/ELLIPTICAL ORBIT/ENERGY)に用意した
+- 楕円軌道のアニメーションは、ケプラー方程式M=E-e sinEをニュートン法で解いて求めた実際の位置を使っており(演出用の一定角速度ではない)、近日点で速く・遠日点で遅く動く様子と、同じ時間に掃く2つの扇形(近日点側は短い半径で広い角度、遠日点側は長い半径で狭い角度)がほぼ同じ面積になることを視覚的に確認できる
+- ベクトル表示: 力(N)と速度(m/s)は指示どおりcomputeScaleを別グループで呼んでいる。矢印ラベルは単位を付けず数値だけにした(数値パネル側に単位を表示)—扱う量の桁が極端(力が1e-5N〜1e13Nなど)なため、単位まで含めるとラベル幅の見積もりがずれて重なりの原因になったため。破線は使っていない(合成ベクトルの表示もこの教材にはない)
+- レイアウト定数の決め方で1点工夫した点: CIRCULAR ORBITの軌道半径pxは実際の距離rに比例させず√(r/rMax)で決めている。比例のままだと低高度(よくあるデフォルト値)がどれも中心点近くの点になってしまい、高度による見た目の違いがほとんど分からなかったため
+- 検証: `node scripts/check-phys-gravitation-overlaps.mjs`(LAW/CIRCULAR ORBIT/ELLIPTICAL ORBIT/ENERGY & ESCAPE VELOCITYの4シーン×パラメータ複数パターンで合計303ケース、重なりゼロ)、`node scripts/check-embedded-data.mjs`、`node build.mjs`がすべて通ることを確認。あわせてPlaywright(Chromium)でページを実際に開き、4シーンすべてで中心天体プリセット切り替え・カスタムスライダー・時刻スクラブを一通り操作してJSエラーが出ないこと、375px幅でも操作できること、prefers-reduced-motionで自動アニメーションが止まり「+1コマ進める」に切り替わることを目視確認した
+- KEPLER'S THIRD LAWのシーンはSVGの矢印・ラベルを使わず、太陽系惑星6個の実データをそのままHTML側の表(DOM)に描画するだけにした(操作変数の指定もなかったため)。そのためcheck-phys-gravitation-overlaps.mjsの対象にも含めていない
+- 保留: 特になし(G=6.6743e-11・BODIES・PLANETSの数値は指示のとおりそのまま使用。ケプラー第3法則のT²/a³は全惑星で0.99〜1.00程度に収まり、実測データとして自然なばらつきの範囲内で違和感はなかった)
+- 教材数: 化学21件・物理14件、合計35件
+- 次: これで力学シリーズ(落体・放物運動/剛体のつり合い/運動量と力積/円運動/万有引力)の5本が完結した。次にこのシリーズに着手する場合は、新規教材ではなく5本の相互リンク・表現の整合性の見直しが中心になる見込み
