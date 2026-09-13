@@ -1,0 +1,101 @@
+{
+  "substances": [
+    {
+      "id": "potassium-nitrate",
+      "name": "硝酸カリウム",
+      "formula": "KNO3",
+      "molarMass": 101.1,
+      "curveShape": "steep-increase",
+      "solubility_g_per_100g_water": [
+        { "tempC": 0, "grams": 13.3, "confidence": "high" },
+        { "tempC": 10, "grams": 20.9, "confidence": "high" },
+        { "tempC": 20, "grams": 31.6, "confidence": "high" },
+        { "tempC": 30, "grams": 45.8, "confidence": "high" },
+        { "tempC": 40, "grams": 63.9, "confidence": "high" },
+        { "tempC": 50, "grams": 85.5, "confidence": "high" },
+        { "tempC": 60, "grams": 109.0, "confidence": "high" },
+        { "tempC": 70, "grams": 138.0, "confidence": "high" },
+        { "tempC": 80, "grams": 168.8, "confidence": "high" },
+        { "tempC": 90, "grams": 202.3, "confidence": "high" },
+        { "tempC": 100, "grams": 246.0, "confidence": "high" }
+      ],
+      "confidence": "high",
+      "source": "高校化学の資料集・入試問題で最頻出の値(CRC Handbook of Chemistry and Physics系のデータと整合)。0/20/40/60/80/100℃の値は複数の資料で一致。10/30/50/70/90℃は資料間で±1〜2g程度の差があるが、右上がりの形自体に異論はない。"
+    },
+    {
+      "id": "sodium-chloride",
+      "name": "塩化ナトリウム",
+      "formula": "NaCl",
+      "molarMass": 58.5,
+      "curveShape": "nearly-flat",
+      "solubility_g_per_100g_water": [
+        { "tempC": 0, "grams": 35.7, "confidence": "high" },
+        { "tempC": 10, "grams": 35.8, "confidence": "high" },
+        { "tempC": 20, "grams": 35.9, "confidence": "high" },
+        { "tempC": 30, "grams": 36.1, "confidence": "high" },
+        { "tempC": 40, "grams": 36.3, "confidence": "high" },
+        { "tempC": 50, "grams": 36.7, "confidence": "high" },
+        { "tempC": 60, "grams": 37.0, "confidence": "high" },
+        { "tempC": 70, "grams": 37.5, "confidence": "high" },
+        { "tempC": 80, "grams": 37.9, "confidence": "high" },
+        { "tempC": 90, "grams": 38.5, "confidence": "high" },
+        { "tempC": 100, "grams": 39.2, "confidence": "low" }
+      ],
+      "confidence": "high",
+      "source": "CRC Handbook系の値。0〜90℃はほぼ一致。100℃の値だけ資料によって39.1g前後と39.8g前後の2系統があり、どちらを採用するか資料により割れるため100℃のみconfidence lowとした。"
+    },
+    {
+      "id": "sodium-sulfate",
+      "name": "硫酸ナトリウム",
+      "formula": "Na2SO4",
+      "molarMass": 142.0,
+      "curveShape": "kinked-at-hydrate-transition",
+      "hydrateTransition": {
+        "tempC": 32.4,
+        "belowSolidPhase": "Na2SO4・10H2O(芒硝、十水和物)",
+        "aboveSolidPhase": "Na2SO4(無水物)"
+      },
+      "solubility_g_per_100g_water": [
+        { "tempC": 0, "grams": 4.76, "confidence": "low" },
+        { "tempC": 10, "grams": 9.0, "confidence": "low" },
+        { "tempC": 20, "grams": 19.5, "confidence": "low" },
+        { "tempC": 25, "grams": 28.1, "confidence": "low" },
+        { "tempC": 30, "grams": 40.8, "confidence": "low" },
+        { "tempC": 32.4, "grams": 50.4, "confidence": "low" },
+        { "tempC": 35, "grams": 49.2, "confidence": "low" },
+        { "tempC": 40, "grams": 48.8, "confidence": "low" },
+        { "tempC": 50, "grams": 46.7, "confidence": "low" },
+        { "tempC": 60, "grams": 45.3, "confidence": "low" },
+        { "tempC": 70, "grams": 44.1, "confidence": "low" },
+        { "tempC": 80, "grams": 43.7, "confidence": "low" },
+        { "tempC": 90, "grams": 42.5, "confidence": "low" },
+        { "tempC": 100, "grams": 42.5, "confidence": "low" }
+      ],
+      "confidence": "low",
+      "source": "数値はいずれも無水Na2SO4換算(g/100g水)。全体の形(32.4℃までは急な右上がり、そこから先はゆるい右下がり)は化学便覧・大学レベルの相図資料で確立しているが、個々の数値は資料によりg単位で数g前後ずれることがあり、特に0/10/20/25/30℃の値と32.4℃ピーク値そのものは資料間の差が大きいため全点confidence lowとした。実装前にCRC Handbook等原典での再確認を推奨。"
+    },
+    {
+      "id": "calcium-hydroxide",
+      "name": "水酸化カルシウム",
+      "formula": "Ca(OH)2",
+      "molarMass": 74.1,
+      "curveShape": "retrograde-gentle-decrease",
+      "solubility_g_per_100g_water": [
+        { "tempC": 0, "grams": 0.189, "confidence": "high" },
+        { "tempC": 10, "grams": 0.177, "confidence": "low" },
+        { "tempC": 20, "grams": 0.165, "confidence": "high" },
+        { "tempC": 30, "grams": 0.153, "confidence": "low" },
+        { "tempC": 40, "grams": 0.141, "confidence": "high" },
+        { "tempC": 50, "grams": 0.129, "confidence": "low" },
+        { "tempC": 60, "grams": 0.116, "confidence": "high" },
+        { "tempC": 70, "grams": 0.105, "confidence": "low" },
+        { "tempC": 80, "grams": 0.094, "confidence": "high" },
+        { "tempC": 90, "grams": 0.086, "confidence": "low" },
+        { "tempC": 100, "grams": 0.077, "confidence": "high" }
+      ],
+      "confidence": "high",
+      "source": "0/20/40/60/80/100℃は化学便覧系の資料で広く一致する値(高校の資料集にもそのまま載る定番値)。10/30/50/70/90℃はその間を線形補間した推定値のため、この5点のみconfidence lowとした(実測値ではない)。0〜100℃で単調減少になっていることを自分で確認済み。"
+    }
+  ],
+  "recrystallizationNotes": "KNO3・NaClは温度が下がっても析出する結晶に水は含まれない(無水物のまま析出)ので、飽和溶液の質量保存(溶質+水=溶液)と冷却後の溶解度だけで析出量を計算できる。Na2SO4は32.4℃を境に析出する結晶の姿が変わる点が計算のポイントになる。32.4℃より高い温度で飽和させた溶液を32.4℃より低い温度まで冷やすと、析出するのは無水物Na2SO4ではなくNa2SO4・10H2O(芒硝)で、結晶が水分子を10個ずつ取り込みながら析出するため、析出後に残る水の量が単純な引き算では求まらず、析出する芒硝の物質量をxと置いて水分・Na2SO4分の両方の収支式を立てる必要がある(このタイプの計算問題は高校化学で頻出)。これは無水物と十水和物のどちらが32.4℃を境に安定な固相として存在するかが入れ替わるために起きる現象で、32.4℃はその2つの固相と飽和溶液が共存できる一点(転移点)にあたる。Ca(OH)2は逆行溶解度(温度が上がると溶解度が下がる)を示す数少ない代表例で、これはCa(OH)2の水への溶解が発熱反応であるため。ルシャトリエの原理により、温度を上げる(熱を加える)と平衡は熱を吸収する向き、すなわち溶解と逆の析出方向に移動し、溶解度が下がる。多くの固体の溶解が吸熱で温度を上げるほどよく溶けるのと逆の挙動になる点が教材のポイント。"
+}
