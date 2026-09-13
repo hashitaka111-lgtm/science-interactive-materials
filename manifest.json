@@ -234,7 +234,35 @@
       "chem-chemical-equilibrium",
       "chem-dilute-solutions",
       "chem-electrochemistry",
-      "phys-thermo-first-law"
+      "phys-thermo-first-law",
+      "chem-henry-law"
+    ]
+  },
+  {
+    "id": "chem-henry-law",
+    "file": "html/henry-law.html",
+    "subject": "chemistry",
+    "unit": "物質の状態 / 気体の溶解とヘンリーの法則",
+    "course": "化学",
+    "section": "物質の状態と平衡",
+    "order": 22,
+    "title": "気体の溶解とヘンリーの法則",
+    "heading": "気体の溶解とヘンリーの法則",
+    "summary": "圧力・温度を動かし、溶けている気体の物質量と標準状態換算体積の違いを整理する",
+    "topics": [
+      "ヘンリーの法則(溶ける物質量は圧力に比例)",
+      "標準状態換算体積は圧力によらず一定",
+      "温度と溶解度の関係(発熱変化)",
+      "潜水病・炭酸飲料への応用"
+    ],
+    "interactions": [
+      "スライダー",
+      "グラフ連動"
+    ],
+    "confidence": "high",
+    "type": "simulator",
+    "related": [
+      "chem-gases-ideal-and-real"
     ]
   },
   {
