@@ -233,7 +233,8 @@
     "related": [
       "chem-chemical-equilibrium",
       "chem-dilute-solutions",
-      "chem-electrochemistry"
+      "chem-electrochemistry",
+      "phys-thermo-first-law"
     ]
   },
   {
@@ -1057,6 +1058,33 @@
       "phys-circular-motion",
       "phys-momentum-impulse",
       "phys-rigid-body-equilibrium"
+    ]
+  },
+  {
+    "id": "phys-thermo-first-law",
+    "file": "html/phys-thermo-first-law.html",
+    "subject": "physics",
+    "unit": "熱 / 熱力学第一法則とモル比熱",
+    "course": "物理",
+    "section": "熱",
+    "order": 15,
+    "title": "熱力学第一法則とモル比熱",
+    "heading": "熱力学第一法則とモル比熱",
+    "summary": "定積・定圧・断熱の3つの変化を比較し、モル比熱Cv・Cpの違いを単原子分子と二原子分子で確かめる",
+    "topics": [
+      "熱力学第一法則ΔU=Q+W",
+      "定積変化・定圧変化・断熱変化",
+      "モル比熱Cv・Cp(マイヤーの関係)",
+      "断熱変化とポアソンの式(発展)"
+    ],
+    "interactions": [
+      "スライダー",
+      "グラフ連動"
+    ],
+    "confidence": "high",
+    "type": "simulator",
+    "related": [
+      "chem-gases-ideal-and-real"
     ]
   }
 ]

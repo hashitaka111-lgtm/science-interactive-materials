@@ -42,3 +42,16 @@
 - 教材数: 化学21件・物理14件、合計35件(manifest.jsonは今回変更していないため変化なし)
 - 保留: 本教材はまだHTML実装前で、人間によるhenry-law-review.mdの化学的正しさのレビュー待ち。特にN2・CO2のconfidence: lowの数値(窒素0℃23mL/24mL、20℃15mL/16mL、および10/30/40℃の補間値)は人間の確認が必要
 - 次: レビュー完了後、第2段階としてhtml/henry-law.htmlの実装指示を受ける予定
+
+## 2026-09-13 — 熱力学シリーズ1本目「熱力学第一法則とモル比熱」の実装
+
+- 変更: `html/phys-thermo-first-law.html`(新規)、`manifest.json`(`phys-thermo-first-law`を新規追加)、`index.html`(build.mjsで再生成)
+- 高校物理に力学・波動・電磁気・原子はすでにあったが熱力学が1本もなかったため、そのシリーズ1本目として実装。radioactive-decay.html(グラフ・数値パネル中心の構成)を参照元にし、vector-diagram-engine.mjs・projection-engine.mjsは使っていない。化学側のgases-ideal-and-real.htmlで扱ったPV=nRTは前提知識として簡潔に触れるにとどめ、ΔU=Q+W・定積/定圧/断熱の3変化・モル比熱Cv,Cpに絞った
+- 符号規約: ΔU=Q+W、W=「気体が外部からされた仕事」を採用し、FIRST LAWカードでタップ式の記号説明として明記した。もう一つの流儀(W=気体が外部にする仕事、Q=ΔU+W)との違いも本文とNOTESカードで注記した
+- PROCESSカードの核になる設計判断: 3つの変化を「同じ始点(P&#8320;,V&#8320;,T&#8320;)から同じ終端温度T&#8321;に到達する」という条件で揃えた。こうするとΔU=nCvΔTが3つの変化で厳密に同じ値になり、道筋によってQとWの内訳だけが変わることが数値上はっきり見える(定積:W=0,Q=ΔU / 定圧:W=&minus;pΔV,Q=ΔU+pΔV / 断熱:Q=0,W=ΔU)。T&#8321;はT&#8320;比(0.5〜2.0倍)のスライダー1つで操作し、V&#8320;やT&#8320;を動かしてもスライダーの範囲を再計算しなくて済むようにした
+- ADIABATICカードは指示どおり「発展」ラベル(琥珀色のtagとcard.adv背景)で通常カードと視覚的に区別し、dU=dWからpV^γ=一定を微分で導く5ステップと、PROCESSカードの断熱変化の終端がP&#8320;V&#8320;^γ=P&#8321;V&#8321;^γを満たすことを数値で確認する小さなグラフ(T&#8320;等温線と断熱線の傾きの比較)を用意した
+- 実装中に判明した注意点: テーブルの1列目に「単原子分子」のような複数文字の日本語ラベルを入れると、th/tdにwhite-space:nowrapを指定しない場合、375px幅ではセル内で1文字ずつ縦に折り返されてしまい読めなくなった。gases-ideal-and-real.htmlがth/tdにnowrapを指定して.scrollラッパーで横スクロールさせる方式を採用していたのに合わせ、th/tdにwhite-space:nowrapを追加してこの教材でも同じ方式に統一した
+- 検証: Playwright(Chromium)でheadless起動し、375px/820px幅でJSエラーが出ないこと、気体の種類・変化の種類・4つのスライダー(n, V&#8320;, T&#8320;, T&#8321;/T&#8320;)を極端な値まで動かしてもp-V図とADIABATICの小グラフでラベルの重なりが起きないことを目視確認。あわせてP&#8320;V&#8320;^γとP&#8321;V&#8321;^γが浮動小数点誤差(相対差 約10&minus;14%)の範囲で一致することと、FIRST LAWカードのタップ式記号説明(ΔU/Q/W)が正しく切り替わることも確認した
+- 保留: manifestのrelatedは当面`chem-gases-ideal-and-real`との相互リンクのままにしている。`phys-thermo-heat-engine`(2本目「熱機関」)を含めたかったが、まだファイルが存在せずbuild.mjsのvalidateが落ちるため断念した。本来`chem-gases-ideal-and-real`側のこの枠は化学のhenry-law用に空けておく予定だったが、`phys-thermo-first-law`のrelatedを他の空き枠(id未定)に差し替えない限り双方向ルール上どちらかを埋めておく必要があり、いったんこの組み合わせで通した。2本目「熱機関」の実装時にphys-thermo-first-law側のrelatedを`phys-thermo-heat-engine`に差し替え、`chem-gases-ideal-and-real`側の枠をhenry-law用に明け渡すこと
+- 教材数: 化学21件・物理15件、合計36件
+- 次: 熱力学シリーズ2本目「熱機関」(phys-thermo-heat-engine、仮)の実装。定積・定圧・断熱の3つの道具をサイクルに組み合わせて熱効率を扱う想定
