@@ -1,0 +1,58 @@
+{
+  "referenceConditions": {
+    "temperatureC": 0,
+    "pressurePa": 100000,
+    "description": "気体の分圧が1.0×10^5 Paのときに水1Lに溶ける気体の物質量を、0℃・1.0×10^5Pa(標準状態)での体積[mL]に換算した値。教科書・問題集では『1atm』と『1.0×10^5Pa』を区別せず同じ数値として扱うのが通例(両者の差は約1.3%で、表の数値自体が有効数字2桁程度の丸めであるため)。"
+  },
+  "gases": [
+    {
+      "id": "o2",
+      "name": "酸素",
+      "formula": "O2",
+      "molarMass": 32.0,
+      "solubilityBySTP_mL_per_L_water": [
+        { "tempC": 0, "volumeML": 49.0 },
+        { "tempC": 10, "volumeML": 38.0 },
+        { "tempC": 20, "volumeML": 31.0 },
+        { "tempC": 30, "volumeML": 26.0 },
+        { "tempC": 40, "volumeML": 23.0 }
+      ],
+      "confidence": "high",
+      "source": "0℃・20℃・40℃の値は日本の高校化学の資料集・問題集に頻出する定番の数値(0℃で約49mL、20℃で約31mL)。10℃・30℃は0/20/40℃の値と整合する滑らかな減少傾向として補間。詳細はhenry-law-review.md参照。"
+    },
+    {
+      "id": "n2",
+      "name": "窒素",
+      "formula": "N2",
+      "molarMass": 28.0,
+      "solubilityBySTP_mL_per_L_water": [
+        { "tempC": 0, "volumeML": 23.0 },
+        { "tempC": 10, "volumeML": 18.0 },
+        { "tempC": 20, "volumeML": 15.0 },
+        { "tempC": 30, "volumeML": 13.0 },
+        { "tempC": 40, "volumeML": 12.0 }
+      ],
+      "confidence": "low",
+      "source": "0℃の値は資料により23mLとも24mLとも記載され一致しない(いずれも教科書・問題集レベルで見られる)。20℃も15mLと16mLの両方の記載がある。10℃・30℃・40℃はBunsen吸収係数の滑らかな減少傾向からの補間で、特定の教科書表に直接記載された数値かは未確認。詳細はhenry-law-review.md参照。"
+    },
+    {
+      "id": "co2",
+      "name": "二酸化炭素",
+      "formula": "CO2",
+      "molarMass": 44.0,
+      "solubilityBySTP_mL_per_L_water": [
+        { "tempC": 0, "volumeML": 1700.0 },
+        { "tempC": 10, "volumeML": 1190.0 },
+        { "tempC": 20, "volumeML": 880.0 },
+        { "tempC": 30, "volumeML": 660.0 },
+        { "tempC": 40, "volumeML": 530.0 }
+      ],
+      "confidence": "low",
+      "source": "O2・N2に比べて絶対値が大きい分、資料間の数値の揺れも大きい(0℃で1700mL前後、20℃で880mL前後という桁・大まかな値は一致するが、細部は資料により異なる)。10℃・30℃・40℃はBunsen吸収係数の減少傾向からの補間。詳細はhenry-law-review.md参照。"
+    }
+  ],
+  "nonHenryExamples": [
+    { "name": "アンモニア", "formula": "NH3", "note": "水と反応して電離平衡(NH3+H2O⇌NH4++OH-)をつくるほど溶けやすく、溶解量が分圧に比例しないためヘンリーの法則が成り立たない" },
+    { "name": "塩化水素", "formula": "HCl", "note": "水にほぼ完全に電離して溶け込む(HCl+H2O→H3O++Cl-)ため溶解量が極めて大きく、単純な物理的溶解を仮定するヘンリーの法則が成り立たない" }
+  ]
+}
