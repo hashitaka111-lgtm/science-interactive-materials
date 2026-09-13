@@ -55,3 +55,14 @@
 - 保留: manifestのrelatedは当面`chem-gases-ideal-and-real`との相互リンクのままにしている。`phys-thermo-heat-engine`(2本目「熱機関」)を含めたかったが、まだファイルが存在せずbuild.mjsのvalidateが落ちるため断念した。本来`chem-gases-ideal-and-real`側のこの枠は化学のhenry-law用に空けておく予定だったが、`phys-thermo-first-law`のrelatedを他の空き枠(id未定)に差し替えない限り双方向ルール上どちらかを埋めておく必要があり、いったんこの組み合わせで通した。2本目「熱機関」の実装時にphys-thermo-first-law側のrelatedを`phys-thermo-heat-engine`に差し替え、`chem-gases-ideal-and-real`側の枠をhenry-law用に明け渡すこと
 - 教材数: 化学21件・物理15件、合計36件
 - 次: 熱力学シリーズ2本目「熱機関」(phys-thermo-heat-engine、仮)の実装。定積・定圧・断熱の3つの道具をサイクルに組み合わせて熱効率を扱う想定
+
+## 2026-09-13 — 新規教材「気体の溶解とヘンリーの法則」第2段階(HTML実装)
+
+- 変更: `html/henry-law.html`(新規)、`scripts/check-embedded-data.mjs`(EMBED_CHECKSに`henry-law`エントリを追加)、`manifest.json`(`chem-henry-law`を新規追加、`chem-gases-ideal-and-real`のrelatedに相互リンクを追加)、`index.html`(build.mjsで再生成)
+- 第1段階でレビュー済みのdata/henry-law.jsonをそのまま使用(数値・confidenceは変更していない)。01 LAW(圧力依存性)・02 TEMPERATURE(温度依存性)・03 APPLICATION(炭酸飲料の栓を開ける計算ツール)・04 NOT HENRY(NH3・HClとの対比、数値なし)・05 出典と確度、の5カード構成。潜水病は炭酸飲料の計算ツールに続くテキストの対比のみとし(指示の「どちらか」に対して炭酸飲料を数値計算ツールとして実装、潜水病は概念的な言及にとどめた)、フェンスは炭酸飲料に絞った
+- **指示文の科学的な内容を1点修正した点**: 指示では「標準状態換算体積は圧力によらず一定、その圧力下での体積・物質量・質量は圧力に比例して増える」とあったが、これは実際のヘンリーの法則とは逆転している。正しくは、物質量・質量・標準状態換算体積の3つはすべて圧力に比例して増え(この3つは同じ量を単位だけ変えて表しているため当然)、「その圧力下(=溶けている圧力そのもの)での体積」がPV=nRTでnとPが打ち消し合って圧力によらず一定になる、というのが入試で問われる本来のひっかけ。具体的な数値(N2, 0℃, 1×10⁵Pa→3×10⁵Paの例)で検算して確認した上で、01 LAWのセクションは正しい向きで実装した
+- 22.4 L/molを標準状態のモル体積として採用(1.0×10⁵Pa基準では厳密には22.7 L/mol程度だが、高校の慣例に合わせた。教材内の注記に明記)
+- 検証: `node scripts/check-embedded-data.mjs`・`node build.mjs`がともにエラーなく通ることを確認。Playwright(Chromium)で実際にページを開き、LAW/TEMPERATURE/APPLICATIONの数値をO2・N2・CO2それぞれ手計算と突き合わせて一致を確認、スライダー操作・キーボード操作(矢印キー)・375px幅でのレイアウト崩れなし・JSエラーなしを確認した。SVGチャートのポインタードラッグはPlaywrightのmouse.down/up経由では合成pointereventが発火しない環境依存の制約があったため、PointerEventを直接dispatchして配線自体が正しく動作することを確認済み(実ブラウザでのマウス・タッチ操作は通常どおりpointereventを発火するため影響なし)
+- 教材数: 化学22件・物理15件、合計37件
+- 保留: 特になし
+- 次: 特になし
