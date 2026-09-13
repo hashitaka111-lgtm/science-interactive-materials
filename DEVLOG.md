@@ -32,15 +32,26 @@
 - 教材数: 化学21件・物理14件、合計35件
 - 次: これで力学シリーズ(落体・放物運動/剛体のつり合い/運動量と力積/円運動/万有引力)の5本が完結した。次にこのシリーズに着手する場合は、新規教材ではなく5本の相互リンク・表現の整合性の見直しが中心になる見込み
 
+## 2026-09-13 — 新規教材「気体の溶解とヘンリーの法則」第1段階(データ生成のみ)
+
+- 変更: `data/henry-law.json`(新規)、`data/henry-law-review.md`(新規)
+- 今回はデータ生成のみで、HTML・manifest.jsonには一切触れていない。方針(化学の内容データ(JSON)と描画(HTML)を別タスクに分け、データを人間が検証してから実装に進む)に従い、`data/organic-properties.json`/`data/organic-properties-review.md`と同じ進め方を踏襲した
+- 対象は酸素O2・窒素N2・二酸化炭素CO2の3種類。0℃・1.0×10⁵Pa基準で水1Lに溶ける気体の体積(mL)を0/10/20/30/40℃の5点で持たせ、分子量(32.0/28.0/44.0)も含めた。ヘンリーの法則が成り立たない例としてアンモニア・塩化水素を数値なしの注記用メモとして追加した
+- 数値はWeb調査により、高校化学の資料集・問題集で使われる典型的な数値パターンとBunsen吸収係数の古典的データ(International Critical Tables系統)を突き合わせて決定。0℃・20℃の値は複数資料で確度が高いが、窒素の0℃(23mL/24mLの両方の記載あり)・20℃(15mL/16mLの両方の記載あり)、および全気体の10℃・30℃・40℃(補間値)はconfidenceをlowとし、henry-law-review.mdに揺れの内容を記録した
+- 既存教材`html/gases-ideal-and-real.html`(PV=nRT・ファンデルワールス式・分圧・気体分子の速さの分布を扱う)との内容重複がないことを確認済み(気体が液体に溶ける現象=ヘンリーの法則に範囲を限定)
+- 教材数: 化学21件・物理14件、合計35件(manifest.jsonは今回変更していないため変化なし)
+- 保留: 本教材はまだHTML実装前で、人間によるhenry-law-review.mdの化学的正しさのレビュー待ち。特にN2・CO2のconfidence: lowの数値(窒素0℃23mL/24mL、20℃15mL/16mL、および10/30/40℃の補間値)は人間の確認が必要
+- 次: レビュー完了後、第2段階としてhtml/henry-law.htmlの実装指示を受ける予定
+
 ## 2026-09-13 — 熱力学シリーズ1本目「熱力学第一法則とモル比熱」の実装
 
-- 変更: `html/phys-thermo-first-law.html`(新規)、`manifest.json`(`phys-thermo-first-law`を新規追加、`chem-gases-ideal-and-real`のrelatedに相互リンクを追加して4件に)、`index.html`(build.mjsで再生成)
+- 変更: `html/phys-thermo-first-law.html`(新規)、`manifest.json`(`phys-thermo-first-law`を新規追加)、`index.html`(build.mjsで再生成)
 - 高校物理に力学・波動・電磁気・原子はすでにあったが熱力学が1本もなかったため、そのシリーズ1本目として実装。radioactive-decay.html(グラフ・数値パネル中心の構成)を参照元にし、vector-diagram-engine.mjs・projection-engine.mjsは使っていない。化学側のgases-ideal-and-real.htmlで扱ったPV=nRTは前提知識として簡潔に触れるにとどめ、ΔU=Q+W・定積/定圧/断熱の3変化・モル比熱Cv,Cpに絞った
 - 符号規約: ΔU=Q+W、W=「気体が外部からされた仕事」を採用し、FIRST LAWカードでタップ式の記号説明として明記した。もう一つの流儀(W=気体が外部にする仕事、Q=ΔU+W)との違いも本文とNOTESカードで注記した
 - PROCESSカードの核になる設計判断: 3つの変化を「同じ始点(P&#8320;,V&#8320;,T&#8320;)から同じ終端温度T&#8321;に到達する」という条件で揃えた。こうするとΔU=nCvΔTが3つの変化で厳密に同じ値になり、道筋によってQとWの内訳だけが変わることが数値上はっきり見える(定積:W=0,Q=ΔU / 定圧:W=&minus;pΔV,Q=ΔU+pΔV / 断熱:Q=0,W=ΔU)。T&#8321;はT&#8320;比(0.5〜2.0倍)のスライダー1つで操作し、V&#8320;やT&#8320;を動かしてもスライダーの範囲を再計算しなくて済むようにした
 - ADIABATICカードは指示どおり「発展」ラベル(琥珀色のtagとcard.adv背景)で通常カードと視覚的に区別し、dU=dWからpV^γ=一定を微分で導く5ステップと、PROCESSカードの断熱変化の終端がP&#8320;V&#8320;^γ=P&#8321;V&#8321;^γを満たすことを数値で確認する小さなグラフ(T&#8320;等温線と断熱線の傾きの比較)を用意した
 - 実装中に判明した注意点: テーブルの1列目に「単原子分子」のような複数文字の日本語ラベルを入れると、th/tdにwhite-space:nowrapを指定しない場合、375px幅ではセル内で1文字ずつ縦に折り返されてしまい読めなくなった。gases-ideal-and-real.htmlがth/tdにnowrapを指定して.scrollラッパーで横スクロールさせる方式を採用していたのに合わせ、th/tdにwhite-space:nowrapを追加してこの教材でも同じ方式に統一した
 - 検証: Playwright(Chromium)でheadless起動し、375px/820px幅でJSエラーが出ないこと、気体の種類・変化の種類・4つのスライダー(n, V&#8320;, T&#8320;, T&#8321;/T&#8320;)を極端な値まで動かしてもp-V図とADIABATICの小グラフでラベルの重なりが起きないことを目視確認。あわせてP&#8320;V&#8320;^γとP&#8321;V&#8321;^γが浮動小数点誤差(相対差 約10&minus;14%)の範囲で一致することと、FIRST LAWカードのタップ式記号説明(ΔU/Q/W)が正しく切り替わることも確認した
-- 保留: manifestのrelatedに`phys-thermo-heat-engine`をまだ含めていない(2本目「熱機関」がまだ存在せず、含めるとbuild.mjsのvalidateが落ちるため)。2本目の実装時にrelatedへの追加と、phys-thermo-heat-engine側からの逆リンクを両方行うこと
+- 保留: manifestのrelatedは当面`chem-gases-ideal-and-real`との相互リンクのままにしている。`phys-thermo-heat-engine`(2本目「熱機関」)を含めたかったが、まだファイルが存在せずbuild.mjsのvalidateが落ちるため断念した。本来`chem-gases-ideal-and-real`側のこの枠は化学のhenry-law用に空けておく予定だったが、`phys-thermo-first-law`のrelatedを他の空き枠(id未定)に差し替えない限り双方向ルール上どちらかを埋めておく必要があり、いったんこの組み合わせで通した。2本目「熱機関」の実装時にphys-thermo-first-law側のrelatedを`phys-thermo-heat-engine`に差し替え、`chem-gases-ideal-and-real`側の枠をhenry-law用に明け渡すこと
 - 教材数: 化学21件・物理15件、合計36件
 - 次: 熱力学シリーズ2本目「熱機関」(phys-thermo-heat-engine、仮)の実装。定積・定圧・断熱の3つの道具をサイクルに組み合わせて熱効率を扱う想定
