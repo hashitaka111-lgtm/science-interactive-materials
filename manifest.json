@@ -145,7 +145,8 @@
     "confidence": "high",
     "type": "simulator",
     "related": [
-      "chem-gases-ideal-and-real"
+      "chem-gases-ideal-and-real",
+      "chem-henry-law"
     ]
   },
   {
@@ -234,8 +235,7 @@
       "chem-chemical-equilibrium",
       "chem-dilute-solutions",
       "chem-electrochemistry",
-      "phys-thermo-first-law",
-      "chem-henry-law"
+      "phys-thermo-first-law"
     ]
   },
   {
@@ -262,7 +262,7 @@
     "confidence": "high",
     "type": "simulator",
     "related": [
-      "chem-gases-ideal-and-real"
+      "chem-dilute-solutions"
     ]
   },
   {
