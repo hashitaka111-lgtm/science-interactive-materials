@@ -1143,7 +1143,35 @@
     "confidence": "high",
     "type": "simulator",
     "related": [
-      "chem-gases-ideal-and-real"
+      "chem-gases-ideal-and-real",
+      "phys-thermo-heat-engine"
+    ]
+  },
+  {
+    "id": "phys-thermo-heat-engine",
+    "file": "html/phys-thermo-heat-engine.html",
+    "subject": "physics",
+    "unit": "熱 / 熱機関とp-Vサイクル",
+    "course": "物理",
+    "section": "熱",
+    "order": 16,
+    "title": "熱機関とp-Vサイクル",
+    "heading": "熱機関とp-Vサイクル",
+    "summary": "p-Vダイアグラム上のサイクルが囲む面積が正味の仕事になることを確かめ、熱効率を計算する",
+    "topics": [
+      "p-Vダイアグラム上のサイクル",
+      "サイクルの面積=正味の仕事",
+      "熱効率e=W/Qin",
+      "行程ごとのQ・W・ΔU"
+    ],
+    "interactions": [
+      "スライダー",
+      "グラフ連動"
+    ],
+    "confidence": "high",
+    "type": "simulator",
+    "related": [
+      "phys-thermo-first-law"
     ]
   }
 ]
