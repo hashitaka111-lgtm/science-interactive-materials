@@ -1,0 +1,61 @@
+{
+  "atomicWeights": { "H": 1.0, "C": 12.0, "O": 16.0 },
+  "substances": [
+    {
+      "id": "benzene",
+      "name": "ベンゼン",
+      "formula": "C6H6",
+      "molarMass": 78,
+      "empiricalFormula": "CH",
+      "empiricalFormulaWeight": 13,
+      "sampleMass_mg": 39.0,
+      "co2Mass_mg": 132.0,
+      "h2oMass_mg": 27.0,
+      "n": 6,
+      "confidence": "high",
+      "source": "原子量H=1.0,C=12.0,O=16.0からの計算値。二通りの方法(燃焼反応式の量的関係／組成%からの質量計算)で検算済み。"
+    },
+    {
+      "id": "acetic-acid",
+      "name": "酢酸",
+      "formula": "C2H4O2",
+      "molarMass": 60,
+      "empiricalFormula": "CH2O",
+      "empiricalFormulaWeight": 30,
+      "sampleMass_mg": 30.0,
+      "co2Mass_mg": 44.0,
+      "h2oMass_mg": 18.0,
+      "n": 2,
+      "confidence": "high",
+      "source": "原子量H=1.0,C=12.0,O=16.0からの計算値。二通りの方法(燃焼反応式の量的関係／組成%からの質量計算)で検算済み。"
+    },
+    {
+      "id": "glucose",
+      "name": "グルコース",
+      "formula": "C6H12O6",
+      "molarMass": 180,
+      "empiricalFormula": "CH2O",
+      "empiricalFormulaWeight": 30,
+      "sampleMass_mg": 45.0,
+      "co2Mass_mg": 66.0,
+      "h2oMass_mg": 27.0,
+      "n": 6,
+      "confidence": "high",
+      "source": "原子量H=1.0,C=12.0,O=16.0からの計算値。二通りの方法(燃焼反応式の量的関係／組成%からの質量計算)で検算済み。"
+    },
+    {
+      "id": "ethanol",
+      "name": "エタノール",
+      "formula": "C2H6O",
+      "molarMass": 46,
+      "empiricalFormula": "C2H6O",
+      "empiricalFormulaWeight": 46,
+      "sampleMass_mg": 46.0,
+      "co2Mass_mg": 88.0,
+      "h2oMass_mg": 54.0,
+      "n": 1,
+      "confidence": "high",
+      "source": "原子量H=1.0,C=12.0,O=16.0からの計算値。二通りの方法(燃焼反応式の量的関係／組成%からの質量計算)で検算済み。"
+    }
+  ]
+}

@@ -382,7 +382,8 @@
     "related": [
       "chem-organic-reaction-map",
       "chem-strong-weak-acid-base",
-      "chem-ksp-ph-control"
+      "chem-ksp-ph-control",
+      "chem-elemental-analysis"
     ]
   },
   {
@@ -1172,6 +1173,34 @@
     "type": "simulator",
     "related": [
       "phys-thermo-first-law"
+    ]
+  },
+  {
+    "id": "chem-elemental-analysis",
+    "file": "html/elemental-analysis.html",
+    "subject": "chemistry",
+    "unit": "有機化学 / 元素分析と分子式決定",
+    "course": "化学",
+    "section": "有機化合物の構造決定",
+    "order": 24,
+    "title": "元素分析と分子式決定",
+    "heading": "元素分析と分子式決定",
+    "summary": "完全燃焼で生じるCO2・H2Oの質量から組成比を逆算し、実験式を経て分子式を決定する",
+    "topics": [
+      "完全燃焼法による元素分析",
+      "C・H・Oのモル比の計算",
+      "実験式の決定",
+      "分子量からの分子式の決定",
+      "組成%は試料量によらず一定"
+    ],
+    "interactions": [
+      "スライダー",
+      "チップ切り替え"
+    ],
+    "confidence": "high",
+    "type": "simulator",
+    "related": [
+      "chem-organic-separation"
     ]
   }
 ]

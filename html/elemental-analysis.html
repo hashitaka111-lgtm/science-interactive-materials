@@ -1,0 +1,407 @@
+<!doctype html>
+<html lang="ja">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>元素分析と分子式決定</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500&family=IBM+Plex+Sans+JP:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+:root{
+  --ink:#16232B; --muted:#5E6E76; --paper:#EDF1EF; --surface:#FFFFFF;
+  --rule:#D6DDDA; --rule-soft:#E8EDEB;
+  --sans:"IBM Plex Sans JP","Hiragino Sans","Yu Gothic UI",system-ui,sans-serif;
+  --mono:"IBM Plex Mono",ui-monospace,SFMono-Regular,Menlo,monospace;
+}
+*{box-sizing:border-box}
+html,body{margin:0;padding:0}
+body{background:var(--paper);color:var(--ink);font-family:var(--sans);font-size:13.5px;line-height:1.78;
+  -webkit-text-size-adjust:100%;padding:18px 12px 60px}
+.wrap{max-width:812px;margin:0 auto}
+.card{background:var(--surface);border:1px solid var(--rule);border-radius:3px;padding:18px 18px 16px;margin-bottom:14px}
+h1{font-size:22px;font-weight:600;letter-spacing:.01em;margin:10px 0 6px;line-height:1.45}
+h2{font-size:15px;font-weight:600;letter-spacing:.01em;margin:10px 0 4px}
+h3{font-size:12.5px;font-weight:600;margin:16px 0 2px;color:var(--ink)}
+p{margin:6px 0}
+.eyebrow{display:flex;align-items:center;gap:10px;font-family:var(--mono);font-size:11.5px;
+  letter-spacing:.14em;color:var(--muted);text-transform:uppercase}
+.eyebrow::after{content:"";flex:1;height:1px;background:var(--rule)}
+.lede{color:var(--muted);font-size:13px}
+.note{color:var(--muted);font-size:12px;margin-top:10px}
+.warn{color:#8A5A0C;font-size:12px;margin-top:10px;border:1px solid #B87A16;border-radius:3px;padding:8px 10px;background:#FBF3E7}
+.key{font-size:12.5px;margin:10px 0;border-left:3px solid var(--ink);border-radius:0 3px 3px 0;
+  padding:8px 10px;background:var(--paper)}
+.key b{font-weight:600}
+.eq{font-family:var(--mono);font-size:12.5px;background:var(--paper);border:1px solid var(--rule-soft);
+  border-radius:3px;padding:8px 10px;margin:10px 0;overflow-x:auto;white-space:nowrap;font-variant-numeric:tabular-nums}
+.chips{display:flex;flex-wrap:wrap;gap:5px;margin:10px 0 4px}
+button.chip{font-family:var(--mono);font-size:11.5px;font-weight:500;letter-spacing:.04em;color:var(--ink);
+  background:var(--surface);border:1px solid var(--rule);border-radius:2px;padding:5px 9px;cursor:pointer;
+  line-height:1.2;transition:none}
+button.chip:hover{border-color:var(--muted)}
+button.chip[aria-pressed="true"]{background:var(--ink);color:#fff;border-color:var(--ink)}
+button.chip:focus-visible{outline:2px solid var(--ink);outline-offset:1px}
+.sld{display:flex;align-items:center;gap:10px;margin:8px 0}
+.sld label{font-family:var(--mono);font-size:11px;letter-spacing:.08em;color:var(--muted);white-space:nowrap;min-width:96px}
+.sld input[type=range]{flex:1;min-width:80px;accent-color:var(--ink);height:22px}
+.sld input[type=range]:focus-visible{outline:2px solid var(--ink);outline-offset:2px}
+.sld .val{font-family:var(--mono);font-size:12.5px;font-weight:500;font-variant-numeric:tabular-nums;
+  text-align:right;min-width:112px}
+.chart{display:block;width:100%;height:auto;margin-top:4px}
+.chart text{font-family:var(--mono);fill:var(--muted)}
+.kv{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:0 16px;margin-top:10px}
+.kv div{display:flex;justify-content:space-between;align-items:baseline;gap:10px;
+  border-bottom:1px solid var(--rule-soft);padding:4px 0}
+.kv b{font-family:var(--mono);font-size:10.5px;font-weight:500;letter-spacing:.06em;color:var(--muted)}
+.kv span{font-family:var(--mono);font-size:12.5px;font-weight:500;font-variant-numeric:tabular-nums}
+.tblwrap{overflow-x:auto;margin-top:10px}
+table{width:100%;border-collapse:collapse;font-size:12px}
+th{font-family:var(--mono);font-size:10px;font-weight:500;letter-spacing:.05em;color:var(--muted);
+  text-align:right;border-bottom:1px solid var(--rule);padding:6px 5px;white-space:nowrap}
+td{padding:5px;border-bottom:1px solid var(--rule-soft);text-align:right;font-family:var(--mono);
+  font-size:11.5px;font-variant-numeric:tabular-nums;white-space:nowrap}
+th:first-child,td:first-child{text-align:left}
+td.tx{font-family:var(--sans);text-align:left;white-space:normal}
+.tag{display:inline-block;font-family:var(--mono);font-size:10px;letter-spacing:.05em;padding:1px 5px;
+  border-radius:2px;border:1px solid var(--rule)}
+.tag.high{color:var(--muted)}
+ul{margin:6px 0;padding-left:18px}
+li{margin:3px 0}
+sub{font-size:.72em}
+@media (prefers-reduced-motion:reduce){
+  *{transition:none!important;animation:none!important}
+}
+@media (max-width:430px){
+  body{padding:12px 8px 44px;font-size:13px}
+  .card{padding:14px 12px 12px}
+  h1{font-size:19px}
+  .sld label{min-width:76px;font-size:10.5px}
+  .sld .val{min-width:96px;font-size:12px}
+  .kv{grid-template-columns:1fr 1fr;gap:0 12px}
+}
+</style>
+</head>
+<body>
+<main class="wrap">
+
+<header class="card">
+  <div class="eyebrow">Elemental Analysis / 元素分析</div>
+  <h1>元素分析と分子式決定</h1>
+  <p class="lede">有機化合物を完全燃焼させると、含まれていた炭素はすべて二酸化炭素CO<sub>2</sub>に、水素はすべて水H<sub>2</sub>Oになります。生じたCO<sub>2</sub>とH<sub>2</sub>Oの質量を測るだけで、試料中にあった炭素・水素の質量がわかります。これが元素分析(完全燃焼法)です。ここからまず求まるのは原子の個数比である「実験式」で、実際の分子の姿である「分子式」を決めるには、もう一つ別の情報(分子量)が必要です。ベンゼン・酢酸・グルコース・エタノールの4物質で、この2段階の考え方を確認します。</p>
+  <p class="note">原子量はH=1.0, C=12.0, O=16.0(高校化学の慣例値)で統一しています。</p>
+</header>
+
+<section class="card">
+  <div class="eyebrow">01 / STEP1 COMBUSTION — 完全燃焼でC・Hの質量を求める</div>
+  <h2>生じたCO<sub>2</sub>とH<sub>2</sub>Oから逆算する</h2>
+  <p>試料を完全燃焼させると、炭素はすべてCO<sub>2</sub>に、水素はすべてH<sub>2</sub>Oになります。CO<sub>2</sub>の質量がわかれば、そこに含まれていた炭素の質量が、質量比C:CO<sub>2</sub>=12:44から求まります。同じように、H<sub>2</sub>Oの質量から水素の質量が、質量比H:H<sub>2</sub>O=2:18から求まります。</p>
+  <div class="chips" id="subChips"></div>
+  <div class="sld"><label>試料の量</label><input type="range" id="amtSlider" min="0.2" max="3" step="0.1"><span class="val" id="amtV"></span></div>
+  <div class="kv" id="combKV"></div>
+  <div id="combBar"></div>
+  <div class="key" id="oKey"></div>
+  <p class="note" id="combNote"></p>
+</section>
+
+<section class="card">
+  <div class="eyebrow">02 / STEP2 EMPIRICAL FORMULA — mol比から実験式を決める</div>
+  <h2>「原子の個数比」まで還元する</h2>
+  <p>C・H・Oそれぞれの質量を、そのモル質量(C:12, H:1, O:16)で割ると、物質量(mol)が得られます。これは原子の個数の比そのものです。最も簡単な整数比に直したものが実験式で、実験式中の原子の質量の合計が式量です。</p>
+  <div class="kv" id="empMolKV"></div>
+  <div class="eq" id="empRatioEq"></div>
+  <div class="kv" id="empKV"></div>
+  <p class="note" id="empNote"></p>
+</section>
+
+<section class="card">
+  <div class="eyebrow">03 / STEP3 MOLECULAR FORMULA — 分子量から分子式を決める</div>
+  <h2>実験式の何倍が分子式か</h2>
+  <p>実験式だけでは分子式は決まりません。実際の分子が実験式の何倍の大きさかは、分子量(蒸気密度法や凝固点降下法など、別の実験で測定された値)と比べて初めてわかります。分子量を式量で割った値をもっとも近い整数に丸めたものが、実験式の何倍かを表す倍率nです。</p>
+  <div class="sld"><label>分子量 M</label><input type="range" id="mSlider" min="1" max="400" step="0.5"><span class="val" id="mV"></span></div>
+  <div class="kv" id="molKV"></div>
+  <p class="note" id="molNote"></p>
+  <div class="sub" style="border-top:1px solid var(--rule-soft);margin-top:16px;padding-top:12px">
+    <h3>実験式が同じでも、分子式は違う——酢酸とグルコース</h3>
+    <p>酢酸C<sub>2</sub>H<sub>4</sub>O<sub>2</sub>とグルコースC<sub>6</sub>H<sub>12</sub>O<sub>6</sub>は、組成%(mol比)がまったく同じで、実験式もどちらもCH<sub>2</sub>O(式量30)です。実験式だけを見ている限り、この2つの物質を区別することはできません。分子量が酢酸60・グルコース180とわかって初めて、n=2と6が決まり、分子式が確定します。</p>
+    <div class="kv" id="contrastKV"></div>
+  </div>
+</section>
+
+<section class="card">
+  <div class="eyebrow">04 / NOTES</div>
+  <h2>この教材のまとめと、この先に必要な手がかり</h2>
+  <p><b>Oは直接測定していません。</b>元素分析装置が直接測るのはCO<sub>2</sub>とH<sub>2</sub>Oの質量だけで、Oの質量は「試料の全体質量 − C の質量 − H の質量」という質量保存の関係から、差として求めています。試料に酸素が含まれていない物質(このページのベンゼンなど)では、この引き算の結果がちょうど0になります。</p>
+  <p><b>実験式は分子式そのものとは限りません。</b>実験式はあくまで原子の個数比を最も簡単にしたものです。エタノールのようにC:H:Oの比がすでに最も簡単な整数比になっていれば実験式=分子式ですが、酢酸とグルコースのように実験式が同じでも分子式が異なる物質は珍しくありません。分子量の情報なしに分子式を決めることはできません。</p>
+  <p><b>示性式や構造式はこの教材の範囲外です。</b>分子式C<sub>2</sub>H<sub>4</sub>O<sub>2</sub>まで決まっても、それが酢酸(CH<sub>3</sub>COOH)なのか、ギ酸メチル(HCOOCH<sub>3</sub>)なのかは、この分子式だけでは決まりません。次はどんな官能基を持つか、という手がかりが別途必要になります。</p>
+  <ul>
+    <li>CO<sub>2</sub>の質量からCの質量、H<sub>2</sub>Oの質量からHの質量が、それぞれ一定の質量比で逆算できる。</li>
+    <li>Oは直接測れないので、試料の全体質量からC・Hの質量を引いた差として求める。</li>
+    <li>C・H・Oの質量をモル質量で割ってmol比を求め、最も簡単な整数比にしたものが実験式。この比(組成%)は試料の量を変えても一定。</li>
+    <li>分子量を実験式の式量で割って整数に丸めた値nが、実験式の何倍が分子式かを表す。測定値に多少の誤差があっても、nは正しい整数に丸まる。</li>
+    <li>実験式が同じでも分子量が違えば分子式は違う(酢酸とグルコース)。分子式が決まっても、官能基の違いまでは決まらない。</li>
+  </ul>
+  <h3>数値の出典と確度</h3>
+  <div class="tblwrap"><table id="srcTable"><thead></thead><tbody></tbody></table></div>
+</section>
+
+</main>
+
+<script>
+'use strict';
+/* ============ データ ============ */
+const DATA = {"atomicWeights":{"H":1,"C":12,"O":16},"substances":[{"id":"benzene","name":"ベンゼン","formula":"C6H6","molarMass":78,"empiricalFormula":"CH","empiricalFormulaWeight":13,"sampleMass_mg":39,"co2Mass_mg":132,"h2oMass_mg":27,"n":6,"confidence":"high","source":"原子量H=1.0,C=12.0,O=16.0からの計算値。二通りの方法(燃焼反応式の量的関係／組成%からの質量計算)で検算済み。"},{"id":"acetic-acid","name":"酢酸","formula":"C2H4O2","molarMass":60,"empiricalFormula":"CH2O","empiricalFormulaWeight":30,"sampleMass_mg":30,"co2Mass_mg":44,"h2oMass_mg":18,"n":2,"confidence":"high","source":"原子量H=1.0,C=12.0,O=16.0からの計算値。二通りの方法(燃焼反応式の量的関係／組成%からの質量計算)で検算済み。"},{"id":"glucose","name":"グルコース","formula":"C6H12O6","molarMass":180,"empiricalFormula":"CH2O","empiricalFormulaWeight":30,"sampleMass_mg":45,"co2Mass_mg":66,"h2oMass_mg":27,"n":6,"confidence":"high","source":"原子量H=1.0,C=12.0,O=16.0からの計算値。二通りの方法(燃焼反応式の量的関係／組成%からの質量計算)で検算済み。"},{"id":"ethanol","name":"エタノール","formula":"C2H6O","molarMass":46,"empiricalFormula":"C2H6O","empiricalFormulaWeight":46,"sampleMass_mg":46,"co2Mass_mg":88,"h2oMass_mg":54,"n":1,"confidence":"high","source":"原子量H=1.0,C=12.0,O=16.0からの計算値。二通りの方法(燃焼反応式の量的関係／組成%からの質量計算)で検算済み。"}]};
+
+var AW = DATA.atomicWeights;
+var SER = [
+  {f:'#B87A16', t:'#8A5A0C'},
+  {f:'#158A6D', t:'#0D6A53'},
+  {f:'#2457A6', t:'#1B4380'},
+  {f:'#6E3AA7', t:'#572D85'}
+];
+var SUBSTANCES = DATA.substances.map(function(s, i){
+  return {
+    id:s.id, name:s.name, formula:s.formula, M:s.molarMass,
+    empFormula:s.empiricalFormula, empWeight:s.empiricalFormulaWeight,
+    sampleMass:s.sampleMass_mg, co2Mass:s.co2Mass_mg, h2oMass:s.h2oMass_mg,
+    n:s.n, confidence:s.confidence, source:s.source, col:SER[i]
+  };
+});
+
+/* ============ 汎用ユーティリティ(solubility-curve.html と同じ実装) ============ */
+function fx(v, d){ return (!isFinite(v)) ? '—' : v.toFixed(d); }
+function clamp(v, lo, hi){ return v < lo ? lo : (v > hi ? hi : v); }
+function esc(s){ return String(s).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;'); }
+function kv(items){
+  return items.map(function(it){ return '<div><b>' + it[0] + '</b><span>' + it[1] + '</span></div>'; }).join('');
+}
+function $(id){ return document.getElementById(id); }
+function svgWrap(W, H, inner, id){
+  return '<svg class="chart" id="' + id + '" viewBox="0 0 ' + W + ' ' + H + '" role="img">' + inner + '</svg>';
+}
+// "C6H6" -> "C<sub>6</sub>H<sub>6</sub>" のように数字だけ<sub>で包む
+function subFormula(s){ return esc(s).replace(/(\d+)/g, '<sub>$1</sub>'); }
+// {C:1,H:1,O:0} のような原子数オブジェクトから "CH" のような式の文字列を組み立てる(count=0は省略、count=1は数字を書かない)
+function buildFormula(atoms){
+  var out = '';
+  ['C','H','O'].forEach(function(el){
+    var c = atoms[el] || 0;
+    if(c <= 0) return;
+    out += el + (c === 1 ? '' : String(c));
+  });
+  return out;
+}
+// mol比を最も簡単な整数比に直す。1〜12倍して全成分がほぼ整数になる最小の倍率を探す。
+function simplifyRatio(vals){
+  var nonzero = vals.filter(function(v){ return v > 1e-9; });
+  var m = Math.min.apply(null, nonzero);
+  var r = vals.map(function(v){ return v / m; });
+  for(var k = 1; k <= 12; k++){
+    var ok = r.every(function(v){ var kv2 = v * k; return Math.abs(kv2 - Math.round(kv2)) < 1e-6; });
+    if(ok) return r.map(function(v){ return Math.round(v * k); });
+  }
+  return r.map(function(v){ return Math.round(v); });
+}
+
+/* ============ 状態 ============ */
+var st = { sub: 0, amount: 1.0, molarM: SUBSTANCES[0].M };
+
+/* ============ 01 STEP1 COMBUSTION ============ */
+function combustionValues(sub, amount){
+  var sampleMass = sub.sampleMass * amount;
+  var co2Mass = sub.co2Mass * amount;
+  var h2oMass = sub.h2oMass * amount;
+  var cMass = co2Mass * 12 / 44;
+  var hMass = h2oMass * 2 / 18;
+  var oMass = sampleMass - cMass - hMass;
+  if(Math.abs(oMass) < 5e-4) oMass = 0;
+  return { sampleMass:sampleMass, co2Mass:co2Mass, h2oMass:h2oMass, cMass:cMass, hMass:hMass, oMass:oMass };
+}
+function drawCombustion(){
+  var sub = SUBSTANCES[st.sub];
+  var v = combustionValues(sub, st.amount);
+  $('combKV').innerHTML = kv([
+    ['試料質量', fx(v.sampleMass, 2) + ' mg'],
+    ['生成CO&#8322;質量', fx(v.co2Mass, 2) + ' mg'],
+    ['生成H&#8322;O質量', fx(v.h2oMass, 2) + ' mg'],
+    ['→ Cの質量', fx(v.cMass, 2) + ' mg'],
+    ['→ Hの質量', fx(v.hMass, 2) + ' mg'],
+    ['→ Oの質量(差)', fx(v.oMass, 2) + ' mg']
+  ]);
+
+  var W = 764, H = 92, l = 4, w = W - 8, top = 22, bh = 34;
+  var total = Math.max(v.sampleMass, 1e-9);
+  var wC = v.cMass / total * w, wH = v.hMass / total * w, wO = v.oMass / total * w;
+  // ラベル文字列の実測がなくても収まるかを判定できるよう、mono書体(font-size 10.5)の
+  // 1文字あたりの幅を概算(0.62em)し、左右パディング(12px)込みで必要幅を見積もる。
+  // セグメント幅がそれを下回るラベルは重なりを避けるため描画しない。
+  function fitsLabel(segW, text){ return segW > text.length * 6.5 + 12; }
+  var o = '<text class="ax" x="' + l + '" y="14" font-size="10.5">試料 ' + fx(v.sampleMass, 2) + ' mg の内訳(C・H・O)</text>';
+  var x = l;
+  var lblC = 'C ' + fx(v.cMass, 1) + 'mg';
+  o += '<rect x="' + x.toFixed(1) + '" y="' + top + '" width="' + Math.max(0, wC).toFixed(1) + '" height="' + bh + '" fill="' + sub.col.f + '" opacity="0.9"/>';
+  if(fitsLabel(wC, lblC)) o += '<text x="' + (x + 6).toFixed(1) + '" y="' + (top + bh / 2 + 4) + '" style="fill:#fff" font-size="10.5">' + lblC + '</text>';
+  x += wC;
+  var lblH = 'H ' + fx(v.hMass, 1) + 'mg';
+  o += '<rect x="' + x.toFixed(1) + '" y="' + top + '" width="' + Math.max(0, wH).toFixed(1) + '" height="' + bh + '" fill="#5E6E76" opacity="0.9"/>';
+  if(fitsLabel(wH, lblH)) o += '<text x="' + (x + 6).toFixed(1) + '" y="' + (top + bh / 2 + 4) + '" style="fill:#fff" font-size="10.5">' + lblH + '</text>';
+  x += wH;
+  if(wO > 0){
+    var lblO = 'O ' + fx(v.oMass, 1) + 'mg';
+    o += '<rect x="' + x.toFixed(1) + '" y="' + top + '" width="' + Math.max(0, wO).toFixed(1) + '" height="' + bh + '" fill="#B87A16" opacity="0.9"/>';
+    if(fitsLabel(wO, lblO)) o += '<text x="' + (x + 6).toFixed(1) + '" y="' + (top + bh / 2 + 4) + '" style="fill:#fff" font-size="10.5">' + lblO + '</text>';
+  }
+  $('combBar').innerHTML = svgWrap(W, H, o, 'svComb');
+
+  $('oKey').innerHTML = '<b>Oの質量は引き算で求める。</b>元素分析装置がCO&#8322;とH&#8322;Oの質量を測っても、そこからOの質量は直接わかりません。「試料の全体質量 − Cの質量 − Hの質量」という質量保存の関係から、差として求めます。' +
+    (v.oMass === 0
+      ? sub.name + 'はこの引き算の結果がちょうど0になります。つまり酸素を含まない物質だと確認できます。'
+      : sub.name + 'では、これがOの質量 ' + fx(v.oMass, 2) + ' mgになります。');
+
+  $('combNote').textContent = '試料の量スライダーを動かすと、試料質量・CO2質量・H2O質量が同じ比率で変わります。それでもC・H・Oの質量比(下の02で求めるmol比)は変わりません。';
+}
+
+/* ============ 02 STEP2 EMPIRICAL FORMULA ============ */
+function drawEmpirical(){
+  var sub = SUBSTANCES[st.sub];
+  var v = combustionValues(sub, st.amount);
+  var molC = v.cMass / AW.C, molH = v.hMass / AW.H, molO = Math.max(0, v.oMass) / AW.O;
+
+  $('empMolKV').innerHTML = kv([
+    ['C の物質量', fx(molC, 4) + ' mmol'],
+    ['H の物質量', fx(molH, 4) + ' mmol'],
+    ['O の物質量', fx(molO, 4) + ' mmol']
+  ]);
+
+  var ratio = simplifyRatio([molC, molH, molO]);
+  var rc = ratio[0], rh = ratio[1], ro = ratio[2];
+  $('empRatioEq').textContent = 'C : H : O = ' + fx(molC, 3) + ' : ' + fx(molH, 3) + ' : ' + fx(molO, 3) +
+    '  →  ' + rc + ' : ' + rh + ' : ' + ro + '(最も簡単な整数比)';
+
+  var empAtoms = { C:rc, H:rh, O:ro };
+  var empFormulaStr = buildFormula(empAtoms);
+  var empWeight = rc * AW.C + rh * AW.H + ro * AW.O;
+
+  $('empKV').innerHTML = kv([
+    ['実験式', subFormula(empFormulaStr)],
+    ['式量', fx(empWeight, 0)]
+  ]);
+
+  $('empNote').textContent = '試料の量を変えても、C:H:Oのmol比(' + rc + ':' + rh + ':' + ro + ')は変わりません。01のスライダーを動かして、上のmol値(絶対量)は変わっても実験式が変わらないことを確認してください。';
+}
+
+/* ============ 03 STEP3 MOLECULAR FORMULA ============ */
+function empiricalAtomsOf(sub){
+  var v = combustionValues(sub, 1);
+  var molC = v.cMass / AW.C, molH = v.hMass / AW.H, molO = Math.max(0, v.oMass) / AW.O;
+  var ratio = simplifyRatio([molC, molH, molO]);
+  return { C:ratio[0], H:ratio[1], O:ratio[2] };
+}
+function drawMolecular(){
+  var sub = SUBSTANCES[st.sub];
+  var empAtoms = empiricalAtomsOf(sub);
+  var empWeight = sub.empWeight;
+
+  var slider = $('mSlider');
+  slider.min = String(+(empWeight * 0.5).toFixed(1));
+  slider.max = String(+(empWeight * 8).toFixed(1));
+  st.molarM = clamp(st.molarM, +slider.min, +slider.max);
+  slider.value = String(st.molarM);
+
+  var raw = st.molarM / empWeight;
+  var n = Math.max(1, Math.round(raw));
+  var candAtoms = { C: empAtoms.C * n, H: empAtoms.H * n, O: empAtoms.O * n };
+  var candFormula = buildFormula(candAtoms);
+  var matchesTrue = (n === sub.n);
+
+  $('mV').textContent = fx(st.molarM, 1);
+  $('molKV').innerHTML = kv([
+    ['実験式の式量', fx(empWeight, 0)],
+    ['分子量 M(スライダー)', fx(st.molarM, 1)],
+    ['n = M ÷ 式量', fx(raw, 2) + ' → ' + n],
+    ['分子式の候補', subFormula(candFormula)],
+    ['真の分子量(参考)', fx(sub.M, 0) + '(' + sub.name + ')']
+  ]);
+  $('molNote').textContent = 'スライダーをぴったり真の分子量(' + fx(sub.M, 0) + ')に合わせなくても、近い値であればnは' + n + 'に丸まります。' +
+    (matchesTrue
+      ? 'この分子式候補' + candFormula + 'は、真の分子量のときの分子式(' + sub.formula + ')と一致します。'
+      : 'スライダーの値が真の分子量から離れすぎているため、nが本来の値(' + sub.n + ')と一致していません。真の分子量に近づけてください。');
+}
+function drawContrast(){
+  var acetic = SUBSTANCES.filter(function(s){ return s.id === 'acetic-acid'; })[0];
+  var glucose = SUBSTANCES.filter(function(s){ return s.id === 'glucose'; })[0];
+  $('contrastKV').innerHTML = kv([
+    ['酢酸の実験式', subFormula(acetic.empFormula) + '(式量' + fx(acetic.empWeight, 0) + ')'],
+    ['酢酸の分子量 → n', fx(acetic.M, 0) + ' → n=' + acetic.n],
+    ['酢酸の分子式', subFormula(acetic.formula)],
+    ['グルコースの実験式', subFormula(glucose.empFormula) + '(式量' + fx(glucose.empWeight, 0) + ')'],
+    ['グルコースの分子量 → n', fx(glucose.M, 0) + ' → n=' + glucose.n],
+    ['グルコースの分子式', subFormula(glucose.formula)]
+  ]);
+}
+
+/* ============ 04 出典 ============ */
+function drawSources(){
+  var t = $('srcTable');
+  t.querySelector('thead').innerHTML = '<tr><th>物質</th><th>分子式</th><th>分子量</th><th>confidence</th><th>出典メモ</th></tr>';
+  t.querySelector('tbody').innerHTML = SUBSTANCES.map(function(s){
+    return '<tr><td>' + esc(s.name) + '</td><td>' + subFormula(s.formula) + '</td><td>' + fx(s.M, 0) + '</td>' +
+      '<td><span class="tag high">' + esc(s.confidence) + '</span></td>' +
+      '<td class="tx">' + esc(s.source) + '</td></tr>';
+  }).join('');
+}
+
+/* ============ チップ切り替え ============ */
+function subChipsHtml(){
+  return SUBSTANCES.map(function(s, i){
+    return '<button class="chip" type="button" data-i="' + i + '" aria-pressed="' +
+      (i === st.sub ? 'true' : 'false') + '">' + s.formula + '</button>';
+  }).join('');
+}
+function syncChips(){
+  Array.prototype.forEach.call($('subChips').querySelectorAll('button'), function(b){
+    b.setAttribute('aria-pressed', (+b.getAttribute('data-i') === st.sub) ? 'true' : 'false');
+  });
+}
+
+/* ============ 配線 ============ */
+function renderAll(){
+  drawCombustion();
+  drawEmpirical();
+  drawMolecular();
+  drawContrast();
+  drawSources();
+}
+function buildUI(){
+  $('subChips').innerHTML = subChipsHtml();
+  $('subChips').addEventListener('click', function(e){
+    var b = e.target.closest('button');
+    if(!b) return;
+    st.sub = +b.getAttribute('data-i');
+    st.molarM = SUBSTANCES[st.sub].M;
+    syncChips();
+    renderAll();
+  });
+
+  $('amtSlider').value = String(st.amount);
+  $('amtV').textContent = fx(st.amount, 1) + ' 倍';
+  $('amtSlider').addEventListener('input', function(){
+    st.amount = +this.value;
+    $('amtV').textContent = fx(st.amount, 1) + ' 倍';
+    drawCombustion();
+    drawEmpirical();
+  });
+
+  $('mSlider').addEventListener('input', function(){
+    st.molarM = +this.value;
+    drawMolecular();
+  });
+}
+function boot(){
+  buildUI();
+  renderAll();
+}
+if(typeof document !== 'undefined') boot();
+</script>
+</body>
+</html>
