@@ -1,0 +1,660 @@
+<!doctype html>
+<html lang="ja">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>溶解度と溶解度曲線</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500&family=IBM+Plex+Sans+JP:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+:root{
+  --ink:#16232B; --muted:#5E6E76; --paper:#EDF1EF; --surface:#FFFFFF;
+  --rule:#D6DDDA; --rule-soft:#E8EDEB;
+  --sans:"IBM Plex Sans JP","Hiragino Sans","Yu Gothic UI",system-ui,sans-serif;
+  --mono:"IBM Plex Mono",ui-monospace,SFMono-Regular,Menlo,monospace;
+}
+*{box-sizing:border-box}
+html,body{margin:0;padding:0}
+body{background:var(--paper);color:var(--ink);font-family:var(--sans);font-size:13.5px;line-height:1.78;
+  -webkit-text-size-adjust:100%;padding:18px 12px 60px}
+.wrap{max-width:812px;margin:0 auto}
+.card{background:var(--surface);border:1px solid var(--rule);border-radius:3px;padding:18px 18px 16px;margin-bottom:14px}
+h1{font-size:22px;font-weight:600;letter-spacing:.01em;margin:10px 0 6px;line-height:1.45}
+h2{font-size:15px;font-weight:600;letter-spacing:.01em;margin:10px 0 4px}
+h3{font-size:12.5px;font-weight:600;margin:16px 0 2px;color:var(--ink)}
+p{margin:6px 0}
+.eyebrow{display:flex;align-items:center;gap:10px;font-family:var(--mono);font-size:11.5px;
+  letter-spacing:.14em;color:var(--muted);text-transform:uppercase}
+.eyebrow::after{content:"";flex:1;height:1px;background:var(--rule)}
+.lede{color:var(--muted);font-size:13px}
+.note{color:var(--muted);font-size:12px;margin-top:10px}
+.warn{color:#8A5A0C;font-size:12px;margin-top:10px;border:1px solid #B87A16;border-radius:3px;padding:8px 10px;background:#FBF3E7}
+.eq{font-family:var(--mono);font-size:12.5px;background:var(--paper);border:1px solid var(--rule-soft);
+  border-radius:3px;padding:8px 10px;margin:10px 0;overflow-x:auto;white-space:nowrap;font-variant-numeric:tabular-nums}
+.chips{display:flex;flex-wrap:wrap;gap:5px;margin:10px 0 4px}
+button.chip{font-family:var(--mono);font-size:11.5px;font-weight:500;letter-spacing:.04em;color:var(--ink);
+  background:var(--surface);border:1px solid var(--rule);border-radius:2px;padding:5px 9px;cursor:pointer;
+  line-height:1.2;transition:none}
+button.chip:hover{border-color:var(--muted)}
+button.chip[aria-pressed="true"]{background:var(--ink);color:#fff;border-color:var(--ink)}
+button.chip:focus-visible{outline:2px solid var(--ink);outline-offset:1px}
+.sld{display:flex;align-items:center;gap:10px;margin:8px 0}
+.sld label{font-family:var(--mono);font-size:11px;letter-spacing:.08em;color:var(--muted);white-space:nowrap;min-width:96px}
+.sld input[type=range]{flex:1;min-width:80px;accent-color:var(--ink);height:22px}
+.sld input[type=range]:focus-visible{outline:2px solid var(--ink);outline-offset:2px}
+.sld .val{font-family:var(--mono);font-size:12.5px;font-weight:500;font-variant-numeric:tabular-nums;
+  text-align:right;min-width:112px}
+.chart{display:block;width:100%;height:auto;touch-action:pan-y;margin-top:4px}
+.chart text{font-family:var(--mono);fill:var(--muted)}
+.chart .tk{font-size:10px}
+.chart .ax{font-size:10px;letter-spacing:.08em}
+.chart .grid{stroke:var(--rule-soft);stroke-width:1;fill:none}
+.chart .axis{stroke:var(--rule);stroke-width:1;fill:none}
+.chart .guide{stroke:var(--ink);stroke-width:1;opacity:.5}
+.chart .thin{stroke-width:1.3;fill:none;opacity:.38}
+.chart .bold{stroke-width:2;fill:none}
+.chart .dash{stroke-dasharray:4 3}
+.chart .mk{fill:var(--ink)}
+.chart .lbl{fill:var(--ink);font-size:10px}
+.chart .chiptx{fill:#fff}
+.kv{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:0 16px;margin-top:10px}
+.kv div{display:flex;justify-content:space-between;align-items:baseline;gap:10px;
+  border-bottom:1px solid var(--rule-soft);padding:4px 0}
+.kv b{font-family:var(--mono);font-size:10.5px;font-weight:500;letter-spacing:.06em;color:var(--muted)}
+.kv span{font-family:var(--mono);font-size:12.5px;font-weight:500;font-variant-numeric:tabular-nums}
+.lg{display:flex;flex-wrap:wrap;gap:12px;margin-top:8px;font-family:var(--mono);font-size:11px;color:var(--muted)}
+.lg i{display:inline-block;width:16px;height:0;border-top-width:2px;border-top-style:solid;
+  vertical-align:middle;margin-right:5px}
+.tblwrap{overflow-x:auto;margin-top:10px}
+table{width:100%;border-collapse:collapse;font-size:12px}
+th{font-family:var(--mono);font-size:10px;font-weight:500;letter-spacing:.05em;color:var(--muted);
+  text-align:right;border-bottom:1px solid var(--rule);padding:6px 5px;white-space:nowrap}
+td{padding:5px;border-bottom:1px solid var(--rule-soft);text-align:right;font-family:var(--mono);
+  font-size:11.5px;font-variant-numeric:tabular-nums;white-space:nowrap}
+th:first-child,td:first-child{text-align:left}
+td.tx{font-family:var(--sans);text-align:left;white-space:normal}
+.tag{display:inline-block;font-family:var(--mono);font-size:10px;letter-spacing:.05em;padding:1px 5px;
+  border-radius:2px;border:1px solid var(--rule)}
+.tag.low{color:#8A5A0C;border-color:#B87A16}
+.tag.high{color:var(--muted)}
+ul{margin:6px 0;padding-left:18px}
+li{margin:3px 0}
+.sub{border-top:1px solid var(--rule-soft);margin-top:16px;padding-top:12px}
+@media (prefers-reduced-motion:reduce){
+  *{transition:none!important;animation:none!important}
+}
+@media (max-width:430px){
+  body{padding:12px 8px 44px;font-size:13px}
+  .card{padding:14px 12px 12px}
+  h1{font-size:19px}
+  .sld label{min-width:76px;font-size:10.5px}
+  .sld .val{min-width:96px;font-size:12px}
+  .kv{grid-template-columns:1fr 1fr;gap:0 12px}
+}
+</style>
+</head>
+<body>
+<main class="wrap">
+
+<header class="card">
+  <div class="eyebrow">Solubility Curve / 飽和溶液</div>
+  <h1>溶解度と溶解度曲線</h1>
+  <p class="lede">一定温度の水に、それ以上溶けなくなるまで溶質を溶かした状態が飽和溶液です。そのとき溶けている質量が溶解度で、水100gあたりの最大質量[g]で表します。温度を変えると溶解度も変わり、溶けきれなくなった分だけ結晶が析出します。これが再結晶です。KNO3・NaCl・Na2SO4・Ca(OH)2の4物質で、温度依存性の形がどれだけ違うかを比べます。</p>
+  <p class="note">特にことわりのない限り、溶解度は水100gに溶ける溶質の最大質量[g]。Na2SO4のみ無水物換算(結晶に取り込まれる水を除いた、無水物としての質量)で統一しています。数値の出典・確度は06にまとめています。</p>
+</header>
+
+<section class="card">
+  <div class="eyebrow">01 / 溶解度の定義</div>
+  <h2>飽和溶液と溶解度</h2>
+  <p>ある温度で、これ以上溶質を溶かせなくなった溶液を飽和溶液といいます。飽和溶液の中では、溶け出す速さと結晶として析出する速さがつり合っており(溶解平衡)、見かけ上は何も変化していないように見えます。この状態で溶けている溶質の質量を、水の質量で正規化した値が溶解度です。</p>
+  <div class="eq">溶解度[g/水100g] = 飽和溶液中の溶質の質量[g] ÷ 水の質量[g] × 100</div>
+  <p>溶解度は物質ごとに決まった値ではなく、温度によって変わります。この「溶解度は温度の関数である」という事実をグラフにしたものが溶解度曲線で、下の02で4物質分を重ねて表示します。ある温度で飽和させた溶液を別の温度に移すと、新しい温度での溶解度との差の分だけ溶け残る(または、まだ溶かせる余地ができる)ことになります。これが03の再結晶の考え方です。</p>
+</section>
+
+<section class="card">
+  <div class="eyebrow">02 / 溶解度曲線の比較</div>
+  <h2>4物質で温度依存性の形がまるで違う</h2>
+  <p>同じ「温度を上げると溶解度が変わる」という現象でも、その変わり方は物質によってまったく違います。KNO3は温度で大きく変わる素直な右上がり、NaClはほとんど変わらない横ばい、Na2SO4は32.4℃で折れ曲がる特殊な形、Ca(OH)2は温度が上がるほど溶解度が下がる右下がり(逆行溶解度)です。物質を選んで強調表示し、温度を動かして値を読み取ってください。</p>
+  <div class="chips" id="curveSub"></div>
+  <div class="sld"><label>温度 T</label><input type="range" id="curveT" min="0" max="100" step="0.5"><span class="val" id="curveTv"></span></div>
+  <div id="curveChart"></div>
+  <div class="lg" id="curveLG"></div>
+  <div class="kv" id="curveKV"></div>
+  <p class="note" id="curveNote"></p>
+  <div class="sub">
+    <h3>Ca(OH)2だけを拡大</h3>
+    <p>Ca(OH)2の溶解度は他の3物質より2桁以上小さく(0.08〜0.19g程度)、上のグラフでは横軸に張りついた線にしか見えません。同じ温度スライダーで、Ca(OH)2だけを縦軸0〜0.2g付近に拡大した専用のグラフで見ると、右下がりの形がはっきり確認できます。</p>
+    <div id="zoomChart"></div>
+    <div class="kv" id="zoomKV"></div>
+  </div>
+</section>
+
+<section class="card">
+  <div class="eyebrow">03 / 再結晶の質量計算</div>
+  <h2>温度を変えると何gの結晶が出るか</h2>
+  <p>ある温度T0で飽和させた水溶液を、別の温度T1に変えます。T0での溶解度から溶けている質量を求め、T1での溶解度(水の質量に対する最大値)と比べれば、溶けきれずに析出する質量(またはまだ溶かせる余地)が計算できます。KNO3・NaClは析出する結晶に水を含みません(無水物のまま析出)。Ca(OH)2は逆行溶解度なので、温度を上げる向きに動かすとむしろ析出が起こります。Na2SO4はこの計算ツールの対象に含めていません(理由は04参照)。</p>
+  <div class="chips" id="rxSub"></div>
+  <div class="sld"><label>水の質量</label><input type="range" id="rxWater" min="1" max="1000" step="1"><span class="val" id="rxWaterV"></span></div>
+  <div class="sld"><label>初期温度 T0</label><input type="range" id="rxT0" min="0" max="100" step="1"><span class="val" id="rxT0v"></span></div>
+  <div class="sld"><label>変化後の温度 T1</label><input type="range" id="rxT1" min="0" max="100" step="1"><span class="val" id="rxT1v"></span></div>
+  <div id="rxBar"></div>
+  <div class="kv" id="rxKV"></div>
+  <p class="note" id="rxNote"></p>
+</section>
+
+<section class="card">
+  <div class="eyebrow">04 / 水和物として析出する場合(Na2SO4)</div>
+  <h2>32.4℃を境に、析出する結晶の姿が変わる</h2>
+  <p>Na2SO4の水溶液は、32.4℃より低い温度では十水和物Na2SO4・10H2O(芒硝)が、32.4℃より高い温度では無水物Na2SO4が、飽和溶液と共存できる安定な固相になります。32.4℃はこの2つの固相と飽和溶液がちょうど共存できる転移点です。32.4℃より高い温度で飽和させた溶液を32.4℃より低い温度まで冷やすと、析出するのは無水物ではなく芒硝で、結晶が水分子を10個ずつ道連れにして析出するため、溶質の質量と水の質量の両方が同時に減っていきます。単純な引き算では析出量が求まらない点が、KNO3・NaClとの違いです。</p>
+  <p class="warn">Na2SO4の溶解度データは全点confidence low(review.md参照)です。曲線の「形」(32.4℃までは急な右上がり、そこから先はゆるい右下がり)自体は確立していますが、個々の数値は資料間でg単位のずれがあります。このため、この物質だけは数値を動かして計算する対話的なツールの対象にはせず、以下は数値固定の解説例として、あくまで目安として見てください。</p>
+  <h3>例1: 40℃で飽和させた200gの水溶液を10℃まで冷やす</h3>
+  <div class="kv" id="hydrateKV1"></div>
+  <p class="note" id="hydrateNote1"></p>
+  <h3>例2: 70℃で飽和させた水溶液を40℃まで冷やす(転移点をまたがない場合)</h3>
+  <div class="kv" id="hydrateKV2"></div>
+  <p class="note" id="hydrateNote2"></p>
+</section>
+
+<section class="card">
+  <div class="eyebrow">05 / 逆行溶解度(Ca(OH)2)</div>
+  <h2>温度を上げると、なぜ溶解度が下がるのか</h2>
+  <p>ほとんどの固体は、水に溶ける変化が吸熱変化なので、温度を上げるほどよく溶けます。Ca(OH)2はその逆で、水に溶ける変化が発熱変化です。</p>
+  <div class="eq">Ca(OH)2(固) → Ca²⁺(水中) + 2OH⁻(水中)　　ΔH &lt; 0(発熱)</div>
+  <p>ルシャトリエの原理により、平衡状態にある系の温度を上げると、平衡はその熱を吸収する向き、つまり発熱の逆向きに移動します。Ca(OH)2の場合、それは「溶ける」の逆向き、すなわち析出する向きです。だから温度を上げるほど溶解度が下がります。03の計算ツールでCa(OH)2を選び、初期温度T0より変化後の温度T1を高く設定すると、実際に析出量が正の値として計算されることを確認できます。</p>
+</section>
+
+<section class="card">
+  <div class="eyebrow">06 / 数値の出典と確度</div>
+  <h2>この教材で使った数値について</h2>
+  <p>溶解度の数値は、高校化学の資料集・入試問題で使われる典型的な数値パターンと、CRC Handbook of Chemistry and Physics・化学便覧系の資料を突き合わせて決めています。物質によって確度に差があり、迷った値はconfidenceをlowとして残しています。</p>
+  <div class="tblwrap"><table id="srcTable"><thead></thead><tbody></tbody></table></div>
+  <p class="warn">Na2SO4は全14点がconfidence lowです。32.4℃までは急な右上がり、そこから先はゆるい右下がりという「形」自体は化学便覧・相図資料で確立していますが、個々の数値は資料によりg単位で数g前後ずれることがあります。このため、この教材ではNa2SO4を04の数値固定の解説例にとどめ、03の対話的な計算ツールの対象からは除外しています。詳細はdata/solubility-curve-review.mdを参照してください。</p>
+</section>
+
+<section class="card">
+  <div class="eyebrow">まとめ</div>
+  <h2>持ち帰る5つ</h2>
+  <ul>
+    <li>溶解度は「水100gに溶ける溶質の最大質量[g]」。飽和溶液で溶解平衡になっている状態の値。</li>
+    <li>同じ「温度依存性」でも、KNO3(急な右上がり)・NaCl(横ばい)・Na2SO4(32.4℃で折れ曲がる)・Ca(OH)2(右下がり)と形はまったく違う。</li>
+    <li>再結晶の析出量は、T0での溶解質量とT1での最大溶解質量の差。KNO3・NaClは無水物のまま析出するので引き算だけで求まる。</li>
+    <li>Na2SO4は32.4℃を境に析出する結晶が芒硝(十水和物)と無水物で入れ替わるため、水和水の分だけ計算が複雑になる。</li>
+    <li>Ca(OH)2の逆行溶解度は、溶解が発熱変化であることとルシャトリエの原理で説明できる。</li>
+  </ul>
+</section>
+
+</main>
+
+<script>
+'use strict';
+/* ============ データ ============ */
+const DATA = {"substances":[{"id":"potassium-nitrate","name":"硝酸カリウム","formula":"KNO3","molarMass":101.1,"curveShape":"steep-increase","solubility_g_per_100g_water":[{"tempC":0,"grams":13.3,"confidence":"high"},{"tempC":10,"grams":20.9,"confidence":"high"},{"tempC":20,"grams":31.6,"confidence":"high"},{"tempC":30,"grams":45.8,"confidence":"high"},{"tempC":40,"grams":63.9,"confidence":"high"},{"tempC":50,"grams":85.5,"confidence":"high"},{"tempC":60,"grams":109,"confidence":"high"},{"tempC":70,"grams":138,"confidence":"high"},{"tempC":80,"grams":168.8,"confidence":"high"},{"tempC":90,"grams":202.3,"confidence":"high"},{"tempC":100,"grams":246,"confidence":"high"}],"confidence":"high","source":"高校化学の資料集・入試問題で最頻出の値(CRC Handbook of Chemistry and Physics系のデータと整合)。0/20/40/60/80/100℃の値は複数の資料で一致。10/30/50/70/90℃は資料間で±1〜2g程度の差があるが、右上がりの形自体に異論はない。"},{"id":"sodium-chloride","name":"塩化ナトリウム","formula":"NaCl","molarMass":58.5,"curveShape":"nearly-flat","solubility_g_per_100g_water":[{"tempC":0,"grams":35.7,"confidence":"high"},{"tempC":10,"grams":35.8,"confidence":"high"},{"tempC":20,"grams":35.9,"confidence":"high"},{"tempC":30,"grams":36.1,"confidence":"high"},{"tempC":40,"grams":36.3,"confidence":"high"},{"tempC":50,"grams":36.7,"confidence":"high"},{"tempC":60,"grams":37,"confidence":"high"},{"tempC":70,"grams":37.5,"confidence":"high"},{"tempC":80,"grams":37.9,"confidence":"high"},{"tempC":90,"grams":38.5,"confidence":"high"},{"tempC":100,"grams":39.2,"confidence":"low"}],"confidence":"high","source":"CRC Handbook系の値。0〜90℃はほぼ一致。100℃の値だけ資料によって39.1g前後と39.8g前後の2系統があり、どちらを採用するか資料により割れるため100℃のみconfidence lowとした。"},{"id":"sodium-sulfate","name":"硫酸ナトリウム","formula":"Na2SO4","molarMass":142,"curveShape":"kinked-at-hydrate-transition","hydrateTransition":{"tempC":32.4,"belowSolidPhase":"Na2SO4・10H2O(芒硝、十水和物)","aboveSolidPhase":"Na2SO4(無水物)"},"solubility_g_per_100g_water":[{"tempC":0,"grams":4.76,"confidence":"low"},{"tempC":10,"grams":9,"confidence":"low"},{"tempC":20,"grams":19.5,"confidence":"low"},{"tempC":25,"grams":28.1,"confidence":"low"},{"tempC":30,"grams":40.8,"confidence":"low"},{"tempC":32.4,"grams":50.4,"confidence":"low"},{"tempC":35,"grams":49.2,"confidence":"low"},{"tempC":40,"grams":48.8,"confidence":"low"},{"tempC":50,"grams":46.7,"confidence":"low"},{"tempC":60,"grams":45.3,"confidence":"low"},{"tempC":70,"grams":44.1,"confidence":"low"},{"tempC":80,"grams":43.7,"confidence":"low"},{"tempC":90,"grams":42.5,"confidence":"low"},{"tempC":100,"grams":42.5,"confidence":"low"}],"confidence":"low","source":"数値はいずれも無水Na2SO4換算(g/100g水)。全体の形(32.4℃までは急な右上がり、そこから先はゆるい右下がり)は化学便覧・大学レベルの相図資料で確立しているが、個々の数値は資料によりg単位で数g前後ずれることがあり、特に0/10/20/25/30℃の値と32.4℃ピーク値そのものは資料間の差が大きいため全点confidence lowとした。実装前にCRC Handbook等原典での再確認を推奨。"},{"id":"calcium-hydroxide","name":"水酸化カルシウム","formula":"Ca(OH)2","molarMass":74.1,"curveShape":"retrograde-gentle-decrease","solubility_g_per_100g_water":[{"tempC":0,"grams":0.189,"confidence":"high"},{"tempC":10,"grams":0.177,"confidence":"low"},{"tempC":20,"grams":0.165,"confidence":"high"},{"tempC":30,"grams":0.153,"confidence":"low"},{"tempC":40,"grams":0.141,"confidence":"high"},{"tempC":50,"grams":0.129,"confidence":"low"},{"tempC":60,"grams":0.116,"confidence":"high"},{"tempC":70,"grams":0.105,"confidence":"low"},{"tempC":80,"grams":0.094,"confidence":"high"},{"tempC":90,"grams":0.086,"confidence":"low"},{"tempC":100,"grams":0.077,"confidence":"high"}],"confidence":"high","source":"0/20/40/60/80/100℃は化学便覧系の資料で広く一致する値(高校の資料集にもそのまま載る定番値)。10/30/50/70/90℃はその間を線形補間した推定値のため、この5点のみconfidence lowとした(実測値ではない)。0〜100℃で単調減少になっていることを自分で確認済み。"}],"recrystallizationNotes":"KNO3・NaClは温度が下がっても析出する結晶に水は含まれない(無水物のまま析出)ので、飽和溶液の質量保存(溶質+水=溶液)と冷却後の溶解度だけで析出量を計算できる。Na2SO4は32.4℃を境に析出する結晶の姿が変わる点が計算のポイントになる。32.4℃より高い温度で飽和させた溶液を32.4℃より低い温度まで冷やすと、析出するのは無水物Na2SO4ではなくNa2SO4・10H2O(芒硝)で、結晶が水分子を10個ずつ取り込みながら析出するため、析出後に残る水の量が単純な引き算では求まらず、析出する芒硝の物質量をxと置いて水分・Na2SO4分の両方の収支式を立てる必要がある(このタイプの計算問題は高校化学で頻出)。これは無水物と十水和物のどちらが32.4℃を境に安定な固相として存在するかが入れ替わるために起きる現象で、32.4℃はその2つの固相と飽和溶液が共存できる一点(転移点)にあたる。Ca(OH)2は逆行溶解度(温度が上がると溶解度が下がる)を示す数少ない代表例で、これはCa(OH)2の水への溶解が発熱反応であるため。ルシャトリエの原理により、温度を上げる(熱を加える)と平衡は熱を吸収する向き、すなわち溶解と逆の析出方向に移動し、溶解度が下がる。多くの固体の溶解が吸熱で温度を上げるほどよく溶けるのと逆の挙動になる点が教材のポイント。"};
+
+var SER = [
+  {f:'#B87A16', t:'#8A5A0C'},
+  {f:'#158A6D', t:'#0D6A53'},
+  {f:'#2457A6', t:'#1B4380'},
+  {f:'#6E3AA7', t:'#572D85'},
+  {f:'#A82A6A', t:'#831F52'},
+  {f:'#3B6E1E', t:'#2A5215'}
+];
+var COL = {'potassium-nitrate':SER[2], 'sodium-chloride':SER[1], 'sodium-sulfate':SER[3], 'calcium-hydroxide':SER[4]};
+var SHAPE_LABEL = {
+  'steep-increase':'温度が上がるほど大きく溶けるようになる、素直な右上がり',
+  'nearly-flat':'温度による変化がほとんどない、ほぼ横ばい',
+  'kinked-at-hydaate-transition':'',
+  'kinked-at-hydrate-transition':'32.4℃で傾きが折れ曲がる(水和物⇔無水物の相転移)',
+  'retrograde-gentle-decrease':'温度が上がるほど溶解度が下がる、逆行溶解度'
+};
+
+var SUBSTANCES = DATA.substances.map(function(s){
+  return {
+    id:s.id, name:s.name, f:s.formula, M:s.molarMass, shape:s.curveShape,
+    pts:s.solubility_g_per_100g_water, confidence:s.confidence, source:s.source,
+    col:COL[s.id]
+  };
+});
+var SUB_BY_ID = {};
+SUBSTANCES.forEach(function(s){ SUB_BY_ID[s.id] = s; });
+var RX_IDS = ['potassium-nitrate', 'sodium-chloride', 'calcium-hydroxide'];
+
+/* ============ 汎用ユーティリティ(dilute-solutions.html / henry-law.html と同じ実装) ============ */
+function fx(v, d){ return (!isFinite(v)) ? '—' : v.toFixed(d); }
+function clamp(v, lo, hi){ return v < lo ? lo : (v > hi ? hi : v); }
+function esc(s){ return String(s).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;'); }
+function kv(items){
+  return items.map(function(it){ return '<div><b>' + it[0] + '</b><span>' + it[1] + '</span></div>'; }).join('');
+}
+function legend(items){
+  return items.map(function(it){
+    return '<span><i style="border-top-color:' + it.c + ';border-top-style:solid"></i>' + esc(it.t) + '</span>';
+  }).join('');
+}
+function $(id){ return document.getElementById(id); }
+
+/* ============ SVG ヘルパー(dilute-solutions.html / henry-law.html と同じ実装) ============ */
+var NARROW = false;
+function scale(box, dom){
+  return {
+    l:box.l, t:box.t, w:box.w, h:box.h, x0:dom.x0, x1:dom.x1, y0:dom.y0, y1:dom.y1,
+    X:function(v){ return box.l + (v - dom.x0) / (dom.x1 - dom.x0) * box.w; },
+    Y:function(v){ return box.t + box.h - (v - dom.y0) / (dom.y1 - dom.y0) * box.h; },
+    iX:function(px){ return dom.x0 + (px - box.l) / box.w * (dom.x1 - dom.x0); }
+  };
+}
+function ticks(min, max, n){
+  var span = max - min;
+  if(!(span > 0)) return {v:[min], d:0};
+  var raw = span / n, mag = Math.pow(10, Math.floor(Math.log10(raw))), r = raw / mag;
+  var step = (r <= 1 ? 1 : r <= 2 ? 2 : r <= 2.5 ? 2.5 : r <= 5 ? 5 : 10) * mag;
+  var d = step < 1 ? Math.ceil(-Math.log10(step)) : 0;
+  if(Math.abs(step - Math.round(step)) > 1e-9) d = Math.max(d, 1);
+  var v = [];
+  for(var k = Math.ceil(min / step - 1e-9); k * step <= max + 1e-9; k++) v.push(k * step);
+  return {v:v, d:d};
+}
+function frame(s, o){
+  var xt = ticks(s.x0, s.x1, o.nx || (NARROW ? 4 : 7));
+  var yt = ticks(s.y0, s.y1, o.ny || (NARROW ? 4 : 6));
+  var out = '';
+  yt.v.forEach(function(v){
+    var y = s.Y(v).toFixed(1);
+    out += '<line class="grid" x1="' + s.l + '" y1="' + y + '" x2="' + (s.l + s.w) + '" y2="' + y + '"/>';
+    out += '<text class="tk" x="' + (s.l - 6) + '" y="' + (s.Y(v) + 3.4).toFixed(1) + '" text-anchor="end">' + v.toFixed(yt.d) + '</text>';
+  });
+  xt.v.forEach(function(v){
+    var x = s.X(v).toFixed(1);
+    out += '<line class="grid" x1="' + x + '" y1="' + s.t + '" x2="' + x + '" y2="' + (s.t + s.h) + '"/>';
+    out += '<text class="tk" x="' + x + '" y="' + (s.t + s.h + 14) + '" text-anchor="middle">' + v.toFixed(xt.d) + '</text>';
+  });
+  out += '<line class="axis" x1="' + s.l + '" y1="' + (s.t + s.h) + '" x2="' + (s.l + s.w) + '" y2="' + (s.t + s.h) + '"/>';
+  out += '<line class="axis" x1="' + s.l + '" y1="' + s.t + '" x2="' + s.l + '" y2="' + (s.t + s.h) + '"/>';
+  out += '<text class="ax" x="' + (s.l + s.w) + '" y="' + (s.t + s.h + 29) + '" text-anchor="end">' + o.xlab + '</text>';
+  out += '<text class="ax" x="' + (s.l - 4) + '" y="' + (s.t - 8) + '" text-anchor="start">' + o.ylab + '</text>';
+  return out;
+}
+function pathOf(s, pts){
+  var lo = s.y0 - (s.y1 - s.y0) * 0.3, hi = s.y1 + (s.y1 - s.y0) * 0.3;
+  var d = '', pen = false;
+  for(var i = 0; i < pts.length; i++){
+    var x = pts[i][0], y = pts[i][1];
+    if(!isFinite(y)){ pen = false; continue; }
+    var yy = clamp(y, lo, hi);
+    d += (pen ? 'L' : 'M') + s.X(x).toFixed(1) + ' ' + s.Y(yy).toFixed(1) + ' ';
+    pen = true;
+  }
+  return d;
+}
+function chipAt(lines, px, py, s){
+  var fs = NARROW ? 9.5 : 10.5, lh = fs + 3.5, mx = 0;
+  lines.forEach(function(t){ mx = Math.max(mx, t.length); });
+  var w = mx * fs * 0.605 + 14, h = lines.length * lh + 7;
+  var x = px + 10;
+  if(x + w > s.l + s.w) x = px - 10 - w;
+  x = Math.max(s.l + 1, x);
+  var y = clamp(py - h / 2, s.t + 2, s.t + s.h - h - 2);
+  var o = '<g><rect x="' + x.toFixed(1) + '" y="' + y.toFixed(1) + '" width="' + w.toFixed(1) +
+          '" height="' + h.toFixed(1) + '" rx="2" fill="#16232B"/>';
+  lines.forEach(function(t, i){
+    o += '<text class="chiptx" x="' + (x + 7).toFixed(1) + '" y="' + (y + lh * i + fs + 3).toFixed(1) +
+         '" font-size="' + fs + '">' + esc(t) + '</text>';
+  });
+  return o + '</g>';
+}
+function svgWrap(W, H, inner, id){
+  return '<svg class="chart" id="' + id + '" viewBox="0 0 ' + W + ' ' + H + '" role="img">' + inner + '</svg>';
+}
+function attachPointer(el, cb){
+  var down = false;
+  function frac(e){
+    var r = el.getBoundingClientRect();
+    return clamp((e.clientX - r.left) / r.width, 0, 1);
+  }
+  el.addEventListener('pointerdown', function(e){
+    down = true;
+    if(el.setPointerCapture) try{ el.setPointerCapture(e.pointerId); }catch(x){}
+    cb(frac(e)); e.preventDefault();
+  });
+  el.addEventListener('pointermove', function(e){
+    if(down || e.pointerType === 'mouse') cb(frac(e));
+  });
+  el.addEventListener('pointerup', function(){ down = false; });
+  el.addEventListener('pointercancel', function(){ down = false; });
+}
+
+/* ============ 溶解度の計算 ============ */
+/* データ点(tempC昇順)を線形補間する。範囲外はクランプ。Na2SO4も32.4℃の点を含めて同じロジックで扱える */
+function solAt(sub, Tc){
+  var pts = sub.pts;
+  var t = clamp(Tc, pts[0].tempC, pts[pts.length - 1].tempC);
+  for(var i = 0; i < pts.length - 1; i++){
+    var a = pts[i], b = pts[i + 1];
+    if(t >= a.tempC && t <= b.tempC){
+      var f = (b.tempC === a.tempC) ? 0 : (t - a.tempC) / (b.tempC - a.tempC);
+      return a.grams + f * (b.grams - a.grams);
+    }
+  }
+  return pts[pts.length - 1].grams;
+}
+
+/* ============ 状態 ============ */
+var st = {
+  curveSub: 0, curveT: 20,
+  rxSub: 0, rxWater: 100, rxT0: 60, rxT1: 20
+};
+var CURVE = {}, ZOOM = {}, RXBAR = {};
+
+/* ============ チップ生成の共通処理 ============ */
+function subChipsHtml(list, sel){
+  return list.map(function(s, i){
+    return '<button class="chip" type="button" data-i="' + i + '" aria-pressed="' +
+      (i === sel ? 'true' : 'false') + '">' + s.f + '</button>';
+  }).join('');
+}
+function syncChipGroup(containerId, sel){
+  Array.prototype.forEach.call($(containerId).querySelectorAll('button'), function(b){
+    b.setAttribute('aria-pressed', (+b.getAttribute('data-i') === sel) ? 'true' : 'false');
+  });
+}
+
+/* ============ 02 溶解度曲線の比較 ============ */
+function drawCurve(){
+  var sel = SUBSTANCES[st.curveSub];
+  var yMax = 0;
+  SUBSTANCES.forEach(function(s){
+    s.pts.forEach(function(p){ yMax = Math.max(yMax, p.grams); });
+  });
+  yMax *= 1.08;
+  var W = NARROW ? 380 : 764, H = NARROW ? 320 : 372;
+  var box = {l:NARROW ? 44 : 56, t:24};
+  box.w = W - box.l - (NARROW ? 14 : 22);
+  box.h = H - box.t - (NARROW ? 36 : 42);
+  var s = scale(box, {x0:0, x1:100, y0:0, y1:yMax});
+  CURVE = {s:s};
+
+  var o = '<defs><clipPath id="cpCurve"><rect x="' + box.l + '" y="' + box.t + '" width="' + box.w +
+          '" height="' + box.h + '"/></clipPath></defs>';
+  o += frame(s, {xlab:'T / ℃', ylab:'溶解度 / g(水100g)'});
+  o += '<g clip-path="url(#cpCurve)">';
+  SUBSTANCES.forEach(function(sub){
+    var pts = sub.pts.map(function(p){ return [p.tempC, p.grams]; });
+    var isSel = (sub.id === sel.id);
+    o += '<path class="' + (isSel ? 'bold' : 'thin') + '" d="' + pathOf(s, pts) + '" stroke="' + sub.col.f + '"/>';
+    if(isSel){
+      sub.pts.forEach(function(p){
+        o += '<circle class="mk" cx="' + s.X(p.tempC).toFixed(1) + '" cy="' + s.Y(clamp(p.grams, s.y0, s.y1)).toFixed(1) + '" r="2.6" fill="' + sub.col.f + '"/>';
+      });
+    }
+  });
+  o += '</g><g id="curveCur"></g>';
+  $('curveChart').innerHTML = svgWrap(W, H, o, 'svCurve');
+  attachPointer($('svCurve'), function(f){
+    st.curveT = clamp(f * 100, 0, 100);
+    $('curveT').value = String(st.curveT);
+    curCurve();
+  });
+  $('curveLG').innerHTML = legend(SUBSTANCES.map(function(s){ return {c:s.col.f, t:s.f}; }));
+  curCurve();
+}
+function curCurve(){
+  var s = CURVE.s;
+  if(!s) return;
+  var sub = SUBSTANCES[st.curveSub];
+  var Tc = clamp(st.curveT, 0, 100);
+  var v = solAt(sub, Tc);
+  var px = s.X(Tc), py = s.Y(clamp(v, s.y0, s.y1));
+  var o = '<line class="guide" x1="' + px.toFixed(1) + '" y1="' + s.t + '" x2="' + px.toFixed(1) +
+          '" y2="' + (s.t + s.h) + '"/>';
+  o += '<circle cx="' + px.toFixed(1) + '" cy="' + py.toFixed(1) + '" r="3.6" fill="' + sub.col.f + '"/>';
+  o += chipAt([sub.f + '  ' + fx(Tc, 1) + '℃', fx(v, 2) + ' g/水100g'], px, py, s);
+  var el = $('curveCur');
+  if(el) el.innerHTML = o;
+  $('curveTv').textContent = fx(Tc, 1) + ' ℃';
+  $('curveT').value = String(Tc);
+  $('curveKV').innerHTML = kv([
+    ['物質', sub.f + '(' + sub.name + ')'],
+    ['温度 T', fx(Tc, 1) + ' ℃'],
+    ['溶解度', fx(v, 2) + ' g/水100g'],
+    ['confidence', sub.confidence]
+  ]);
+  var shapeTxt = SHAPE_LABEL[sub.shape] || '';
+  $('curveNote').innerHTML = sub.f + 'は' + shapeTxt + 'という形をしています。' +
+    (sub.id === 'sodium-sulfate'
+      ? 'グラフの32.4℃で折れ曲がっているのは水和物⇔無水物の相転移によるもので、詳しくは04で扱います。'
+      : (sub.confidence === 'low'
+        ? 'この物質の数値はconfidence lowの点を含みます。06を参照してください。'
+        : ''));
+}
+
+/* ============ 02(拡大) Ca(OH)2だけ ============ */
+function drawZoom(){
+  var sub = SUB_BY_ID['calcium-hydroxide'];
+  var yMax = 0;
+  sub.pts.forEach(function(p){ yMax = Math.max(yMax, p.grams); });
+  yMax *= 1.15;
+  var W = NARROW ? 380 : 764, H = NARROW ? 220 : 240;
+  var box = {l:NARROW ? 44 : 56, t:20};
+  box.w = W - box.l - (NARROW ? 14 : 22);
+  box.h = H - box.t - (NARROW ? 34 : 40);
+  var s = scale(box, {x0:0, x1:100, y0:0, y1:yMax});
+  ZOOM = {s:s, sub:sub};
+
+  var pts = sub.pts.map(function(p){ return [p.tempC, p.grams]; });
+  var o = '<defs><clipPath id="cpZoom"><rect x="' + box.l + '" y="' + box.t + '" width="' + box.w +
+          '" height="' + box.h + '"/></clipPath></defs>';
+  o += frame(s, {xlab:'T / ℃', ylab:'溶解度 / g(水100g)', ny:4});
+  o += '<g clip-path="url(#cpZoom)">';
+  o += '<path class="bold" d="' + pathOf(s, pts) + '" stroke="' + sub.col.f + '"/>';
+  sub.pts.forEach(function(p){
+    o += '<circle class="mk" cx="' + s.X(p.tempC).toFixed(1) + '" cy="' + s.Y(clamp(p.grams, s.y0, s.y1)).toFixed(1) + '" r="2.6" fill="' + sub.col.f + '"/>';
+  });
+  o += '</g><g id="zoomCur"></g>';
+  $('zoomChart').innerHTML = svgWrap(W, H, o, 'svZoom');
+  attachPointer($('svZoom'), function(f){
+    st.curveT = clamp(f * 100, 0, 100);
+    $('curveT').value = String(st.curveT);
+    curCurve(); curZoom();
+  });
+  curZoom();
+}
+function curZoom(){
+  var s = ZOOM.s, sub = ZOOM.sub;
+  if(!s) return;
+  var Tc = clamp(st.curveT, 0, 100);
+  var v = solAt(sub, Tc);
+  var px = s.X(Tc), py = s.Y(clamp(v, s.y0, s.y1));
+  var o = '<line class="guide" x1="' + px.toFixed(1) + '" y1="' + s.t + '" x2="' + px.toFixed(1) +
+          '" y2="' + (s.t + s.h) + '"/>';
+  o += '<circle cx="' + px.toFixed(1) + '" cy="' + py.toFixed(1) + '" r="3.4" fill="' + sub.col.f + '"/>';
+  o += chipAt([fx(Tc, 1) + '℃', fx(v, 3) + ' g/水100g'], px, py, s);
+  var el = $('zoomCur');
+  if(el) el.innerHTML = o;
+  $('zoomKV').innerHTML = kv([
+    ['温度 T', fx(Tc, 1) + ' ℃'],
+    ['Ca(OH)2の溶解度', fx(v, 3) + ' g/水100g']
+  ]);
+}
+
+/* ============ 03 再結晶の質量計算 ============ */
+function drawRx(){
+  var subId = RX_IDS[st.rxSub];
+  var sub = SUB_BY_ID[subId];
+  var sol0 = solAt(sub, st.rxT0), sol1 = solAt(sub, st.rxT1);
+  var dissolved0 = st.rxWater * sol0 / 100;
+  var max1 = st.rxWater * sol1 / 100;
+  var precipitate = Math.max(0, dissolved0 - max1);
+  var headroom = Math.max(0, max1 - dissolved0);
+  var remain = Math.min(dissolved0, max1);
+  var total = Math.max(dissolved0, max1, 1e-9);
+
+  var W = NARROW ? 380 : 764, H = NARROW ? 96 : 88;
+  var l = 4, w = W - 8, top = 24, bh = NARROW ? 28 : 32;
+  var wRemain = (remain / total) * w;
+  var wExtra = ((precipitate || headroom) / total) * w;
+  var o = '<text class="ax" x="' + l + '" y="14">T0(' + fx(st.rxT0, 0) + '℃)で飽和させた溶質 ' + fx(dissolved0, 2) + ' g</text>';
+  o += '<rect x="' + l + '" y="' + top + '" width="' + Math.max(0, wRemain).toFixed(1) +
+       '" height="' + bh + '" fill="' + sub.col.f + '" opacity="0.85"/>';
+  if(wRemain > (NARROW ? 44 : 54)){
+    o += '<text x="' + (l + 6) + '" y="' + (top + bh / 2 + 4) + '" style="fill:#fff" font-size="' +
+         (NARROW ? 10 : 11) + '">残る/溶けている</text>';
+  }
+  if(wExtra > 0){
+    var col2 = precipitate > 0 ? SER[4].f : '#5E6E76';
+    o += '<rect x="' + (l + wRemain).toFixed(1) + '" y="' + top + '" width="' + Math.max(0, wExtra - 1).toFixed(1) +
+         '" height="' + bh + '" fill="' + col2 + '" opacity="0.9"/>';
+    if(wExtra > (NARROW ? 44 : 54)){
+      o += '<text x="' + (l + wRemain + 6).toFixed(1) + '" y="' + (top + bh / 2 + 4) + '" style="fill:#fff" font-size="' +
+           (NARROW ? 10 : 11) + '">' + (precipitate > 0 ? '析出する' : '追加で溶ける') + '</text>';
+    }
+  }
+  $('rxBar').innerHTML = svgWrap(W, H, o, 'svRx');
+
+  $('rxWaterV').textContent = fx(st.rxWater, 0) + ' g';
+  $('rxT0v').textContent = fx(st.rxT0, 0) + ' ℃';
+  $('rxT1v').textContent = fx(st.rxT1, 0) + ' ℃';
+  $('rxKV').innerHTML = kv([
+    ['物質', sub.f + '(' + sub.name + ')'],
+    ['T0の溶解度', fx(sol0, 2) + ' g/水100g'],
+    ['T0で飽和させた溶質', fx(dissolved0, 2) + ' g'],
+    ['T1の溶解度', fx(sol1, 2) + ' g/水100g'],
+    ['T1での最大溶解質量', fx(max1, 2) + ' g'],
+    [precipitate > 0 ? '析出する質量' : '追加で溶ける質量', fx(precipitate > 0 ? precipitate : headroom, 2) + ' g'],
+    ['判定', precipitate > 0 ? '析出する' : (headroom > 0 ? '析出しない(溶解の余地あり)' : 'ちょうど飽和のまま')]
+  ]);
+  var dir = st.rxT1 > st.rxT0 ? '昇温' : (st.rxT1 < st.rxT0 ? '冷却' : '温度変化なし');
+  var note = sub.f + 'を' + fx(st.rxWater, 0) + 'gの水で' + fx(st.rxT0, 0) + '℃に飽和させた後、' +
+    fx(st.rxT1, 0) + '℃まで' + dir + 'しました。';
+  if(precipitate > 0){
+    note += fx(precipitate, 2) + 'gが溶けきれずに析出します。';
+    if(sub.id === 'calcium-hydroxide' && st.rxT1 > st.rxT0){
+      note += '温度を上げたのに結晶が出てきました。これがCa(OH)2の逆行溶解度です(詳しくは05)。';
+    }
+  } else if(headroom > 0){
+    note += '析出は起こらず、まだ' + fx(headroom, 2) + 'g溶かせる余地があります。';
+    if(sub.id === 'calcium-hydroxide' && st.rxT1 < st.rxT0){
+      note += 'Ca(OH)2は冷やすほど溶解度が上がるため、通常の物質と逆の結果になります。';
+    }
+  } else {
+    note += 'ちょうど飽和のままで、析出も追加溶解も起こりません。';
+  }
+  note += (sub.id === 'calcium-hydroxide') ? '' : '　析出する結晶に水は含まれません(無水物のまま析出)。';
+  $('rxNote').textContent = note;
+}
+
+/* ============ 04 水和物の析出(Na2SO4、数値固定) ============ */
+function computeHydrateExample(T0, T1, waterOrSolutionMass, byWater){
+  var sub = SUB_BY_ID['sodium-sulfate'];
+  var sol0 = solAt(sub, T0), sol1 = solAt(sub, T1);
+  var solute0, water0;
+  if(byWater){
+    water0 = waterOrSolutionMass;
+    solute0 = water0 * sol0 / 100;
+  } else {
+    var solutionMass = waterOrSolutionMass;
+    solute0 = sol0 / (100 + sol0) * solutionMass;
+    water0 = solutionMass - solute0;
+  }
+  var Manhy = sub.M, Mdeca = Manhy + 180; /* 10×H2O(=18として計算、review.mdの検算と揃える) */
+  var fracSalt = Manhy / Mdeca, fracWater = 180 / Mdeca;
+  var lhs = solute0 - (sol1 / 100) * water0;
+  var coef = fracSalt - (sol1 / 100) * fracWater;
+  var x = lhs / coef;
+  var remSalt = solute0 - fracSalt * x;
+  var remWater = water0 - fracWater * x;
+  return {sub:sub, sol0:sol0, sol1:sol1, solute0:solute0, water0:water0, Mdeca:Mdeca, x:x, remSalt:remSalt, remWater:remWater};
+}
+function drawHydrate(){
+  var ex = computeHydrateExample(40, 10, 200, false);
+  $('hydrateKV1').innerHTML = kv([
+    ['40℃の溶解度(無水物換算)', fx(ex.sol0, 1) + ' g/水100g'],
+    ['200gの飽和溶液中の無水物換算質量', fx(ex.solute0, 1) + ' g'],
+    ['200gの飽和溶液中の水', fx(ex.water0, 1) + ' g'],
+    ['10℃の溶解度(無水物換算)', fx(ex.sol1, 1) + ' g/水100g'],
+    ['芒硝(式量' + fx(ex.Mdeca, 0) + ')の析出量 x', fx(ex.x, 1) + ' g'],
+    ['残る無水物換算質量', fx(ex.remSalt, 2) + ' g'],
+    ['残る水', fx(ex.remWater, 2) + ' g'],
+    ['検算(残った溶液の濃度)', fx(ex.remSalt / ex.remWater * 100, 2) + ' g/水100g']
+  ]);
+  $('hydrateNote1').innerHTML = '析出する芒硝をxgとすると、無水物換算で(142/322)xg・水として(180/322)xgが結晶側に持ち去られます。' +
+    '残った溶液が10℃で飽和(' + fx(ex.sol1, 1) + ' g/水100g)であることから式を立てて解くと、x ≒ ' + fx(ex.x, 1) +
+    'g。無水物の溶解度だけで単純に「200g中の無水物換算65.6g − 10℃で溶ける量」を引き算すると、この結果と一致しません。';
+
+  var ex2 = computeHydrateExample(70, 40, 200, false);
+  var wouldPrecipitate = ex2.sol1 < ex2.sol0;
+  $('hydrateKV2').innerHTML = kv([
+    ['70℃の溶解度(無水物換算)', fx(ex2.sol0, 1) + ' g/水100g'],
+    ['40℃の溶解度(無水物換算)', fx(ex2.sol1, 1) + ' g/水100g'],
+    ['判定', wouldPrecipitate ? '析出する' : '析出しない(むしろ溶ける余地が増える)']
+  ]);
+  $('hydrateNote2').textContent = '70℃も40℃も32.4℃より高いので、この区間では無水物Na2SO4がそのまま安定な固相です(芒硝にはなりません)。' +
+    '70℃の溶解度(' + fx(ex2.sol0, 1) + ')より40℃の溶解度(' + fx(ex2.sol1, 1) + ')の方が高いため、冷やしても析出は起こらず、' +
+    'むしろ追加でNa2SO4を溶かせる余地が生まれます。32.4℃をまたぐかどうかで、析出するかどうかも、析出物が水和物か無水物かも変わる例です。';
+}
+
+/* ============ 06 出典・確度 ============ */
+function drawSources(){
+  var t = $('srcTable');
+  t.querySelector('thead').innerHTML = '<tr><th>物質</th><th>モル質量</th><th>confidence</th><th>出典メモ</th></tr>';
+  t.querySelector('tbody').innerHTML = SUBSTANCES.map(function(s){
+    return '<tr><td>' + esc(s.f) + ' ' + esc(s.name) + '</td><td>' + fx(s.M, 1) + '</td><td>' +
+      '<span class="tag ' + (s.confidence === 'low' ? 'low' : 'high') + '">' + s.confidence + '</span></td>' +
+      '<td class="tx">' + esc(s.source) + '</td></tr>';
+  }).join('');
+}
+
+/* ============ 配線 ============ */
+function buildUI(){
+  $('curveSub').innerHTML = subChipsHtml(SUBSTANCES, st.curveSub);
+  $('curveSub').addEventListener('click', function(e){
+    var b = e.target.closest('button');
+    if(!b) return;
+    st.curveSub = +b.getAttribute('data-i');
+    syncChipGroup('curveSub', st.curveSub);
+    drawCurve();
+  });
+  $('rxSub').innerHTML = subChipsHtml(RX_IDS.map(function(id){ return SUB_BY_ID[id]; }), st.rxSub);
+  $('rxSub').addEventListener('click', function(e){
+    var b = e.target.closest('button');
+    if(!b) return;
+    st.rxSub = +b.getAttribute('data-i');
+    syncChipGroup('rxSub', st.rxSub);
+    drawRx();
+  });
+
+  $('curveT').value = String(st.curveT);
+  $('curveT').addEventListener('input', function(){ st.curveT = +this.value; curCurve(); curZoom(); });
+
+  $('rxWater').value = String(st.rxWater);
+  $('rxWater').addEventListener('input', function(){ st.rxWater = +this.value; drawRx(); });
+  $('rxT0').value = String(st.rxT0);
+  $('rxT0').addEventListener('input', function(){ st.rxT0 = +this.value; drawRx(); });
+  $('rxT1').value = String(st.rxT1);
+  $('rxT1').addEventListener('input', function(){ st.rxT1 = +this.value; drawRx(); });
+
+  $('curveTv').textContent = fx(st.curveT, 1) + ' ℃';
+  $('rxWaterV').textContent = fx(st.rxWater, 0) + ' g';
+  $('rxT0v').textContent = fx(st.rxT0, 0) + ' ℃';
+  $('rxT1v').textContent = fx(st.rxT1, 0) + ' ℃';
+}
+
+function renderAll(){
+  drawCurve(); drawZoom(); drawRx(); drawHydrate(); drawSources();
+}
+function boot(){
+  NARROW = window.matchMedia('(max-width:430px)').matches;
+  buildUI();
+  renderAll();
+  var tm = null;
+  window.addEventListener('resize', function(){
+    clearTimeout(tm);
+    tm = setTimeout(function(){
+      var nw = window.matchMedia('(max-width:430px)').matches;
+      if(nw !== NARROW){ NARROW = nw; renderAll(); }
+    }, 180);
+  });
+}
+if(typeof document !== 'undefined') boot();
+</script>
+</body>
+</html>
