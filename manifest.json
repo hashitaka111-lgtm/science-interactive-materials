@@ -1232,7 +1232,8 @@
     "type": "procedure",
     "related": [
       "chem-elemental-analysis",
-      "chem-structure-determination"
+      "chem-structure-determination",
+      "chem-hydrocarbon-nomenclature"
     ]
   },
   {
@@ -1288,7 +1289,8 @@
     "confidence": "high",
     "type": "simulator",
     "related": [
-      "chem-peptide-sequencing"
+      "chem-peptide-sequencing",
+      "chem-hydrocarbon-nomenclature"
     ]
   },
   {
@@ -1316,6 +1318,36 @@
     "type": "matrix",
     "related": [
       "chem-crystal-lattice"
+    ]
+  },
+  {
+    "id": "chem-hydrocarbon-nomenclature",
+    "file": "html/hydrocarbon-nomenclature.html",
+    "subject": "chemistry",
+    "unit": "有機化学 / 炭化水素の命名法・製法・性質",
+    "course": "化学",
+    "section": "有機化合物の性質",
+    "order": 29,
+    "title": "炭化水素の命名法・製法・性質",
+    "heading": "炭化水素の命名法・製法・性質",
+    "summary": "アルカン・シクロアルカン・アルケン・アルキンの命名規則を比較し、代表的な製法と反応の違いを確かめる",
+    "topics": [
+      "IUPAC命名法(数詞接頭語・語幹・接尾語)",
+      "4種の炭化水素の比較(分子式・不飽和度・主な反応)",
+      "代表的な製法(メタン・エチレン・アセチレン)",
+      "置換反応と付加反応の違い",
+      "シス-トランス異性体の条件"
+    ],
+    "interactions": [
+      "チップ切り替え",
+      "色分け表示",
+      "構造トグル"
+    ],
+    "confidence": "high",
+    "type": "matrix",
+    "related": [
+      "chem-polymer-degree",
+      "chem-isomers"
     ]
   }
 ]

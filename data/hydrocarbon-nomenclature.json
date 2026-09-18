@@ -1,0 +1,179 @@
+{
+  "meta": {
+    "atomicWeights": { "H": 1.0, "C": 12.0 },
+    "note": "分子量はすべてH=1.0, C=12.0での計算値。指示により確定済みの数値をそのまま採用している。"
+  },
+  "prefixes": [
+    { "n": 1, "prefix": "mono", "alkaneName": "methane", "alkylName": "methyl" },
+    { "n": 2, "prefix": "di", "alkaneName": "ethane", "alkylName": "ethyl" },
+    { "n": 3, "prefix": "tri", "alkaneName": "propane", "alkylName": "propyl" },
+    { "n": 4, "prefix": "tetra", "alkaneName": "butane", "alkylName": "butyl" },
+    { "n": 5, "prefix": "penta", "alkaneName": "pentane", "alkylName": "pentyl" },
+    { "n": 6, "prefix": "hexa", "alkaneName": "hexane", "alkylName": "hexyl" },
+    { "n": 7, "prefix": "hepta", "alkaneName": "heptane", "alkylName": "heptyl" },
+    { "n": 8, "prefix": "octa", "alkaneName": "octane", "alkylName": "octyl" },
+    { "n": 9, "prefix": "nona", "alkaneName": "nonane", "alkylName": "nonyl" },
+    { "n": 10, "prefix": "deca", "alkaneName": "decane", "alkylName": "decyl" }
+  ],
+  "series": [
+    {
+      "id": "alkane",
+      "label": "アルカン",
+      "otherNames": "パラフィン、飽和鎖式炭化水素、メタン系炭化水素",
+      "generalFormula": "CnH2n+2",
+      "unsaturation": 0,
+      "bonding": "単結合のみ",
+      "mainReaction": "置換反応",
+      "structuralFeature": "単結合の周りは自由に回転できる",
+      "structureType": "freeRotation",
+      "suffixRule": "語幹 + -ane",
+      "ringStartsAt": null,
+      "homologs": [
+        { "n": 1, "name": "methane", "formula": "CH4", "mr": 16 },
+        { "n": 2, "name": "ethane", "formula": "C2H6", "mr": 30 },
+        { "n": 3, "name": "propane", "formula": "C3H8", "mr": 44 },
+        { "n": 4, "name": "butane", "formula": "C4H10", "mr": 58 },
+        { "n": 5, "name": "pentane", "formula": "C5H12", "mr": 72 },
+        { "n": 6, "name": "hexane", "formula": "C6H14", "mr": 86 },
+        { "n": 7, "name": "heptane", "formula": "C7H16", "mr": 100 },
+        { "n": 8, "name": "octane", "formula": "C8H18", "mr": 114 },
+        { "n": 9, "name": "nonane", "formula": "C9H20", "mr": 128 },
+        { "n": 10, "name": "decane", "formula": "C10H22", "mr": 142 }
+      ]
+    },
+    {
+      "id": "cycloalkane",
+      "label": "シクロアルカン",
+      "otherNames": "環式飽和炭化水素",
+      "generalFormula": "CnH2n",
+      "unsaturation": 1,
+      "bonding": "単結合のみ(環が1つ)",
+      "mainReaction": "置換反応(アルカンに準ずる)",
+      "structuralFeature": "環は基本的に回転できない",
+      "structureType": "ringFixed",
+      "suffixRule": "cyclo- + 語幹 + -ane",
+      "ringStartsAt": 3,
+      "homologs": [
+        { "n": 3, "name": "cyclopropane", "formula": "C3H6", "mr": 42 },
+        { "n": 4, "name": "cyclobutane", "formula": "C4H8", "mr": 56 },
+        { "n": 5, "name": "cyclopentane", "formula": "C5H10", "mr": 70 },
+        { "n": 6, "name": "cyclohexane", "formula": "C6H12", "mr": 84 },
+        { "n": 7, "name": "cycloheptane", "formula": "C7H14", "mr": 98 },
+        { "n": 8, "name": "cyclooctane", "formula": "C8H16", "mr": 112 },
+        { "n": 9, "name": "cyclononane", "formula": "C9H18", "mr": 126 },
+        { "n": 10, "name": "cyclodecane", "formula": "C10H20", "mr": 140 }
+      ]
+    },
+    {
+      "id": "alkene",
+      "label": "アルケン",
+      "otherNames": "オレフィン、不飽和炭化水素、エチレン系炭化水素",
+      "generalFormula": "CnH2n",
+      "unsaturation": 1,
+      "bonding": "二重結合が1つ",
+      "mainReaction": "付加反応",
+      "structuralFeature": "二重結合の周りは同一平面・回転できない",
+      "structureType": "planarFixed",
+      "suffixRule": "語幹 + -ene",
+      "ringStartsAt": null,
+      "homologs": [
+        { "n": 2, "name": "ethene", "formula": "C2H4", "mr": 28 },
+        { "n": 3, "name": "propene", "formula": "C3H6", "mr": 42 },
+        { "n": 4, "name": "butene", "formula": "C4H8", "mr": 56 },
+        { "n": 5, "name": "pentene", "formula": "C5H10", "mr": 70 },
+        { "n": 6, "name": "hexene", "formula": "C6H12", "mr": 84 },
+        { "n": 7, "name": "heptene", "formula": "C7H14", "mr": 98 },
+        { "n": 8, "name": "octene", "formula": "C8H16", "mr": 112 },
+        { "n": 9, "name": "nonene", "formula": "C9H18", "mr": 126 },
+        { "n": 10, "name": "decene", "formula": "C10H20", "mr": 140 }
+      ]
+    },
+    {
+      "id": "alkyne",
+      "label": "アルキン",
+      "otherNames": "アセチレン系炭化水素",
+      "generalFormula": "CnH2n-2",
+      "unsaturation": 2,
+      "bonding": "三重結合が1つ",
+      "mainReaction": "付加反応",
+      "structuralFeature": "三重結合の周りは直線構造",
+      "structureType": "linearFixed",
+      "suffixRule": "語幹 + -yne",
+      "ringStartsAt": null,
+      "homologs": [
+        { "n": 2, "name": "ethyne", "formula": "C2H2", "mr": 26 },
+        { "n": 3, "name": "propyne", "formula": "C3H4", "mr": 40 },
+        { "n": 4, "name": "butyne", "formula": "C4H6", "mr": 54 },
+        { "n": 5, "name": "pentyne", "formula": "C5H8", "mr": 68 },
+        { "n": 6, "name": "hexyne", "formula": "C6H10", "mr": 82 },
+        { "n": 7, "name": "heptyne", "formula": "C7H12", "mr": 96 },
+        { "n": 8, "name": "octyne", "formula": "C8H14", "mr": 110 },
+        { "n": 9, "name": "nonyne", "formula": "C9H16", "mr": 124 },
+        { "n": 10, "name": "decyne", "formula": "C10H18", "mr": 138 }
+      ]
+    }
+  ],
+  "cisTrans": {
+    "condition": "C=Cの両端の炭素にそれぞれ2つの異なる置換基(X≠YかつZ≠W)が付いているときに生じる",
+    "generalNote": "片方の炭素の置換基がX・Y、もう片方の炭素の置換基がZ・Wのとき、X≠YかつZ≠Wであればシス-トランス異性体が存在する。X=YまたはZ=Wのときは存在しない。",
+    "example": {
+      "compoundName": "2-ブテン",
+      "formula": "C4H8",
+      "cis": {
+        "name": "cis-2-butene",
+        "description": "2つのCH3(メチル基)が二重結合の同じ側にある"
+      },
+      "trans": {
+        "name": "trans-2-butene",
+        "description": "2つのCH3(メチル基)が二重結合の反対側にある"
+      }
+    }
+  },
+  "preparation": [
+    {
+      "id": "methane",
+      "name": "メタン",
+      "method": "酢酸ナトリウムとソーダ石灰(NaOHとCaOの混合物)を混合して加熱する",
+      "equationText": "CH3COONa + NaOH → Na2CO3 + CH4",
+      "condition": "加熱"
+    },
+    {
+      "id": "ethylene",
+      "name": "エチレン",
+      "method": "エタノールを濃硫酸とともに160〜170℃で加熱する(分子内脱水)",
+      "equationText": "C2H5OH → C2H4 + H2O",
+      "condition": "濃硫酸, 160〜170℃"
+    },
+    {
+      "id": "acetylene",
+      "name": "アセチレン",
+      "method": "炭化カルシウム(カルシウムカーバイド)に水を加える",
+      "equationText": "CaC2 + 2H2O → C2H2 + Ca(OH)2",
+      "condition": "常温"
+    }
+  ],
+  "properties": {
+    "alkane": {
+      "polarity": "無極性",
+      "solubility": "水に溶けにくい",
+      "boilingPointTrend": "分子量が大きいほど沸点が高い",
+      "mainReaction": "ハロゲンとの置換反応(光照射下でのラジカル反応)",
+      "exampleEquationText": "CH4 + Cl2 → CH3Cl + HCl"
+    },
+    "cycloalkane": {
+      "note": "単結合のみなのでアルカンに準じた性質を示す(置換反応が中心)"
+    },
+    "alkene": {
+      "mainReaction": "付加反応が中心(H2・X2・HX・H2Oが二重結合に付加する)",
+      "oxidationTest": "KMnO4水溶液を脱色することが酸化反応の検出に使われる",
+      "polymerization": "付加重合でポリマーになる",
+      "polymerLinkNote": "重合度の計算はchem-polymer-degreeで扱った"
+    },
+    "alkyne": {
+      "mainReaction": "付加反応が中心",
+      "hydrogenation": "H2は段階的にアルケンを経てアルカンになる",
+      "hydration": "H2O付加は不安定なエノールを経てアセトアルデヒドが生成する",
+      "structuralFeature": "三重結合の炭素は直線構造"
+    }
+  }
+}

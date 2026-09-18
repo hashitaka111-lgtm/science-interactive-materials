@@ -1,0 +1,451 @@
+<!doctype html>
+<html lang="ja">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>炭化水素の命名法・製法・性質</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500&family=IBM+Plex+Sans+JP:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+*{box-sizing:border-box}
+:root{
+  --ink:#16232B; --muted:#5E6E76; --paper:#EDF1EF; --surface:#FFFFFF;
+  --rule:#D6DDDA; --rule-soft:#E8EDEB;
+  --s0:#B87A16; --s0t:#8A5A0C;
+  --s1:#158A6D; --s1t:#0D6A53;
+  --s2:#2457A6; --s2t:#1B4380;
+  --s3:#6E3AA7; --s3t:#572D85;
+  --sans:"IBM Plex Sans JP","Hiragino Sans","Yu Gothic UI",system-ui,sans-serif;
+  --mono:"IBM Plex Mono",ui-monospace,SFMono-Regular,Menlo,monospace;
+}
+html,body{margin:0;padding:0}
+body{background:var(--paper);color:var(--ink);font-family:var(--sans);font-size:13.5px;line-height:1.75;-webkit-text-size-adjust:100%}
+.mono{font-family:var(--mono);font-variant-numeric:tabular-nums}
+.wrap{max-width:900px;margin:0 auto;padding:20px 14px 60px}
+.card{background:var(--surface);border:1px solid var(--rule);border-radius:3px;padding:14px;margin-bottom:14px}
+.card.text{max-width:900px}
+.eyebrow{display:flex;align-items:center;gap:10px;font-family:var(--mono);font-size:11.5px;letter-spacing:.14em;color:var(--muted);text-transform:uppercase}
+.eyebrow::after{content:"";flex:1;height:1px;background:var(--rule)}
+h1{font-size:22px;font-weight:600;letter-spacing:.01em;margin:8px 0 2px}
+h2{font-size:14.5px;font-weight:600;margin:10px 0 4px}
+p{margin:0 0 8px} p:last-child{margin-bottom:0}
+.lede{color:var(--muted);font-size:13px;margin:4px 0 0}
+.note{color:var(--muted);font-size:12px;line-height:1.7}
+.key{background:rgba(184,122,22,.08);border:1px solid #E0C592;border-radius:3px;padding:8px 10px;font-size:12.5px;line-height:1.7;margin:8px 0}
+
+.btn{font:inherit;font-size:12.5px;line-height:1.4;border:1px solid var(--rule);background:#fff;color:var(--ink);border-radius:2px;padding:6px 10px;cursor:pointer}
+.btn:hover{border-color:#B4C0BC}
+.btn[aria-pressed="true"]{background:var(--ink);color:#fff;border-color:var(--ink)}
+.btn:focus-visible{outline:2px solid var(--ink);outline-offset:1px}
+.btnrow{display:flex;flex-wrap:wrap;gap:6px;margin:8px 0}
+
+/* ---------- 系列の凡例 ---------- */
+.legend-cats{display:flex;flex-wrap:wrap;gap:7px 14px;margin:8px 0 4px}
+.legend-item{display:flex;align-items:center;gap:6px;font-size:11.5px}
+.legend-swatch{width:14px;height:14px;border-radius:2px;flex:none;border-width:2px;border-style:solid}
+
+/* ---------- 表共通 ---------- */
+.scroll{overflow-x:auto;-webkit-overflow-scrolling:touch;padding-bottom:2px}
+table{border-collapse:collapse;width:100%;font-size:12.5px}
+table.compact{min-width:520px}
+th,td{padding:6px 8px;text-align:left;white-space:nowrap;border-bottom:1px solid var(--rule-soft)}
+th{font-family:var(--mono);font-size:10.5px;letter-spacing:.06em;color:var(--muted);font-weight:500}
+td.num,th.num{text-align:right;font-family:var(--mono)}
+td.gap{color:var(--rule);text-align:center;font-family:var(--mono)}
+tr:last-child td{border-bottom:none}
+
+/* ---------- 比較表(色分け列) ---------- */
+.cmptable th.sercol{border-bottom:2px solid transparent;font-family:var(--sans);font-size:12px;font-weight:600;white-space:normal;padding:8px}
+.cmptable td.sercell{white-space:normal;vertical-align:top;font-size:12px;line-height:1.6;border-left:3px solid transparent;padding:8px}
+.cmptable th.rowlab{font-family:var(--mono);font-size:10.5px;color:var(--muted);white-space:normal;width:90px}
+.cmptable .sercol.selected,.cmptable td.sercell.selected{box-shadow:inset 0 0 0 2px var(--ink)}
+.cmptable .miniicon{width:20px;height:14px;display:inline-block;vertical-align:-3px;margin-right:3px}
+
+/* ---------- 同族体表 ---------- */
+.homtable td,.homtable th{white-space:nowrap}
+.homtable tr.rowtint td{background:var(--serbg,transparent)}
+
+/* ---------- 構造アイコン ---------- */
+.structrow{display:flex;align-items:center;gap:14px;margin-top:10px;flex-wrap:wrap}
+.structicon{width:72px;height:48px;flex:none}
+.structicon svg{width:100%;height:100%;display:block}
+.structlabel{font-size:12.5px;line-height:1.6}
+.structlabel .t{font-weight:600}
+
+/* ---------- 製法・性質カード ---------- */
+.tag{display:inline-flex;align-items:center;gap:5px;font-family:var(--mono);font-size:11px;letter-spacing:.08em;border:2px solid var(--rule);border-radius:2px;padding:2px 8px;margin-bottom:8px}
+.eq{font-family:var(--mono);font-size:13px;background:var(--rule-soft);border-radius:3px;padding:8px 10px;margin:6px 0;line-height:1.7;overflow-x:auto}
+.kv{display:grid;grid-template-columns:auto 1fr;gap:3px 10px;margin-top:6px;font-size:12.5px}
+.kv .k{color:var(--muted);white-space:nowrap}
+
+/* ---------- シス・トランス図 ---------- */
+.cistrans{display:flex;gap:14px;flex-wrap:wrap;margin-top:10px}
+.cistrans figure{margin:0;flex:1 1 200px;min-width:180px;text-align:center}
+.cistrans svg{width:100%;height:auto;max-width:220px}
+.cistrans figcaption{font-family:var(--mono);font-size:11px;letter-spacing:.04em;color:var(--muted);margin-top:4px}
+
+@media (prefers-reduced-motion:no-preference){ .btn,.cmptable td.sercell,.cmptable th.sercol{transition:border-color 120ms linear,box-shadow 120ms linear} }
+
+@media (max-width:430px){
+  body{font-size:13px}
+  .wrap{padding:14px 10px 50px}
+  .card{padding:11px}
+  h1{font-size:19px}
+  .btn{padding:6px 8px;font-size:12px}
+  table.compact{min-width:460px}
+}
+</style>
+</head>
+<body>
+<div class="wrap">
+
+<header>
+  <div class="eyebrow">HYDROCARBON NOMENCLATURE</div>
+  <h1>炭化水素の命名法・製法・性質</h1>
+  <p class="lede">アルカン・シクロアルカン・アルケン・アルキンの4種類を、命名のルール・代表的な製法・反応の違いで比較する。チップで系列を切り替えると、同族体の名前の表・製法・性質のカードが連動して変わる。</p>
+</header>
+
+<div class="card text">
+  <div class="eyebrow">WHY SYSTEMATIC</div>
+  <p class="note" style="margin-top:8px">無機化合物は数万種類あるのに対し、有機化合物は炭素原子が4本の手を持ち、単結合・二重結合・三重結合をつくれるために数千万種類にもなる。1つ1つに個別の名前をつけるのは非現実的だが、有機化合物は「構造が似ていれば名前も似た規則で決まる」——炭素数を表す数詞と、結合の種類を表す語尾を組み合わせるだけで、ほとんどの化合物に一意な名前をつけられる。これがIUPAC命名法の基本的な考え方。</p>
+</div>
+
+<div class="card">
+  <div class="eyebrow">PREFIX TABLE</div>
+  <h2>数詞接頭語(炭素数1〜10)</h2>
+  <p class="note">ギリシャ語由来の数詞がそのまま炭素数を表す。ただし1〜4だけは伝統的に短い語形(meth-, eth-, prop-, but-)を使う不規則な例外で、5(penta-)以降は数詞がそのままアルカン名の語幹になる。</p>
+  <div class="scroll">
+    <table class="compact" id="prefixTable"></table>
+  </div>
+</div>
+
+<div class="card">
+  <div class="eyebrow">SERIES</div>
+  <h2>4種類を切り替える</h2>
+  <div class="btnrow" id="seriesChips" role="group" aria-label="炭化水素の系列"></div>
+</div>
+
+<div class="card">
+  <div class="eyebrow">COMPARISON</div>
+  <h2>4種の比較</h2>
+  <p class="note">分子式・不飽和度・結合の種類・主な反応・構造の特徴を並べる。選んだ系列の列が枠で強調される。</p>
+  <div class="scroll">
+    <table class="cmptable compact" id="cmpTable"></table>
+  </div>
+</div>
+
+<div class="card">
+  <div class="eyebrow" id="homEyebrow">NAMES</div>
+  <h2 id="homHeading"></h2>
+  <p class="note" id="homNote"></p>
+  <div class="scroll">
+    <table class="homtable compact" id="homTable"></table>
+  </div>
+  <div class="structrow" id="structRow"></div>
+</div>
+
+<div class="card">
+  <div class="eyebrow">PREPARATION</div>
+  <h2>代表的な製法</h2>
+  <div id="prepHost"></div>
+</div>
+
+<div class="card">
+  <div class="eyebrow">PROPERTIES</div>
+  <h2>性質と反応</h2>
+  <div id="propHost"></div>
+  <hr style="border:none;border-top:1px solid var(--rule-soft);margin:12px 0">
+  <h2>シス-トランス異性体</h2>
+  <p class="note">C=Cの両端の炭素に、それぞれ2つの異なる置換基(X≠YかつZ≠W)が付いているときに生じる。単結合は自由に回転できるため生じず、三重結合の炭素は置換基を1つしか持てないため生じない。</p>
+  <div id="cisTransHost"></div>
+</div>
+
+<div class="card text">
+  <div class="eyebrow">NOTES</div>
+  <p class="note" style="margin-top:8px">反応どうしのつながり(どの反応でどの化合物からどの化合物ができるか)や、47化合物の反応系統図は<span class="mono" style="font-size:11.5px">organic-reaction-map</span>にまとめてある。本教材では命名法・製法・性質の比較に絞った。</p>
+  <p class="note">アルケンの付加重合でできる高分子の重合度と平均分子量の計算は<span class="mono" style="font-size:11.5px">polymer-degree</span>で扱っている。</p>
+  <p class="note">次は酸素を含む化合物(アルコール・エーテル・アルデヒド・ケトン・カルボン酸・エステル)の命名法・製法を扱う予定。</p>
+</div>
+
+</div><!-- /wrap -->
+
+<script>
+/* ---------- データ(JSONをそのまま埋め込み。fetch は使わない) ---------- */
+const DATA = {"meta":{"atomicWeights":{"H":1,"C":12},"note":"分子量はすべてH=1.0, C=12.0での計算値。指示により確定済みの数値をそのまま採用している。"},"prefixes":[{"n":1,"prefix":"mono","alkaneName":"methane","alkylName":"methyl"},{"n":2,"prefix":"di","alkaneName":"ethane","alkylName":"ethyl"},{"n":3,"prefix":"tri","alkaneName":"propane","alkylName":"propyl"},{"n":4,"prefix":"tetra","alkaneName":"butane","alkylName":"butyl"},{"n":5,"prefix":"penta","alkaneName":"pentane","alkylName":"pentyl"},{"n":6,"prefix":"hexa","alkaneName":"hexane","alkylName":"hexyl"},{"n":7,"prefix":"hepta","alkaneName":"heptane","alkylName":"heptyl"},{"n":8,"prefix":"octa","alkaneName":"octane","alkylName":"octyl"},{"n":9,"prefix":"nona","alkaneName":"nonane","alkylName":"nonyl"},{"n":10,"prefix":"deca","alkaneName":"decane","alkylName":"decyl"}],"series":[{"id":"alkane","label":"アルカン","otherNames":"パラフィン、飽和鎖式炭化水素、メタン系炭化水素","generalFormula":"CnH2n+2","unsaturation":0,"bonding":"単結合のみ","mainReaction":"置換反応","structuralFeature":"単結合の周りは自由に回転できる","structureType":"freeRotation","suffixRule":"語幹 + -ane","ringStartsAt":null,"homologs":[{"n":1,"name":"methane","formula":"CH4","mr":16},{"n":2,"name":"ethane","formula":"C2H6","mr":30},{"n":3,"name":"propane","formula":"C3H8","mr":44},{"n":4,"name":"butane","formula":"C4H10","mr":58},{"n":5,"name":"pentane","formula":"C5H12","mr":72},{"n":6,"name":"hexane","formula":"C6H14","mr":86},{"n":7,"name":"heptane","formula":"C7H16","mr":100},{"n":8,"name":"octane","formula":"C8H18","mr":114},{"n":9,"name":"nonane","formula":"C9H20","mr":128},{"n":10,"name":"decane","formula":"C10H22","mr":142}]},{"id":"cycloalkane","label":"シクロアルカン","otherNames":"環式飽和炭化水素","generalFormula":"CnH2n","unsaturation":1,"bonding":"単結合のみ(環が1つ)","mainReaction":"置換反応(アルカンに準ずる)","structuralFeature":"環は基本的に回転できない","structureType":"ringFixed","suffixRule":"cyclo- + 語幹 + -ane","ringStartsAt":3,"homologs":[{"n":3,"name":"cyclopropane","formula":"C3H6","mr":42},{"n":4,"name":"cyclobutane","formula":"C4H8","mr":56},{"n":5,"name":"cyclopentane","formula":"C5H10","mr":70},{"n":6,"name":"cyclohexane","formula":"C6H12","mr":84},{"n":7,"name":"cycloheptane","formula":"C7H14","mr":98},{"n":8,"name":"cyclooctane","formula":"C8H16","mr":112},{"n":9,"name":"cyclononane","formula":"C9H18","mr":126},{"n":10,"name":"cyclodecane","formula":"C10H20","mr":140}]},{"id":"alkene","label":"アルケン","otherNames":"オレフィン、不飽和炭化水素、エチレン系炭化水素","generalFormula":"CnH2n","unsaturation":1,"bonding":"二重結合が1つ","mainReaction":"付加反応","structuralFeature":"二重結合の周りは同一平面・回転できない","structureType":"planarFixed","suffixRule":"語幹 + -ene","ringStartsAt":null,"homologs":[{"n":2,"name":"ethene","formula":"C2H4","mr":28},{"n":3,"name":"propene","formula":"C3H6","mr":42},{"n":4,"name":"butene","formula":"C4H8","mr":56},{"n":5,"name":"pentene","formula":"C5H10","mr":70},{"n":6,"name":"hexene","formula":"C6H12","mr":84},{"n":7,"name":"heptene","formula":"C7H14","mr":98},{"n":8,"name":"octene","formula":"C8H16","mr":112},{"n":9,"name":"nonene","formula":"C9H18","mr":126},{"n":10,"name":"decene","formula":"C10H20","mr":140}]},{"id":"alkyne","label":"アルキン","otherNames":"アセチレン系炭化水素","generalFormula":"CnH2n-2","unsaturation":2,"bonding":"三重結合が1つ","mainReaction":"付加反応","structuralFeature":"三重結合の周りは直線構造","structureType":"linearFixed","suffixRule":"語幹 + -yne","ringStartsAt":null,"homologs":[{"n":2,"name":"ethyne","formula":"C2H2","mr":26},{"n":3,"name":"propyne","formula":"C3H4","mr":40},{"n":4,"name":"butyne","formula":"C4H6","mr":54},{"n":5,"name":"pentyne","formula":"C5H8","mr":68},{"n":6,"name":"hexyne","formula":"C6H10","mr":82},{"n":7,"name":"heptyne","formula":"C7H12","mr":96},{"n":8,"name":"octyne","formula":"C8H14","mr":110},{"n":9,"name":"nonyne","formula":"C9H16","mr":124},{"n":10,"name":"decyne","formula":"C10H18","mr":138}]}],"cisTrans":{"condition":"C=Cの両端の炭素にそれぞれ2つの異なる置換基(X≠YかつZ≠W)が付いているときに生じる","generalNote":"片方の炭素の置換基がX・Y、もう片方の炭素の置換基がZ・Wのとき、X≠YかつZ≠Wであればシス-トランス異性体が存在する。X=YまたはZ=Wのときは存在しない。","example":{"compoundName":"2-ブテン","formula":"C4H8","cis":{"name":"cis-2-butene","description":"2つのCH3(メチル基)が二重結合の同じ側にある"},"trans":{"name":"trans-2-butene","description":"2つのCH3(メチル基)が二重結合の反対側にある"}}},"preparation":[{"id":"methane","name":"メタン","method":"酢酸ナトリウムとソーダ石灰(NaOHとCaOの混合物)を混合して加熱する","equationText":"CH3COONa + NaOH → Na2CO3 + CH4","condition":"加熱"},{"id":"ethylene","name":"エチレン","method":"エタノールを濃硫酸とともに160〜170℃で加熱する(分子内脱水)","equationText":"C2H5OH → C2H4 + H2O","condition":"濃硫酸, 160〜170℃"},{"id":"acetylene","name":"アセチレン","method":"炭化カルシウム(カルシウムカーバイド)に水を加える","equationText":"CaC2 + 2H2O → C2H2 + Ca(OH)2","condition":"常温"}],"properties":{"alkane":{"polarity":"無極性","solubility":"水に溶けにくい","boilingPointTrend":"分子量が大きいほど沸点が高い","mainReaction":"ハロゲンとの置換反応(光照射下でのラジカル反応)","exampleEquationText":"CH4 + Cl2 → CH3Cl + HCl"},"cycloalkane":{"note":"単結合のみなのでアルカンに準じた性質を示す(置換反応が中心)"},"alkene":{"mainReaction":"付加反応が中心(H2・X2・HX・H2Oが二重結合に付加する)","oxidationTest":"KMnO4水溶液を脱色することが酸化反応の検出に使われる","polymerization":"付加重合でポリマーになる","polymerLinkNote":"重合度の計算はchem-polymer-degreeで扱った"},"alkyne":{"mainReaction":"付加反応が中心","hydrogenation":"H2は段階的にアルケンを経てアルカンになる","hydration":"H2O付加は不安定なエノールを経てアセトアルデヒドが生成する","structuralFeature":"三重結合の炭素は直線構造"}}};
+
+/* ---------- 起動時チェック ---------- */
+(function checkData(){
+  const msg=[];
+  if(DATA.prefixes.length!==10) msg.push('prefixes が10件ではない('+DATA.prefixes.length+'件)');
+  if(DATA.series.length!==4) msg.push('series が4件ではない('+DATA.series.length+'件)');
+  const expectCount = {alkane:10, cycloalkane:8, alkene:9, alkyne:9};
+  DATA.series.forEach(s=>{
+    if(s.homologs.length!==expectCount[s.id]) msg.push(s.id+' の homologs が'+expectCount[s.id]+'件ではない('+s.homologs.length+'件)');
+  });
+  if(msg.length) console.warn('[DATA] 不整合\n'+msg.join('\n'));
+  else console.info('[DATA] 全'+DATA.series.length+'系列を読み込んだ');
+})();
+
+const esc = s => String(s).replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+const BY_SID = {};
+DATA.series.forEach(s=>{ BY_SID[s.id]=s; });
+const SERIES_ORDER = DATA.series.map(s=>s.id);
+
+/* ---------- 系列カラー ---------- */
+const SER_COLOR = {
+  alkane:      {bg:'rgba(21,138,109,.10)',  bd:'#158A6D', tx:'#0D6A53'},
+  cycloalkane: {bg:'rgba(184,122,22,.10)',  bd:'#B87A16', tx:'#8A5A0C'},
+  alkene:      {bg:'rgba(36,87,166,.10)',   bd:'#2457A6', tx:'#1B4380'},
+  alkyne:      {bg:'rgba(110,58,167,.10)',  bd:'#6E3AA7', tx:'#572D85'},
+};
+function serColor(id){ return SER_COLOR[id]; }
+
+/* ---------- 状態: 選択中の系列 ---------- */
+const st = { series: 'alkane' };
+
+/* ---------- 構造アイコン(単結合=自由回転、環=固定、二重結合=同一平面、三重結合=直線) ---------- */
+function structureIconSVG(type, hex){
+  if(type==='freeRotation') return '<svg viewBox="0 0 90 56" aria-hidden="true">'+
+    '<line x1="18" y1="34" x2="72" y2="34" stroke="'+hex+'" stroke-width="3" stroke-linecap="round"/>'+
+    '<circle cx="18" cy="34" r="5" fill="'+hex+'"/><circle cx="72" cy="34" r="5" fill="'+hex+'"/>'+
+    '<path d="M45 8 a15 15 0 1 1 -10.6 4.4" fill="none" stroke="'+hex+'" stroke-width="2.4" stroke-linecap="round"/>'+
+    '<path d="M33 9 l1.5 7.2 l6.7 -3.1 z" fill="'+hex+'"/>'+
+    '</svg>';
+  if(type==='ringFixed') return '<svg viewBox="0 0 90 56" aria-hidden="true">'+
+    '<polygon points="38,8 58,16 62,37 42,48 22,40 20,20" fill="none" stroke="'+hex+'" stroke-width="2.4" stroke-linejoin="round"/>'+
+    '<rect x="60" y="34" width="14" height="11" rx="2" fill="none" stroke="'+hex+'" stroke-width="2"/>'+
+    '<path d="M63 34v-4a4 4 0 0 1 8 0v4" fill="none" stroke="'+hex+'" stroke-width="2"/>'+
+    '</svg>';
+  if(type==='planarFixed') return '<svg viewBox="0 0 90 56" aria-hidden="true">'+
+    '<polygon points="6,44 84,44 72,52 18,52" fill="'+hex+'" fill-opacity=".14" stroke="'+hex+'" stroke-width="1.1"/>'+
+    '<line x1="24" y1="27" x2="64" y2="27" stroke="'+hex+'" stroke-width="2.6" stroke-linecap="round"/>'+
+    '<line x1="24" y1="32.5" x2="64" y2="32.5" stroke="'+hex+'" stroke-width="2.6" stroke-linecap="round"/>'+
+    '<circle cx="24" cy="29.7" r="4.5" fill="'+hex+'"/><circle cx="64" cy="29.7" r="4.5" fill="'+hex+'"/>'+
+    '</svg>';
+  if(type==='linearFixed') return '<svg viewBox="0 0 90 56" aria-hidden="true">'+
+    '<line x1="15" y1="24" x2="75" y2="24" stroke="'+hex+'" stroke-width="2.2"/>'+
+    '<line x1="15" y1="30" x2="75" y2="30" stroke="'+hex+'" stroke-width="2.2"/>'+
+    '<line x1="15" y1="36" x2="75" y2="36" stroke="'+hex+'" stroke-width="2.2"/>'+
+    '<circle cx="15" cy="30" r="5" fill="'+hex+'"/><circle cx="75" cy="30" r="5" fill="'+hex+'"/>'+
+    '</svg>';
+  return '';
+}
+const STRUCT_LABEL = {
+  freeRotation: '単結合は自由に回転できる',
+  ringFixed:    '環は基本的に回転できない',
+  planarFixed:  '二重結合の周りは同一平面上に固定され、回転できない',
+  linearFixed:  '三重結合の周りは直線構造に固定される',
+};
+
+/* ---------- PREFIX TABLE ---------- */
+function renderPrefixTable(){
+  let h = '<thead><tr><th class="num">炭素数</th><th>数詞接頭語</th><th>アルカン名</th><th>アルキル基名</th></tr></thead><tbody>';
+  DATA.prefixes.forEach(p=>{
+    h += '<tr><td class="num mono">'+p.n+'</td><td class="mono">'+esc(p.prefix)+'</td><td class="mono">'+esc(p.alkaneName)+'</td><td class="mono">'+esc(p.alkylName)+'-</td></tr>';
+  });
+  h += '</tbody>';
+  document.getElementById('prefixTable').innerHTML = h;
+}
+
+/* ---------- SERIES chips ---------- */
+function renderSeriesChips(){
+  const host = document.getElementById('seriesChips');
+  host.innerHTML = DATA.series.map(s=>{
+    const c = serColor(s.id);
+    const pressed = s.id===st.series;
+    return '<button type="button" class="btn" data-series="'+s.id+'" aria-pressed="'+pressed+'" style="'+(pressed?'':'border-color:'+c.bd+';color:'+c.tx)+'">'+esc(s.label)+'</button>';
+  }).join('');
+  host.addEventListener('click', (e)=>{
+    const b = e.target.closest('button[data-series]');
+    if(!b) return;
+    st.series = b.dataset.series;
+    renderAll();
+  });
+}
+
+/* ---------- COMPARISON table(常時4系列表示、選択列を強調) ---------- */
+function renderComparisonTable(){
+  const rows = [
+    {label:'分子式', get:s=>s.generalFormula, mono:true},
+    {label:'不飽和度', get:s=>String(s.unsaturation), mono:true},
+    {label:'結合の種類', get:s=>s.bonding},
+    {label:'主な反応', get:s=>s.mainReaction},
+    {label:'構造の特徴', get:s=>s.structuralFeature, icon:true},
+  ];
+  let h = '<thead><tr><th class="rowlab"></th>';
+  DATA.series.forEach(s=>{
+    const c = serColor(s.id);
+    h += '<th class="sercol'+(s.id===st.series?' selected':'')+'" data-sercol="'+s.id+'" style="background:'+c.bg+';color:'+c.tx+';border-bottom-color:'+c.bd+'">'+esc(s.label)+'</th>';
+  });
+  h += '</tr></thead><tbody>';
+  rows.forEach(r=>{
+    h += '<tr><th class="rowlab">'+r.label+'</th>';
+    DATA.series.forEach(s=>{
+      const c = serColor(s.id);
+      let val = r.mono ? '<span class="mono">'+esc(r.get(s))+'</span>' : esc(r.get(s));
+      if(r.icon){
+        val = '<span class="miniicon">'+structureIconSVG(s.structureType, c.tx)+'</span>'+val;
+      }
+      h += '<td class="sercell'+(s.id===st.series?' selected':'')+'" data-sercell="'+s.id+'" style="border-left-color:'+c.bd+'">'+val+'</td>';
+    });
+    h += '</tr>';
+  });
+  h += '</tbody>';
+  document.getElementById('cmpTable').innerHTML = h;
+}
+function syncComparisonHighlight(){
+  Array.prototype.forEach.call(document.querySelectorAll('[data-sercol]'), el=>{
+    el.classList.toggle('selected', el.dataset.sercol===st.series);
+  });
+  Array.prototype.forEach.call(document.querySelectorAll('[data-sercell]'), el=>{
+    el.classList.toggle('selected', el.dataset.sercell===st.series);
+  });
+}
+
+/* ---------- 同族体命名表 + 構造アイコン ---------- */
+function renderHomologs(){
+  const s = BY_SID[st.series];
+  const c = serColor(s.id);
+  document.getElementById('homEyebrow').textContent = 'NAMES — ' + s.label.toUpperCase();
+  document.getElementById('homHeading').innerHTML = esc(s.label)+'の同族体 <span class="mono" style="font-size:12px;color:'+c.tx+'">'+esc(s.generalFormula)+'</span>';
+  document.getElementById('homNote').textContent =
+    '命名: '+s.suffixRule+'。'+
+    (s.ringStartsAt ? '環は最小の'+s.ringStartsAt+'員環から名前が始まる(炭素数1・2の環は存在しない)。' : '');
+
+  const byN = {};
+  s.homologs.forEach(h=>{ byN[h.n]=h; });
+  let h = '<thead><tr><th class="num">n(炭素数)</th><th>名前</th><th>分子式</th><th class="num">分子量</th></tr></thead><tbody>';
+  for(let n=1; n<=10; n++){
+    const row = byN[n];
+    h += '<tr class="rowtint" style="--serbg:'+c.bg+'">';
+    h += '<td class="num mono">'+n+'</td>';
+    if(row){
+      h += '<td class="mono" style="color:'+c.tx+'">'+esc(row.name)+'</td>';
+      h += '<td class="mono">'+esc(row.formula)+'</td>';
+      h += '<td class="num mono">'+row.mr+'</td>';
+    } else {
+      h += '<td class="gap">―</td><td class="gap">―</td><td class="gap">―</td>';
+    }
+    h += '</tr>';
+  }
+  h += '</tbody>';
+  document.getElementById('homTable').innerHTML = h;
+
+  document.getElementById('structRow').innerHTML =
+    '<div class="structicon">'+structureIconSVG(s.structureType, c.tx)+'</div>'+
+    '<div class="structlabel"><span class="t" style="color:'+c.tx+'">'+esc(s.label)+'の結合: </span>'+esc(STRUCT_LABEL[s.structureType])+'</div>';
+}
+
+/* ---------- PREPARATION ---------- */
+const PREP_BY_ID = {};
+DATA.preparation.forEach(p=>{ PREP_BY_ID[p.id]=p; });
+const PREP_KEY_FOR_SERIES = { alkane:'methane', alkene:'ethylene', alkyne:'acetylene' };
+function renderPreparation(){
+  const s = BY_SID[st.series];
+  const c = serColor(s.id);
+  const host = document.getElementById('prepHost');
+  const prepId = PREP_KEY_FOR_SERIES[s.id];
+  if(!prepId){
+    host.innerHTML =
+      '<div class="tag" style="border-color:'+c.bd+';color:'+c.tx+'">'+esc(s.label)+'</div>'+
+      '<p class="note">シクロアルカンに指定された代表的な実験室的製法はない。単結合のみの構造であるため、性質(下のPROPERTIESカード)に示すとおりアルカンに準じた置換反応が中心になる。</p>';
+    return;
+  }
+  const p = PREP_BY_ID[prepId];
+  host.innerHTML =
+    '<div class="tag" style="border-color:'+c.bd+';color:'+c.tx+'">'+esc(p.name)+'</div>'+
+    '<p>'+esc(p.method)+'</p>'+
+    '<div class="eq mono">'+esc(p.equationText)+' <span style="color:var(--muted);font-size:11.5px">('+esc(p.condition)+')</span></div>';
+}
+
+/* ---------- PROPERTIES ---------- */
+function renderProperties(){
+  const s = BY_SID[st.series];
+  const c = serColor(s.id);
+  const props = DATA.properties[s.id];
+  const host = document.getElementById('propHost');
+  let h = '<div class="tag" style="border-color:'+c.bd+';color:'+c.tx+'">'+esc(s.label)+'</div>';
+  if(s.id==='alkane'){
+    h += '<div class="kv">'+
+      '<div class="k">極性</div><div>'+esc(props.polarity)+'</div>'+
+      '<div class="k">水への溶けやすさ</div><div>'+esc(props.solubility)+'</div>'+
+      '<div class="k">沸点の傾向</div><div>'+esc(props.boilingPointTrend)+'</div>'+
+      '<div class="k">主な反応</div><div>'+esc(props.mainReaction)+'</div>'+
+      '</div>'+
+      '<div class="eq mono">'+esc(props.exampleEquationText)+'</div>';
+  } else if(s.id==='cycloalkane'){
+    h += '<p>'+esc(props.note)+'。詳しい反応の中身はアルカンのカードを参照。</p>';
+  } else if(s.id==='alkene'){
+    h += '<div class="kv">'+
+      '<div class="k">主な反応</div><div>'+esc(props.mainReaction)+'</div>'+
+      '<div class="k">酸化反応の検出</div><div>'+esc(props.oxidationTest)+'</div>'+
+      '<div class="k">重合</div><div>'+esc(props.polymerization)+'('+esc(props.polymerLinkNote)+')</div>'+
+      '</div>';
+  } else if(s.id==='alkyne'){
+    h += '<div class="kv">'+
+      '<div class="k">主な反応</div><div>'+esc(props.mainReaction)+'</div>'+
+      '<div class="k">水素の付加</div><div>'+esc(props.hydrogenation)+'</div>'+
+      '<div class="k">水の付加</div><div>'+esc(props.hydration)+'</div>'+
+      '<div class="k">構造</div><div>'+esc(props.structuralFeature)+'</div>'+
+      '</div>';
+  }
+  host.innerHTML = h;
+
+  renderCisTrans(s, c);
+}
+
+/* ---------- シス-トランス ---------- */
+function alkeneSVG(topLeft, bottomLeft, topRight, bottomRight, hex){
+  const T = (x,y,txt)=>'<text x="'+x+'" y="'+y+'" text-anchor="middle" font-family="var(--mono)" font-size="15" fill="'+hex+'">'+esc(txt)+'</text>';
+  return '<svg viewBox="0 0 200 120" aria-hidden="true">'+
+    '<line x1="80" y1="60" x2="120" y2="60" stroke="'+hex+'" stroke-width="2.6"/>'+
+    '<line x1="80" y1="66" x2="120" y2="66" stroke="'+hex+'" stroke-width="2.6"/>'+
+    '<line x1="80" y1="60" x2="45" y2="30" stroke="'+hex+'" stroke-width="1.8"/>'+
+    '<line x1="80" y1="66" x2="45" y2="96" stroke="'+hex+'" stroke-width="1.8"/>'+
+    '<line x1="120" y1="60" x2="155" y2="30" stroke="'+hex+'" stroke-width="1.8"/>'+
+    '<line x1="120" y1="66" x2="155" y2="96" stroke="'+hex+'" stroke-width="1.8"/>'+
+    T(35,26,topLeft)+T(35,106,bottomLeft)+T(165,26,topRight)+T(165,106,bottomRight)+
+    '</svg>';
+}
+function renderCisTrans(s, c){
+  const host = document.getElementById('cisTransHost');
+  if(s.id!=='alkene'){
+    const notes = {
+      alkane: '単結合は自由に回転できるため、置換基の位置が固定されずシス・トランスの区別は生じない。',
+      cycloalkane: '環の置換基によるシス・トランス異性体は存在しうるが、本教材の範囲外(扱わない)。',
+      alkyne: '三重結合の炭素(sp混成)はそれぞれ置換基を1つしか持てないため、シス・トランスは生じない。',
+    };
+    host.innerHTML = '<p class="note">'+esc(notes[s.id] || '')+'</p>';
+    return;
+  }
+  const ex = DATA.cisTrans.example;
+  host.innerHTML =
+    '<p>具体例: '+esc(ex.compoundName)+'('+esc(ex.formula)+')</p>'+
+    '<div class="cistrans">'+
+      '<figure>'+alkeneSVG('H3C','H','CH3','H', c.tx)+'<figcaption>'+esc(ex.cis.name)+' — '+esc(ex.cis.description)+'</figcaption></figure>'+
+      '<figure>'+alkeneSVG('H3C','H','H','CH3', c.tx)+'<figcaption>'+esc(ex.trans.name)+' — '+esc(ex.trans.description)+'</figcaption></figure>'+
+    '</div>';
+}
+
+/* ---------- 初期化 ---------- */
+function renderAll(){
+  Array.prototype.forEach.call(document.querySelectorAll('#seriesChips button'), b=>{
+    const pressed = b.dataset.series===st.series;
+    b.setAttribute('aria-pressed', pressed);
+    const c = serColor(b.dataset.series);
+    b.style.cssText = pressed ? '' : 'border-color:'+c.bd+';color:'+c.tx;
+  });
+  syncComparisonHighlight();
+  renderHomologs();
+  renderPreparation();
+  renderProperties();
+}
+
+renderPrefixTable();
+renderSeriesChips();
+renderComparisonTable();
+renderAll();
+</script>
+</body>
+</html>
