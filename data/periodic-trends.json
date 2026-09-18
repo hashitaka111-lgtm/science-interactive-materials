@@ -7,160 +7,980 @@
     "sources": {
       "cordero2008": "Cordero, B.; Gómez, V.; Platero-Prats, A. E.; Revés, M.; Echeverría, J.; Cremades, E.; Barragán, F.; Alvarez, S. 'Covalent radii revisited.' Dalton Trans. 2008, 37, 2832–2838. doi:10.1039/B801115J",
       "nist_crc_ie": "NIST Atomic Spectra Database / CRC Handbook of Chemistry and Physics(2004)系統のガス相分光データ。Wikipedia『Ionization energies of the elements (data page)』の集約値を介して参照",
-      "allred1961": "Allred, A. L. 'Electronegativity values from thermochemical data.' J. Inorg. Nucl. Chem. 1961, 17, 215–221.(改訂ポーリングスケール)。フッ素・クリプトンの値はCRC Handbook of Chemistry and Physicsの記載値を併用"
-    }
+      "pauling1932": "Pauling, L. (1932) J. Am. Chem. Soc. 54, 3570-3582で提案された旧来の電気陰性度スケール(教科書版、小数第1位)。日本の高校化学・大学受験の資料集で広く採用されている数値セットで、H=2.1, C=2.5, N=3.0, O=3.5, F=4.0, Cl=3.0, Br=2.8などが該当する。"
+    },
+    "electronegativitySourceChange": "第1段階ではAllred(1961)の改訂ポーリングスケール(小数第2位)を採用していたが、第2段階でPauling(1932)の旧来の教科書値(小数第1位)に差し替えた。日本の高校化学・医学部受験の資料集で広く使われているのはこちらであり、添付の手書きノートの数値(H=2.1, C=2.5, N=3.0, O=3.5, F=4.0など)とも完全に一致するため。"
   },
   "preciseElements": [
-    { "symbol": "H", "name": "水素", "atomicNumber": 1, "period": 1, "group": 1, "category": "非金属", "stateAt25C": "気体", "valenceElectrons": 1, "outermostShellElectrons": 1, "oxidationStates": "+1(金属水素化物中では-1にもなる)", "flameTestColor": null,
-      "atomicRadius": { "pm": 31, "confidence": "high", "source": "cordero2008" },
-      "firstIonizationEnergy": { "kJmol": 1312.0, "confidence": "high", "source": "nist_crc_ie" },
-      "electronegativity": { "value": 2.20, "confidence": "high", "source": "allred1961" } },
-    { "symbol": "He", "name": "ヘリウム", "atomicNumber": 2, "period": 1, "group": 18, "category": "貴ガス", "stateAt25C": "気体", "valenceElectrons": 0, "outermostShellElectrons": 2, "oxidationStates": "0(化合物をつくらない)", "flameTestColor": null,
-      "atomicRadius": { "pm": 28, "confidence": "medium", "source": "cordero2008" },
-      "firstIonizationEnergy": { "kJmol": 2372.3, "confidence": "high", "source": "nist_crc_ie" },
-      "electronegativity": { "value": null, "confidence": null, "source": null } },
-
-    { "symbol": "Li", "name": "リチウム", "atomicNumber": 3, "period": 2, "group": 1, "category": "アルカリ金属", "stateAt25C": "固体", "valenceElectrons": 1, "outermostShellElectrons": 1, "oxidationStates": "+1", "flameTestColor": "赤",
-      "atomicRadius": { "pm": 128, "confidence": "high", "source": "cordero2008" },
-      "firstIonizationEnergy": { "kJmol": 520.2, "confidence": "high", "source": "nist_crc_ie" },
-      "electronegativity": { "value": 0.98, "confidence": "high", "source": "allred1961" } },
-    { "symbol": "Be", "name": "ベリリウム", "atomicNumber": 4, "period": 2, "group": 2, "category": "典型金属", "stateAt25C": "固体", "valenceElectrons": 2, "outermostShellElectrons": 2, "oxidationStates": "+2", "flameTestColor": null,
-      "atomicRadius": { "pm": 96, "confidence": "high", "source": "cordero2008" },
-      "firstIonizationEnergy": { "kJmol": 899.5, "confidence": "high", "source": "nist_crc_ie" },
-      "electronegativity": { "value": 1.57, "confidence": "high", "source": "allred1961" } },
-    { "symbol": "B", "name": "ホウ素", "atomicNumber": 5, "period": 2, "group": 13, "category": "半金属", "stateAt25C": "固体", "valenceElectrons": 3, "outermostShellElectrons": 3, "oxidationStates": "+3", "flameTestColor": null,
-      "atomicRadius": { "pm": 84, "confidence": "high", "source": "cordero2008" },
-      "firstIonizationEnergy": { "kJmol": 800.6, "confidence": "high", "source": "nist_crc_ie" },
-      "electronegativity": { "value": 2.04, "confidence": "high", "source": "allred1961" } },
-    { "symbol": "C", "name": "炭素", "atomicNumber": 6, "period": 2, "group": 14, "category": "非金属", "stateAt25C": "固体", "valenceElectrons": 4, "outermostShellElectrons": 4, "oxidationStates": "-4〜+4", "flameTestColor": null,
-      "atomicRadius": { "pm": 76, "confidence": "high", "source": "cordero2008", "note": "sp3混成の値。sp2=73pm, sp=69pmも同論文に記載" },
-      "firstIonizationEnergy": { "kJmol": 1086.5, "confidence": "high", "source": "nist_crc_ie" },
-      "electronegativity": { "value": 2.55, "confidence": "high", "source": "allred1961" } },
-    { "symbol": "N", "name": "窒素", "atomicNumber": 7, "period": 2, "group": 15, "category": "非金属", "stateAt25C": "気体", "valenceElectrons": 5, "outermostShellElectrons": 5, "oxidationStates": "-3〜+5", "flameTestColor": null,
-      "atomicRadius": { "pm": 71, "confidence": "high", "source": "cordero2008" },
-      "firstIonizationEnergy": { "kJmol": 1402.3, "confidence": "high", "source": "nist_crc_ie" },
-      "electronegativity": { "value": 3.04, "confidence": "high", "source": "allred1961" } },
-    { "symbol": "O", "name": "酸素", "atomicNumber": 8, "period": 2, "group": 16, "category": "非金属", "stateAt25C": "気体", "valenceElectrons": 6, "outermostShellElectrons": 6, "oxidationStates": "-2(過酸化物では-1になる例外あり)", "flameTestColor": null,
-      "atomicRadius": { "pm": 66, "confidence": "high", "source": "cordero2008" },
-      "firstIonizationEnergy": { "kJmol": 1313.9, "confidence": "high", "source": "nist_crc_ie" },
-      "electronegativity": { "value": 3.44, "confidence": "high", "source": "allred1961" } },
-    { "symbol": "F", "name": "フッ素", "atomicNumber": 9, "period": 2, "group": 17, "category": "ハロゲン", "stateAt25C": "気体", "valenceElectrons": 7, "outermostShellElectrons": 7, "oxidationStates": "-1のみ", "flameTestColor": null,
-      "atomicRadius": { "pm": 57, "confidence": "high", "source": "cordero2008" },
-      "firstIonizationEnergy": { "kJmol": 1681.0, "confidence": "high", "source": "nist_crc_ie" },
-      "electronegativity": { "value": 3.98, "confidence": "high", "source": "allred1961" } },
-    { "symbol": "Ne", "name": "ネオン", "atomicNumber": 10, "period": 2, "group": 18, "category": "貴ガス", "stateAt25C": "気体", "valenceElectrons": 0, "outermostShellElectrons": 8, "oxidationStates": "0(化合物をつくらない)", "flameTestColor": null,
-      "atomicRadius": { "pm": 58, "confidence": "medium", "source": "cordero2008" },
-      "firstIonizationEnergy": { "kJmol": 2080.7, "confidence": "high", "source": "nist_crc_ie" },
-      "electronegativity": { "value": null, "confidence": null, "source": null } },
-
-    { "symbol": "Na", "name": "ナトリウム", "atomicNumber": 11, "period": 3, "group": 1, "category": "アルカリ金属", "stateAt25C": "固体", "valenceElectrons": 1, "outermostShellElectrons": 1, "oxidationStates": "+1", "flameTestColor": "黄",
-      "atomicRadius": { "pm": 166, "confidence": "high", "source": "cordero2008" },
-      "firstIonizationEnergy": { "kJmol": 495.8, "confidence": "high", "source": "nist_crc_ie" },
-      "electronegativity": { "value": 0.93, "confidence": "high", "source": "allred1961" } },
-    { "symbol": "Mg", "name": "マグネシウム", "atomicNumber": 12, "period": 3, "group": 2, "category": "典型金属", "stateAt25C": "固体", "valenceElectrons": 2, "outermostShellElectrons": 2, "oxidationStates": "+2", "flameTestColor": null,
-      "atomicRadius": { "pm": 141, "confidence": "high", "source": "cordero2008" },
-      "firstIonizationEnergy": { "kJmol": 737.7, "confidence": "high", "source": "nist_crc_ie" },
-      "electronegativity": { "value": 1.31, "confidence": "high", "source": "allred1961" } },
-    { "symbol": "Al", "name": "アルミニウム", "atomicNumber": 13, "period": 3, "group": 13, "category": "典型金属", "stateAt25C": "固体", "valenceElectrons": 3, "outermostShellElectrons": 3, "oxidationStates": "+3", "flameTestColor": null,
-      "atomicRadius": { "pm": 121, "confidence": "high", "source": "cordero2008" },
-      "firstIonizationEnergy": { "kJmol": 577.5, "confidence": "high", "source": "nist_crc_ie" },
-      "electronegativity": { "value": 1.61, "confidence": "high", "source": "allred1961" } },
-    { "symbol": "Si", "name": "ケイ素", "atomicNumber": 14, "period": 3, "group": 14, "category": "半金属", "stateAt25C": "固体", "valenceElectrons": 4, "outermostShellElectrons": 4, "oxidationStates": "-4〜+4", "flameTestColor": null,
-      "atomicRadius": { "pm": 111, "confidence": "high", "source": "cordero2008" },
-      "firstIonizationEnergy": { "kJmol": 786.5, "confidence": "high", "source": "nist_crc_ie" },
-      "electronegativity": { "value": 1.90, "confidence": "high", "source": "allred1961" } },
-    { "symbol": "P", "name": "リン", "atomicNumber": 15, "period": 3, "group": 15, "category": "非金属", "stateAt25C": "固体", "valenceElectrons": 5, "outermostShellElectrons": 5, "oxidationStates": "-3〜+5", "flameTestColor": null,
-      "atomicRadius": { "pm": 107, "confidence": "high", "source": "cordero2008" },
-      "firstIonizationEnergy": { "kJmol": 1011.8, "confidence": "high", "source": "nist_crc_ie" },
-      "electronegativity": { "value": 2.19, "confidence": "high", "source": "allred1961" } },
-    { "symbol": "S", "name": "硫黄", "atomicNumber": 16, "period": 3, "group": 16, "category": "非金属", "stateAt25C": "固体", "valenceElectrons": 6, "outermostShellElectrons": 6, "oxidationStates": "-2〜+6", "flameTestColor": null,
-      "atomicRadius": { "pm": 105, "confidence": "high", "source": "cordero2008" },
-      "firstIonizationEnergy": { "kJmol": 999.6, "confidence": "high", "source": "nist_crc_ie" },
-      "electronegativity": { "value": 2.58, "confidence": "high", "source": "allred1961" } },
-    { "symbol": "Cl", "name": "塩素", "atomicNumber": 17, "period": 3, "group": 17, "category": "ハロゲン", "stateAt25C": "気体", "valenceElectrons": 7, "outermostShellElectrons": 7, "oxidationStates": "-1〜+7", "flameTestColor": null,
-      "atomicRadius": { "pm": 102, "confidence": "high", "source": "cordero2008" },
-      "firstIonizationEnergy": { "kJmol": 1251.2, "confidence": "high", "source": "nist_crc_ie" },
-      "electronegativity": { "value": 3.16, "confidence": "high", "source": "allred1961" } },
-    { "symbol": "Ar", "name": "アルゴン", "atomicNumber": 18, "period": 3, "group": 18, "category": "貴ガス", "stateAt25C": "気体", "valenceElectrons": 0, "outermostShellElectrons": 8, "oxidationStates": "0(化合物をつくらない)", "flameTestColor": null,
-      "atomicRadius": { "pm": 106, "confidence": "medium", "source": "cordero2008" },
-      "firstIonizationEnergy": { "kJmol": 1520.6, "confidence": "high", "source": "nist_crc_ie" },
-      "electronegativity": { "value": null, "confidence": null, "source": null } },
-
-    { "symbol": "K", "name": "カリウム", "atomicNumber": 19, "period": 4, "group": 1, "category": "アルカリ金属", "stateAt25C": "固体", "valenceElectrons": 1, "outermostShellElectrons": 1, "oxidationStates": "+1", "flameTestColor": "紫(赤紫)",
-      "atomicRadius": { "pm": 203, "confidence": "high", "source": "cordero2008" },
-      "firstIonizationEnergy": { "kJmol": 418.8, "confidence": "high", "source": "nist_crc_ie" },
-      "electronegativity": { "value": 0.82, "confidence": "high", "source": "allred1961" } },
-    { "symbol": "Ca", "name": "カルシウム", "atomicNumber": 20, "period": 4, "group": 2, "category": "アルカリ土類金属", "stateAt25C": "固体", "valenceElectrons": 2, "outermostShellElectrons": 2, "oxidationStates": "+2", "flameTestColor": "橙赤",
-      "atomicRadius": { "pm": 176, "confidence": "high", "source": "cordero2008" },
-      "firstIonizationEnergy": { "kJmol": 589.8, "confidence": "high", "source": "nist_crc_ie" },
-      "electronegativity": { "value": 1.00, "confidence": "high", "source": "allred1961" } },
-    { "symbol": "Ga", "name": "ガリウム", "atomicNumber": 31, "period": 4, "group": 13, "category": "典型金属", "stateAt25C": "固体", "valenceElectrons": 3, "outermostShellElectrons": 3, "oxidationStates": "+3(+1も存在するが高校化学では扱わない)", "flameTestColor": null,
-      "atomicRadius": { "pm": 122, "confidence": "high", "source": "cordero2008" },
-      "firstIonizationEnergy": { "kJmol": 578.8, "confidence": "high", "source": "nist_crc_ie" },
-      "electronegativity": { "value": 1.81, "confidence": "high", "source": "allred1961" },
-      "note": "融点29.76℃。常温(25℃)ではぎりぎり固体だが、手のひらの体温(約36〜37℃)で融ける有名な性質を持つ" },
-    { "symbol": "Ge", "name": "ゲルマニウム", "atomicNumber": 32, "period": 4, "group": 14, "category": "半金属", "stateAt25C": "固体", "valenceElectrons": 4, "outermostShellElectrons": 4, "oxidationStates": "-4〜+4", "flameTestColor": null,
-      "atomicRadius": { "pm": 120, "confidence": "high", "source": "cordero2008" },
-      "firstIonizationEnergy": { "kJmol": 762.0, "confidence": "high", "source": "nist_crc_ie" },
-      "electronegativity": { "value": 2.01, "confidence": "high", "source": "allred1961" } },
-    { "symbol": "As", "name": "ヒ素", "atomicNumber": 33, "period": 4, "group": 15, "category": "半金属", "stateAt25C": "固体", "valenceElectrons": 5, "outermostShellElectrons": 5, "oxidationStates": "-3〜+5", "flameTestColor": null,
-      "atomicRadius": { "pm": 119, "confidence": "high", "source": "cordero2008" },
-      "firstIonizationEnergy": { "kJmol": 947.0, "confidence": "high", "source": "nist_crc_ie" },
-      "electronegativity": { "value": 2.18, "confidence": "high", "source": "allred1961" } },
-    { "symbol": "Se", "name": "セレン", "atomicNumber": 34, "period": 4, "group": 16, "category": "非金属", "stateAt25C": "固体", "valenceElectrons": 6, "outermostShellElectrons": 6, "oxidationStates": "-2〜+6", "flameTestColor": null,
-      "atomicRadius": { "pm": 120, "confidence": "high", "source": "cordero2008" },
-      "firstIonizationEnergy": { "kJmol": 941.0, "confidence": "high", "source": "nist_crc_ie" },
-      "electronegativity": { "value": 2.55, "confidence": "high", "source": "allred1961" } },
-    { "symbol": "Br", "name": "臭素", "atomicNumber": 35, "period": 4, "group": 17, "category": "ハロゲン", "stateAt25C": "液体", "valenceElectrons": 7, "outermostShellElectrons": 7, "oxidationStates": "-1〜+7", "flameTestColor": null,
-      "atomicRadius": { "pm": 120, "confidence": "high", "source": "cordero2008" },
-      "firstIonizationEnergy": { "kJmol": 1139.9, "confidence": "high", "source": "nist_crc_ie" },
-      "electronegativity": { "value": 2.96, "confidence": "high", "source": "allred1961" } },
-    { "symbol": "Kr", "name": "クリプトン", "atomicNumber": 36, "period": 4, "group": 18, "category": "貴ガス", "stateAt25C": "気体", "valenceElectrons": 0, "outermostShellElectrons": 8, "oxidationStates": "0(基本的に化合物をつくらないが、KrF2など例外的な化合物が知られる)", "flameTestColor": null,
-      "atomicRadius": { "pm": 116, "confidence": "medium", "source": "cordero2008" },
-      "firstIonizationEnergy": { "kJmol": 1350.8, "confidence": "high", "source": "nist_crc_ie" },
-      "electronegativity": { "value": null, "confidence": null, "source": null, "note": "CRC Handbookなど一部文献はKrF2等を根拠に3.00という推定値を与えるが、高校化学の慣例に合わせてnullとした" } }
+    {
+      "symbol": "H",
+      "name": "水素",
+      "atomicNumber": 1,
+      "period": 1,
+      "group": 1,
+      "category": "非金属",
+      "stateAt25C": "気体",
+      "valenceElectrons": 1,
+      "outermostShellElectrons": 1,
+      "oxidationStates": "+1(金属水素化物中では-1にもなる)",
+      "flameTestColor": null,
+      "atomicRadius": {
+        "pm": 31,
+        "confidence": "high",
+        "source": "cordero2008"
+      },
+      "firstIonizationEnergy": {
+        "kJmol": 1312.0,
+        "confidence": "high",
+        "source": "nist_crc_ie"
+      },
+      "electronegativity": {
+        "value": 2.1,
+        "confidence": "high",
+        "source": "pauling1932"
+      }
+    },
+    {
+      "symbol": "He",
+      "name": "ヘリウム",
+      "atomicNumber": 2,
+      "period": 1,
+      "group": 18,
+      "category": "貴ガス",
+      "stateAt25C": "気体",
+      "valenceElectrons": 0,
+      "outermostShellElectrons": 2,
+      "oxidationStates": "0(化合物をつくらない)",
+      "flameTestColor": null,
+      "atomicRadius": {
+        "pm": 28,
+        "confidence": "medium",
+        "source": "cordero2008"
+      },
+      "firstIonizationEnergy": {
+        "kJmol": 2372.3,
+        "confidence": "high",
+        "source": "nist_crc_ie"
+      },
+      "electronegativity": {
+        "value": null,
+        "confidence": null,
+        "source": null
+      }
+    },
+    {
+      "symbol": "Li",
+      "name": "リチウム",
+      "atomicNumber": 3,
+      "period": 2,
+      "group": 1,
+      "category": "アルカリ金属",
+      "stateAt25C": "固体",
+      "valenceElectrons": 1,
+      "outermostShellElectrons": 1,
+      "oxidationStates": "+1",
+      "flameTestColor": "赤",
+      "atomicRadius": {
+        "pm": 128,
+        "confidence": "high",
+        "source": "cordero2008"
+      },
+      "firstIonizationEnergy": {
+        "kJmol": 520.2,
+        "confidence": "high",
+        "source": "nist_crc_ie"
+      },
+      "electronegativity": {
+        "value": 1.0,
+        "confidence": "high",
+        "source": "pauling1932"
+      }
+    },
+    {
+      "symbol": "Be",
+      "name": "ベリリウム",
+      "atomicNumber": 4,
+      "period": 2,
+      "group": 2,
+      "category": "典型金属",
+      "stateAt25C": "固体",
+      "valenceElectrons": 2,
+      "outermostShellElectrons": 2,
+      "oxidationStates": "+2",
+      "flameTestColor": null,
+      "atomicRadius": {
+        "pm": 96,
+        "confidence": "high",
+        "source": "cordero2008"
+      },
+      "firstIonizationEnergy": {
+        "kJmol": 899.5,
+        "confidence": "high",
+        "source": "nist_crc_ie"
+      },
+      "electronegativity": {
+        "value": 1.5,
+        "confidence": "high",
+        "source": "pauling1932"
+      }
+    },
+    {
+      "symbol": "B",
+      "name": "ホウ素",
+      "atomicNumber": 5,
+      "period": 2,
+      "group": 13,
+      "category": "半金属",
+      "stateAt25C": "固体",
+      "valenceElectrons": 3,
+      "outermostShellElectrons": 3,
+      "oxidationStates": "+3",
+      "flameTestColor": null,
+      "atomicRadius": {
+        "pm": 84,
+        "confidence": "high",
+        "source": "cordero2008"
+      },
+      "firstIonizationEnergy": {
+        "kJmol": 800.6,
+        "confidence": "high",
+        "source": "nist_crc_ie"
+      },
+      "electronegativity": {
+        "value": 2.0,
+        "confidence": "high",
+        "source": "pauling1932"
+      }
+    },
+    {
+      "symbol": "C",
+      "name": "炭素",
+      "atomicNumber": 6,
+      "period": 2,
+      "group": 14,
+      "category": "非金属",
+      "stateAt25C": "固体",
+      "valenceElectrons": 4,
+      "outermostShellElectrons": 4,
+      "oxidationStates": "-4〜+4",
+      "flameTestColor": null,
+      "atomicRadius": {
+        "pm": 76,
+        "confidence": "high",
+        "source": "cordero2008",
+        "note": "sp3混成の値。sp2=73pm, sp=69pmも同論文に記載"
+      },
+      "firstIonizationEnergy": {
+        "kJmol": 1086.5,
+        "confidence": "high",
+        "source": "nist_crc_ie"
+      },
+      "electronegativity": {
+        "value": 2.5,
+        "confidence": "high",
+        "source": "pauling1932"
+      }
+    },
+    {
+      "symbol": "N",
+      "name": "窒素",
+      "atomicNumber": 7,
+      "period": 2,
+      "group": 15,
+      "category": "非金属",
+      "stateAt25C": "気体",
+      "valenceElectrons": 5,
+      "outermostShellElectrons": 5,
+      "oxidationStates": "-3〜+5",
+      "flameTestColor": null,
+      "atomicRadius": {
+        "pm": 71,
+        "confidence": "high",
+        "source": "cordero2008"
+      },
+      "firstIonizationEnergy": {
+        "kJmol": 1402.3,
+        "confidence": "high",
+        "source": "nist_crc_ie"
+      },
+      "electronegativity": {
+        "value": 3.0,
+        "confidence": "high",
+        "source": "pauling1932"
+      }
+    },
+    {
+      "symbol": "O",
+      "name": "酸素",
+      "atomicNumber": 8,
+      "period": 2,
+      "group": 16,
+      "category": "非金属",
+      "stateAt25C": "気体",
+      "valenceElectrons": 6,
+      "outermostShellElectrons": 6,
+      "oxidationStates": "-2(過酸化物では-1になる例外あり)",
+      "flameTestColor": null,
+      "atomicRadius": {
+        "pm": 66,
+        "confidence": "high",
+        "source": "cordero2008"
+      },
+      "firstIonizationEnergy": {
+        "kJmol": 1313.9,
+        "confidence": "high",
+        "source": "nist_crc_ie"
+      },
+      "electronegativity": {
+        "value": 3.5,
+        "confidence": "high",
+        "source": "pauling1932"
+      }
+    },
+    {
+      "symbol": "F",
+      "name": "フッ素",
+      "atomicNumber": 9,
+      "period": 2,
+      "group": 17,
+      "category": "ハロゲン",
+      "stateAt25C": "気体",
+      "valenceElectrons": 7,
+      "outermostShellElectrons": 7,
+      "oxidationStates": "-1のみ",
+      "flameTestColor": null,
+      "atomicRadius": {
+        "pm": 57,
+        "confidence": "high",
+        "source": "cordero2008"
+      },
+      "firstIonizationEnergy": {
+        "kJmol": 1681.0,
+        "confidence": "high",
+        "source": "nist_crc_ie"
+      },
+      "electronegativity": {
+        "value": 4.0,
+        "confidence": "high",
+        "source": "pauling1932"
+      }
+    },
+    {
+      "symbol": "Ne",
+      "name": "ネオン",
+      "atomicNumber": 10,
+      "period": 2,
+      "group": 18,
+      "category": "貴ガス",
+      "stateAt25C": "気体",
+      "valenceElectrons": 0,
+      "outermostShellElectrons": 8,
+      "oxidationStates": "0(化合物をつくらない)",
+      "flameTestColor": null,
+      "atomicRadius": {
+        "pm": 58,
+        "confidence": "medium",
+        "source": "cordero2008"
+      },
+      "firstIonizationEnergy": {
+        "kJmol": 2080.7,
+        "confidence": "high",
+        "source": "nist_crc_ie"
+      },
+      "electronegativity": {
+        "value": null,
+        "confidence": null,
+        "source": null
+      }
+    },
+    {
+      "symbol": "Na",
+      "name": "ナトリウム",
+      "atomicNumber": 11,
+      "period": 3,
+      "group": 1,
+      "category": "アルカリ金属",
+      "stateAt25C": "固体",
+      "valenceElectrons": 1,
+      "outermostShellElectrons": 1,
+      "oxidationStates": "+1",
+      "flameTestColor": "黄",
+      "atomicRadius": {
+        "pm": 166,
+        "confidence": "high",
+        "source": "cordero2008"
+      },
+      "firstIonizationEnergy": {
+        "kJmol": 495.8,
+        "confidence": "high",
+        "source": "nist_crc_ie"
+      },
+      "electronegativity": {
+        "value": 0.9,
+        "confidence": "high",
+        "source": "pauling1932"
+      }
+    },
+    {
+      "symbol": "Mg",
+      "name": "マグネシウム",
+      "atomicNumber": 12,
+      "period": 3,
+      "group": 2,
+      "category": "典型金属",
+      "stateAt25C": "固体",
+      "valenceElectrons": 2,
+      "outermostShellElectrons": 2,
+      "oxidationStates": "+2",
+      "flameTestColor": null,
+      "atomicRadius": {
+        "pm": 141,
+        "confidence": "high",
+        "source": "cordero2008"
+      },
+      "firstIonizationEnergy": {
+        "kJmol": 737.7,
+        "confidence": "high",
+        "source": "nist_crc_ie"
+      },
+      "electronegativity": {
+        "value": 1.2,
+        "confidence": "high",
+        "source": "pauling1932"
+      }
+    },
+    {
+      "symbol": "Al",
+      "name": "アルミニウム",
+      "atomicNumber": 13,
+      "period": 3,
+      "group": 13,
+      "category": "典型金属",
+      "stateAt25C": "固体",
+      "valenceElectrons": 3,
+      "outermostShellElectrons": 3,
+      "oxidationStates": "+3",
+      "flameTestColor": null,
+      "atomicRadius": {
+        "pm": 121,
+        "confidence": "high",
+        "source": "cordero2008"
+      },
+      "firstIonizationEnergy": {
+        "kJmol": 577.5,
+        "confidence": "high",
+        "source": "nist_crc_ie"
+      },
+      "electronegativity": {
+        "value": 1.5,
+        "confidence": "high",
+        "source": "pauling1932"
+      }
+    },
+    {
+      "symbol": "Si",
+      "name": "ケイ素",
+      "atomicNumber": 14,
+      "period": 3,
+      "group": 14,
+      "category": "半金属",
+      "stateAt25C": "固体",
+      "valenceElectrons": 4,
+      "outermostShellElectrons": 4,
+      "oxidationStates": "-4〜+4",
+      "flameTestColor": null,
+      "atomicRadius": {
+        "pm": 111,
+        "confidence": "high",
+        "source": "cordero2008"
+      },
+      "firstIonizationEnergy": {
+        "kJmol": 786.5,
+        "confidence": "high",
+        "source": "nist_crc_ie"
+      },
+      "electronegativity": {
+        "value": 1.8,
+        "confidence": "high",
+        "source": "pauling1932"
+      }
+    },
+    {
+      "symbol": "P",
+      "name": "リン",
+      "atomicNumber": 15,
+      "period": 3,
+      "group": 15,
+      "category": "非金属",
+      "stateAt25C": "固体",
+      "valenceElectrons": 5,
+      "outermostShellElectrons": 5,
+      "oxidationStates": "-3〜+5",
+      "flameTestColor": null,
+      "atomicRadius": {
+        "pm": 107,
+        "confidence": "high",
+        "source": "cordero2008"
+      },
+      "firstIonizationEnergy": {
+        "kJmol": 1011.8,
+        "confidence": "high",
+        "source": "nist_crc_ie"
+      },
+      "electronegativity": {
+        "value": 2.1,
+        "confidence": "high",
+        "source": "pauling1932"
+      }
+    },
+    {
+      "symbol": "S",
+      "name": "硫黄",
+      "atomicNumber": 16,
+      "period": 3,
+      "group": 16,
+      "category": "非金属",
+      "stateAt25C": "固体",
+      "valenceElectrons": 6,
+      "outermostShellElectrons": 6,
+      "oxidationStates": "-2〜+6",
+      "flameTestColor": null,
+      "atomicRadius": {
+        "pm": 105,
+        "confidence": "high",
+        "source": "cordero2008"
+      },
+      "firstIonizationEnergy": {
+        "kJmol": 999.6,
+        "confidence": "high",
+        "source": "nist_crc_ie"
+      },
+      "electronegativity": {
+        "value": 2.5,
+        "confidence": "high",
+        "source": "pauling1932"
+      }
+    },
+    {
+      "symbol": "Cl",
+      "name": "塩素",
+      "atomicNumber": 17,
+      "period": 3,
+      "group": 17,
+      "category": "ハロゲン",
+      "stateAt25C": "気体",
+      "valenceElectrons": 7,
+      "outermostShellElectrons": 7,
+      "oxidationStates": "-1〜+7",
+      "flameTestColor": null,
+      "atomicRadius": {
+        "pm": 102,
+        "confidence": "high",
+        "source": "cordero2008"
+      },
+      "firstIonizationEnergy": {
+        "kJmol": 1251.2,
+        "confidence": "high",
+        "source": "nist_crc_ie"
+      },
+      "electronegativity": {
+        "value": 3.0,
+        "confidence": "high",
+        "source": "pauling1932"
+      }
+    },
+    {
+      "symbol": "Ar",
+      "name": "アルゴン",
+      "atomicNumber": 18,
+      "period": 3,
+      "group": 18,
+      "category": "貴ガス",
+      "stateAt25C": "気体",
+      "valenceElectrons": 0,
+      "outermostShellElectrons": 8,
+      "oxidationStates": "0(化合物をつくらない)",
+      "flameTestColor": null,
+      "atomicRadius": {
+        "pm": 106,
+        "confidence": "medium",
+        "source": "cordero2008"
+      },
+      "firstIonizationEnergy": {
+        "kJmol": 1520.6,
+        "confidence": "high",
+        "source": "nist_crc_ie"
+      },
+      "electronegativity": {
+        "value": null,
+        "confidence": null,
+        "source": null
+      }
+    },
+    {
+      "symbol": "K",
+      "name": "カリウム",
+      "atomicNumber": 19,
+      "period": 4,
+      "group": 1,
+      "category": "アルカリ金属",
+      "stateAt25C": "固体",
+      "valenceElectrons": 1,
+      "outermostShellElectrons": 1,
+      "oxidationStates": "+1",
+      "flameTestColor": "紫(赤紫)",
+      "atomicRadius": {
+        "pm": 203,
+        "confidence": "high",
+        "source": "cordero2008"
+      },
+      "firstIonizationEnergy": {
+        "kJmol": 418.8,
+        "confidence": "high",
+        "source": "nist_crc_ie"
+      },
+      "electronegativity": {
+        "value": 0.8,
+        "confidence": "high",
+        "source": "pauling1932"
+      }
+    },
+    {
+      "symbol": "Ca",
+      "name": "カルシウム",
+      "atomicNumber": 20,
+      "period": 4,
+      "group": 2,
+      "category": "アルカリ土類金属",
+      "stateAt25C": "固体",
+      "valenceElectrons": 2,
+      "outermostShellElectrons": 2,
+      "oxidationStates": "+2",
+      "flameTestColor": "橙赤",
+      "atomicRadius": {
+        "pm": 176,
+        "confidence": "high",
+        "source": "cordero2008"
+      },
+      "firstIonizationEnergy": {
+        "kJmol": 589.8,
+        "confidence": "high",
+        "source": "nist_crc_ie"
+      },
+      "electronegativity": {
+        "value": 1.0,
+        "confidence": "high",
+        "source": "pauling1932"
+      }
+    },
+    {
+      "symbol": "Ga",
+      "name": "ガリウム",
+      "atomicNumber": 31,
+      "period": 4,
+      "group": 13,
+      "category": "典型金属",
+      "stateAt25C": "固体",
+      "valenceElectrons": 3,
+      "outermostShellElectrons": 3,
+      "oxidationStates": "+3(+1も存在するが高校化学では扱わない)",
+      "flameTestColor": null,
+      "atomicRadius": {
+        "pm": 122,
+        "confidence": "high",
+        "source": "cordero2008"
+      },
+      "firstIonizationEnergy": {
+        "kJmol": 578.8,
+        "confidence": "high",
+        "source": "nist_crc_ie"
+      },
+      "electronegativity": {
+        "value": 1.6,
+        "confidence": "high",
+        "source": "pauling1932"
+      },
+      "note": "融点29.76℃。常温(25℃)ではぎりぎり固体だが、手のひらの体温(約36〜37℃)で融ける有名な性質を持つ"
+    },
+    {
+      "symbol": "Ge",
+      "name": "ゲルマニウム",
+      "atomicNumber": 32,
+      "period": 4,
+      "group": 14,
+      "category": "半金属",
+      "stateAt25C": "固体",
+      "valenceElectrons": 4,
+      "outermostShellElectrons": 4,
+      "oxidationStates": "-4〜+4",
+      "flameTestColor": null,
+      "atomicRadius": {
+        "pm": 120,
+        "confidence": "high",
+        "source": "cordero2008"
+      },
+      "firstIonizationEnergy": {
+        "kJmol": 762.0,
+        "confidence": "high",
+        "source": "nist_crc_ie"
+      },
+      "electronegativity": {
+        "value": 1.8,
+        "confidence": "high",
+        "source": "pauling1932"
+      }
+    },
+    {
+      "symbol": "As",
+      "name": "ヒ素",
+      "atomicNumber": 33,
+      "period": 4,
+      "group": 15,
+      "category": "半金属",
+      "stateAt25C": "固体",
+      "valenceElectrons": 5,
+      "outermostShellElectrons": 5,
+      "oxidationStates": "-3〜+5",
+      "flameTestColor": null,
+      "atomicRadius": {
+        "pm": 119,
+        "confidence": "high",
+        "source": "cordero2008"
+      },
+      "firstIonizationEnergy": {
+        "kJmol": 947.0,
+        "confidence": "high",
+        "source": "nist_crc_ie"
+      },
+      "electronegativity": {
+        "value": 2.0,
+        "confidence": "high",
+        "source": "pauling1932"
+      }
+    },
+    {
+      "symbol": "Se",
+      "name": "セレン",
+      "atomicNumber": 34,
+      "period": 4,
+      "group": 16,
+      "category": "非金属",
+      "stateAt25C": "固体",
+      "valenceElectrons": 6,
+      "outermostShellElectrons": 6,
+      "oxidationStates": "-2〜+6",
+      "flameTestColor": null,
+      "atomicRadius": {
+        "pm": 120,
+        "confidence": "high",
+        "source": "cordero2008"
+      },
+      "firstIonizationEnergy": {
+        "kJmol": 941.0,
+        "confidence": "high",
+        "source": "nist_crc_ie"
+      },
+      "electronegativity": {
+        "value": 2.4,
+        "confidence": "high",
+        "source": "pauling1932"
+      }
+    },
+    {
+      "symbol": "Br",
+      "name": "臭素",
+      "atomicNumber": 35,
+      "period": 4,
+      "group": 17,
+      "category": "ハロゲン",
+      "stateAt25C": "液体",
+      "valenceElectrons": 7,
+      "outermostShellElectrons": 7,
+      "oxidationStates": "-1〜+7",
+      "flameTestColor": null,
+      "atomicRadius": {
+        "pm": 120,
+        "confidence": "high",
+        "source": "cordero2008"
+      },
+      "firstIonizationEnergy": {
+        "kJmol": 1139.9,
+        "confidence": "high",
+        "source": "nist_crc_ie"
+      },
+      "electronegativity": {
+        "value": 2.8,
+        "confidence": "high",
+        "source": "pauling1932"
+      }
+    },
+    {
+      "symbol": "Kr",
+      "name": "クリプトン",
+      "atomicNumber": 36,
+      "period": 4,
+      "group": 18,
+      "category": "貴ガス",
+      "stateAt25C": "気体",
+      "valenceElectrons": 0,
+      "outermostShellElectrons": 8,
+      "oxidationStates": "0(基本的に化合物をつくらないが、KrF2など例外的な化合物が知られる)",
+      "flameTestColor": null,
+      "atomicRadius": {
+        "pm": 116,
+        "confidence": "medium",
+        "source": "cordero2008"
+      },
+      "firstIonizationEnergy": {
+        "kJmol": 1350.8,
+        "confidence": "high",
+        "source": "nist_crc_ie"
+      },
+      "electronegativity": {
+        "value": null,
+        "confidence": null,
+        "source": null,
+        "note": "CRC Handbookなど一部文献はKrF2等を根拠に3.00という推定値を与えるが、高校化学の慣例に合わせてnullとした"
+      }
+    }
   ],
   "shapeOnlyElements": [
-    { "symbol": "Rb", "name": "ルビジウム", "atomicNumber": 37, "period": 5, "group": 1, "category": "アルカリ金属", "stateAt25C": "固体", "flameTestColor": null,
-      "atomicRadius": null, "firstIonizationEnergy": null, "electronegativity": null },
-    { "symbol": "Sr", "name": "ストロンチウム", "atomicNumber": 38, "period": 5, "group": 2, "category": "アルカリ土類金属", "stateAt25C": "固体", "flameTestColor": "紅",
-      "atomicRadius": null, "firstIonizationEnergy": null, "electronegativity": null },
-    { "symbol": "In", "name": "インジウム", "atomicNumber": 49, "period": 5, "group": 13, "category": "典型金属", "stateAt25C": "固体", "flameTestColor": null,
-      "atomicRadius": null, "firstIonizationEnergy": null, "electronegativity": null },
-    { "symbol": "Sn", "name": "スズ", "atomicNumber": 50, "period": 5, "group": 14, "category": "典型金属", "stateAt25C": "固体", "flameTestColor": null,
-      "atomicRadius": null, "firstIonizationEnergy": null, "electronegativity": null },
-    { "symbol": "Sb", "name": "アンチモン", "atomicNumber": 51, "period": 5, "group": 15, "category": "半金属", "stateAt25C": "固体", "flameTestColor": null,
-      "atomicRadius": null, "firstIonizationEnergy": null, "electronegativity": null },
-    { "symbol": "Te", "name": "テルル", "atomicNumber": 52, "period": 5, "group": 16, "category": "半金属", "stateAt25C": "固体", "flameTestColor": null,
-      "atomicRadius": null, "firstIonizationEnergy": null, "electronegativity": null },
-    { "symbol": "I", "name": "ヨウ素", "atomicNumber": 53, "period": 5, "group": 17, "category": "ハロゲン", "stateAt25C": "固体", "flameTestColor": null,
-      "atomicRadius": null, "firstIonizationEnergy": null, "electronegativity": null },
-    { "symbol": "Xe", "name": "キセノン", "atomicNumber": 54, "period": 5, "group": 18, "category": "貴ガス", "stateAt25C": "気体", "flameTestColor": null,
-      "atomicRadius": null, "firstIonizationEnergy": null, "electronegativity": null },
-
-    { "symbol": "Cs", "name": "セシウム", "atomicNumber": 55, "period": 6, "group": 1, "category": "アルカリ金属", "stateAt25C": "固体", "flameTestColor": null,
-      "atomicRadius": null, "firstIonizationEnergy": null, "electronegativity": null,
-      "note": "融点28.44℃。25℃ではぎりぎり固体(Gaと並んで融点が室温に近い元素として知られる)" },
-    { "symbol": "Ba", "name": "バリウム", "atomicNumber": 56, "period": 6, "group": 2, "category": "アルカリ土類金属", "stateAt25C": "固体", "flameTestColor": "緑",
-      "atomicRadius": null, "firstIonizationEnergy": null, "electronegativity": null },
-    { "symbol": "Tl", "name": "タリウム", "atomicNumber": 81, "period": 6, "group": 13, "category": "典型金属", "stateAt25C": "固体", "flameTestColor": null,
-      "atomicRadius": null, "firstIonizationEnergy": null, "electronegativity": null },
-    { "symbol": "Pb", "name": "鉛", "atomicNumber": 82, "period": 6, "group": 14, "category": "典型金属", "stateAt25C": "固体", "flameTestColor": null,
-      "atomicRadius": null, "firstIonizationEnergy": null, "electronegativity": null },
-    { "symbol": "Bi", "name": "ビスマス", "atomicNumber": 83, "period": 6, "group": 15, "category": "典型金属", "stateAt25C": "固体", "flameTestColor": null,
-      "atomicRadius": null, "firstIonizationEnergy": null, "electronegativity": null },
-    { "symbol": "Po", "name": "ポロニウム", "atomicNumber": 84, "period": 6, "group": 16, "category": "典型金属", "stateAt25C": "固体", "flameTestColor": null,
-      "atomicRadius": null, "firstIonizationEnergy": null, "electronegativity": null },
-    { "symbol": "At", "name": "アスタチン", "atomicNumber": 85, "period": 6, "group": 17, "category": "ハロゲン", "stateAt25C": null, "flameTestColor": null,
-      "atomicRadius": null, "firstIonizationEnergy": null, "electronegativity": null,
-      "note": "天然にはごく微量しか存在せず、常温での状態(固体と理論的に予測されている)は実測されたことがないため未確定としてnullにした" },
-    { "symbol": "Rn", "name": "ラドン", "atomicNumber": 86, "period": 6, "group": 18, "category": "貴ガス", "stateAt25C": "気体", "flameTestColor": null,
-      "atomicRadius": null, "firstIonizationEnergy": null, "electronegativity": null },
-
-    { "symbol": "Fr", "name": "フランシウム", "atomicNumber": 87, "period": 7, "group": 1, "category": "アルカリ金属", "stateAt25C": null, "flameTestColor": null,
-      "atomicRadius": null, "firstIonizationEnergy": null, "electronegativity": null,
-      "note": "地殻中に瞬間的にしか存在せず(最も安定な同位体でも半減期約22分)、常温での状態は実測されたことがないため未確定としてnullにした" },
-    { "symbol": "Ra", "name": "ラジウム", "atomicNumber": 88, "period": 7, "group": 2, "category": "アルカリ土類金属", "stateAt25C": "固体", "flameTestColor": null,
-      "atomicRadius": null, "firstIonizationEnergy": null, "electronegativity": null }
+    {
+      "symbol": "Rb",
+      "name": "ルビジウム",
+      "atomicNumber": 37,
+      "period": 5,
+      "group": 1,
+      "category": "アルカリ金属",
+      "stateAt25C": "固体",
+      "flameTestColor": null,
+      "atomicRadius": null,
+      "firstIonizationEnergy": null,
+      "electronegativity": null
+    },
+    {
+      "symbol": "Sr",
+      "name": "ストロンチウム",
+      "atomicNumber": 38,
+      "period": 5,
+      "group": 2,
+      "category": "アルカリ土類金属",
+      "stateAt25C": "固体",
+      "flameTestColor": "紅",
+      "atomicRadius": null,
+      "firstIonizationEnergy": null,
+      "electronegativity": null
+    },
+    {
+      "symbol": "In",
+      "name": "インジウム",
+      "atomicNumber": 49,
+      "period": 5,
+      "group": 13,
+      "category": "典型金属",
+      "stateAt25C": "固体",
+      "flameTestColor": null,
+      "atomicRadius": null,
+      "firstIonizationEnergy": null,
+      "electronegativity": null
+    },
+    {
+      "symbol": "Sn",
+      "name": "スズ",
+      "atomicNumber": 50,
+      "period": 5,
+      "group": 14,
+      "category": "典型金属",
+      "stateAt25C": "固体",
+      "flameTestColor": null,
+      "atomicRadius": null,
+      "firstIonizationEnergy": null,
+      "electronegativity": null
+    },
+    {
+      "symbol": "Sb",
+      "name": "アンチモン",
+      "atomicNumber": 51,
+      "period": 5,
+      "group": 15,
+      "category": "半金属",
+      "stateAt25C": "固体",
+      "flameTestColor": null,
+      "atomicRadius": null,
+      "firstIonizationEnergy": null,
+      "electronegativity": null
+    },
+    {
+      "symbol": "Te",
+      "name": "テルル",
+      "atomicNumber": 52,
+      "period": 5,
+      "group": 16,
+      "category": "半金属",
+      "stateAt25C": "固体",
+      "flameTestColor": null,
+      "atomicRadius": null,
+      "firstIonizationEnergy": null,
+      "electronegativity": null
+    },
+    {
+      "symbol": "I",
+      "name": "ヨウ素",
+      "atomicNumber": 53,
+      "period": 5,
+      "group": 17,
+      "category": "ハロゲン",
+      "stateAt25C": "固体",
+      "flameTestColor": null,
+      "atomicRadius": null,
+      "firstIonizationEnergy": null,
+      "electronegativity": null
+    },
+    {
+      "symbol": "Xe",
+      "name": "キセノン",
+      "atomicNumber": 54,
+      "period": 5,
+      "group": 18,
+      "category": "貴ガス",
+      "stateAt25C": "気体",
+      "flameTestColor": null,
+      "atomicRadius": null,
+      "firstIonizationEnergy": null,
+      "electronegativity": null
+    },
+    {
+      "symbol": "Cs",
+      "name": "セシウム",
+      "atomicNumber": 55,
+      "period": 6,
+      "group": 1,
+      "category": "アルカリ金属",
+      "stateAt25C": "固体",
+      "flameTestColor": null,
+      "atomicRadius": null,
+      "firstIonizationEnergy": null,
+      "electronegativity": null,
+      "note": "融点28.44℃。25℃ではぎりぎり固体(Gaと並んで融点が室温に近い元素として知られる)"
+    },
+    {
+      "symbol": "Ba",
+      "name": "バリウム",
+      "atomicNumber": 56,
+      "period": 6,
+      "group": 2,
+      "category": "アルカリ土類金属",
+      "stateAt25C": "固体",
+      "flameTestColor": "緑",
+      "atomicRadius": null,
+      "firstIonizationEnergy": null,
+      "electronegativity": null
+    },
+    {
+      "symbol": "Tl",
+      "name": "タリウム",
+      "atomicNumber": 81,
+      "period": 6,
+      "group": 13,
+      "category": "典型金属",
+      "stateAt25C": "固体",
+      "flameTestColor": null,
+      "atomicRadius": null,
+      "firstIonizationEnergy": null,
+      "electronegativity": null
+    },
+    {
+      "symbol": "Pb",
+      "name": "鉛",
+      "atomicNumber": 82,
+      "period": 6,
+      "group": 14,
+      "category": "典型金属",
+      "stateAt25C": "固体",
+      "flameTestColor": null,
+      "atomicRadius": null,
+      "firstIonizationEnergy": null,
+      "electronegativity": null
+    },
+    {
+      "symbol": "Bi",
+      "name": "ビスマス",
+      "atomicNumber": 83,
+      "period": 6,
+      "group": 15,
+      "category": "典型金属",
+      "stateAt25C": "固体",
+      "flameTestColor": null,
+      "atomicRadius": null,
+      "firstIonizationEnergy": null,
+      "electronegativity": null
+    },
+    {
+      "symbol": "Po",
+      "name": "ポロニウム",
+      "atomicNumber": 84,
+      "period": 6,
+      "group": 16,
+      "category": "典型金属",
+      "stateAt25C": "固体",
+      "flameTestColor": null,
+      "atomicRadius": null,
+      "firstIonizationEnergy": null,
+      "electronegativity": null
+    },
+    {
+      "symbol": "At",
+      "name": "アスタチン",
+      "atomicNumber": 85,
+      "period": 6,
+      "group": 17,
+      "category": "ハロゲン",
+      "stateAt25C": null,
+      "flameTestColor": null,
+      "atomicRadius": null,
+      "firstIonizationEnergy": null,
+      "electronegativity": null,
+      "note": "天然にはごく微量しか存在せず、常温での状態(固体と理論的に予測されている)は実測されたことがないため未確定としてnullにした"
+    },
+    {
+      "symbol": "Rn",
+      "name": "ラドン",
+      "atomicNumber": 86,
+      "period": 6,
+      "group": 18,
+      "category": "貴ガス",
+      "stateAt25C": "気体",
+      "flameTestColor": null,
+      "atomicRadius": null,
+      "firstIonizationEnergy": null,
+      "electronegativity": null
+    },
+    {
+      "symbol": "Fr",
+      "name": "フランシウム",
+      "atomicNumber": 87,
+      "period": 7,
+      "group": 1,
+      "category": "アルカリ金属",
+      "stateAt25C": null,
+      "flameTestColor": null,
+      "atomicRadius": null,
+      "firstIonizationEnergy": null,
+      "electronegativity": null,
+      "note": "地殻中に瞬間的にしか存在せず(最も安定な同位体でも半減期約22分)、常温での状態は実測されたことがないため未確定としてnullにした"
+    },
+    {
+      "symbol": "Ra",
+      "name": "ラジウム",
+      "atomicNumber": 88,
+      "period": 7,
+      "group": 2,
+      "category": "アルカリ土類金属",
+      "stateAt25C": "固体",
+      "flameTestColor": null,
+      "atomicRadius": null,
+      "firstIonizationEnergy": null,
+      "electronegativity": null
+    }
   ]
 }

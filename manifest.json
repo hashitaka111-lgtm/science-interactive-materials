@@ -117,7 +117,8 @@
     "type": "simulator",
     "related": [
       "chem-thermochemistry",
-      "chem-ksp-basics"
+      "chem-ksp-basics",
+      "chem-periodic-trends"
     ]
   },
   {
@@ -1288,6 +1289,33 @@
     "type": "simulator",
     "related": [
       "chem-peptide-sequencing"
+    ]
+  },
+  {
+    "id": "chem-periodic-trends",
+    "file": "html/periodic-trends.html",
+    "subject": "chemistry",
+    "unit": "物質の構成 / 周期表と周期律",
+    "course": "化学基礎",
+    "section": "物質の構成",
+    "order": 28,
+    "title": "周期表と周期律",
+    "heading": "周期表と周期律",
+    "summary": "第1〜4周期の典型元素を、分類ごとの色分け・状態アイコン・ホバー詳細表示で見比べる",
+    "topics": [
+      "原子半径・イオン化エネルギー・電気陰性度の周期的な変化",
+      "分類ごとの色分け(アルカリ金属・ハロゲン・貴ガスなど)",
+      "常温での状態(固体・液体・気体)",
+      "価電子数と最外殻電子数の違い"
+    ],
+    "interactions": [
+      "ホバー/タップ",
+      "色分け表示"
+    ],
+    "confidence": "high",
+    "type": "matrix",
+    "related": [
+      "chem-crystal-lattice"
     ]
   }
 ]

@@ -1,0 +1,452 @@
+<!doctype html>
+<html lang="ja">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>周期表と周期律</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500&family=IBM+Plex+Sans+JP:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+*{box-sizing:border-box}
+:root{
+  --ink:#16232B; --muted:#5E6E76; --paper:#EDF1EF; --surface:#FFFFFF;
+  --rule:#D6DDDA; --rule-soft:#E8EDEB;
+  --s0:#B87A16; --s0t:#8A5A0C;
+  --s1:#158A6D; --s1t:#0D6A53;
+  --s2:#2457A6; --s2t:#1B4380;
+  --s3:#6E3AA7; --s3t:#572D85;
+  --s4:#A82A6A; --s4t:#831F52;
+  --s5:#3B6E1E; --s5t:#2A5215;
+  --sans:"IBM Plex Sans JP","Hiragino Sans","Yu Gothic UI",system-ui,sans-serif;
+  --mono:"IBM Plex Mono",ui-monospace,SFMono-Regular,Menlo,monospace;
+}
+html,body{margin:0;padding:0}
+body{background:var(--paper);color:var(--ink);font-family:var(--sans);font-size:13.5px;line-height:1.75;-webkit-text-size-adjust:100%}
+.mono{font-family:var(--mono);font-variant-numeric:tabular-nums}
+.wrap{max-width:900px;margin:0 auto;padding:20px 14px 60px}
+.card{background:var(--surface);border:1px solid var(--rule);border-radius:3px;padding:14px;margin-bottom:14px}
+.card.text{max-width:900px}
+.eyebrow{display:flex;align-items:center;gap:10px;font-family:var(--mono);font-size:11.5px;letter-spacing:.14em;color:var(--muted);text-transform:uppercase}
+.eyebrow::after{content:"";flex:1;height:1px;background:var(--rule)}
+h1{font-size:22px;font-weight:600;letter-spacing:.01em;margin:8px 0 2px}
+h2{font-size:14.5px;font-weight:600;margin:10px 0 4px}
+p{margin:0 0 8px} p:last-child{margin-bottom:0}
+.lede{color:var(--muted);font-size:13px;margin:4px 0 0}
+.note{color:var(--muted);font-size:12px;line-height:1.7}
+
+.btn{font:inherit;font-size:12.5px;line-height:1.4;border:1px solid var(--rule);background:#fff;color:var(--ink);border-radius:2px;padding:6px 10px;cursor:pointer}
+.btn:hover{border-color:#B4C0BC}
+.btn[aria-pressed="true"]{background:var(--ink);color:#fff;border-color:var(--ink)}
+.btn:focus-visible{outline:2px solid var(--ink);outline-offset:1px}
+.btn.sm{font-size:11.5px;padding:5px 9px}
+.btnrow{display:flex;flex-wrap:wrap;gap:6px;margin:8px 0}
+.btnrow.sub{margin-top:2px}
+
+/* ---------- 分類の凡例 ---------- */
+.legend-cats{display:flex;flex-wrap:wrap;gap:7px 14px;margin:8px 0 4px}
+.legend-item{display:flex;align-items:center;gap:6px;font-size:11.5px}
+.legend-swatch{width:14px;height:14px;border-radius:2px;flex:none;border-width:2px;border-style:solid}
+.legend-icons{display:flex;flex-wrap:wrap;gap:14px;margin:6px 0}
+.legend-icon-item{display:flex;align-items:center;gap:6px;font-size:11.5px}
+.legend-icon-item svg{width:18px;height:18px;flex:none}
+.legend-flames{display:flex;flex-wrap:wrap;gap:10px;margin:6px 0}
+.legend-flame-item{display:flex;align-items:center;gap:5px;font-size:11.5px}
+.legend-flame-dot{width:10px;height:10px;border-radius:50%;border:1px solid rgba(0,0,0,.25);flex:none}
+
+/* ---------- 周期表 ---------- */
+.ptwrap{overflow-x:auto;padding-bottom:6px;-webkit-overflow-scrolling:touch}
+.ptgrid{display:grid;grid-template-columns:24px repeat(18, minmax(46px,1fr));gap:3px;width:max-content;min-width:100%}
+.ghead,.plab{font-family:var(--mono);font-size:10px;color:var(--muted);text-align:center;align-self:center;justify-self:center}
+.band{display:flex;align-items:center;justify-content:center;text-align:center;font-family:var(--mono);
+  font-size:9px;line-height:1.35;color:var(--muted);letter-spacing:.01em;background:var(--rule-soft);
+  border:1px dashed var(--rule);border-radius:3px;min-height:58px;padding:2px 4px}
+.cell{position:relative;display:flex;flex-direction:column;align-items:flex-start;justify-content:flex-start;
+  min-height:58px;border:2px solid var(--rule);border-radius:3px;padding:3px 4px 4px;font-family:var(--sans);
+  cursor:pointer;text-align:left;color:var(--ink);appearance:none}
+.cell:hover{filter:brightness(.97)}
+.cell:focus-visible{outline:2px solid var(--ink);outline-offset:1px;z-index:2}
+.csym{font-size:14px;font-weight:600;line-height:1.15}
+.cname{font-size:8px;color:var(--muted);line-height:1.2;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:100%;display:block}
+.cen{font-size:10px;margin-top:auto;align-self:flex-end;padding-top:2px}
+.cicon{position:absolute;top:2px;right:2px;width:15px;height:15px;line-height:0}
+.cicon svg{width:100%;height:100%;display:block}
+.cflame{position:absolute;bottom:3px;right:3px;width:7px;height:7px;border-radius:50%;border:1px solid rgba(0,0,0,.25)}
+
+/* ---------- ツールチップ ---------- */
+.tip{position:fixed;z-index:50;max-width:230px;background:var(--ink);color:#fff;border-radius:3px;
+  padding:8px 10px;font-size:11.5px;line-height:1.65;pointer-events:none}
+.tip[hidden]{display:none}
+.tip .tsym{font-weight:600;font-size:13px;margin-bottom:3px}
+.tip .tname{font-weight:400;font-size:11px;color:#D8E0E3;margin-left:5px}
+.tip .trow{margin:1px 0}
+.tip .tconf{color:#AEC0C6;font-family:var(--mono);font-size:10.5px}
+.tip .tnote{color:#F0D28A;margin-top:5px;font-size:10.5px;line-height:1.6}
+.tip .tmuted{color:#B9C7CC}
+@media (prefers-reduced-motion:no-preference){ .tip{transition:opacity 120ms linear} }
+
+/* ---------- 比較チャート ---------- */
+.chartnote{color:var(--muted);font-size:11.5px;margin:2px 0 8px}
+.chartsvg{display:block;width:100%;height:auto}
+.chartsvg text{font-family:var(--mono);fill:var(--muted)}
+.chartsvg .rowlabel{font-size:10.5px;fill:var(--ink)}
+.chartsvg .axlabel{font-size:10.5px}
+.chartsvg .val{font-size:10px;fill:var(--ink)}
+.chartsvg .novalue{font-size:11px;fill:var(--rule)}
+.empty-chart{color:var(--muted);font-size:12.5px;padding:20px 6px;text-align:center}
+
+.kv{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:2px 16px;margin-top:6px;font-size:12px}
+.kv .k{color:var(--muted)}
+
+@media (max-width:430px){
+  body{font-size:13px}
+  .wrap{padding:14px 10px 50px}
+  .card{padding:11px}
+  h1{font-size:19px}
+  .btn{padding:6px 8px;font-size:12px}
+  .ptgrid{grid-template-columns:20px repeat(18, minmax(40px,1fr))}
+  .cname{font-size:7.5px}
+}
+</style>
+</head>
+<body>
+<div class="wrap">
+
+<header>
+  <div class="eyebrow">PERIODIC TRENDS</div>
+  <h1>周期表と周期律</h1>
+  <p class="lede">第1〜4周期の典型元素26種を、分類ごとの色分け・常温での状態アイコンで見比べる。セルをホバー(タッチ端末はタップ)すると、原子半径・イオン化エネルギー・電気陰性度の詳しい数値が出る。</p>
+</header>
+
+<div class="card text">
+  <div class="eyebrow">HOW TO READ</div>
+  <p class="note" style="margin-top:8px">枠の色 = 分類。右上のアイコン = 常温(25℃)での状態。数字は電気陰性度(代表値)。右下の丸は炎色反応の色。</p>
+  <div class="legend-cats" id="legendCats"></div>
+  <div class="legend-icons" id="legendIcons"></div>
+  <div class="legend-flames" id="legendFlames"></div>
+</div>
+
+<div class="card">
+  <div class="eyebrow">PERIODIC TABLE</div>
+  <div class="ptwrap">
+    <div class="ptgrid" id="ptgrid"></div>
+  </div>
+  <p class="note" style="margin-top:8px">横にスクロールできる。3〜11族(遷移元素)はこのシリーズでは扱わないため帯で表示している。第5〜7周期(グレーの周期ラベルより下)は分類・状態のみのデータで、原子半径・イオン化エネルギー・電気陰性度は今回未収録。</p>
+</div>
+
+<div class="card">
+  <div class="eyebrow">COMPARE</div>
+  <h2>元素どうしを比較する</h2>
+  <p class="note">見る量を選ぶ。</p>
+  <div class="btnrow" id="propBtns" role="group" aria-label="比較する量"></div>
+  <p class="note">比較の向きを選ぶ。</p>
+  <div class="btnrow" id="modeBtns" role="group" aria-label="比較の向き"></div>
+  <div class="btnrow sub" id="groupBtns" role="group" aria-label="比較する族"></div>
+  <p class="chartnote" id="chartNote"></p>
+  <div id="chartHost"></div>
+</div>
+
+<div class="card text">
+  <div class="eyebrow">SOURCES &amp; CONFIDENCE</div>
+  <p class="note" style="margin-top:8px">原子半径は共有結合半径(Cordero et al., 2008, <i>Dalton Trans.</i>)。第一イオン化エネルギーはNIST/CRC系統のガス相分光データ。電気陰性度はPauling(1932)の旧来の教科書値(小数第1位)で、日本の高校化学・医学部受験の資料集で広く使われている数値セットに合わせている。</p>
+  <div class="kv">
+    <div class="k">原子半径(貴ガス4種)</div><div>confidence: medium — 実測の結合長ではなく、周期的な傾向からの内挿値(Cordero論文自身の注記)</div>
+    <div class="k">それ以外の原子半径・イオン化エネルギー・電気陰性度</div><div>confidence: high</div>
+    <div class="k">At・Frの常温での状態</div><div>未確定(null) — 天然存在量がきわめて微量で、バルクとしての状態が実測されたことがないため</div>
+  </div>
+</div>
+
+</div><!-- /wrap -->
+
+<div class="tip" id="tip" hidden role="status" aria-live="polite"></div>
+
+<script>
+/* ---------- データ(JSONをそのまま埋め込み。fetch は使わない) ---------- */
+const DATA = {"notes":{"scopeDiscrepancy":"指示文では精密対象を『第1〜4周期の典型元素24種』としているが、実際に列挙された元素記号を数えると第1周期2+第2周期8+第3周期8+第4周期(典型元素のみ)8=26種になる。指示の数値ではなく列挙された元素記号を正とし、26種すべてを収録した(第5〜7周期の18種は指示どおり)。合計は24+18=42ではなく26+18=44件。","atomicRadiusDefinition":"原子半径は共有結合半径(covalent radius)で統一。Cordero et al. (2008)がCambridge Structural Databaseの実測結合長228,000件超から求めた値(単結合・低スピン)を採用した。炭素のみ混成により3値(sp3=76pm, sp2=73pm, sp=69pm)を持つため、一般的な周期表比較で使われる代表値としてsp3(76pm)を採用している。","nobleGasRadiusCaveat":"Cordero(2008)論文自体が『貴ガスは構造データが乏しいため、周期的な傾向から内挿した値』と明記している。He・Ne・Ar・Krの原子半径は実測の結合長からではなく内挿によるため、他の元素(confidence: high)より一段階confidenceを下げてmediumとした。","electronegativityNobleGasCaveat":"電気陰性度は貴ガスを基本的にnullとした(高校化学の慣例に合わせ、化合物をほとんど作らない貴ガスには電気陰性度を定義しない)。ただしCRC Handbookなど一部の文献はKrF2等の存在を根拠にKrへ推定値3.00を与えている。この教材では高校化学の慣例を優先しKrもnullとし、詳細はreview.md参照。","sources":{"cordero2008":"Cordero, B.; Gómez, V.; Platero-Prats, A. E.; Revés, M.; Echeverría, J.; Cremades, E.; Barragán, F.; Alvarez, S. 'Covalent radii revisited.' Dalton Trans. 2008, 37, 2832–2838. doi:10.1039/B801115J","nist_crc_ie":"NIST Atomic Spectra Database / CRC Handbook of Chemistry and Physics(2004)系統のガス相分光データ。Wikipedia『Ionization energies of the elements (data page)』の集約値を介して参照","pauling1932":"Pauling, L. (1932) J. Am. Chem. Soc. 54, 3570-3582で提案された旧来の電気陰性度スケール(教科書版、小数第1位)。日本の高校化学・大学受験の資料集で広く採用されている数値セットで、H=2.1, C=2.5, N=3.0, O=3.5, F=4.0, Cl=3.0, Br=2.8などが該当する。"},"electronegativitySourceChange":"第1段階ではAllred(1961)の改訂ポーリングスケール(小数第2位)を採用していたが、第2段階でPauling(1932)の旧来の教科書値(小数第1位)に差し替えた。日本の高校化学・医学部受験の資料集で広く使われているのはこちらであり、添付の手書きノートの数値(H=2.1, C=2.5, N=3.0, O=3.5, F=4.0など)とも完全に一致するため。"},"preciseElements":[{"symbol":"H","name":"水素","atomicNumber":1,"period":1,"group":1,"category":"非金属","stateAt25C":"気体","valenceElectrons":1,"outermostShellElectrons":1,"oxidationStates":"+1(金属水素化物中では-1にもなる)","flameTestColor":null,"atomicRadius":{"pm":31,"confidence":"high","source":"cordero2008"},"firstIonizationEnergy":{"kJmol":1312,"confidence":"high","source":"nist_crc_ie"},"electronegativity":{"value":2.1,"confidence":"high","source":"pauling1932"}},{"symbol":"He","name":"ヘリウム","atomicNumber":2,"period":1,"group":18,"category":"貴ガス","stateAt25C":"気体","valenceElectrons":0,"outermostShellElectrons":2,"oxidationStates":"0(化合物をつくらない)","flameTestColor":null,"atomicRadius":{"pm":28,"confidence":"medium","source":"cordero2008"},"firstIonizationEnergy":{"kJmol":2372.3,"confidence":"high","source":"nist_crc_ie"},"electronegativity":{"value":null,"confidence":null,"source":null}},{"symbol":"Li","name":"リチウム","atomicNumber":3,"period":2,"group":1,"category":"アルカリ金属","stateAt25C":"固体","valenceElectrons":1,"outermostShellElectrons":1,"oxidationStates":"+1","flameTestColor":"赤","atomicRadius":{"pm":128,"confidence":"high","source":"cordero2008"},"firstIonizationEnergy":{"kJmol":520.2,"confidence":"high","source":"nist_crc_ie"},"electronegativity":{"value":1,"confidence":"high","source":"pauling1932"}},{"symbol":"Be","name":"ベリリウム","atomicNumber":4,"period":2,"group":2,"category":"典型金属","stateAt25C":"固体","valenceElectrons":2,"outermostShellElectrons":2,"oxidationStates":"+2","flameTestColor":null,"atomicRadius":{"pm":96,"confidence":"high","source":"cordero2008"},"firstIonizationEnergy":{"kJmol":899.5,"confidence":"high","source":"nist_crc_ie"},"electronegativity":{"value":1.5,"confidence":"high","source":"pauling1932"}},{"symbol":"B","name":"ホウ素","atomicNumber":5,"period":2,"group":13,"category":"半金属","stateAt25C":"固体","valenceElectrons":3,"outermostShellElectrons":3,"oxidationStates":"+3","flameTestColor":null,"atomicRadius":{"pm":84,"confidence":"high","source":"cordero2008"},"firstIonizationEnergy":{"kJmol":800.6,"confidence":"high","source":"nist_crc_ie"},"electronegativity":{"value":2,"confidence":"high","source":"pauling1932"}},{"symbol":"C","name":"炭素","atomicNumber":6,"period":2,"group":14,"category":"非金属","stateAt25C":"固体","valenceElectrons":4,"outermostShellElectrons":4,"oxidationStates":"-4〜+4","flameTestColor":null,"atomicRadius":{"pm":76,"confidence":"high","source":"cordero2008","note":"sp3混成の値。sp2=73pm, sp=69pmも同論文に記載"},"firstIonizationEnergy":{"kJmol":1086.5,"confidence":"high","source":"nist_crc_ie"},"electronegativity":{"value":2.5,"confidence":"high","source":"pauling1932"}},{"symbol":"N","name":"窒素","atomicNumber":7,"period":2,"group":15,"category":"非金属","stateAt25C":"気体","valenceElectrons":5,"outermostShellElectrons":5,"oxidationStates":"-3〜+5","flameTestColor":null,"atomicRadius":{"pm":71,"confidence":"high","source":"cordero2008"},"firstIonizationEnergy":{"kJmol":1402.3,"confidence":"high","source":"nist_crc_ie"},"electronegativity":{"value":3,"confidence":"high","source":"pauling1932"}},{"symbol":"O","name":"酸素","atomicNumber":8,"period":2,"group":16,"category":"非金属","stateAt25C":"気体","valenceElectrons":6,"outermostShellElectrons":6,"oxidationStates":"-2(過酸化物では-1になる例外あり)","flameTestColor":null,"atomicRadius":{"pm":66,"confidence":"high","source":"cordero2008"},"firstIonizationEnergy":{"kJmol":1313.9,"confidence":"high","source":"nist_crc_ie"},"electronegativity":{"value":3.5,"confidence":"high","source":"pauling1932"}},{"symbol":"F","name":"フッ素","atomicNumber":9,"period":2,"group":17,"category":"ハロゲン","stateAt25C":"気体","valenceElectrons":7,"outermostShellElectrons":7,"oxidationStates":"-1のみ","flameTestColor":null,"atomicRadius":{"pm":57,"confidence":"high","source":"cordero2008"},"firstIonizationEnergy":{"kJmol":1681,"confidence":"high","source":"nist_crc_ie"},"electronegativity":{"value":4,"confidence":"high","source":"pauling1932"}},{"symbol":"Ne","name":"ネオン","atomicNumber":10,"period":2,"group":18,"category":"貴ガス","stateAt25C":"気体","valenceElectrons":0,"outermostShellElectrons":8,"oxidationStates":"0(化合物をつくらない)","flameTestColor":null,"atomicRadius":{"pm":58,"confidence":"medium","source":"cordero2008"},"firstIonizationEnergy":{"kJmol":2080.7,"confidence":"high","source":"nist_crc_ie"},"electronegativity":{"value":null,"confidence":null,"source":null}},{"symbol":"Na","name":"ナトリウム","atomicNumber":11,"period":3,"group":1,"category":"アルカリ金属","stateAt25C":"固体","valenceElectrons":1,"outermostShellElectrons":1,"oxidationStates":"+1","flameTestColor":"黄","atomicRadius":{"pm":166,"confidence":"high","source":"cordero2008"},"firstIonizationEnergy":{"kJmol":495.8,"confidence":"high","source":"nist_crc_ie"},"electronegativity":{"value":0.9,"confidence":"high","source":"pauling1932"}},{"symbol":"Mg","name":"マグネシウム","atomicNumber":12,"period":3,"group":2,"category":"典型金属","stateAt25C":"固体","valenceElectrons":2,"outermostShellElectrons":2,"oxidationStates":"+2","flameTestColor":null,"atomicRadius":{"pm":141,"confidence":"high","source":"cordero2008"},"firstIonizationEnergy":{"kJmol":737.7,"confidence":"high","source":"nist_crc_ie"},"electronegativity":{"value":1.2,"confidence":"high","source":"pauling1932"}},{"symbol":"Al","name":"アルミニウム","atomicNumber":13,"period":3,"group":13,"category":"典型金属","stateAt25C":"固体","valenceElectrons":3,"outermostShellElectrons":3,"oxidationStates":"+3","flameTestColor":null,"atomicRadius":{"pm":121,"confidence":"high","source":"cordero2008"},"firstIonizationEnergy":{"kJmol":577.5,"confidence":"high","source":"nist_crc_ie"},"electronegativity":{"value":1.5,"confidence":"high","source":"pauling1932"}},{"symbol":"Si","name":"ケイ素","atomicNumber":14,"period":3,"group":14,"category":"半金属","stateAt25C":"固体","valenceElectrons":4,"outermostShellElectrons":4,"oxidationStates":"-4〜+4","flameTestColor":null,"atomicRadius":{"pm":111,"confidence":"high","source":"cordero2008"},"firstIonizationEnergy":{"kJmol":786.5,"confidence":"high","source":"nist_crc_ie"},"electronegativity":{"value":1.8,"confidence":"high","source":"pauling1932"}},{"symbol":"P","name":"リン","atomicNumber":15,"period":3,"group":15,"category":"非金属","stateAt25C":"固体","valenceElectrons":5,"outermostShellElectrons":5,"oxidationStates":"-3〜+5","flameTestColor":null,"atomicRadius":{"pm":107,"confidence":"high","source":"cordero2008"},"firstIonizationEnergy":{"kJmol":1011.8,"confidence":"high","source":"nist_crc_ie"},"electronegativity":{"value":2.1,"confidence":"high","source":"pauling1932"}},{"symbol":"S","name":"硫黄","atomicNumber":16,"period":3,"group":16,"category":"非金属","stateAt25C":"固体","valenceElectrons":6,"outermostShellElectrons":6,"oxidationStates":"-2〜+6","flameTestColor":null,"atomicRadius":{"pm":105,"confidence":"high","source":"cordero2008"},"firstIonizationEnergy":{"kJmol":999.6,"confidence":"high","source":"nist_crc_ie"},"electronegativity":{"value":2.5,"confidence":"high","source":"pauling1932"}},{"symbol":"Cl","name":"塩素","atomicNumber":17,"period":3,"group":17,"category":"ハロゲン","stateAt25C":"気体","valenceElectrons":7,"outermostShellElectrons":7,"oxidationStates":"-1〜+7","flameTestColor":null,"atomicRadius":{"pm":102,"confidence":"high","source":"cordero2008"},"firstIonizationEnergy":{"kJmol":1251.2,"confidence":"high","source":"nist_crc_ie"},"electronegativity":{"value":3,"confidence":"high","source":"pauling1932"}},{"symbol":"Ar","name":"アルゴン","atomicNumber":18,"period":3,"group":18,"category":"貴ガス","stateAt25C":"気体","valenceElectrons":0,"outermostShellElectrons":8,"oxidationStates":"0(化合物をつくらない)","flameTestColor":null,"atomicRadius":{"pm":106,"confidence":"medium","source":"cordero2008"},"firstIonizationEnergy":{"kJmol":1520.6,"confidence":"high","source":"nist_crc_ie"},"electronegativity":{"value":null,"confidence":null,"source":null}},{"symbol":"K","name":"カリウム","atomicNumber":19,"period":4,"group":1,"category":"アルカリ金属","stateAt25C":"固体","valenceElectrons":1,"outermostShellElectrons":1,"oxidationStates":"+1","flameTestColor":"紫(赤紫)","atomicRadius":{"pm":203,"confidence":"high","source":"cordero2008"},"firstIonizationEnergy":{"kJmol":418.8,"confidence":"high","source":"nist_crc_ie"},"electronegativity":{"value":0.8,"confidence":"high","source":"pauling1932"}},{"symbol":"Ca","name":"カルシウム","atomicNumber":20,"period":4,"group":2,"category":"アルカリ土類金属","stateAt25C":"固体","valenceElectrons":2,"outermostShellElectrons":2,"oxidationStates":"+2","flameTestColor":"橙赤","atomicRadius":{"pm":176,"confidence":"high","source":"cordero2008"},"firstIonizationEnergy":{"kJmol":589.8,"confidence":"high","source":"nist_crc_ie"},"electronegativity":{"value":1,"confidence":"high","source":"pauling1932"}},{"symbol":"Ga","name":"ガリウム","atomicNumber":31,"period":4,"group":13,"category":"典型金属","stateAt25C":"固体","valenceElectrons":3,"outermostShellElectrons":3,"oxidationStates":"+3(+1も存在するが高校化学では扱わない)","flameTestColor":null,"atomicRadius":{"pm":122,"confidence":"high","source":"cordero2008"},"firstIonizationEnergy":{"kJmol":578.8,"confidence":"high","source":"nist_crc_ie"},"electronegativity":{"value":1.6,"confidence":"high","source":"pauling1932"},"note":"融点29.76℃。常温(25℃)ではぎりぎり固体だが、手のひらの体温(約36〜37℃)で融ける有名な性質を持つ"},{"symbol":"Ge","name":"ゲルマニウム","atomicNumber":32,"period":4,"group":14,"category":"半金属","stateAt25C":"固体","valenceElectrons":4,"outermostShellElectrons":4,"oxidationStates":"-4〜+4","flameTestColor":null,"atomicRadius":{"pm":120,"confidence":"high","source":"cordero2008"},"firstIonizationEnergy":{"kJmol":762,"confidence":"high","source":"nist_crc_ie"},"electronegativity":{"value":1.8,"confidence":"high","source":"pauling1932"}},{"symbol":"As","name":"ヒ素","atomicNumber":33,"period":4,"group":15,"category":"半金属","stateAt25C":"固体","valenceElectrons":5,"outermostShellElectrons":5,"oxidationStates":"-3〜+5","flameTestColor":null,"atomicRadius":{"pm":119,"confidence":"high","source":"cordero2008"},"firstIonizationEnergy":{"kJmol":947,"confidence":"high","source":"nist_crc_ie"},"electronegativity":{"value":2,"confidence":"high","source":"pauling1932"}},{"symbol":"Se","name":"セレン","atomicNumber":34,"period":4,"group":16,"category":"非金属","stateAt25C":"固体","valenceElectrons":6,"outermostShellElectrons":6,"oxidationStates":"-2〜+6","flameTestColor":null,"atomicRadius":{"pm":120,"confidence":"high","source":"cordero2008"},"firstIonizationEnergy":{"kJmol":941,"confidence":"high","source":"nist_crc_ie"},"electronegativity":{"value":2.4,"confidence":"high","source":"pauling1932"}},{"symbol":"Br","name":"臭素","atomicNumber":35,"period":4,"group":17,"category":"ハロゲン","stateAt25C":"液体","valenceElectrons":7,"outermostShellElectrons":7,"oxidationStates":"-1〜+7","flameTestColor":null,"atomicRadius":{"pm":120,"confidence":"high","source":"cordero2008"},"firstIonizationEnergy":{"kJmol":1139.9,"confidence":"high","source":"nist_crc_ie"},"electronegativity":{"value":2.8,"confidence":"high","source":"pauling1932"}},{"symbol":"Kr","name":"クリプトン","atomicNumber":36,"period":4,"group":18,"category":"貴ガス","stateAt25C":"気体","valenceElectrons":0,"outermostShellElectrons":8,"oxidationStates":"0(基本的に化合物をつくらないが、KrF2など例外的な化合物が知られる)","flameTestColor":null,"atomicRadius":{"pm":116,"confidence":"medium","source":"cordero2008"},"firstIonizationEnergy":{"kJmol":1350.8,"confidence":"high","source":"nist_crc_ie"},"electronegativity":{"value":null,"confidence":null,"source":null,"note":"CRC Handbookなど一部文献はKrF2等を根拠に3.00という推定値を与えるが、高校化学の慣例に合わせてnullとした"}}],"shapeOnlyElements":[{"symbol":"Rb","name":"ルビジウム","atomicNumber":37,"period":5,"group":1,"category":"アルカリ金属","stateAt25C":"固体","flameTestColor":null,"atomicRadius":null,"firstIonizationEnergy":null,"electronegativity":null},{"symbol":"Sr","name":"ストロンチウム","atomicNumber":38,"period":5,"group":2,"category":"アルカリ土類金属","stateAt25C":"固体","flameTestColor":"紅","atomicRadius":null,"firstIonizationEnergy":null,"electronegativity":null},{"symbol":"In","name":"インジウム","atomicNumber":49,"period":5,"group":13,"category":"典型金属","stateAt25C":"固体","flameTestColor":null,"atomicRadius":null,"firstIonizationEnergy":null,"electronegativity":null},{"symbol":"Sn","name":"スズ","atomicNumber":50,"period":5,"group":14,"category":"典型金属","stateAt25C":"固体","flameTestColor":null,"atomicRadius":null,"firstIonizationEnergy":null,"electronegativity":null},{"symbol":"Sb","name":"アンチモン","atomicNumber":51,"period":5,"group":15,"category":"半金属","stateAt25C":"固体","flameTestColor":null,"atomicRadius":null,"firstIonizationEnergy":null,"electronegativity":null},{"symbol":"Te","name":"テルル","atomicNumber":52,"period":5,"group":16,"category":"半金属","stateAt25C":"固体","flameTestColor":null,"atomicRadius":null,"firstIonizationEnergy":null,"electronegativity":null},{"symbol":"I","name":"ヨウ素","atomicNumber":53,"period":5,"group":17,"category":"ハロゲン","stateAt25C":"固体","flameTestColor":null,"atomicRadius":null,"firstIonizationEnergy":null,"electronegativity":null},{"symbol":"Xe","name":"キセノン","atomicNumber":54,"period":5,"group":18,"category":"貴ガス","stateAt25C":"気体","flameTestColor":null,"atomicRadius":null,"firstIonizationEnergy":null,"electronegativity":null},{"symbol":"Cs","name":"セシウム","atomicNumber":55,"period":6,"group":1,"category":"アルカリ金属","stateAt25C":"固体","flameTestColor":null,"atomicRadius":null,"firstIonizationEnergy":null,"electronegativity":null,"note":"融点28.44℃。25℃ではぎりぎり固体(Gaと並んで融点が室温に近い元素として知られる)"},{"symbol":"Ba","name":"バリウム","atomicNumber":56,"period":6,"group":2,"category":"アルカリ土類金属","stateAt25C":"固体","flameTestColor":"緑","atomicRadius":null,"firstIonizationEnergy":null,"electronegativity":null},{"symbol":"Tl","name":"タリウム","atomicNumber":81,"period":6,"group":13,"category":"典型金属","stateAt25C":"固体","flameTestColor":null,"atomicRadius":null,"firstIonizationEnergy":null,"electronegativity":null},{"symbol":"Pb","name":"鉛","atomicNumber":82,"period":6,"group":14,"category":"典型金属","stateAt25C":"固体","flameTestColor":null,"atomicRadius":null,"firstIonizationEnergy":null,"electronegativity":null},{"symbol":"Bi","name":"ビスマス","atomicNumber":83,"period":6,"group":15,"category":"典型金属","stateAt25C":"固体","flameTestColor":null,"atomicRadius":null,"firstIonizationEnergy":null,"electronegativity":null},{"symbol":"Po","name":"ポロニウム","atomicNumber":84,"period":6,"group":16,"category":"典型金属","stateAt25C":"固体","flameTestColor":null,"atomicRadius":null,"firstIonizationEnergy":null,"electronegativity":null},{"symbol":"At","name":"アスタチン","atomicNumber":85,"period":6,"group":17,"category":"ハロゲン","stateAt25C":null,"flameTestColor":null,"atomicRadius":null,"firstIonizationEnergy":null,"electronegativity":null,"note":"天然にはごく微量しか存在せず、常温での状態(固体と理論的に予測されている)は実測されたことがないため未確定としてnullにした"},{"symbol":"Rn","name":"ラドン","atomicNumber":86,"period":6,"group":18,"category":"貴ガス","stateAt25C":"気体","flameTestColor":null,"atomicRadius":null,"firstIonizationEnergy":null,"electronegativity":null},{"symbol":"Fr","name":"フランシウム","atomicNumber":87,"period":7,"group":1,"category":"アルカリ金属","stateAt25C":null,"flameTestColor":null,"atomicRadius":null,"firstIonizationEnergy":null,"electronegativity":null,"note":"地殻中に瞬間的にしか存在せず(最も安定な同位体でも半減期約22分)、常温での状態は実測されたことがないため未確定としてnullにした"},{"symbol":"Ra","name":"ラジウム","atomicNumber":88,"period":7,"group":2,"category":"アルカリ土類金属","stateAt25C":"固体","flameTestColor":null,"atomicRadius":null,"firstIonizationEnergy":null,"electronegativity":null}]};
+
+/* ---------- 起動時チェック ---------- */
+(function checkData(){
+  const msg=[];
+  if(DATA.preciseElements.length!==26) msg.push('preciseElements が26件ではない('+DATA.preciseElements.length+'件)');
+  if(DATA.shapeOnlyElements.length!==18) msg.push('shapeOnlyElements が18件ではない('+DATA.shapeOnlyElements.length+'件)');
+  if(msg.length) console.warn('[DATA] 不整合\n'+msg.join('\n'));
+  else console.info('[DATA] 全'+(DATA.preciseElements.length+DATA.shapeOnlyElements.length)+'件の元素を読み込んだ');
+})();
+
+const esc = s => String(s).replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+
+const ALL = DATA.preciseElements.map(e=>Object.assign({tier:'precise'},e))
+  .concat(DATA.shapeOnlyElements.map(e=>Object.assign({tier:'shape'},e)));
+const BY_KEY = {};
+ALL.forEach(e=>{ BY_KEY[e.period+'-'+e.group]=e; });
+const GROUPS = Array.from({length:18},(_,i)=>i+1);
+
+/* ---------- 分類色(distribution-series-design-system.mdの系列カラーを流用。典型金属だけグレー) ---------- */
+const CAT_COLOR = {
+  'アルカリ金属':    {bg:'rgba(184,122,22,.10)', bd:'#B87A16', tx:'#8A5A0C'},
+  'アルカリ土類金属': {bg:'rgba(168,42,106,.10)', bd:'#A82A6A', tx:'#831F52'},
+  '典型金属':        {bg:'rgba(94,110,118,.08)',  bd:'#B7C0C4', tx:'#5E6E76'},
+  '半金属':          {bg:'rgba(110,58,167,.10)',  bd:'#6E3AA7', tx:'#572D85'},
+  '非金属':          {bg:'rgba(21,138,109,.10)',  bd:'#158A6D', tx:'#0D6A53'},
+  'ハロゲン':        {bg:'rgba(36,87,166,.10)',   bd:'#2457A6', tx:'#1B4380'},
+  '貴ガス':          {bg:'rgba(59,110,30,.10)',   bd:'#3B6E1E', tx:'#2A5215'},
+};
+const CAT_ORDER = ['アルカリ金属','アルカリ土類金属','典型金属','半金属','非金属','ハロゲン','貴ガス'];
+function catColor(cat){ return CAT_COLOR[cat] || {bg:'rgba(94,110,118,.08)',bd:'#B7C0C4',tx:'#5E6E76'}; }
+
+const FLAME_HEX = {'赤':'#C6362E','黄':'#E3B400','紫(赤紫)':'#7B3FA0','橙赤':'#E06A1F','紅':'#B0264F','緑':'#2E8B4A'};
+
+/* ---------- 状態アイコン(固体=皿+粉末、液体=フラスコ、気体=風船) ---------- */
+function stateIconSVG(state, hex){
+  if(state==='固体') return '<svg viewBox="0 0 20 20" aria-hidden="true">'+
+    '<ellipse cx="10" cy="15.5" rx="7" ry="2" fill="none" stroke="'+hex+'" stroke-width="1.3"/>'+
+    '<path d="M6.2 13.2l1.3-3.6M9.4 13.2l0.9-4M12.8 13.2l0.9-3.6" stroke="'+hex+'" stroke-width="1.3" fill="none" stroke-linecap="round"/>'+
+    '</svg>';
+  if(state==='液体') return '<svg viewBox="0 0 20 20" aria-hidden="true">'+
+    '<path d="M8 2.6h4v3.9l3 6.2c.8 1.6-.3 3.5-2.1 3.5H7.1c-1.8 0-2.9-1.9-2.1-3.5l3-6.2V2.6z" fill="none" stroke="'+hex+'" stroke-width="1.3" stroke-linejoin="round"/>'+
+    '</svg>';
+  if(state==='気体') return '<svg viewBox="0 0 20 20" aria-hidden="true">'+
+    '<ellipse cx="10" cy="7.6" rx="5.4" ry="6.4" fill="none" stroke="'+hex+'" stroke-width="1.3"/>'+
+    '<path d="M10 13.9l-1.1 2 1.1 1 1.1-1z" fill="'+hex+'"/>'+
+    '</svg>';
+  return '';
+}
+
+/* ---------- 周期表グリッド ---------- */
+function cellHTML(el, g, p){
+  const c = catColor(el.category);
+  const enVal = el.tier==='precise' && el.electronegativity && el.electronegativity.value!=null ? el.electronegativity.value : null;
+  const icon = el.stateAt25C ? stateIconSVG(el.stateAt25C, c.tx) : '';
+  const flameHex = el.flameTestColor ? FLAME_HEX[el.flameTestColor] : null;
+  const label = esc(el.symbol+'、'+el.name+'、'+el.category+'、常温は'+(el.stateAt25C || '未測定'));
+  return '<button type="button" class="cell" style="grid-column:'+(g+1)+';grid-row:'+(p+1)+';background:'+c.bg+';border-color:'+c.bd+'" data-key="'+p+'-'+g+'" aria-label="'+label+'">'+
+    '<span class="cicon">'+icon+'</span>'+
+    '<span class="csym" style="color:'+c.tx+'">'+esc(el.symbol)+'</span>'+
+    '<span class="cname">'+esc(el.name)+'</span>'+
+    (enVal!=null ? '<span class="cen mono">'+enVal+'</span>' : '')+
+    (flameHex ? '<span class="cflame" style="background:'+flameHex+'"></span>' : '')+
+    '</button>';
+}
+function buildGrid(){
+  let h = '';
+  GROUPS.forEach(g=>{ h += '<div class="ghead" style="grid-column:'+(g+1)+';grid-row:1">'+g+'</div>'; });
+  for(let p=1;p<=7;p++){
+    h += '<div class="plab" style="grid-column:1;grid-row:'+(p+1)+'">'+p+'</div>';
+    if(p>=4 && p<=6){
+      h += '<div class="band" style="grid-column:4/13;grid-row:'+(p+1)+'">遷移元素<br>(このシリーズでは扱わない)</div>';
+    }
+    GROUPS.forEach(g=>{
+      if(p>=4 && p<=6 && g>=3 && g<=11) return;
+      const el = BY_KEY[p+'-'+g];
+      if(!el) return;
+      h += cellHTML(el, g, p);
+    });
+  }
+  document.getElementById('ptgrid').innerHTML = h;
+}
+
+/* ---------- 凡例 ---------- */
+function buildLegend(){
+  document.getElementById('legendCats').innerHTML = CAT_ORDER.map(cat=>{
+    const c = catColor(cat);
+    return '<span class="legend-item"><span class="legend-swatch" style="background:'+c.bg+';border-color:'+c.bd+'"></span>'+esc(cat)+'</span>';
+  }).join('');
+  document.getElementById('legendIcons').innerHTML =
+    ['固体','液体','気体'].map(s=>'<span class="legend-icon-item">'+stateIconSVG(s,'#5E6E76')+esc(s)+'</span>').join('');
+  document.getElementById('legendFlames').innerHTML = Object.keys(FLAME_HEX).map(k=>
+    '<span class="legend-flame-item"><span class="legend-flame-dot" style="background:'+FLAME_HEX[k]+'"></span>炎色反応: '+esc(k)+'</span>'
+  ).join('');
+}
+
+/* ---------- ツールチップ(ホバー=プレビュー、クリック/タップ=ピン留め) ---------- */
+const tip = document.getElementById('tip');
+let pinnedKey = null;
+
+function tipHTML(el){
+  let h = '<div class="tsym">'+esc(el.symbol)+'<span class="tname">'+esc(el.name)+'</span></div>';
+  h += '<div class="trow">分類: '+esc(el.category)+'　常温: '+esc(el.stateAt25C || '未測定(未確認)')+'</div>';
+  if(el.tier==='precise'){
+    const r = el.atomicRadius, ie = el.firstIonizationEnergy, en = el.electronegativity;
+    h += '<div class="trow">原子半径: '+r.pm+' pm <span class="tconf">('+r.confidence+')</span></div>';
+    h += '<div class="trow">第一イオン化エネルギー: '+ie.kJmol+' kJ/mol <span class="tconf">('+ie.confidence+')</span></div>';
+    h += en.value!=null
+      ? '<div class="trow">電気陰性度: '+en.value+' <span class="tconf">('+en.confidence+')</span></div>'
+      : '<div class="trow tmuted">電気陰性度: なし(貴ガス)</div>';
+  } else {
+    h += '<div class="trow tmuted">原子半径・イオン化エネルギー・電気陰性度は今回未収録</div>';
+  }
+  if(el.flameTestColor) h += '<div class="trow">炎色反応: '+esc(el.flameTestColor)+'</div>';
+  if(el.note) h += '<div class="tnote">'+esc(el.note)+'</div>';
+  return h;
+}
+function positionTip(cellEl){
+  const r = cellEl.getBoundingClientRect();
+  tip.style.left = '0px'; tip.style.top='0px';
+  const tw = tip.offsetWidth, th = tip.offsetHeight;
+  let x = r.left + r.width/2 - tw/2;
+  let y = r.top - th - 8;
+  if(y < 4) y = r.bottom + 8;
+  x = Math.max(6, Math.min(x, window.innerWidth - tw - 6));
+  y = Math.min(y, window.innerHeight - th - 6);
+  tip.style.left = x+'px';
+  tip.style.top = y+'px';
+}
+function showTip(cellEl, key){
+  const el = BY_KEY[key];
+  if(!el) return;
+  tip.innerHTML = tipHTML(el);
+  tip.hidden = false;
+  positionTip(cellEl);
+}
+function hideTip(){ tip.hidden = true; }
+
+document.getElementById('ptgrid').addEventListener('mouseenter', (e)=>{
+  const cell = e.target.closest && e.target.closest('.cell');
+  if(cell && !pinnedKey) showTip(cell, cell.dataset.key);
+}, true);
+document.getElementById('ptgrid').addEventListener('mouseleave', (e)=>{
+  const cell = e.target.closest && e.target.closest('.cell');
+  if(cell && !pinnedKey) hideTip();
+}, true);
+document.getElementById('ptgrid').addEventListener('focusin', (e)=>{
+  const cell = e.target.closest && e.target.closest('.cell');
+  if(cell) showTip(cell, cell.dataset.key);
+});
+document.getElementById('ptgrid').addEventListener('focusout', (e)=>{
+  const cell = e.target.closest && e.target.closest('.cell');
+  if(cell && !pinnedKey) hideTip();
+});
+document.getElementById('ptgrid').addEventListener('click', (e)=>{
+  const cell = e.target.closest && e.target.closest('.cell');
+  if(!cell) return;
+  const key = cell.dataset.key;
+  if(pinnedKey===key){ pinnedKey=null; hideTip(); }
+  else { pinnedKey=key; showTip(cell, key); }
+});
+document.addEventListener('click', (e)=>{
+  if(!e.target.closest('.cell') && !e.target.closest('#tip')){ pinnedKey=null; hideTip(); }
+});
+document.addEventListener('keydown', (e)=>{
+  if(e.key==='Escape'){ pinnedKey=null; hideTip(); }
+});
+window.addEventListener('scroll', ()=>{ if(!pinnedKey) hideTip(); }, true);
+
+/* ---------- 比較チャート ---------- */
+const PROPS = [
+  {key:'radius', label:'原子半径', unit:'pm',      get:e=> e.atomicRadius ? e.atomicRadius.pm : null},
+  {key:'ie',     label:'第一イオン化エネルギー', unit:'kJ/mol', get:e=> e.firstIonizationEnergy ? e.firstIonizationEnergy.kJmol : null},
+  {key:'en',     label:'電気陰性度', unit:'',      get:e=> e.electronegativity ? e.electronegativity.value : null},
+];
+const GROUP_LABEL = {1:'1族',2:'2族',13:'13族',14:'14族',15:'15族',16:'16族',17:'17族(ハロゲン)',18:'18族(貴ガス)'};
+const GROUPS_CMP = [1,2,13,14,15,16,17,18];
+const cmp = { propKey:'radius', mode:'period', group:1 };
+
+function elementsOfPeriod(per){
+  return GROUPS.map(g=>BY_KEY[per+'-'+g]).filter(Boolean);
+}
+function elementsOfGroup(g){
+  return [2,3,4].map(per=>BY_KEY[per+'-'+g]).filter(Boolean);
+}
+
+function drawBars(rows, prop){
+  const host = document.getElementById('chartHost');
+  const allVals = [];
+  rows.forEach(r=>r.items.forEach(it=>{ const v=prop.get(it); if(v!=null) allVals.push(v); }));
+  if(!allVals.length){
+    host.innerHTML = '<div class="empty-chart">選んだ組み合わせはすべて値が定義されていない(貴ガスの電気陰性度など)ため、グラフを表示できない。</div>';
+    return;
+  }
+  const maxV = Math.max.apply(null, allVals) * 1.18;
+  const barW = 32, gap = 12, leftPad = 6, rowH = 92, rowGap = 26;
+  const maxItems = Math.max.apply(null, rows.map(r=>r.items.length));
+  const width = leftPad + maxItems*(barW+gap) + gap;
+  const height = rows.length*rowH + (rows.length-1)*rowGap + 20;
+  let svg = '<svg viewBox="0 0 '+width+' '+height+'" class="chartsvg" role="img" aria-label="'+esc(prop.label+'の比較チャート')+'">';
+  rows.forEach((r,ri)=>{
+    const rowY = ri*(rowH+rowGap);
+    svg += '<text x="'+leftPad+'" y="'+(rowY+10)+'" class="rowlabel">'+esc(r.label)+'</text>';
+    r.items.forEach((it,ii)=>{
+      const v = prop.get(it);
+      const x = leftPad + ii*(barW+gap);
+      const barBaseY = rowY + rowH - 16;
+      const c = catColor(it.category);
+      if(v==null){
+        svg += '<text x="'+(x+barW/2)+'" y="'+(barBaseY-2)+'" text-anchor="middle" class="novalue">なし</text>';
+      } else {
+        const barH = (v/maxV) * (rowH-40);
+        const y = barBaseY - barH;
+        svg += '<rect x="'+x+'" y="'+y+'" width="'+barW+'" height="'+barH+'" fill="'+c.bd+'" fill-opacity=".78" stroke="'+c.bd+'"/>';
+        svg += '<text x="'+(x+barW/2)+'" y="'+(y-4)+'" text-anchor="middle" class="val">'+v+'</text>';
+      }
+      svg += '<text x="'+(x+barW/2)+'" y="'+(barBaseY+15)+'" text-anchor="middle" class="axlabel">'+esc(it.symbol)+'</text>';
+    });
+  });
+  svg += '</svg>';
+  host.innerHTML = svg;
+}
+
+function renderChart(){
+  const prop = PROPS.filter(p=>p.key===cmp.propKey)[0];
+  let rows, noteExtra='';
+  if(cmp.mode==='period'){
+    rows = [
+      {label:'第2周期', items: elementsOfPeriod(2)},
+      {label:'第3周期', items: elementsOfPeriod(3)},
+    ];
+    noteExtra = '同じ族の並び順(1→2→13→…→18)で第2周期と第3周期を並べ、左から右への変化を上下の周期で見比べる。';
+  } else {
+    rows = [ {label:GROUP_LABEL[cmp.group], items: elementsOfGroup(cmp.group)} ];
+    noteExtra = GROUP_LABEL[cmp.group]+'の第2〜4周期の元素を並べ、上から下への変化を見る(第1周期のH・Heはアルカリ金属・貴ガスの典型的な傾向から外れるため対象外)。';
+  }
+  document.getElementById('chartNote').textContent =
+    prop.label+(prop.unit?'('+prop.unit+')':'')+'を比較する。'+noteExtra;
+  drawBars(rows, prop);
+}
+
+function buildCompareControls(){
+  document.getElementById('propBtns').innerHTML = PROPS.map(p=>
+    '<button class="btn sm" data-prop="'+p.key+'" aria-pressed="'+(p.key===cmp.propKey)+'">'+esc(p.label)+'</button>'
+  ).join('');
+  document.getElementById('modeBtns').innerHTML =
+    '<button class="btn sm" data-mode="period" aria-pressed="'+(cmp.mode==='period')+'">周期で比較(左→右)</button>'+
+    '<button class="btn sm" data-mode="group" aria-pressed="'+(cmp.mode==='group')+'">族で比較(上→下)</button>';
+  document.getElementById('groupBtns').innerHTML = GROUPS_CMP.map(g=>
+    '<button class="btn sm" data-group="'+g+'" aria-pressed="'+(g===cmp.group)+'">'+esc(GROUP_LABEL[g])+'</button>'
+  ).join('');
+  syncGroupBtnsVisibility();
+
+  document.getElementById('propBtns').addEventListener('click', (e)=>{
+    const b = e.target.closest('button[data-prop]');
+    if(!b) return;
+    cmp.propKey = b.dataset.prop;
+    Array.prototype.forEach.call(document.querySelectorAll('#propBtns button'), x=>x.setAttribute('aria-pressed', x===b));
+    renderChart();
+  });
+  document.getElementById('modeBtns').addEventListener('click', (e)=>{
+    const b = e.target.closest('button[data-mode]');
+    if(!b) return;
+    cmp.mode = b.dataset.mode;
+    Array.prototype.forEach.call(document.querySelectorAll('#modeBtns button'), x=>x.setAttribute('aria-pressed', x===b));
+    syncGroupBtnsVisibility();
+    renderChart();
+  });
+  document.getElementById('groupBtns').addEventListener('click', (e)=>{
+    const b = e.target.closest('button[data-group]');
+    if(!b) return;
+    cmp.group = Number(b.dataset.group);
+    Array.prototype.forEach.call(document.querySelectorAll('#groupBtns button'), x=>x.setAttribute('aria-pressed', x===b));
+    renderChart();
+  });
+}
+function syncGroupBtnsVisibility(){
+  document.getElementById('groupBtns').style.display = cmp.mode==='group' ? 'flex' : 'none';
+}
+
+/* ---------- 初期化 ---------- */
+buildLegend();
+buildGrid();
+buildCompareControls();
+renderChart();
+</script>
+</body>
+</html>
