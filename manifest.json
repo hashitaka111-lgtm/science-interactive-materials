@@ -904,7 +904,8 @@
     "related": [
       "chem-organic-separation",
       "chem-acid-base-distribution",
-      "chem-amino-acids-matrix"
+      "chem-amino-acids-matrix",
+      "chem-structure-determination"
     ]
   },
   {
@@ -1228,7 +1229,36 @@
     "confidence": "high",
     "type": "procedure",
     "related": [
-      "chem-elemental-analysis"
+      "chem-elemental-analysis",
+      "chem-structure-determination"
+    ]
+  },
+  {
+    "id": "chem-structure-determination",
+    "file": "html/structure-determination.html",
+    "subject": "chemistry",
+    "unit": "有機化学 / 構造決定の手順",
+    "course": "化学",
+    "section": "有機化合物の構造決定",
+    "order": 26,
+    "title": "構造決定の手順",
+    "heading": "構造決定の手順",
+    "summary": "分子式・不飽和度・検出反応の結果を組み合わせ、消去法で未知化合物の構造を絞り込む",
+    "topics": [
+      "不飽和度からの構造の絞り込み",
+      "検出反応による候補の消去法",
+      "反応だけでは決まらない場合の限界",
+      "構造決定の全体像"
+    ],
+    "interactions": [
+      "チップ切り替え",
+      "手がかりの開示・消去法"
+    ],
+    "confidence": "high",
+    "type": "procedure",
+    "related": [
+      "chem-isomers",
+      "chem-organic-reaction-map"
     ]
   }
 ]

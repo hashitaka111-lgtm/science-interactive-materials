@@ -1,0 +1,226 @@
+{
+  "puzzles": [
+    {
+      "id": "A",
+      "label": "パズルA",
+      "formula": "C3H8O",
+      "n": 3,
+      "m": 8,
+      "o": 1,
+      "narrowingNote": "不飽和度0 → 環も二重結合もない、鎖状飽和の構造だけです。C3H8Oの分子式に対応する構造は、アルコール2種(1-プロパノール・2-プロパノール)とエーテル1種(メチルエチルエーテル)の3つです。",
+      "candidates": [
+        {
+          "id": "1-propanol",
+          "name": "1-プロパノール",
+          "structuralFormula": "CH3-CH2-CH2-OH",
+          "functionalGroup": "アルコール",
+          "skeleton": "直鎖(3C)"
+        },
+        {
+          "id": "2-propanol",
+          "name": "2-プロパノール",
+          "structuralFormula": "CH3-CH(OH)-CH3",
+          "functionalGroup": "アルコール",
+          "skeleton": "直鎖(3C)"
+        },
+        {
+          "id": "methyl-ethyl-ether",
+          "name": "メチルエチルエーテル",
+          "structuralFormula": "CH3-O-CH2-CH3",
+          "functionalGroup": "エーテル",
+          "skeleton": "1C+2C"
+        }
+      ],
+      "clues": [
+        {
+          "id": "A-1",
+          "text": "金属ナトリウムと反応して気体(水素)が発生した。",
+          "eliminates": ["methyl-ethyl-ether"],
+          "reason": "エーテルは金属ナトリウムと反応しないため脱落します。1-プロパノール・2-プロパノールの2択に絞られます。"
+        },
+        {
+          "id": "A-2",
+          "text": "ヨードホルム反応が陽性だった。",
+          "eliminates": ["1-propanol"],
+          "reason": "CH3-CH(OH)-の構造(OHが結合した炭素に直接CH3が付いている)を持つのは2-プロパノールのみです。1-プロパノールはOH炭素の隣がCH2なので陰性です。"
+        }
+      ],
+      "remaining": ["2-propanol"],
+      "conclusionType": "unique",
+      "conclusionText": "2-プロパノールに一意に決定します。2つの手がかりを順に使うことで、3候補から1つに絞り込めました。"
+    },
+    {
+      "id": "B",
+      "label": "パズルB",
+      "formula": "C4H10O",
+      "n": 4,
+      "m": 10,
+      "o": 1,
+      "narrowingNote": "不飽和度0 → 鎖状飽和の構造だけです。C4H10Oの分子式に対応する構造は、前教材(異性体と不飽和度)で数え上げたとおりアルコール4種・エーテル3種の合計7つです。",
+      "candidates": [
+        {
+          "id": "1-butanol",
+          "name": "1-ブタノール",
+          "structuralFormula": "CH3-CH2-CH2-CH2-OH",
+          "functionalGroup": "アルコール",
+          "skeleton": "直鎖(ブタン型)"
+        },
+        {
+          "id": "2-butanol",
+          "name": "2-ブタノール",
+          "structuralFormula": "CH3-CH2-CH(OH)-CH3",
+          "functionalGroup": "アルコール",
+          "skeleton": "直鎖(ブタン型)"
+        },
+        {
+          "id": "2-methyl-1-propanol",
+          "name": "2-メチル-1-プロパノール",
+          "structuralFormula": "(CH3)2CH-CH2-OH",
+          "functionalGroup": "アルコール",
+          "skeleton": "分岐(2-メチルプロパン型)"
+        },
+        {
+          "id": "2-methyl-2-propanol",
+          "name": "2-メチル-2-プロパノール",
+          "structuralFormula": "(CH3)3C-OH",
+          "functionalGroup": "アルコール",
+          "skeleton": "分岐(2-メチルプロパン型)"
+        },
+        {
+          "id": "methyl-n-propyl-ether",
+          "name": "メチルn-プロピルエーテル",
+          "structuralFormula": "CH3-O-CH2-CH2-CH3",
+          "functionalGroup": "エーテル",
+          "skeleton": "1C+直鎖3C"
+        },
+        {
+          "id": "methyl-isopropyl-ether",
+          "name": "メチルイソプロピルエーテル",
+          "structuralFormula": "CH3-O-CH(CH3)2",
+          "functionalGroup": "エーテル",
+          "skeleton": "1C+分岐3C"
+        },
+        {
+          "id": "diethyl-ether",
+          "name": "ジエチルエーテル",
+          "structuralFormula": "CH3-CH2-O-CH2-CH3",
+          "functionalGroup": "エーテル",
+          "skeleton": "2C+2C"
+        }
+      ],
+      "clues": [
+        {
+          "id": "B-1",
+          "text": "金属ナトリウムと反応せず、気体は発生しなかった。",
+          "eliminates": ["1-butanol", "2-butanol", "2-methyl-1-propanol", "2-methyl-2-propanol"],
+          "reason": "アルコール4種はすべて金属ナトリウムと反応するため脱落します。残るのはエーテル3種(メチルn-プロピルエーテル・メチルイソプロピルエーテル・ジエチルエーテル)です。"
+        }
+      ],
+      "remaining": ["methyl-n-propyl-ether", "methyl-isopropyl-ether", "diethyl-ether"],
+      "conclusionType": "limited",
+      "conclusionText": "エーテル3種が残り、ここで打ち止めです。エーテル同士は高校で習う反応だけでは区別できません(区別にはNMRなど別の手段が必要です)。"
+    },
+    {
+      "id": "C",
+      "label": "パズルC",
+      "formula": "C3H6O2",
+      "n": 3,
+      "m": 6,
+      "o": 2,
+      "narrowingNote": "不飽和度1 → 「環が1つ」または「二重結合が1つ」のどちらかです。この分子式C3H6O2では、その二重結合はいずれもC=O(カルボニル基)としてカルボン酸またはエステルの構造に現れます。",
+      "candidates": [
+        {
+          "id": "propionic-acid",
+          "name": "プロピオン酸",
+          "structuralFormula": "CH3-CH2-COOH",
+          "functionalGroup": "カルボン酸",
+          "skeleton": "直鎖(3C)"
+        },
+        {
+          "id": "methyl-acetate",
+          "name": "酢酸メチル",
+          "structuralFormula": "CH3-CO-O-CH3",
+          "functionalGroup": "エステル",
+          "skeleton": "2C+1C"
+        },
+        {
+          "id": "ethyl-formate",
+          "name": "ギ酸エチル",
+          "structuralFormula": "H-CO-O-CH2-CH3",
+          "functionalGroup": "エステル",
+          "skeleton": "1C+2C"
+        }
+      ],
+      "clues": [
+        {
+          "id": "C-1",
+          "text": "炭酸水素ナトリウム水溶液に加えるとCO2の泡が発生した。",
+          "eliminates": ["methyl-acetate", "ethyl-formate"],
+          "reason": "カルボン酸は炭酸水素ナトリウムと反応してCO2を発生しますが、エステルは中性で反応しないため脱落します。"
+        }
+      ],
+      "remaining": ["propionic-acid"],
+      "conclusionType": "unique",
+      "conclusionText": "プロピオン酸に一意に決定します。炭素数3のカルボン酸は枝分かれできないため、この時点で構造異性体の可能性自体がプロピオン酸1つしかありません。"
+    },
+    {
+      "id": "D",
+      "label": "パズルD",
+      "formula": "C7H8O",
+      "n": 7,
+      "m": 8,
+      "o": 1,
+      "narrowingNote": "不飽和度4かつ炭素数7 → ベンゼン環1つで不飽和度4をちょうど使い切り、残りは炭素1個分だけです。この時点で「ベンゼン環1つ+炭素1個」という構造にほぼ限定されます。",
+      "candidates": [
+        {
+          "id": "o-cresol",
+          "name": "o-クレゾール",
+          "structuralFormula": "o-CH3-C6H4-OH",
+          "functionalGroup": "フェノール類",
+          "skeleton": "ベンゼン環+CH3(オルト位)"
+        },
+        {
+          "id": "m-cresol",
+          "name": "m-クレゾール",
+          "structuralFormula": "m-CH3-C6H4-OH",
+          "functionalGroup": "フェノール類",
+          "skeleton": "ベンゼン環+CH3(メタ位)"
+        },
+        {
+          "id": "p-cresol",
+          "name": "p-クレゾール",
+          "structuralFormula": "p-CH3-C6H4-OH",
+          "functionalGroup": "フェノール類",
+          "skeleton": "ベンゼン環+CH3(パラ位)"
+        },
+        {
+          "id": "benzyl-alcohol",
+          "name": "ベンジルアルコール",
+          "structuralFormula": "C6H5-CH2-OH",
+          "functionalGroup": "アルコール(側鎖)",
+          "skeleton": "ベンゼン環+CH2OH"
+        },
+        {
+          "id": "anisole",
+          "name": "アニソール",
+          "structuralFormula": "C6H5-O-CH3",
+          "functionalGroup": "エーテル",
+          "skeleton": "ベンゼン環+OCH3"
+        }
+      ],
+      "clues": [
+        {
+          "id": "D-1",
+          "text": "塩化鉄(III)水溶液で呈色した。",
+          "eliminates": ["benzyl-alcohol", "anisole"],
+          "reason": "フェノール性OH(ベンゼン環に直接OHが結合した構造)を持つ化合物だけが呈色します。ベンジルアルコールはOHが側鎖のCH2に結合しており、アニソールはOHではなくエーテルのため、どちらも呈色せず脱落します。"
+        }
+      ],
+      "remaining": ["o-cresol", "m-cresol", "p-cresol"],
+      "conclusionType": "limited",
+      "conclusionText": "o-クレゾール・m-クレゾール・p-クレゾールの3つが残り、ここで打ち止めです。同じフェノール性でも、置換位置(オルト・メタ・パラ)の違いまでは今回の反応だけでは区別できません。"
+    }
+  ],
+  "source": "4つの化合物パズルの候補・手がかり・結論は指示で確定済みの内容をそのまま採用した(実験値ではなく、高校化学の教科書・問題集レベルで確立した構造決定の考え方)。検出反応(銀鏡・フェーリング・ヨードホルム・塩化鉄(III)・炭酸水素ナトリウム)そのものの原理はhtml/organic-reaction-map.htmlで扱っており、本教材では実験結果(手がかり)としてそのまま与えている。C4H10Oの候補7つは名称・示性式・官能基・骨格のラベル文字列をdata/isomers.jsonと完全に一致させている。",
+  "confidence": "high"
+}

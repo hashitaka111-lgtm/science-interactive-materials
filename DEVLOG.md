@@ -99,6 +99,18 @@
 - 設計判断: 定積の2行程(A→B, C→D)と定圧の2行程(B→C, D→A)を1本目と同じ配色(緑=定積、青=定圧)で塗り分け、方向を示す矢印(↑→↓←)をp-V図に添えて時計回り=正味の仕事が正であることを視覚的に示した。物質量nはスライダーにせず1.0molで固定し、サイクルの形が指示どおり4つのP・Vスライダーだけで決まるようにした
 - スライダーの実装で1点工夫した点: P_low/P_highとV_low/V_highがそれぞれ逆転してサイクルがつぶれないよう、最小差(ΔP=20kPa、ΔV=2L)を設けて片側のスライダーが相手に近づきすぎたら自動的にクランプする方式にした(first-lawのsyncSlidersの仕組みをそのまま利用でき、追加の配線は不要だった)
 
+## 2026-09-18 — 新規教材「構造決定の手順」の実装(有機化合物の構造決定シリーズ完結)
+
+- 変更: `data/structure-determination.json`(新規)、`html/structure-determination.html`(新規)、`scripts/check-embedded-data.mjs`(EMBED_CHECKSに`structure-determination`エントリを追加)、`manifest.json`(`chem-structure-determination`を新規追加、`chem-isomers`・`chem-organic-reaction-map`のrelatedに相互リンクを追加)、`index.html`(build.mjsで再生成)
+- 有機化合物の構造決定シリーズ3本目・シリーズの締めくくり。1本目(元素分析→分子式)・2本目(異性体の数え上げ)の続きとして、「分子式+不飽和度+検出反応の結果」を組み合わせ消去法で構造を1つに絞り込む手順を扱った。検出反応(銀鏡・フェーリング・ヨードホルム・FeCl₃・NaHCO₃)の原理そのものはhtml/organic-reaction-map.htmlで既に扱っているため、本教材では一切説明を繰り返さず「実験結果(手がかり)」としてそのまま与え、絞り込みの推論だけに専念した。参照元はhtml/isomers.html(チップ切り替え・functionalGroup/skeletonラベルの作法)
+- 指示どおり確定済みの4パズルをそのまま採用: パズルA(C3H8O、2つの手がかりで2-プロパノールに一意決定)、パズルB(C4H10O、候補7つはdata/isomers.jsonのC4H10Oと名称・示性式・官能基・骨格のラベル文字列を完全一致させた。1つの手がかりでアルコール4種が脱落しエーテル3種で打ち止め)、パズルC(C3H6O2、1つの手がかりでプロピオン酸に一意決定)、パズルD(C7H8O、不飽和度4かつ炭素数7→ベンゼン環1つ+炭素1個にほぼ限定という読み方を示したうえで、1つの手がかりでo-・m-・p-クレゾールの3つまで絞り込み打ち止め)。B・Dの「反応だけでは決まらない」打ち止めを両方含め、すべてのパズルが単一の答えに収束するわけではないことを明示した
+- UI設計: 候補一覧を常時全部表示した状態から始め、「手がかりNを開示する」ボタンで手がかりを1つずつ順番に開示。開示するたびに矛盾する候補行に取り消し線・グレーアウトを付け、どの手がかりで脱落したかを行内に明記。全手がかり開示後、残った候補が1つなら結論カードを強調表示、複数残る場合は専用のlimitedスタイル(赤系の左罫線)で「反応だけでは決まらない」旨を表示する構成にした
+- 実装中に見つけて直した不具合: `.revealBtn{display:block}`のクラス指定が、開示ボタンを隠すために付与した`hidden`属性のUAデフォルト(`[hidden]{display:none}`)を上書きしてしまい、全手がかり開示後もボタンが見た目上消えない問題があった。`.revealBtn[hidden]{display:none}`を明示的に追加して解消(ブラウザで実際に確認するまで気づかなかった)
+- 検証: `node scripts/check-embedded-data.mjs`・`node build.mjs`がともにエラーなく通ることを確認。ブラウザで4パズルすべてをJSで一括操作し、各パズルで指定どおりの候補が指定どおりの手がかりで脱落し、最終的な結論文言(remaining/conclusionText)が一致することを確認。375px幅で横スクロールが発生しないこと(`scrollWidth === clientWidth`)、コンソールエラーがゼロであること、Tabキーでパズルチップ・開示ボタンに順にフォーカスが移りfocus-visibleの輪郭線が表示されることを確認した
+- 教材数: 化学26件・物理16件、合計42件
+- 保留: 特になし
+- 次: 有機化合物の構造決定シリーズ(元素分析→分子式決定/異性体と不飽和度/構造決定の手順)はこれで3本完結。次にこのシリーズに着手する場合は新規教材ではなく3本の相互リンク・表現の整合性の見直しが中心になる見込み
+
 ## 2026-09-18 — 新規教材「元素分析と分子式決定」の実装(有機化合物の構造決定シリーズ1本目)
 
 - 変更: `data/elemental-analysis.json`(新規)、`html/elemental-analysis.html`(新規)、`scripts/check-embedded-data.mjs`(EMBED_CHECKSに`elemental-analysis`エントリを追加)、`manifest.json`(`chem-elemental-analysis`を新規追加、`chem-organic-separation`のrelatedに相互リンクを追加)、`index.html`(build.mjsで再生成)
