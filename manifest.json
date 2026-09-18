@@ -964,7 +964,8 @@
     "type": "procedure",
     "related": [
       "chem-amino-acids-matrix",
-      "chem-protein-structure"
+      "chem-protein-structure",
+      "chem-polymer-degree"
     ]
   },
   {
@@ -1259,6 +1260,34 @@
     "related": [
       "chem-isomers",
       "chem-organic-reaction-map"
+    ]
+  },
+  {
+    "id": "chem-polymer-degree",
+    "file": "html/polymer-degree.html",
+    "subject": "chemistry",
+    "unit": "高分子化合物 / 重合度と平均分子量",
+    "course": "化学",
+    "section": "合成高分子化合物",
+    "order": 27,
+    "title": "重合度と平均分子量",
+    "heading": "重合度と平均分子量",
+    "summary": "付加重合と縮合重合それぞれで、重合度nから平均分子量Mを計算する",
+    "topics": [
+      "付加重合と縮合重合の違い",
+      "繰り返し単位の式量の計算",
+      "重合度と平均分子量の関係",
+      "縮合重合での脱水"
+    ],
+    "interactions": [
+      "チップ切り替え",
+      "スライダー",
+      "グラフ連動"
+    ],
+    "confidence": "high",
+    "type": "simulator",
+    "related": [
+      "chem-peptide-sequencing"
     ]
   }
 ]

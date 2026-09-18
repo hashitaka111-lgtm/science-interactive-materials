@@ -1,0 +1,72 @@
+{
+  "atomicWeights": { "H": 1.0, "C": 12.0, "N": 14.0, "O": 16.0, "Cl": 35.5 },
+  "nRange": { "min": 100, "max": 10000 },
+  "polymers": [
+    {
+      "id": "polyethylene",
+      "name": "ポリエチレン",
+      "polymerizationType": "addition",
+      "monomers": [
+        { "name": "エチレン", "formula": "CH2=CH2", "weight": 28.0 }
+      ],
+      "leavingMolecule": null,
+      "leavingFormula": null,
+      "leavingWeight": 0,
+      "leavingCountPerUnit": 0,
+      "repeatUnitFormula": "-CH2-CH2-",
+      "repeatUnitWeight": 28.0,
+      "confidence": "high",
+      "source": "原子量H=1.0,C=12.0からの計算値。エチレンCH2=CH2(式量28)がそのまま繰り返し単位になり、脱離する小分子はない。"
+    },
+    {
+      "id": "pvc",
+      "name": "ポリ塩化ビニル",
+      "polymerizationType": "addition",
+      "monomers": [
+        { "name": "塩化ビニル", "formula": "CH2=CHCl", "weight": 62.5 }
+      ],
+      "leavingMolecule": null,
+      "leavingFormula": null,
+      "leavingWeight": 0,
+      "leavingCountPerUnit": 0,
+      "repeatUnitFormula": "-CH2-CHCl-",
+      "repeatUnitWeight": 62.5,
+      "confidence": "high",
+      "source": "原子量H=1.0,C=12.0,Cl=35.5からの計算値。塩化ビニルCH2=CHCl(式量62.5)がそのまま繰り返し単位になり、脱離する小分子はない。"
+    },
+    {
+      "id": "nylon66",
+      "name": "ナイロン66",
+      "polymerizationType": "condensation",
+      "monomers": [
+        { "name": "アジピン酸", "formula": "HOOC(CH2)4COOH", "weight": 146.0 },
+        { "name": "ヘキサメチレンジアミン", "formula": "H2N(CH2)6NH2", "weight": 116.0 }
+      ],
+      "leavingMolecule": "水",
+      "leavingFormula": "H2O",
+      "leavingWeight": 18.0,
+      "leavingCountPerUnit": 2,
+      "repeatUnitFormula": "-CO(CH2)4CONH(CH2)6NH-",
+      "repeatUnitWeight": 226.0,
+      "confidence": "high",
+      "source": "原子量H=1.0,C=12.0,N=14.0,O=16.0からの計算値。アジピン酸(146)とヘキサメチレンジアミン(116)が1組ずつ縮合し、そのたびにH2Oが2個脱離する(アミド結合が2か所できるため)。146+116-2×18=226。"
+    },
+    {
+      "id": "pet",
+      "name": "PET(ポリエチレンテレフタラート)",
+      "polymerizationType": "condensation",
+      "monomers": [
+        { "name": "テレフタル酸", "formula": "HOOC-C6H4-COOH", "weight": 166.0 },
+        { "name": "エチレングリコール", "formula": "HOCH2CH2OH", "weight": 62.0 }
+      ],
+      "leavingMolecule": "水",
+      "leavingFormula": "H2O",
+      "leavingWeight": 18.0,
+      "leavingCountPerUnit": 2,
+      "repeatUnitFormula": "-CO-C6H4-CO-O-CH2CH2-O-",
+      "repeatUnitWeight": 192.0,
+      "confidence": "high",
+      "source": "原子量H=1.0,C=12.0,O=16.0からの計算値。テレフタル酸(166)とエチレングリコール(62)が1組ずつ縮合し、そのたびにH2Oが2個脱離する(エステル結合が2か所できるため)。166+62-2×18=192。"
+    }
+  ]
+}
