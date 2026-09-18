@@ -120,6 +120,13 @@ const EMBED_CHECKS = [
       { varName: "DATA", dataFile: "data/elemental-analysis.json" },
     ],
   },
+  {
+    materialId: "isomers",
+    html: "html/isomers.html",
+    checks: [
+      { varName: "DATA", dataFile: "data/isomers.json" },
+    ],
+  },
 ];
 
 // HTML本文から `const VAR = {...};` の1行を取り出してJSON.parseする。

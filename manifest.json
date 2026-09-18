@@ -1200,7 +1200,35 @@
     "confidence": "high",
     "type": "simulator",
     "related": [
-      "chem-organic-separation"
+      "chem-organic-separation",
+      "chem-isomers"
+    ]
+  },
+  {
+    "id": "chem-isomers",
+    "file": "html/isomers.html",
+    "subject": "chemistry",
+    "unit": "有機化学 / 異性体と不飽和度",
+    "course": "化学",
+    "section": "有機化合物の構造決定",
+    "order": 25,
+    "title": "異性体と不飽和度",
+    "heading": "異性体と不飽和度",
+    "summary": "分子式から不飽和度を求め、構造異性体を数え上げて骨格・位置・官能基の3つの関係に分類する",
+    "topics": [
+      "不飽和度(水素不足度)の計算",
+      "構造異性体の数え上げ",
+      "炭素骨格異性体・位置異性体・官能基異性体の判定",
+      "アルケンとシクロアルカンの関係"
+    ],
+    "interactions": [
+      "チップ切り替え",
+      "組み合わせ比較"
+    ],
+    "confidence": "high",
+    "type": "procedure",
+    "related": [
+      "chem-elemental-analysis"
     ]
   }
 ]

@@ -1,0 +1,154 @@
+{
+  "formulas": [
+    {
+      "id": "C2H6O",
+      "formula": "C2H6O",
+      "n": 2,
+      "m": 6,
+      "o": 1,
+      "isomers": [
+        {
+          "id": "ethanol",
+          "name": "エタノール",
+          "structuralFormula": "CH3-CH2-OH",
+          "functionalGroup": "アルコール",
+          "skeleton": "直鎖(2C)"
+        },
+        {
+          "id": "dimethyl-ether",
+          "name": "ジメチルエーテル",
+          "structuralFormula": "CH3-O-CH3",
+          "functionalGroup": "エーテル",
+          "skeleton": "(エーテルのC分布)1+1"
+        }
+      ]
+    },
+    {
+      "id": "C4H10",
+      "formula": "C4H10",
+      "n": 4,
+      "m": 10,
+      "o": 0,
+      "isomers": [
+        {
+          "id": "n-butane",
+          "name": "ブタン(n-ブタン)",
+          "structuralFormula": "CH3-CH2-CH2-CH3",
+          "functionalGroup": "アルカン",
+          "skeleton": "直鎖(4C)"
+        },
+        {
+          "id": "isobutane",
+          "name": "イソブタン(2-メチルプロパン)",
+          "structuralFormula": "(CH3)2CH-CH3",
+          "functionalGroup": "アルカン",
+          "skeleton": "分岐(2-メチルプロパン型)"
+        }
+      ]
+    },
+    {
+      "id": "C4H8",
+      "formula": "C4H8",
+      "n": 4,
+      "m": 8,
+      "o": 0,
+      "isomers": [
+        {
+          "id": "1-butene",
+          "name": "1-ブテン",
+          "structuralFormula": "CH2=CH-CH2-CH3",
+          "functionalGroup": "アルケン(鎖状)",
+          "skeleton": "直鎖(ブテン型)"
+        },
+        {
+          "id": "2-butene",
+          "name": "2-ブテン",
+          "structuralFormula": "CH3-CH=CH-CH3",
+          "functionalGroup": "アルケン(鎖状)",
+          "skeleton": "直鎖(ブテン型)"
+        },
+        {
+          "id": "isobutylene",
+          "name": "2-メチルプロペン(イソブチレン)",
+          "structuralFormula": "(CH3)2C=CH2",
+          "functionalGroup": "アルケン(鎖状)",
+          "skeleton": "分岐(イソブチレン型)"
+        },
+        {
+          "id": "cyclobutane",
+          "name": "シクロブタン",
+          "structuralFormula": "環状(四員環)",
+          "functionalGroup": "シクロアルカン(環状飽和)",
+          "skeleton": "四員環"
+        },
+        {
+          "id": "methylcyclopropane",
+          "name": "メチルシクロプロパン",
+          "structuralFormula": "環状(三員環)+CH3",
+          "functionalGroup": "シクロアルカン(環状飽和)",
+          "skeleton": "三員環+メチル"
+        }
+      ]
+    },
+    {
+      "id": "C4H10O",
+      "formula": "C4H10O",
+      "n": 4,
+      "m": 10,
+      "o": 1,
+      "isomers": [
+        {
+          "id": "1-butanol",
+          "name": "1-ブタノール",
+          "structuralFormula": "CH3-CH2-CH2-CH2-OH",
+          "functionalGroup": "アルコール",
+          "skeleton": "直鎖(ブタン型)"
+        },
+        {
+          "id": "2-butanol",
+          "name": "2-ブタノール",
+          "structuralFormula": "CH3-CH2-CH(OH)-CH3",
+          "functionalGroup": "アルコール",
+          "skeleton": "直鎖(ブタン型)"
+        },
+        {
+          "id": "2-methyl-1-propanol",
+          "name": "2-メチル-1-プロパノール",
+          "structuralFormula": "(CH3)2CH-CH2-OH",
+          "functionalGroup": "アルコール",
+          "skeleton": "分岐(2-メチルプロパン型)"
+        },
+        {
+          "id": "2-methyl-2-propanol",
+          "name": "2-メチル-2-プロパノール",
+          "structuralFormula": "(CH3)3C-OH",
+          "functionalGroup": "アルコール",
+          "skeleton": "分岐(2-メチルプロパン型)"
+        },
+        {
+          "id": "methyl-n-propyl-ether",
+          "name": "メチルn-プロピルエーテル",
+          "structuralFormula": "CH3-O-CH2-CH2-CH3",
+          "functionalGroup": "エーテル",
+          "skeleton": "1C+直鎖3C"
+        },
+        {
+          "id": "methyl-isopropyl-ether",
+          "name": "メチルイソプロピルエーテル",
+          "structuralFormula": "CH3-O-CH(CH3)2",
+          "functionalGroup": "エーテル",
+          "skeleton": "1C+分岐3C"
+        },
+        {
+          "id": "diethyl-ether",
+          "name": "ジエチルエーテル",
+          "structuralFormula": "CH3-CH2-O-CH2-CH3",
+          "functionalGroup": "エーテル",
+          "skeleton": "2C+2C"
+        }
+      ]
+    }
+  ],
+  "source": "構造異性体の数え上げそのもの(実験値ではない)。高校化学の教科書・問題集レベルで確立した内容で、官能基・骨格のラベル文字列は本教材の比較ロジックが文字列一致で判定するため厳密に統一している。",
+  "confidence": "high"
+}
