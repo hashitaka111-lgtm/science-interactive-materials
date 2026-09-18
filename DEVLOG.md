@@ -99,6 +99,20 @@
 - 設計判断: 定積の2行程(A→B, C→D)と定圧の2行程(B→C, D→A)を1本目と同じ配色(緑=定積、青=定圧)で塗り分け、方向を示す矢印(↑→↓←)をp-V図に添えて時計回り=正味の仕事が正であることを視覚的に示した。物質量nはスライダーにせず1.0molで固定し、サイクルの形が指示どおり4つのP・Vスライダーだけで決まるようにした
 - スライダーの実装で1点工夫した点: P_low/P_highとV_low/V_highがそれぞれ逆転してサイクルがつぶれないよう、最小差(ΔP=20kPa、ΔV=2L)を設けて片側のスライダーが相手に近づきすぎたら自動的にクランプする方式にした(first-lawのsyncSlidersの仕組みをそのまま利用でき、追加の配線は不要だった)
 
+## 2026-09-18 — 新規教材「周期表と周期律」第1段階(データ生成のみ)+ diagram/matrix型デザイン規約の追記
+
+- 変更: `data/periodic-trends.json`(新規)、`data/periodic-trends-review.md`(新規)、`html/distribution-series-design-system.md`(「diagram型・matrix型共通規約」章を追記)
+- **この回はデータ生成とデザイン規約の追記のみ。HTML実装・manifest.json・scripts/check-embedded-data.mjsには一切触れていない。** coverage-map.md優先度5位。指示により、内容を人間がレビューしてから第2段階(HTML実装)の指示を別途受ける想定
+- diagram型(html/organic-reaction-map.html)・matrix型(html/amino-acids-matrix.html, html/protein-structure.html)が「文字と化学式の羅列で読み取りにくい」という指摘を受け、添付の手書き周期表ノートを参考に、分類ごとの色分け枠・常温での状態を示すSVGアイコン(固体=皿と粉末、液体=フラスコ、気体=風船)・ホバー/タップで詳細値を出すツールチップ・語呂合わせや炎色反応の色スウォッチ、の4点を今後のdiagram型・matrix型教材全般の共通規約として明文化した
+- 対象元素は指示文が「24種」としていたが、実際に列挙された記号(第1周期2+第2周期8+第3周期8+第4周期の典型元素8)を数えると26種だったため、列挙のほうを正として26種収録した(第5〜7周期は指示どおり18種)。合計44件。詳細はperiodic-trends-review.mdの「対象範囲についての訂正」に記録
+- 原子半径(共有結合半径)はCordero et al. (2008) *Dalton Trans.*の値を採用。同論文が貴ガス(He/Ne/Ar/Kr)の値を「構造データ不足による内挿」と明記しているため、この4元素だけconfidenceをmediumに下げた。第一イオン化エネルギーはNIST/CRC系統(全26元素confidence: high、資料間の食い違いなし)。電気陰性度はAllred(1961)の改訂ポーリングスケール(貴ガスは高校化学の慣例に従いnull。Krのみ一部文献がKrF2を根拠に3.00を与えるが不採用)
+- 添付ノートの電気陰性度の値(H=2.1, C=2.5, F=4.0など)が、採用した学術値(H=2.20, C=2.55, F=3.98など)を小数第1位に丸めた、日本の高校教科書で広く使われる慣例的な表記と一致することを確認し、review.mdに記録した(HTML実装時にどちらの精度で表示するかは第2段階の判断に委ねる)
+- 価電子数と最外殻電子数を別フィールドにした(添付ノートが両者を明示的に区別しており、貴ガスは価電子=0だが最外殻電子数=8(Heのみ2)になるため)
+- At・Frは常温での状態をnullにした(理論的には固体と予測されるが、天然存在量がきわめて微量でバルクとしての状態が実測されたことがないため、それらしい値を作らない方針に従った)
+- 教材数: 化学27件・物理16件、合計43件(manifest.jsonは今回変更していないため変化なし)
+- 保留: data/periodic-trends.jsonとperiodic-trends-review.md、html/distribution-series-design-system.mdへの追記内容の人間レビュー待ち。特に電気陰性度の表示精度(学術値のまま小数第2位か、高校教科書慣例の小数第1位に丸めるか)は実装方針として確認が必要
+- 次: レビュー完了後、第2段階としてhtml/periodic-trends.htmlの実装(分類ごとの色分け枠・状態アイコン・ホバー詳細表示を実際に組み込む)の指示を受ける予定
+
 ## 2026-09-18 — 新規教材「構造決定の手順」の実装(有機化合物の構造決定シリーズ完結)
 
 - 変更: `data/structure-determination.json`(新規)、`html/structure-determination.html`(新規)、`scripts/check-embedded-data.mjs`(EMBED_CHECKSに`structure-determination`エントリを追加)、`manifest.json`(`chem-structure-determination`を新規追加、`chem-isomers`・`chem-organic-reaction-map`のrelatedに相互リンクを追加)、`index.html`(build.mjsで再生成)
