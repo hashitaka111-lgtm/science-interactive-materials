@@ -215,3 +215,15 @@
 - 教材数: 化学31件・物理16件、合計47件
 - 保留: 特になし
 - 次: カルボン酸(1価・2価)の命名法を想定。性質面はchem-organic-separation等と重複するため、命名法中心にする方針
+
+## 2026-09-19 — 新規教材「カルボン酸の命名法」の実装
+
+- 変更: `html/carboxylic-acid-nomenclature.html`(新規)、`data/carboxylic-acid-nomenclature.json`(新規)、`scripts/check-embedded-data.mjs`(EMBED_CHECKSに`carboxylic-acid-nomenclature`エントリを追加)、`manifest.json`(`chem-carboxylic-acid-nomenclature`を新規追加、`chem-aldehyde-ketone-nomenclature`・`chem-polymer-degree`のrelatedに相互リンクを追加)、`index.html`(build.mjsで再生成)
+- aldehyde-ketone-nomenclature.htmlの構成(チップ切り替え・分類ごとの色分け枠)をそのまま踏襲。カルボン酸とエステルの一般的な酸性度・エステル化・けん化はchem-organic-separation・chem-acid-base-distributionですでに扱っているため、本教材は1価(直鎖飽和・分岐・不飽和・三重結合・芳香族の5系統、13件)・2価(脂肪族・芳香族・不飽和の3系統、10件)の慣用名⇔組織名の対応表と、マレイン酸/フマル酸に特有の性質に絞った
+- アジピン酸(146)・テレフタル酸(166)はchem-polymer-degreeのナイロン66・PETの原料モノマーと同じ数値をそのまま使用し、矛盾がないことを確認済み
+- マレイン酸・フマル酸のKa1・Ka2は英語版WikipediaのInfobox値(マレイン酸: pKa1=1.90, pKa2=6.07/フマル酸: pKa1=3.03, pKa2=4.44、CRC Handbook系統の実測値)を採用。マレイン酸の1価アニオンが分子内水素結合で安定化されることでKa1が上がりKa2が下がる、という理由も本文に明記した
+- 検証: `node scripts/check-embedded-data.mjs`・`node build.mjs`がともにエラーなく通ることを確認(化学32件・物理16件、合計48件)。ブラウザで実際にページを開き、1価/2価チップの切り替え・375px幅での表示崩れなし・コンソールエラーなしを確認した
+- これでアルコール・エーテル→アルデヒド・ケトン→カルボン酸の「酸素を含む化合物」命名法3部作が完結した
+- 教材数: 化学32件・物理16件、合計48件
+- 保留: 特になし
+- 次: 特になし

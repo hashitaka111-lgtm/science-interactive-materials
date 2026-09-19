@@ -1,0 +1,46 @@
+{
+  "meta": {
+    "atomicWeights": { "H": 1.0, "C": 12.0, "O": 16.0 },
+    "note": "分子量はすべてH=1.0, C=12.0, O=16.0での計算値。指示により確定済みの数値をそのまま採用している。低級・高級の境界は炭素数10(未満/以上)。本教材で数値まで扱うのは低級のみで、掲載した1価カルボン酸(C1〜C8)・2価カルボン酸はすべて低級に該当する。"
+  },
+  "monoacids": [
+    { "id": "formic", "structuralFormula": "H-COOH", "commonName": "formic acid(蟻酸)", "systematicName": "methanoic acid", "molecularWeight": 46, "category": "straight_saturated" },
+    { "id": "acetic", "structuralFormula": "CH3-COOH", "commonName": "acetic acid(酢酸)", "systematicName": "ethanoic acid", "molecularWeight": 60, "category": "straight_saturated" },
+    { "id": "propionic", "structuralFormula": "C2H5-COOH", "commonName": "propionic acid(プロピオン酸)", "systematicName": "propanoic acid", "molecularWeight": 74, "category": "straight_saturated" },
+    { "id": "butyric", "structuralFormula": "C3H7-COOH(直鎖)", "commonName": "butyric acid(酪酸)", "systematicName": "butanoic acid", "molecularWeight": 88, "category": "straight_saturated" },
+    { "id": "isobutyric", "structuralFormula": "(CH3)2CH-COOH", "commonName": "isobutyric acid(イソ酪酸)", "systematicName": "2-methylpropanoic acid", "molecularWeight": 88, "category": "branched" },
+    { "id": "valeric", "structuralFormula": "C4H9-COOH(直鎖)", "commonName": "valeric acid(吉草酸)", "systematicName": "pentanoic acid", "molecularWeight": 102, "category": "straight_saturated" },
+    { "id": "benzoic", "structuralFormula": "C6H5-COOH", "commonName": "benzoic acid(安息香酸)", "systematicName": "benzenecarboxylic acid", "molecularWeight": 122, "category": "aromatic" },
+    { "id": "acrylic", "structuralFormula": "CH2=CH-COOH", "commonName": "acrylic acid(アクリル酸)", "systematicName": "propenoic acid", "molecularWeight": 72, "category": "unsaturated" },
+    { "id": "methacrylic", "structuralFormula": "CH2=C(CH3)-COOH", "commonName": "methacrylic acid(メタクリル酸)", "systematicName": "2-methylpropenoic acid", "molecularWeight": 86, "category": "unsaturated" },
+    { "id": "propiolic", "structuralFormula": "HC≡C-COOH", "commonName": "propiolic acid(プロピオール酸)", "systematicName": "propynoic acid", "molecularWeight": 70, "category": "triple" },
+    { "id": "caproic", "structuralFormula": "C5H11-COOH(直鎖)", "commonName": "caproic acid(カプロン酸)", "systematicName": "hexanoic acid", "molecularWeight": 116, "category": "straight_saturated" },
+    { "id": "enanthic", "structuralFormula": "C6H13-COOH(直鎖)", "commonName": "enanthic acid(エナント酸)", "systematicName": "heptanoic acid", "molecularWeight": 130, "category": "straight_saturated" },
+    { "id": "caprylic", "structuralFormula": "C7H15-COOH(直鎖)", "commonName": "caprylic acid(カプリル酸)", "systematicName": "octanoic acid", "molecularWeight": 144, "category": "straight_saturated" }
+  ],
+  "diacids": [
+    { "id": "oxalic", "structuralFormula": "HOOC-COOH", "commonName": "oxalic acid(シュウ酸)", "systematicName": "ethanedioic acid", "molecularWeight": 90, "category": "aliphatic" },
+    { "id": "malonic", "structuralFormula": "HOOC-CH2-COOH", "commonName": "malonic acid(マロン酸)", "systematicName": "propanedioic acid", "molecularWeight": 104, "category": "aliphatic" },
+    { "id": "succinic", "structuralFormula": "HOOC-(CH2)2-COOH", "commonName": "succinic acid(コハク酸)", "systematicName": "butanedioic acid", "molecularWeight": 118, "category": "aliphatic" },
+    { "id": "glutaric", "structuralFormula": "HOOC-(CH2)3-COOH", "commonName": "glutaric acid(グルタル酸)", "systematicName": "pentanedioic acid", "molecularWeight": 132, "category": "aliphatic" },
+    { "id": "adipic", "structuralFormula": "HOOC-(CH2)4-COOH", "commonName": "adipic acid(アジピン酸)", "systematicName": "hexanedioic acid", "molecularWeight": 146, "category": "aliphatic" },
+    { "id": "phthalic", "structuralFormula": "1,2-C6H4(COOH)2", "commonName": "phthalic acid(フタル酸)", "systematicName": "1,2-benzenedicarboxylic acid", "molecularWeight": 166, "category": "aromatic" },
+    { "id": "isophthalic", "structuralFormula": "1,3-C6H4(COOH)2", "commonName": "isophthalic acid(イソフタル酸)", "systematicName": "1,3-benzenedicarboxylic acid", "molecularWeight": 166, "category": "aromatic" },
+    { "id": "terephthalic", "structuralFormula": "1,4-C6H4(COOH)2", "commonName": "terephthalic acid(テレフタル酸)", "systematicName": "1,4-benzenedicarboxylic acid", "molecularWeight": 166, "category": "aromatic" },
+    { "id": "maleic", "structuralFormula": "cis-HOOC-CH=CH-COOH", "commonName": "maleic acid(マレイン酸)", "systematicName": "cis-butenedioic acid", "molecularWeight": 116, "category": "unsaturated" },
+    { "id": "fumaric", "structuralFormula": "trans-HOOC-CH=CH-COOH", "commonName": "fumaric acid(フマル酸)", "systematicName": "trans-butenedioic acid", "molecularWeight": 116, "category": "unsaturated" }
+  ],
+  "geometricIsomerAcidity": {
+    "maleic": { "pKa1": 1.90, "pKa2": 6.07 },
+    "fumaric": { "pKa1": 3.03, "pKa2": 4.44 },
+    "source": "英語版Wikipedia「Maleic acid」「Fumaric acid」の物性値欄(CRC Handbook系統の実測値)。フマル酸側の値は15℃での測定値(出典ページの記載どおり)。",
+    "explanation": "マレイン酸はシス形で2つのCOOHが近接するため、1つ目のHが電離した後の1価アニオンが分子内水素結合で安定化される。この安定化がKa1を押し上げる一方、2つ目のHを取り去る際は同じ分子内水素結合を壊す必要がありCOO⁻同士の反発も強く働くため、Ka2はフマル酸より小さくなる。フマル酸はトランス形で2つのCOOHが離れているため分子内水素結合ができず、Ka1・Ka2ともに中間的な値になる。",
+    "dehydration": "マレイン酸は加熱すると2つのCOOHが分子内で脱水縮合し、無水マレイン酸になりやすい。2つのCOOHが立体的に近いシス形だからこそ起こる反応で、COOHが離れたトランス形のフマル酸ではこの分子内脱水は起こらない。"
+  },
+  "notes": {
+    "etymology": "低級カルボン酸の慣用名の多くは、単離された天然物に由来する歴史的な名前を持つ。formic acid(蟻酸)はラテン語で蟻を意味するformicaに由来し、蟻から発見された。butyric acid(酪酸)はラテン語で酪(バター)を意味するbutyrumに由来し、腐ったバターの臭いの成分。valeric acid(吉草酸)はセイヨウカノコソウ(和名:吉草)の根に由来する。",
+    "lowHighDefinition": "炭素数(COOHの炭素を含む)が10未満のものを低級カルボン酸、10以上のものを高級カルボン酸という。組織名の語幹(methan-, ethan-, propan-…)は炭素数にそのまま対応するが、慣用名は炭素数と無関係な歴史的な名前なので、対応を暗記する必要がある。",
+    "scopeNote": "カルボン酸の一般的な酸性度の強さの比較・エステル化・けん化といった反応性はchem-organic-separation・chem-acid-base-distributionですでに扱っている。本教材は慣用名⇔組織名の対応と、マレイン酸・フマル酸に特有の性質(幾何異性体による電離定数の違い)に絞る。",
+    "polymerBridge": "アジピン酸(分子量146)とテレフタル酸(分子量166)は、chem-polymer-degreeで扱ったナイロン66(アジピン酸+ヘキサメチレンジアミン)・PET(テレフタル酸+エチレングリコール)の原料モノマーと同じ物質。分子量の数値もそちらと共通。"
+  }
+}

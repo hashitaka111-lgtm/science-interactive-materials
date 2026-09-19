@@ -1291,7 +1291,8 @@
     "type": "simulator",
     "related": [
       "chem-peptide-sequencing",
-      "chem-hydrocarbon-nomenclature"
+      "chem-hydrocarbon-nomenclature",
+      "chem-carboxylic-acid-nomenclature"
     ]
   },
   {
@@ -1405,7 +1406,36 @@
     "type": "matrix",
     "related": [
       "chem-alcohol-ether-nomenclature",
-      "chem-hydrocarbon-nomenclature"
+      "chem-hydrocarbon-nomenclature",
+      "chem-carboxylic-acid-nomenclature"
+    ]
+  },
+  {
+    "id": "chem-carboxylic-acid-nomenclature",
+    "file": "html/carboxylic-acid-nomenclature.html",
+    "subject": "chemistry",
+    "unit": "有機化学 / カルボン酸の命名法",
+    "course": "化学",
+    "section": "有機化合物の性質",
+    "order": 32,
+    "title": "カルボン酸の命名法",
+    "heading": "カルボン酸の命名法",
+    "summary": "1価・2価カルボン酸の慣用名と組織名を比較し、マレイン酸・フマル酸の電離定数の違いを確かめる",
+    "topics": [
+      "1価カルボン酸の慣用名と組織名の対応",
+      "2価カルボン酸(シュウ酸〜アジピン酸、フタル酸系)の命名",
+      "低級と高級の定義(炭素数10未満/以上)",
+      "マレイン酸とフマル酸のKa1・Ka2の違い"
+    ],
+    "interactions": [
+      "チップ切り替え",
+      "色分け表示"
+    ],
+    "confidence": "high",
+    "type": "matrix",
+    "related": [
+      "chem-aldehyde-ketone-nomenclature",
+      "chem-polymer-degree"
     ]
   }
 ]

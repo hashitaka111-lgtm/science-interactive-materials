@@ -1,0 +1,322 @@
+<!doctype html>
+<html lang="ja">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>カルボン酸の命名法</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500&family=IBM+Plex+Sans+JP:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+*{box-sizing:border-box}
+:root{
+  --ink:#16232B; --muted:#5E6E76; --paper:#EDF1EF; --surface:#FFFFFF;
+  --rule:#D6DDDA; --rule-soft:#E8EDEB;
+  --s0:#B87A16; --s0t:#8A5A0C;
+  --s1:#158A6D; --s1t:#0D6A53;
+  --s2:#2457A6; --s2t:#1B4380;
+  --s3:#6E3AA7; --s3t:#572D85;
+  --s4:#A82A6A; --s4t:#831F52;
+  --sans:"IBM Plex Sans JP","Hiragino Sans","Yu Gothic UI",system-ui,sans-serif;
+  --mono:"IBM Plex Mono",ui-monospace,SFMono-Regular,Menlo,monospace;
+}
+html,body{margin:0;padding:0}
+body{background:var(--paper);color:var(--ink);font-family:var(--sans);font-size:13.5px;line-height:1.75;-webkit-text-size-adjust:100%}
+.mono{font-family:var(--mono);font-variant-numeric:tabular-nums}
+.wrap{max-width:900px;margin:0 auto;padding:20px 14px 60px}
+.card{background:var(--surface);border:1px solid var(--rule);border-radius:3px;padding:14px;margin-bottom:14px}
+.card.text{max-width:900px}
+.eyebrow{display:flex;align-items:center;gap:10px;font-family:var(--mono);font-size:11.5px;letter-spacing:.14em;color:var(--muted);text-transform:uppercase}
+.eyebrow::after{content:"";flex:1;height:1px;background:var(--rule)}
+h1{font-size:22px;font-weight:600;letter-spacing:.01em;margin:8px 0 2px}
+h2{font-size:14.5px;font-weight:600;margin:10px 0 4px}
+h3{font-size:13px;font-weight:600;margin:0 0 6px}
+p{margin:0 0 8px} p:last-child{margin-bottom:0}
+.lede{color:var(--muted);font-size:13px;margin:4px 0 0}
+.note{color:var(--muted);font-size:12px;line-height:1.7}
+.key{background:rgba(184,122,22,.08);border:1px solid #E0C592;border-radius:3px;padding:8px 10px;font-size:12.5px;line-height:1.7;margin:8px 0}
+
+.btn{font:inherit;font-size:12.5px;line-height:1.4;border:1px solid var(--rule);background:#fff;color:var(--ink);border-radius:2px;padding:6px 10px;cursor:pointer}
+.btn:hover{border-color:#B4C0BC}
+.btn[aria-pressed="true"]{background:var(--ink);color:#fff;border-color:var(--ink)}
+.btn:focus-visible{outline:2px solid var(--ink);outline-offset:1px}
+.btnrow{display:flex;flex-wrap:wrap;gap:6px;margin:8px 0}
+
+/* ---------- 表共通 ---------- */
+.scroll{overflow-x:auto;-webkit-overflow-scrolling:touch;padding-bottom:2px}
+table{border-collapse:collapse;width:100%;font-size:12.5px}
+table.compact{min-width:460px}
+th,td{padding:6px 8px;text-align:left;white-space:nowrap;border-bottom:1px solid var(--rule-soft)}
+th{font-family:var(--mono);font-size:10.5px;letter-spacing:.06em;color:var(--muted);font-weight:500}
+td.num,th.num{text-align:right;font-family:var(--mono)}
+td.arrow{text-align:center;color:var(--muted);width:24px}
+tr:last-child td{border-bottom:none}
+
+/* ---------- 分類ごとの色分け枠(distribution-series-design-system.md 準拠) ---------- */
+.classbox{border:2px solid var(--rule);border-radius:3px;padding:10px 12px 4px;margin:10px 0}
+.classlabel{font-family:var(--mono);font-size:11.5px;letter-spacing:.14em;display:flex;align-items:center;gap:8px;margin-bottom:6px}
+.classlabel .cnt{font-weight:400;letter-spacing:0;text-transform:none;font-size:11px}
+
+/* ---------- 凡例 ---------- */
+.legend-cats{display:flex;flex-wrap:wrap;gap:7px 14px;margin:8px 0 4px}
+.legend-item{display:flex;align-items:center;gap:6px;font-size:11.5px}
+.legend-swatch{width:14px;height:14px;border-radius:2px;flex:none;border-width:2px;border-style:solid}
+
+/* ---------- 一般式の対比(イントロ) ---------- */
+.formulabox{border:1px solid var(--rule);border-radius:3px;padding:10px 12px;background:#FBFCFB;margin-top:8px}
+.formulabox .cform{font-family:var(--mono);font-size:16px;font-weight:500;margin-bottom:4px}
+.formulabox .clabel{font-family:var(--mono);font-size:11px;letter-spacing:.1em;color:var(--muted)}
+
+/* ---------- Ka1/Ka2比較カード ---------- */
+.kacard{border:2px solid var(--rule);border-radius:3px;padding:10px 12px;margin:10px 0;background:#FBFCFB}
+.karow{display:flex;flex-wrap:wrap;gap:10px;margin:8px 0}
+.kabox{flex:1 1 220px;border:1px solid var(--rule);border-radius:3px;padding:8px 10px;background:var(--surface)}
+.kabox .kaname{font-family:var(--mono);font-size:11.5px;letter-spacing:.08em;margin-bottom:6px;display:flex;align-items:center;gap:6px}
+.kabox .kaform{font-family:var(--mono);font-size:13px;margin-bottom:8px;color:var(--muted)}
+.katable{width:100%;border-collapse:collapse;font-size:12.5px}
+.katable th,.katable td{padding:4px 6px;text-align:right;border-bottom:1px solid var(--rule-soft);white-space:nowrap}
+.katable th:first-child,.katable td:first-child{text-align:left}
+.katable th{font-family:var(--mono);font-size:10.5px;color:var(--muted);font-weight:500}
+.katable td{font-family:var(--mono)}
+.kabadge{width:14px;height:14px;border-radius:2px;flex:none;border-width:2px;border-style:solid}
+.kacompare{font-size:12px;color:var(--muted);margin-top:6px;line-height:1.5}
+.kacompare b{color:var(--ink)}
+
+/* ---------- モード切替セクション ---------- */
+.section{display:none}
+.section.active{display:block}
+
+@media (prefers-reduced-motion:no-preference){ .btn{transition:border-color 120ms linear,background-color 120ms linear} }
+
+@media (max-width:430px){
+  body{font-size:13px}
+  .wrap{padding:14px 10px 50px}
+  .card{padding:11px}
+  h1{font-size:19px}
+  .btn{padding:6px 8px;font-size:12px}
+  table.compact{min-width:400px}
+  .karow{gap:8px}
+}
+</style>
+</head>
+<body>
+<div class="wrap">
+
+<header>
+  <div class="eyebrow">CARBOXYLIC ACID NOMENCLATURE</div>
+  <h1>カルボン酸の命名法</h1>
+  <p class="lede">カルボキシ基(-COOH)を1個持つ1価カルボン酸と、2個持つ2価カルボン酸について、慣用名と組織名の対応を確認する。一般的な酸性度・エステル化・けん化といった反応性はchem-organic-separation・chem-acid-base-distributionを参照し、本教材では命名法とマレイン酸・フマル酸に特有の性質に絞る。</p>
+</header>
+
+<div class="card text">
+  <div class="eyebrow">GENERAL FORMULA</div>
+  <p class="note" style="margin-top:8px">カルボン酸はカルボキシ基-COOHを持つ化合物の総称。1価カルボン酸はR-COOHの形で-COOHを1個、2価カルボン酸はHOOC-R-COOHの形で-COOHを2個持つ。</p>
+  <div class="formulabox">
+    <div class="clabel" id="lowHighLabel"></div>
+    <p class="note" id="lowHighNote" style="margin-top:4px"></p>
+  </div>
+  <p class="note" style="margin-top:8px" id="etymologyNote"></p>
+</div>
+
+<div class="card">
+  <div class="eyebrow">SWITCH</div>
+  <h2>1価/2価を切り替える</h2>
+  <div class="btnrow" id="modeChips" role="group" aria-label="価数の切り替え"></div>
+</div>
+
+<!-- ========== MONOACID ========== -->
+<section id="sectionMono" class="section">
+
+  <div class="card">
+    <div class="eyebrow">NAMES &middot; MONOACID</div>
+    <h2>1価カルボン酸の命名(慣用名⇔組織名)</h2>
+    <p class="note">組織名は語幹+oic acidの形をとる。枠の色は系統を表す(凡例参照)。ここに載せた1価カルボン酸はすべて低級(炭素数10未満)。</p>
+    <div class="legend-cats" id="monoLegend"></div>
+    <div id="monoGroups"></div>
+  </div>
+
+</section>
+
+<!-- ========== DIACID ========== -->
+<section id="sectionDi" class="section">
+
+  <div class="card">
+    <div class="eyebrow">NAMES &middot; DIACID</div>
+    <h2>2価カルボン酸の命名(慣用名⇔組織名)</h2>
+    <p class="note">組織名は語幹+dioic acidの形をとる(芳香族はbenzenedicarboxylic acid)。枠の色は系統を表す(凡例参照)。</p>
+    <div class="legend-cats" id="diLegend"></div>
+    <div id="diGroups"></div>
+  </div>
+
+  <div class="card">
+    <div class="eyebrow">MALEIC vs FUMARIC</div>
+    <h2>マレイン酸・フマル酸の電離定数の違い</h2>
+    <p class="note">同じ分子式C4H4O4を持つ幾何異性体だが、2段階の電離定数Ka1・Ka2の大小関係が入れ替わる。</p>
+    <div class="kacard" id="kaCard"></div>
+    <p class="note" id="kaExplanation" style="margin-top:8px"></p>
+    <p class="note" id="kaDehydration" style="margin-top:6px"></p>
+  </div>
+
+</section>
+
+<div class="card text">
+  <div class="eyebrow">NOTES</div>
+  <p class="note" style="margin-top:8px" id="scopeNote"></p>
+  <p class="note" id="polymerBridgeNote"></p>
+</div>
+
+</div><!-- /wrap -->
+
+<script>
+/* ---------- データ(JSONをそのまま埋め込み。fetch は使わない) ---------- */
+const DATA = {"meta":{"atomicWeights":{"H":1,"C":12,"O":16},"note":"分子量はすべてH=1.0, C=12.0, O=16.0での計算値。指示により確定済みの数値をそのまま採用している。低級・高級の境界は炭素数10(未満/以上)。本教材で数値まで扱うのは低級のみで、掲載した1価カルボン酸(C1〜C8)・2価カルボン酸はすべて低級に該当する。"},"monoacids":[{"id":"formic","structuralFormula":"H-COOH","commonName":"formic acid(蟻酸)","systematicName":"methanoic acid","molecularWeight":46,"category":"straight_saturated"},{"id":"acetic","structuralFormula":"CH3-COOH","commonName":"acetic acid(酢酸)","systematicName":"ethanoic acid","molecularWeight":60,"category":"straight_saturated"},{"id":"propionic","structuralFormula":"C2H5-COOH","commonName":"propionic acid(プロピオン酸)","systematicName":"propanoic acid","molecularWeight":74,"category":"straight_saturated"},{"id":"butyric","structuralFormula":"C3H7-COOH(直鎖)","commonName":"butyric acid(酪酸)","systematicName":"butanoic acid","molecularWeight":88,"category":"straight_saturated"},{"id":"isobutyric","structuralFormula":"(CH3)2CH-COOH","commonName":"isobutyric acid(イソ酪酸)","systematicName":"2-methylpropanoic acid","molecularWeight":88,"category":"branched"},{"id":"valeric","structuralFormula":"C4H9-COOH(直鎖)","commonName":"valeric acid(吉草酸)","systematicName":"pentanoic acid","molecularWeight":102,"category":"straight_saturated"},{"id":"benzoic","structuralFormula":"C6H5-COOH","commonName":"benzoic acid(安息香酸)","systematicName":"benzenecarboxylic acid","molecularWeight":122,"category":"aromatic"},{"id":"acrylic","structuralFormula":"CH2=CH-COOH","commonName":"acrylic acid(アクリル酸)","systematicName":"propenoic acid","molecularWeight":72,"category":"unsaturated"},{"id":"methacrylic","structuralFormula":"CH2=C(CH3)-COOH","commonName":"methacrylic acid(メタクリル酸)","systematicName":"2-methylpropenoic acid","molecularWeight":86,"category":"unsaturated"},{"id":"propiolic","structuralFormula":"HC≡C-COOH","commonName":"propiolic acid(プロピオール酸)","systematicName":"propynoic acid","molecularWeight":70,"category":"triple"},{"id":"caproic","structuralFormula":"C5H11-COOH(直鎖)","commonName":"caproic acid(カプロン酸)","systematicName":"hexanoic acid","molecularWeight":116,"category":"straight_saturated"},{"id":"enanthic","structuralFormula":"C6H13-COOH(直鎖)","commonName":"enanthic acid(エナント酸)","systematicName":"heptanoic acid","molecularWeight":130,"category":"straight_saturated"},{"id":"caprylic","structuralFormula":"C7H15-COOH(直鎖)","commonName":"caprylic acid(カプリル酸)","systematicName":"octanoic acid","molecularWeight":144,"category":"straight_saturated"}],"diacids":[{"id":"oxalic","structuralFormula":"HOOC-COOH","commonName":"oxalic acid(シュウ酸)","systematicName":"ethanedioic acid","molecularWeight":90,"category":"aliphatic"},{"id":"malonic","structuralFormula":"HOOC-CH2-COOH","commonName":"malonic acid(マロン酸)","systematicName":"propanedioic acid","molecularWeight":104,"category":"aliphatic"},{"id":"succinic","structuralFormula":"HOOC-(CH2)2-COOH","commonName":"succinic acid(コハク酸)","systematicName":"butanedioic acid","molecularWeight":118,"category":"aliphatic"},{"id":"glutaric","structuralFormula":"HOOC-(CH2)3-COOH","commonName":"glutaric acid(グルタル酸)","systematicName":"pentanedioic acid","molecularWeight":132,"category":"aliphatic"},{"id":"adipic","structuralFormula":"HOOC-(CH2)4-COOH","commonName":"adipic acid(アジピン酸)","systematicName":"hexanedioic acid","molecularWeight":146,"category":"aliphatic"},{"id":"phthalic","structuralFormula":"1,2-C6H4(COOH)2","commonName":"phthalic acid(フタル酸)","systematicName":"1,2-benzenedicarboxylic acid","molecularWeight":166,"category":"aromatic"},{"id":"isophthalic","structuralFormula":"1,3-C6H4(COOH)2","commonName":"isophthalic acid(イソフタル酸)","systematicName":"1,3-benzenedicarboxylic acid","molecularWeight":166,"category":"aromatic"},{"id":"terephthalic","structuralFormula":"1,4-C6H4(COOH)2","commonName":"terephthalic acid(テレフタル酸)","systematicName":"1,4-benzenedicarboxylic acid","molecularWeight":166,"category":"aromatic"},{"id":"maleic","structuralFormula":"cis-HOOC-CH=CH-COOH","commonName":"maleic acid(マレイン酸)","systematicName":"cis-butenedioic acid","molecularWeight":116,"category":"unsaturated"},{"id":"fumaric","structuralFormula":"trans-HOOC-CH=CH-COOH","commonName":"fumaric acid(フマル酸)","systematicName":"trans-butenedioic acid","molecularWeight":116,"category":"unsaturated"}],"geometricIsomerAcidity":{"maleic":{"pKa1":1.9,"pKa2":6.07},"fumaric":{"pKa1":3.03,"pKa2":4.44},"source":"英語版Wikipedia「Maleic acid」「Fumaric acid」の物性値欄(CRC Handbook系統の実測値)。フマル酸側の値は15℃での測定値(出典ページの記載どおり)。","explanation":"マレイン酸はシス形で2つのCOOHが近接するため、1つ目のHが電離した後の1価アニオンが分子内水素結合で安定化される。この安定化がKa1を押し上げる一方、2つ目のHを取り去る際は同じ分子内水素結合を壊す必要がありCOO⁻同士の反発も強く働くため、Ka2はフマル酸より小さくなる。フマル酸はトランス形で2つのCOOHが離れているため分子内水素結合ができず、Ka1・Ka2ともに中間的な値になる。","dehydration":"マレイン酸は加熱すると2つのCOOHが分子内で脱水縮合し、無水マレイン酸になりやすい。2つのCOOHが立体的に近いシス形だからこそ起こる反応で、COOHが離れたトランス形のフマル酸ではこの分子内脱水は起こらない。"},"notes":{"etymology":"低級カルボン酸の慣用名の多くは、単離された天然物に由来する歴史的な名前を持つ。formic acid(蟻酸)はラテン語で蟻を意味するformicaに由来し、蟻から発見された。butyric acid(酪酸)はラテン語で酪(バター)を意味するbutyrumに由来し、腐ったバターの臭いの成分。valeric acid(吉草酸)はセイヨウカノコソウ(和名:吉草)の根に由来する。","lowHighDefinition":"炭素数(COOHの炭素を含む)が10未満のものを低級カルボン酸、10以上のものを高級カルボン酸という。組織名の語幹(methan-, ethan-, propan-…)は炭素数にそのまま対応するが、慣用名は炭素数と無関係な歴史的な名前なので、対応を暗記する必要がある。","scopeNote":"カルボン酸の一般的な酸性度の強さの比較・エステル化・けん化といった反応性はchem-organic-separation・chem-acid-base-distributionですでに扱っている。本教材は慣用名⇔組織名の対応と、マレイン酸・フマル酸に特有の性質(幾何異性体による電離定数の違い)に絞る。","polymerBridge":"アジピン酸(分子量146)とテレフタル酸(分子量166)は、chem-polymer-degreeで扱ったナイロン66(アジピン酸+ヘキサメチレンジアミン)・PET(テレフタル酸+エチレングリコール)の原料モノマーと同じ物質。分子量の数値もそちらと共通。"}};
+
+/* ---------- 起動時チェック ---------- */
+(function checkData(){
+  const msg=[];
+  if(DATA.monoacids.length!==13) msg.push('monoacids が13件ではない('+DATA.monoacids.length+'件)');
+  if(DATA.diacids.length!==10) msg.push('diacids が10件ではない('+DATA.diacids.length+'件)');
+  if(msg.length) console.warn('[DATA] 不整合\n'+msg.join('\n'));
+  else console.info('[DATA] monoacids '+DATA.monoacids.length+'件・diacids '+DATA.diacids.length+'件を読み込んだ');
+})();
+
+const esc = s => String(s).replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+
+/* ---------- 分類ごとの色(系列カラーを流用) ---------- */
+const MONO_CAT = {
+  straight_saturated: { bg:'rgba(21,138,109,.10)', bd:'#158A6D', tx:'#0D6A53', label:'直鎖飽和' },
+  branched:           { bg:'rgba(184,122,22,.10)', bd:'#B87A16', tx:'#8A5A0C', label:'分岐' },
+  unsaturated:        { bg:'rgba(110,58,167,.10)', bd:'#6E3AA7', tx:'#572D85', label:'不飽和' },
+  triple:             { bg:'rgba(168,42,106,.10)', bd:'#A82A6A', tx:'#831F52', label:'三重結合' },
+  aromatic:           { bg:'rgba(36,87,166,.10)',  bd:'#2457A6', tx:'#1B4380', label:'芳香族' },
+};
+const MONO_ORDER = ['straight_saturated','branched','unsaturated','triple','aromatic'];
+
+const DI_CAT = {
+  aliphatic:   { bg:'rgba(21,138,109,.10)', bd:'#158A6D', tx:'#0D6A53', label:'脂肪族(鎖式)' },
+  aromatic:    { bg:'rgba(36,87,166,.10)',  bd:'#2457A6', tx:'#1B4380', label:'芳香族' },
+  unsaturated: { bg:'rgba(110,58,167,.10)', bd:'#6E3AA7', tx:'#572D85', label:'不飽和' },
+};
+const DI_ORDER = ['aliphatic','aromatic','unsaturated'];
+
+/* ---------- 状態: 選択中のモード ---------- */
+const st = { mode: 'mono' };
+
+/* ---------- MODE chips ---------- */
+function renderModeChips(){
+  const host = document.getElementById('modeChips');
+  const modes = [ {id:'mono', label:'1価カルボン酸'}, {id:'di', label:'2価カルボン酸'} ];
+  host.innerHTML = modes.map(m=>{
+    const pressed = m.id===st.mode;
+    return '<button type="button" class="btn" data-mode="'+m.id+'" aria-pressed="'+pressed+'">'+esc(m.label)+'</button>';
+  }).join('');
+  host.addEventListener('click', (e)=>{
+    const b = e.target.closest('button[data-mode]');
+    if(!b) return;
+    st.mode = b.dataset.mode;
+    renderAll();
+  });
+}
+
+/* ---------- 凡例 ---------- */
+function renderLegend(hostId, cats, order){
+  const host = document.getElementById(hostId);
+  host.innerHTML = order.map(k=>{
+    const c = cats[k];
+    return '<div class="legend-item"><span class="legend-swatch" style="background:'+c.bg+';border-color:'+c.bd+'"></span>'+esc(c.label)+'</div>';
+  }).join('');
+}
+
+/* ---------- 命名表(共通) ---------- */
+function acidRowsTable(list){
+  let h = '<thead><tr><th>示性式</th><th>慣用名</th><th class="arrow"></th><th>組織名</th><th class="num">分子量</th></tr></thead><tbody>';
+  list.forEach(a=>{
+    h += '<tr><td class="mono">'+esc(a.structuralFormula)+'</td><td class="mono">'+esc(a.commonName)+'</td><td class="arrow">⇔</td><td class="mono">'+esc(a.systematicName)+'</td>'+
+      '<td class="num mono">'+a.molecularWeight+'</td></tr>';
+  });
+  h += '</tbody>';
+  return h;
+}
+function renderGroups(hostId, list, cats, order){
+  const host = document.getElementById(hostId);
+  let h = '';
+  order.forEach(cat=>{
+    const items = list.filter(a=>a.category===cat);
+    if(!items.length) return;
+    const c = cats[cat];
+    h += '<div class="classbox" style="background:'+c.bg+';border-color:'+c.bd+'">'+
+      '<div class="classlabel" style="color:'+c.tx+'">'+esc(c.label)+'<span class="cnt">('+items.length+'件)</span></div>'+
+      '<div class="scroll"><table class="compact">'+acidRowsTable(items)+'</table></div>'+
+      '</div>';
+  });
+  host.innerHTML = h;
+}
+
+/* ---------- Ka1/Ka2比較カード ---------- */
+function formatKa(pKa){
+  const ka = Math.pow(10, -pKa);
+  const exp = Math.floor(Math.log10(ka));
+  const mantissa = ka / Math.pow(10, exp);
+  const supMap = {'-':'⁻','0':'⁰','1':'¹','2':'²','3':'³','4':'⁴','5':'⁵','6':'⁶','7':'⁷','8':'⁸','9':'⁹'};
+  const expStr = String(exp).split('').map(ch=>supMap[ch]||ch).join('');
+  return mantissa.toFixed(1)+'×10'+expStr;
+}
+function renderKaCard(){
+  const ka = DATA.geometricIsomerAcidity;
+  const rows = [
+    { key:'maleic', label:'マレイン酸(シス形)', form:'cis-HOOC-CH=CH-COOH', c:DI_CAT.unsaturated },
+    { key:'fumaric', label:'フマル酸(トランス形)', form:'trans-HOOC-CH=CH-COOH', c:DI_CAT.unsaturated },
+  ];
+  let h = '<div class="karow">';
+  rows.forEach(r=>{
+    const d = ka[r.key];
+    h += '<div class="kabox">'+
+      '<div class="kaname"><span class="kabadge" style="background:'+r.c.bg+';border-color:'+r.c.bd+'"></span>'+esc(r.label)+'</div>'+
+      '<div class="kaform">'+esc(r.form)+'</div>'+
+      '<table class="katable"><thead><tr><th></th><th>pKa</th><th>Ka</th></tr></thead><tbody>'+
+      '<tr><td>Ka1</td><td>'+d.pKa1.toFixed(2)+'</td><td>'+formatKa(d.pKa1)+'</td></tr>'+
+      '<tr><td>Ka2</td><td>'+d.pKa2.toFixed(2)+'</td><td>'+formatKa(d.pKa2)+'</td></tr>'+
+      '</tbody></table></div>';
+  });
+  h += '</div>';
+  h += '<p class="kacompare"><b>Ka1</b>: マレイン酸 &gt; フマル酸(マレイン酸の方が1段階目の酸として強い) / <b>Ka2</b>: マレイン酸 &lt; フマル酸(2段階目はマレイン酸の方が弱い)</p>';
+  h += '<p class="kacompare mono" style="margin-top:4px">出典: '+esc(ka.source)+'</p>';
+  document.getElementById('kaCard').innerHTML = h;
+}
+
+/* ---------- テキストノート ---------- */
+function renderTextNotes(){
+  document.getElementById('lowHighLabel').textContent = '低級・高級の定義';
+  document.getElementById('lowHighNote').textContent = DATA.notes.lowHighDefinition;
+  document.getElementById('etymologyNote').textContent = DATA.notes.etymology;
+  document.getElementById('kaExplanation').textContent = DATA.geometricIsomerAcidity.explanation;
+  document.getElementById('kaDehydration').textContent = DATA.geometricIsomerAcidity.dehydration;
+  document.getElementById('scopeNote').textContent = DATA.notes.scopeNote;
+  document.getElementById('polymerBridgeNote').textContent = DATA.notes.polymerBridge;
+}
+
+/* ---------- 表示切替 ---------- */
+function syncSections(){
+  document.getElementById('sectionMono').classList.toggle('active', st.mode==='mono');
+  document.getElementById('sectionDi').classList.toggle('active', st.mode==='di');
+  Array.prototype.forEach.call(document.querySelectorAll('#modeChips button'), b=>{
+    b.setAttribute('aria-pressed', b.dataset.mode===st.mode);
+  });
+}
+
+/* ---------- 初期化 ---------- */
+function renderAll(){
+  syncSections();
+}
+
+renderModeChips();
+renderLegend('monoLegend', MONO_CAT, MONO_ORDER);
+renderGroups('monoGroups', DATA.monoacids, MONO_CAT, MONO_ORDER);
+renderLegend('diLegend', DI_CAT, DI_ORDER);
+renderGroups('diGroups', DATA.diacids, DI_CAT, DI_ORDER);
+renderKaCard();
+renderTextNotes();
+renderAll();
+</script>
+</body>
+</html>
