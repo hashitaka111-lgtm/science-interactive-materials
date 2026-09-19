@@ -203,3 +203,15 @@
 - 教材数: 化学30件・物理16件、合計46件
 - 保留: 特になし
 - 次: アルデヒド・ケトンの命名法(coverage-map優先度10位)を想定
+
+## 2026-09-19 — 新規教材「アルデヒド・ケトンの命名法・性質」の実装
+
+- 変更: `data/aldehyde-ketone-nomenclature.json`(新規)、`html/aldehyde-ketone-nomenclature.html`(新規)、`scripts/check-embedded-data.mjs`(EMBED_CHECKSに`aldehyde-ketone-nomenclature`エントリを追加)、`manifest.json`(`chem-aldehyde-ketone-nomenclature`を新規追加、`chem-alcohol-ether-nomenclature`・`chem-hydrocarbon-nomenclature`のrelatedに相互リンクを追加)、`index.html`(build.mjsで再生成)
+- coverage-map優先度10位。添付の手書きノート2枚(アルデヒド・ケトン)とCEO指定の確定データ(アルデヒド9件・ケトン7件、示性式・慣用名(または基官能名)・組織名(または置換名)・分子量)をそのまま採用。手書きノートのベンズアルデヒドの組織名「benzene carboaldehyde」は2語表記の誤りのため採用せず、正しいIUPAC名(1語)のbenzenecarbaldehydeを使用した(指示どおり)
+- 直前の教材(alcohol-ether-nomenclature)の基官能名/置換名の対比表・チップ切り替えの作法に揃え、CSS変数・フォント・カード構造をほぼそのまま流用した。トップのチップでALDEHYDE/KETONEの2セクションを切り替える構成
+- distribution-series-design-system.mdの「分類ごとの色分け枠」規約に従い、アルデヒド表を脂肪族(鎖式)4件・芳香族2件・ジ/不飽和3件の3系統(系列カラーの緑・青・紫)に、ケトン表を脂肪族(鎖式)3件・芳香族3件・不飽和1件の3系統に分けた。ジ/不飽和の枠内はさらに列でジアルデヒド/不飽和アルデヒドの区別を示した
+- 反応の詳細(銀鏡反応・フェーリング反応・ヨードホルム反応の仕組み)はhtml/organic-reaction-map.htmlに既にあるため、指示どおり一切再現せず、「アルデヒドは還元性がある、ケトンはない」という分類の事実とchem-organic-reaction-mapへの参照だけに留めた。ホルムアルデヒドの水溶液(ホルマリン)が防腐剤に使われる点は性質カードとは別に軽く触れる1カードとして独立させた
+- 検証: `node scripts/check-embedded-data.mjs`・`node build.mjs`がともにエラーなく通ることを確認(化学31件・物理16件、合計47件)。ブラウザで実際にページを開き、ALDEHYDE/KETONEのチップ切り替えで両セクションが正しく入れ替わること、分類ごとの色分け枠(脂肪族/芳香族/ジ・不飽和、脂肪族/芳香族/不飽和)がすべて正しい数値で描画されること、コンソールエラーがゼロであること、375px幅でページ全体の横スクロールが発生しない(`scrollWidth===clientWidth`)ことを確認した
+- 教材数: 化学31件・物理16件、合計47件
+- 保留: 特になし
+- 次: カルボン酸(1価・2価)の命名法を想定。性質面はchem-organic-separation等と重複するため、命名法中心にする方針

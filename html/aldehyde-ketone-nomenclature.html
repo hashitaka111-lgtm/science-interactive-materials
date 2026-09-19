@@ -1,0 +1,316 @@
+<!doctype html>
+<html lang="ja">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>アルデヒド・ケトンの命名法・性質</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500&family=IBM+Plex+Sans+JP:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+*{box-sizing:border-box}
+:root{
+  --ink:#16232B; --muted:#5E6E76; --paper:#EDF1EF; --surface:#FFFFFF;
+  --rule:#D6DDDA; --rule-soft:#E8EDEB;
+  --s0:#B87A16; --s0t:#8A5A0C;
+  --s1:#158A6D; --s1t:#0D6A53;
+  --s2:#2457A6; --s2t:#1B4380;
+  --s3:#6E3AA7; --s3t:#572D85;
+  --sans:"IBM Plex Sans JP","Hiragino Sans","Yu Gothic UI",system-ui,sans-serif;
+  --mono:"IBM Plex Mono",ui-monospace,SFMono-Regular,Menlo,monospace;
+}
+html,body{margin:0;padding:0}
+body{background:var(--paper);color:var(--ink);font-family:var(--sans);font-size:13.5px;line-height:1.75;-webkit-text-size-adjust:100%}
+.mono{font-family:var(--mono);font-variant-numeric:tabular-nums}
+.wrap{max-width:900px;margin:0 auto;padding:20px 14px 60px}
+.card{background:var(--surface);border:1px solid var(--rule);border-radius:3px;padding:14px;margin-bottom:14px}
+.card.text{max-width:900px}
+.eyebrow{display:flex;align-items:center;gap:10px;font-family:var(--mono);font-size:11.5px;letter-spacing:.14em;color:var(--muted);text-transform:uppercase}
+.eyebrow::after{content:"";flex:1;height:1px;background:var(--rule)}
+h1{font-size:22px;font-weight:600;letter-spacing:.01em;margin:8px 0 2px}
+h2{font-size:14.5px;font-weight:600;margin:10px 0 4px}
+h3{font-size:13px;font-weight:600;margin:0 0 6px}
+p{margin:0 0 8px} p:last-child{margin-bottom:0}
+.lede{color:var(--muted);font-size:13px;margin:4px 0 0}
+.note{color:var(--muted);font-size:12px;line-height:1.7}
+.key{background:rgba(184,122,22,.08);border:1px solid #E0C592;border-radius:3px;padding:8px 10px;font-size:12.5px;line-height:1.7;margin:8px 0}
+
+.btn{font:inherit;font-size:12.5px;line-height:1.4;border:1px solid var(--rule);background:#fff;color:var(--ink);border-radius:2px;padding:6px 10px;cursor:pointer}
+.btn:hover{border-color:#B4C0BC}
+.btn[aria-pressed="true"]{background:var(--ink);color:#fff;border-color:var(--ink)}
+.btn:focus-visible{outline:2px solid var(--ink);outline-offset:1px}
+.btnrow{display:flex;flex-wrap:wrap;gap:6px;margin:8px 0}
+
+/* ---------- 表共通 ---------- */
+.scroll{overflow-x:auto;-webkit-overflow-scrolling:touch;padding-bottom:2px}
+table{border-collapse:collapse;width:100%;font-size:12.5px}
+table.compact{min-width:480px}
+th,td{padding:6px 8px;text-align:left;white-space:nowrap;border-bottom:1px solid var(--rule-soft)}
+th{font-family:var(--mono);font-size:10.5px;letter-spacing:.06em;color:var(--muted);font-weight:500}
+td.num,th.num{text-align:right;font-family:var(--mono)}
+td.gap{color:var(--rule);text-align:center;font-family:var(--mono)}
+td.arrow{text-align:center;color:var(--muted);width:24px}
+tr:last-child td{border-bottom:none}
+
+/* ---------- 分類ごとの色分け枠(distribution-series-design-system.md 準拠) ---------- */
+.classbox{border:2px solid var(--rule);border-radius:3px;padding:10px 12px 4px;margin:10px 0}
+.classlabel{font-family:var(--mono);font-size:11.5px;letter-spacing:.14em;display:flex;align-items:center;gap:8px;margin-bottom:6px}
+.classlabel .cnt{font-weight:400;letter-spacing:0;text-transform:none;font-size:11px}
+
+/* ---------- 凡例 ---------- */
+.legend-cats{display:flex;flex-wrap:wrap;gap:7px 14px;margin:8px 0 4px}
+.legend-item{display:flex;align-items:center;gap:6px;font-size:11.5px}
+.legend-swatch{width:14px;height:14px;border-radius:2px;flex:none;border-width:2px;border-style:solid}
+
+/* ---------- カルボニル構造の対比(イントロ) ---------- */
+.carbonylrow{display:flex;flex-wrap:wrap;gap:14px;margin-top:8px}
+.carbonylbox{flex:1 1 220px;border:1px solid var(--rule);border-radius:3px;padding:10px 12px;background:#FBFCFB}
+.carbonylbox .cform{font-family:var(--mono);font-size:16px;font-weight:500;margin-bottom:4px}
+.carbonylbox .clabel{font-family:var(--mono);font-size:11px;letter-spacing:.1em;color:var(--muted)}
+.carbonylbox p{font-size:12.5px;margin-top:6px}
+
+/* ---------- モード切替セクション ---------- */
+.section{display:none}
+.section.active{display:block}
+
+@media (prefers-reduced-motion:no-preference){ .btn{transition:border-color 120ms linear,background-color 120ms linear} }
+
+@media (max-width:430px){
+  body{font-size:13px}
+  .wrap{padding:14px 10px 50px}
+  .card{padding:11px}
+  h1{font-size:19px}
+  .btn{padding:6px 8px;font-size:12px}
+  table.compact{min-width:420px}
+}
+</style>
+</head>
+<body>
+<div class="wrap">
+
+<header>
+  <div class="eyebrow">ALDEHYDE & KETONE NOMENCLATURE</div>
+  <h1>アルデヒド・ケトンの命名法・性質</h1>
+  <p class="lede">カルボニル基(C=O)を持つ代表的な2つの官能基、アルデヒド(R-CHO)とケトン(R-CO-R')を命名法と酸化されやすさの違いで比較する。チップで切り替えると、それぞれのデータ表・性質が入れ替わる。</p>
+</header>
+
+<div class="card text">
+  <div class="eyebrow">CARBONYL GROUP</div>
+  <p class="note" style="margin-top:8px">アルデヒドとケトンはどちらもカルボニル基C=Oを持つが、C=Oの位置が違う。アルデヒドはC=Oが鎖の<b>末端</b>にあり、炭素には必ずHが1個ついている(-CHO)。ケトンはC=Oが鎖の<b>途中</b>にあり、両側を炭素が挟む(-CO-)。この違いが、後述する酸化されやすさ(還元性の有無)の違いにそのまま対応する。</p>
+  <div class="carbonylrow">
+    <div class="carbonylbox">
+      <div class="clabel">ALDEHYDE</div>
+      <div class="cform">R&ndash;CHO</div>
+      <p class="note">C=Oが鎖の末端。ホルミル基(アルデヒド基)と呼ぶ。</p>
+    </div>
+    <div class="carbonylbox">
+      <div class="clabel">KETONE</div>
+      <div class="cform">R&ndash;CO&ndash;R&prime;</div>
+      <p class="note">C=Oが鎖の途中。両側を炭素(アルキル基・アリール基)が挟む。</p>
+    </div>
+  </div>
+</div>
+
+<div class="card">
+  <div class="eyebrow">SWITCH</div>
+  <h2>アルデヒド/ケトンを切り替える</h2>
+  <div class="btnrow" id="modeChips" role="group" aria-label="官能基の切り替え"></div>
+</div>
+
+<!-- ========== ALDEHYDE ========== -->
+<section id="sectionAldehyde" class="section">
+
+  <div class="card">
+    <div class="eyebrow">NAMES</div>
+    <h2>アルデヒドの命名(慣用名⇔組織名)</h2>
+    <p class="note">慣用名は語幹+aldehide、組織名は語幹+alの形をとる。枠の色は分類を表す(凡例参照)。</p>
+    <div class="legend-cats" id="aldehydeLegend"></div>
+    <div id="aldehydeGroups"></div>
+  </div>
+
+  <div class="card">
+    <div class="eyebrow">FORMALIN</div>
+    <p class="note" style="margin-top:8px" id="formalinNote"></p>
+  </div>
+
+  <div class="card text">
+    <div class="eyebrow">PROPERTIES</div>
+    <h2>アルデヒドの性質</h2>
+    <p class="note" id="aldehydeOxidationNote"></p>
+    <p class="note" id="aldehydeReductionNote"></p>
+  </div>
+
+</section>
+
+<!-- ========== KETONE ========== -->
+<section id="sectionKetone" class="section">
+
+  <div class="card">
+    <div class="eyebrow">NAMES</div>
+    <h2>ケトンの命名(基官能名⇔置換名)</h2>
+    <p class="note">基官能名は「2つのアルキル基名(またはアリール基名) + ketone」、置換名は炭素鎖の名前+位置番号+oneの形をとる。枠の色は分類を表す(凡例参照)。</p>
+    <div class="legend-cats" id="ketoneLegend"></div>
+    <div id="ketoneGroups"></div>
+  </div>
+
+  <div class="card text">
+    <div class="eyebrow">PROPERTIES</div>
+    <h2>ケトンの性質</h2>
+    <p class="note" id="ketoneNoReductionNote"></p>
+    <p class="note" id="acetoneIodoformNote"></p>
+  </div>
+
+</section>
+
+<div class="card text">
+  <div class="eyebrow">NOTES</div>
+  <p class="note" style="margin-top:8px" id="benzaldehydeCorrectionNote"></p>
+  <p class="note">銀鏡反応・フェーリング液の還元・ヨードホルム反応の反応の仕組みや検出反応そのものはchem-organic-reaction-mapを参照。本教材では「アルデヒドは還元性がある、ケトンはない」という分類の事実のみを扱った。</p>
+  <p class="note">次はカルボン酸(1価・2価)の命名法を扱う予定。性質面はchem-organic-separation等と重複するため、命名法中心にする方針。</p>
+</div>
+
+</div><!-- /wrap -->
+
+<script>
+/* ---------- データ(JSONをそのまま埋め込み。fetch は使わない) ---------- */
+const DATA = {"meta":{"atomicWeights":{"H":1,"C":12,"O":16},"note":"分子量はすべてH=1.0, C=12.0, O=16.0での計算値。指示により確定済みの数値をそのまま採用している。"},"aldehydes":[{"id":"formaldehyde","structuralFormula":"H-CHO","commonName":"formaldehyde","systematicName":"methanal","molecularWeight":30,"category":"aliphatic"},{"id":"acetaldehyde","structuralFormula":"CH3-CHO","commonName":"acetaldehyde","systematicName":"ethanal","molecularWeight":44,"category":"aliphatic"},{"id":"propionaldehyde","structuralFormula":"CH3-CH2-CHO","commonName":"propionaldehyde","systematicName":"propanal","molecularWeight":58,"category":"aliphatic"},{"id":"butyraldehyde","structuralFormula":"CH3-CH2-CH2-CHO","commonName":"butyraldehyde","systematicName":"butanal","molecularWeight":72,"category":"aliphatic"},{"id":"benzaldehyde","structuralFormula":"C6H5-CHO","commonName":"benzaldehyde","systematicName":"benzenecarbaldehyde","molecularWeight":106,"category":"aromatic"},{"id":"salicylaldehyde","structuralFormula":"C6H4(OH)-CHO(オルト位)","commonName":"salicylaldehyde","systematicName":"2-hydroxybenzenecarbaldehyde","molecularWeight":122,"category":"aromatic"},{"id":"glyoxal","structuralFormula":"OHC-CHO","commonName":"glyoxal","systematicName":"ethanedial","molecularWeight":58,"category":"di_unsaturated","subcategory":"di"},{"id":"malonaldehyde","structuralFormula":"OHC-CH2-CHO","commonName":"malonaldehyde","systematicName":"propanedial","molecularWeight":72,"category":"di_unsaturated","subcategory":"di"},{"id":"acrylaldehyde","structuralFormula":"CH2=CH-CHO","commonName":"acrylaldehyde(acrolein)","systematicName":"propenal","molecularWeight":56,"category":"di_unsaturated","subcategory":"unsaturated"}],"ketones":[{"id":"dimethyl-ketone","structuralFormula":"CH3-CO-CH3","functionalGroupName":"dimethyl ketone","substitutiveName":"2-propanone","commonName":"acetone","molecularWeight":58,"category":"aliphatic"},{"id":"ethylmethyl-ketone","structuralFormula":"CH3-CO-CH2-CH3","functionalGroupName":"ethylmethyl ketone","substitutiveName":"2-butanone","commonName":null,"molecularWeight":72,"category":"aliphatic"},{"id":"diethyl-ketone","structuralFormula":"CH3CH2-CO-CH2CH3","functionalGroupName":"diethyl ketone","substitutiveName":"3-pentanone","commonName":null,"molecularWeight":86,"category":"aliphatic"},{"id":"methylphenyl-ketone","structuralFormula":"C6H5-CO-CH3","functionalGroupName":"methylphenyl ketone","substitutiveName":"acetophenone","commonName":null,"molecularWeight":120,"category":"aromatic"},{"id":"methyl-vinyl-ketone","structuralFormula":"CH2=CH-CO-CH3","functionalGroupName":"methyl vinyl ketone","substitutiveName":"but-3-en-2-one","commonName":null,"molecularWeight":70,"category":"unsaturated"},{"id":"ethylphenyl-ketone","structuralFormula":"C6H5-CO-CH2CH3","functionalGroupName":"ethylphenyl ketone","substitutiveName":"propiophenone","commonName":null,"molecularWeight":134,"category":"aromatic"},{"id":"benzylphenyl-ketone","structuralFormula":"C6H5-CO-CH2-C6H5","functionalGroupName":"benzylphenyl ketone","substitutiveName":"1,2-diphenylethan-1-one","commonName":null,"molecularWeight":196,"category":"aromatic"}],"notes":{"benzaldehydeCorrection":"手書きノートでは組織名を「benzene carboaldehyde」と2語で記しているが誤り。正しいIUPAC名は1語のbenzenecarbaldehydeであり、本教材ではこちらを採用する。","formalin":"ホルムアルデヒドの水溶液(約37%)をホルマリンといい、防腐剤として微生物の繁殖を抑える用途で使われる。","aldehydeOxidation":"アルデヒドは酸化されるとカルボン酸になる(R-CHO → R-COOH)。","aldehydeReduction":"アルデヒドは還元性をもち、銀鏡反応・フェーリング液の還元がともに陽性になる。反応の仕組み・検出反応の詳細はchem-organic-reaction-mapを参照。","ketoneNoReduction":"ケトンはアルデヒドと異なり酸化されにくく、還元性を示さない(銀鏡反応・フェーリング液の還元はともに陰性)。","acetoneIodoform":"アセトンはCH3-CO-R型の構造をもつ代表例として、ヨードホルム反応が陽性になる。反応の仕組みはchem-organic-reaction-mapを参照。"}};
+
+/* ---------- 起動時チェック ---------- */
+(function checkData(){
+  const msg=[];
+  if(DATA.aldehydes.length!==9) msg.push('aldehydes が9件ではない('+DATA.aldehydes.length+'件)');
+  if(DATA.ketones.length!==7) msg.push('ketones が7件ではない('+DATA.ketones.length+'件)');
+  if(msg.length) console.warn('[DATA] 不整合\n'+msg.join('\n'));
+  else console.info('[DATA] aldehydes '+DATA.aldehydes.length+'件・ketones '+DATA.ketones.length+'件を読み込んだ');
+})();
+
+const esc = s => String(s).replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+
+/* ---------- 分類ごとの色(系列カラーを流用) ---------- */
+const ALDEHYDE_CAT = {
+  aliphatic:      { bg:'rgba(21,138,109,.10)', bd:'#158A6D', tx:'#0D6A53', label:'脂肪族(鎖式)' },
+  aromatic:       { bg:'rgba(36,87,166,.10)',  bd:'#2457A6', tx:'#1B4380', label:'芳香族' },
+  di_unsaturated: { bg:'rgba(110,58,167,.10)', bd:'#6E3AA7', tx:'#572D85', label:'ジ・不飽和' },
+};
+const KETONE_CAT = {
+  aliphatic:   { bg:'rgba(21,138,109,.10)', bd:'#158A6D', tx:'#0D6A53', label:'脂肪族(鎖式)' },
+  aromatic:    { bg:'rgba(36,87,166,.10)',  bd:'#2457A6', tx:'#1B4380', label:'芳香族' },
+  unsaturated: { bg:'rgba(110,58,167,.10)', bd:'#6E3AA7', tx:'#572D85', label:'不飽和' },
+};
+const SUBCAT_LABEL = { di:'ジアルデヒド', unsaturated:'不飽和アルデヒド' };
+
+/* ---------- 状態: 選択中のモード ---------- */
+const st = { mode: 'aldehyde' };
+
+/* ---------- MODE chips ---------- */
+function renderModeChips(){
+  const host = document.getElementById('modeChips');
+  const modes = [ {id:'aldehyde', label:'アルデヒド'}, {id:'ketone', label:'ケトン'} ];
+  host.innerHTML = modes.map(m=>{
+    const pressed = m.id===st.mode;
+    return '<button type="button" class="btn" data-mode="'+m.id+'" aria-pressed="'+pressed+'">'+esc(m.label)+'</button>';
+  }).join('');
+  host.addEventListener('click', (e)=>{
+    const b = e.target.closest('button[data-mode]');
+    if(!b) return;
+    st.mode = b.dataset.mode;
+    renderAll();
+  });
+}
+
+/* ---------- 凡例 ---------- */
+function renderLegend(hostId, cats, order){
+  const host = document.getElementById(hostId);
+  host.innerHTML = order.map(k=>{
+    const c = cats[k];
+    return '<div class="legend-item"><span class="legend-swatch" style="background:'+c.bg+';border-color:'+c.bd+'"></span>'+esc(c.label)+'</div>';
+  }).join('');
+}
+
+/* ---------- アルデヒド表 ---------- */
+function aldehydeRowsTable(list){
+  const hasSub = list.some(a=>a.subcategory);
+  let h = '<thead><tr><th>示性式</th><th>慣用名</th><th class="arrow"></th><th>組織名</th>'+(hasSub?'<th>分類</th>':'')+'<th class="num">分子量</th></tr></thead><tbody>';
+  list.forEach(a=>{
+    h += '<tr><td class="mono">'+esc(a.structuralFormula)+'</td><td class="mono">'+esc(a.commonName)+'</td><td class="arrow">⇔</td><td class="mono">'+esc(a.systematicName)+'</td>'+
+      (hasSub ? '<td>'+(a.subcategory?esc(SUBCAT_LABEL[a.subcategory]):'')+'</td>' : '')+
+      '<td class="num mono">'+a.molecularWeight+'</td></tr>';
+  });
+  h += '</tbody>';
+  return h;
+}
+function renderAldehydeGroups(){
+  renderLegend('aldehydeLegend', ALDEHYDE_CAT, ['aliphatic','aromatic','di_unsaturated']);
+  const host = document.getElementById('aldehydeGroups');
+  let h = '';
+  ['aliphatic','aromatic','di_unsaturated'].forEach(cat=>{
+    const list = DATA.aldehydes.filter(a=>a.category===cat);
+    if(!list.length) return;
+    const c = ALDEHYDE_CAT[cat];
+    h += '<div class="classbox" style="background:'+c.bg+';border-color:'+c.bd+'">'+
+      '<div class="classlabel" style="color:'+c.tx+'">'+esc(c.label)+'<span class="cnt">('+list.length+'件)</span></div>'+
+      '<div class="scroll"><table class="compact">'+aldehydeRowsTable(list)+'</table></div>'+
+      '</div>';
+  });
+  host.innerHTML = h;
+}
+
+/* ---------- ケトン表 ---------- */
+function ketoneRowsTable(list){
+  let h = '<thead><tr><th>示性式</th><th>基官能名</th><th class="arrow"></th><th>置換名</th><th>慣用名</th><th class="num">分子量</th></tr></thead><tbody>';
+  list.forEach(k=>{
+    h += '<tr><td class="mono">'+esc(k.structuralFormula)+'</td><td class="mono">'+esc(k.functionalGroupName)+'</td><td class="arrow">⇔</td><td class="mono">'+esc(k.substitutiveName)+'</td>'+
+      (k.commonName ? '<td class="mono">'+esc(k.commonName)+'</td>' : '<td class="gap">―</td>')+
+      '<td class="num mono">'+k.molecularWeight+'</td></tr>';
+  });
+  h += '</tbody>';
+  return h;
+}
+function renderKetoneGroups(){
+  renderLegend('ketoneLegend', KETONE_CAT, ['aliphatic','aromatic','unsaturated']);
+  const host = document.getElementById('ketoneGroups');
+  let h = '';
+  ['aliphatic','aromatic','unsaturated'].forEach(cat=>{
+    const list = DATA.ketones.filter(k=>k.category===cat);
+    if(!list.length) return;
+    const c = KETONE_CAT[cat];
+    h += '<div class="classbox" style="background:'+c.bg+';border-color:'+c.bd+'">'+
+      '<div class="classlabel" style="color:'+c.tx+'">'+esc(c.label)+'<span class="cnt">('+list.length+'件)</span></div>'+
+      '<div class="scroll"><table class="compact">'+ketoneRowsTable(list)+'</table></div>'+
+      '</div>';
+  });
+  host.innerHTML = h;
+}
+
+/* ---------- テキストノート ---------- */
+function renderTextNotes(){
+  document.getElementById('formalinNote').textContent = DATA.notes.formalin;
+  document.getElementById('aldehydeOxidationNote').textContent = DATA.notes.aldehydeOxidation;
+  document.getElementById('aldehydeReductionNote').textContent = DATA.notes.aldehydeReduction;
+  document.getElementById('ketoneNoReductionNote').textContent = DATA.notes.ketoneNoReduction;
+  document.getElementById('acetoneIodoformNote').textContent = DATA.notes.acetoneIodoform;
+  document.getElementById('benzaldehydeCorrectionNote').textContent = DATA.notes.benzaldehydeCorrection;
+}
+
+/* ---------- 表示切替 ---------- */
+function syncSections(){
+  document.getElementById('sectionAldehyde').classList.toggle('active', st.mode==='aldehyde');
+  document.getElementById('sectionKetone').classList.toggle('active', st.mode==='ketone');
+  Array.prototype.forEach.call(document.querySelectorAll('#modeChips button'), b=>{
+    b.setAttribute('aria-pressed', b.dataset.mode===st.mode);
+  });
+}
+
+/* ---------- 初期化 ---------- */
+function renderAll(){
+  syncSections();
+}
+
+renderModeChips();
+renderAldehydeGroups();
+renderKetoneGroups();
+renderTextNotes();
+renderAll();
+</script>
+</body>
+</html>

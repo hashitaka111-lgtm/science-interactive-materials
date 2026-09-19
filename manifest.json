@@ -1348,7 +1348,8 @@
     "type": "matrix",
     "related": [
       "chem-polymer-degree",
-      "chem-isomers"
+      "chem-isomers",
+      "chem-aldehyde-ketone-nomenclature"
     ]
   },
   {
@@ -1375,7 +1376,36 @@
     "confidence": "high",
     "type": "matrix",
     "related": [
-      "chem-isomers"
+      "chem-isomers",
+      "chem-aldehyde-ketone-nomenclature"
+    ]
+  },
+  {
+    "id": "chem-aldehyde-ketone-nomenclature",
+    "file": "html/aldehyde-ketone-nomenclature.html",
+    "subject": "chemistry",
+    "unit": "有機化学 / アルデヒド・ケトンの命名法・性質",
+    "course": "化学",
+    "section": "有機化合物の性質",
+    "order": 31,
+    "title": "アルデヒド・ケトンの命名法・性質",
+    "heading": "アルデヒド・ケトンの命名法・性質",
+    "summary": "アルデヒドとケトンの慣用名・組織名を比較し、酸化されやすさの違いを確かめる",
+    "topics": [
+      "慣用名と組織名の対応(-al・-one)",
+      "アルデヒドの還元性とケトンとの違い",
+      "ジアルデヒド・不飽和アルデヒドの命名",
+      "芳香族アルデヒド・ケトンの命名"
+    ],
+    "interactions": [
+      "チップ切り替え",
+      "色分け表示"
+    ],
+    "confidence": "high",
+    "type": "matrix",
+    "related": [
+      "chem-alcohol-ether-nomenclature",
+      "chem-hydrocarbon-nomenclature"
     ]
   }
 ]

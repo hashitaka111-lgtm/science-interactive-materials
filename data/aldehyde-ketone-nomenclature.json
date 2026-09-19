@@ -1,0 +1,34 @@
+{
+  "meta": {
+    "atomicWeights": { "H": 1.0, "C": 12.0, "O": 16.0 },
+    "note": "分子量はすべてH=1.0, C=12.0, O=16.0での計算値。指示により確定済みの数値をそのまま採用している。"
+  },
+  "aldehydes": [
+    { "id": "formaldehyde", "structuralFormula": "H-CHO", "commonName": "formaldehyde", "systematicName": "methanal", "molecularWeight": 30, "category": "aliphatic" },
+    { "id": "acetaldehyde", "structuralFormula": "CH3-CHO", "commonName": "acetaldehyde", "systematicName": "ethanal", "molecularWeight": 44, "category": "aliphatic" },
+    { "id": "propionaldehyde", "structuralFormula": "CH3-CH2-CHO", "commonName": "propionaldehyde", "systematicName": "propanal", "molecularWeight": 58, "category": "aliphatic" },
+    { "id": "butyraldehyde", "structuralFormula": "CH3-CH2-CH2-CHO", "commonName": "butyraldehyde", "systematicName": "butanal", "molecularWeight": 72, "category": "aliphatic" },
+    { "id": "benzaldehyde", "structuralFormula": "C6H5-CHO", "commonName": "benzaldehyde", "systematicName": "benzenecarbaldehyde", "molecularWeight": 106, "category": "aromatic" },
+    { "id": "salicylaldehyde", "structuralFormula": "C6H4(OH)-CHO(オルト位)", "commonName": "salicylaldehyde", "systematicName": "2-hydroxybenzenecarbaldehyde", "molecularWeight": 122, "category": "aromatic" },
+    { "id": "glyoxal", "structuralFormula": "OHC-CHO", "commonName": "glyoxal", "systematicName": "ethanedial", "molecularWeight": 58, "category": "di_unsaturated", "subcategory": "di" },
+    { "id": "malonaldehyde", "structuralFormula": "OHC-CH2-CHO", "commonName": "malonaldehyde", "systematicName": "propanedial", "molecularWeight": 72, "category": "di_unsaturated", "subcategory": "di" },
+    { "id": "acrylaldehyde", "structuralFormula": "CH2=CH-CHO", "commonName": "acrylaldehyde(acrolein)", "systematicName": "propenal", "molecularWeight": 56, "category": "di_unsaturated", "subcategory": "unsaturated" }
+  ],
+  "ketones": [
+    { "id": "dimethyl-ketone", "structuralFormula": "CH3-CO-CH3", "functionalGroupName": "dimethyl ketone", "substitutiveName": "2-propanone", "commonName": "acetone", "molecularWeight": 58, "category": "aliphatic" },
+    { "id": "ethylmethyl-ketone", "structuralFormula": "CH3-CO-CH2-CH3", "functionalGroupName": "ethylmethyl ketone", "substitutiveName": "2-butanone", "commonName": null, "molecularWeight": 72, "category": "aliphatic" },
+    { "id": "diethyl-ketone", "structuralFormula": "CH3CH2-CO-CH2CH3", "functionalGroupName": "diethyl ketone", "substitutiveName": "3-pentanone", "commonName": null, "molecularWeight": 86, "category": "aliphatic" },
+    { "id": "methylphenyl-ketone", "structuralFormula": "C6H5-CO-CH3", "functionalGroupName": "methylphenyl ketone", "substitutiveName": "acetophenone", "commonName": null, "molecularWeight": 120, "category": "aromatic" },
+    { "id": "methyl-vinyl-ketone", "structuralFormula": "CH2=CH-CO-CH3", "functionalGroupName": "methyl vinyl ketone", "substitutiveName": "but-3-en-2-one", "commonName": null, "molecularWeight": 70, "category": "unsaturated" },
+    { "id": "ethylphenyl-ketone", "structuralFormula": "C6H5-CO-CH2CH3", "functionalGroupName": "ethylphenyl ketone", "substitutiveName": "propiophenone", "commonName": null, "molecularWeight": 134, "category": "aromatic" },
+    { "id": "benzylphenyl-ketone", "structuralFormula": "C6H5-CO-CH2-C6H5", "functionalGroupName": "benzylphenyl ketone", "substitutiveName": "1,2-diphenylethan-1-one", "commonName": null, "molecularWeight": 196, "category": "aromatic" }
+  ],
+  "notes": {
+    "benzaldehydeCorrection": "手書きノートでは組織名を「benzene carboaldehyde」と2語で記しているが誤り。正しいIUPAC名は1語のbenzenecarbaldehydeであり、本教材ではこちらを採用する。",
+    "formalin": "ホルムアルデヒドの水溶液(約37%)をホルマリンといい、防腐剤として微生物の繁殖を抑える用途で使われる。",
+    "aldehydeOxidation": "アルデヒドは酸化されるとカルボン酸になる(R-CHO → R-COOH)。",
+    "aldehydeReduction": "アルデヒドは還元性をもち、銀鏡反応・フェーリング液の還元がともに陽性になる。反応の仕組み・検出反応の詳細はchem-organic-reaction-mapを参照。",
+    "ketoneNoReduction": "ケトンはアルデヒドと異なり酸化されにくく、還元性を示さない(銀鏡反応・フェーリング液の還元はともに陰性)。",
+    "acetoneIodoform": "アセトンはCH3-CO-R型の構造をもつ代表例として、ヨードホルム反応が陽性になる。反応の仕組みはchem-organic-reaction-mapを参照。"
+  }
+}
