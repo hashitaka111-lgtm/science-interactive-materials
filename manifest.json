@@ -1233,7 +1233,8 @@
     "related": [
       "chem-elemental-analysis",
       "chem-structure-determination",
-      "chem-hydrocarbon-nomenclature"
+      "chem-hydrocarbon-nomenclature",
+      "chem-alcohol-ether-nomenclature"
     ]
   },
   {
@@ -1347,6 +1348,33 @@
     "type": "matrix",
     "related": [
       "chem-polymer-degree",
+      "chem-isomers"
+    ]
+  },
+  {
+    "id": "chem-alcohol-ether-nomenclature",
+    "file": "html/alcohol-ether-nomenclature.html",
+    "subject": "chemistry",
+    "unit": "有機化学 / アルコール・エーテルの命名法・性質",
+    "course": "化学",
+    "section": "有機化合物の性質",
+    "order": 30,
+    "title": "アルコール・エーテルの命名法・性質",
+    "heading": "アルコール・エーテルの命名法・性質",
+    "summary": "アルコールの級(1級・2級・3級)とエーテルの2つの命名法(基官能名・置換名)を比較する",
+    "topics": [
+      "アルコールの級の判定(1級・2級・3級)",
+      "基官能名と置換名の対応",
+      "多価アルコール(エチレングリコール・グリセリン)",
+      "環状エーテル(エポキシド)の命名"
+    ],
+    "interactions": [
+      "チップ切り替え",
+      "色分け表示"
+    ],
+    "confidence": "high",
+    "type": "matrix",
+    "related": [
       "chem-isomers"
     ]
   }

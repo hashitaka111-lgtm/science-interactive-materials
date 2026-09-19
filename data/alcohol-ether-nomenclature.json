@@ -1,0 +1,57 @@
+{
+  "meta": {
+    "atomicWeights": { "H": 1.0, "C": 12.0, "O": 16.0 },
+    "note": "分子量はすべてH=1.0, C=12.0, O=16.0での計算値。指示により確定済みの数値をそのまま採用している。"
+  },
+  "gradeRule": {
+    "description": "OHが結合した炭素に直接結合している他の炭素の数で級が決まる。",
+    "levels": [
+      { "grade": 1, "label": "1級", "otherCarbons": "0個または1個" },
+      { "grade": 2, "label": "2級", "otherCarbons": "2個" },
+      { "grade": 3, "label": "3級", "otherCarbons": "3個" }
+    ]
+  },
+  "prefixNotes": [
+    {
+      "prefix": "iso-",
+      "meaning": "鎖の末端が(CH3)2CH-の構造(イソプロピル型の分岐)であることを示す接頭語",
+      "gradeNote": "級とは連動しない。isopropyl alcohol(2-propanol)は2級だが、isobutyl alcohol(2-methyl-1-propanol)は1級。",
+      "example": "isopropyl alcohol(2-propanol、2級)"
+    },
+    {
+      "prefix": "sec-",
+      "meaning": "secondary(第二級)の略。OHが結合した炭素が2級であることを示す接頭語",
+      "gradeNote": "常に2級と対応する。",
+      "example": "sec-butyl alcohol(2-butanol、2級)"
+    },
+    {
+      "prefix": "tert-",
+      "meaning": "tertiary(第三級)の略。OHが結合した炭素が3級であることを示す接頭語",
+      "gradeNote": "常に3級と対応する。",
+      "example": "tert-butyl alcohol(2-methyl-2-propanol、3級)"
+    }
+  ],
+  "alcohols": [
+    { "id": "methanol", "structuralFormula": "CH3-OH", "functionalGroupName": "methyl alcohol", "substitutiveName": "methanol", "grade": 1, "molecularWeight": 32, "category": "mono" },
+    { "id": "ethanol", "structuralFormula": "CH3-CH2-OH", "functionalGroupName": "ethyl alcohol", "substitutiveName": "ethanol", "grade": 1, "molecularWeight": 46, "category": "mono" },
+    { "id": "1-propanol", "structuralFormula": "CH3-CH2-CH2-OH", "functionalGroupName": "n-propyl alcohol", "substitutiveName": "1-propanol", "grade": 1, "molecularWeight": 60, "category": "mono" },
+    { "id": "2-propanol", "structuralFormula": "CH3-CH(OH)-CH3", "functionalGroupName": "isopropyl alcohol", "substitutiveName": "2-propanol", "grade": 2, "molecularWeight": 60, "category": "mono" },
+    { "id": "2-methyl-2-propanol", "structuralFormula": "(CH3)3C-OH", "functionalGroupName": "tert-butyl alcohol", "substitutiveName": "2-methyl-2-propanol", "grade": 3, "molecularWeight": 74, "category": "mono" },
+    { "id": "phenylmethanol", "structuralFormula": "C6H5-CH2-OH", "functionalGroupName": "benzyl alcohol", "substitutiveName": "phenylmethanol", "grade": 1, "molecularWeight": 108, "category": "mono" },
+    { "id": "2-propen-1-ol", "structuralFormula": "CH2=CH-CH2-OH", "functionalGroupName": "allyl alcohol", "substitutiveName": "2-propen-1-ol", "grade": 1, "molecularWeight": 58, "category": "mono" },
+    { "id": "1,2-ethanediol", "structuralFormula": "HOCH2-CH2OH", "functionalGroupName": "エチレングリコール", "substitutiveName": "1,2-ethanediol", "grade": null, "molecularWeight": 62, "category": "polyhydric", "valence": 2 },
+    { "id": "1,2,3-propanetriol", "structuralFormula": "HOCH2-CH(OH)-CH2OH", "functionalGroupName": "グリセリン", "substitutiveName": "1,2,3-propanetriol", "grade": null, "molecularWeight": 92, "category": "polyhydric", "valence": 3 }
+  ],
+  "ethers": [
+    { "id": "methoxymethane", "structuralFormula": "CH3-O-CH3", "functionalGroupName": "dimethyl ether", "substitutiveName": "methoxymethane", "commonName": null, "molecularWeight": 46, "cyclic": false },
+    { "id": "methoxyethane", "structuralFormula": "CH3-O-CH2-CH3", "functionalGroupName": "ethylmethyl ether", "substitutiveName": "methoxyethane", "commonName": null, "molecularWeight": 60, "cyclic": false },
+    { "id": "ethoxyethane", "structuralFormula": "CH3-CH2-O-CH2-CH3", "functionalGroupName": "diethyl ether", "substitutiveName": "ethoxyethane", "commonName": null, "molecularWeight": 74, "cyclic": false },
+    { "id": "methoxybenzene", "structuralFormula": "C6H5-O-CH3", "functionalGroupName": "methylphenyl ether", "substitutiveName": "methoxybenzene", "commonName": "anisole", "molecularWeight": 108, "cyclic": false },
+    { "id": "epoxyethane", "structuralFormula": "CH2-CH2(環状、Oを含む3員環)", "functionalGroupName": "ethylene oxide", "substitutiveName": "epoxyethane", "commonName": null, "molecularWeight": 44, "cyclic": true },
+    { "id": "1,2-epoxypropane", "structuralFormula": "CH3-CH(環)-CH2(環、Oを含む3員環)", "functionalGroupName": "propylene oxide", "substitutiveName": "1,2-epoxypropane", "commonName": null, "molecularWeight": 58, "cyclic": true }
+  ],
+  "notes": {
+    "sugarAlcohol": "多価アルコールの一種として、糖アルコール(テトリトール・ヘキシトールなど)もある。本教材の範囲外。",
+    "isomerCrossRef": "2-メチル-1-プロパノール・2-ブタノール・2-メチル-2-プロパノールの詳しい構造比較・骨格/位置異性体の判定はchem-isomersを参照。"
+  }
+}

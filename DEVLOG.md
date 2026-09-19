@@ -190,3 +190,16 @@
 - 教材数: 化学29件・物理16件、合計45件
 - 保留: 特になし
 - 次: 酸素を含む化合物(アルコール・エーテル・アルデヒド・ケトン・カルボン酸・エステル)の命名法・製法を扱う教材を想定
+
+## 2026-09-19 — 新規教材「アルコール・エーテルの命名法・性質」の実装
+
+- 変更: `html/alcohol-ether-nomenclature.html`(新規)、`data/alcohol-ether-nomenclature.json`(新規)、`scripts/check-embedded-data.mjs`(EMBED_CHECKSに`alcohol-ether-nomenclature`エントリを追加)、`manifest.json`(`chem-alcohol-ether-nomenclature`を新規追加、`chem-isomers`のrelatedに相互リンクを追加・4件で上限)、`index.html`(build.mjsで再生成)
+- 添付の手書きノート2枚(エーテル・アルコール)とCEO指定の確定データ(アルコール9件・エーテル6件、示性式・基官能名・置換名・分子量)をそのまま採用。手書きノートのベンジルアルコール置換名「phenylol」は誤りのため採用せず、正しいIUPAC名phenylmethanolを使用した(指示どおり)
+- 直前の教材(hydrocarbon-nomenclature)の基官能名/置換名の対比表・チップ切り替えの作法に揃え、CSS変数・フォント・カード構造をほぼそのまま流用した。トップのチップでALCOHOL/ETHERの2セクションを切り替える構成とし、スライダーは使わない(指示どおり操作変数はチップ切り替えと色分け表示のみ)
+- アルコールの1価アルコール表は、distribution-series-design-system.mdの「分類ごとの色分け枠」規約に従って級(1級・2級・3級)+多価の4系統に分け、系列カラー(黄土・緑・青・紫)をそのまま流用した。iso-・sec-・tert-の接頭語は、sec-/tert-が級と1対1対応する一方でiso-は分岐の形を表すだけで級と連動しない(isopropyl alcoholは2級だがisobutyl alcoholは1級)点を表で明示した
+- 指示どおり、2-メチル-1-プロパノール・2-ブタノール・2-メチル-2-プロパノールの詳しい構造比較(骨格/位置異性体の判定)は主役にせず、NOTESカードで「詳しくはchem-isomers参照」の一言に留めた。糖アルコールも多価アルコールカード内に一言(範囲外)の注記のみとし、テトリトール・ヘキシトールの数値等は扱っていない
+- エポキシドの命名(epoxy+位置番号)は、ethylene oxide/epoxyethaneとpropylene oxide/1,2-epoxypropaneの2例をデータ表で示した上、酸素を含む3員環の模式図(SVG、実際の結合角度を表すものではなく概念図)を1つ添えた
+- 検証: `node scripts/check-embedded-data.mjs`・`node build.mjs`がともにエラーなく通ることを確認(化学30件・物理16件、合計46件)。ブラウザで実際にページを開き、ALCOHOL/ETHERのチップ切り替えで両セクションが正しく入れ替わること、級ごとの色分け枠・多価アルコール表・エーテル表・エポキシド表がすべて正しい数値で描画されること、コンソールエラーがゼロであること、375px幅でページ全体の横スクロールが発生しない(各テーブルは`.scroll`ラッパー内でのみ横スクロール)こと、Tabキーでチップにフォーカスが移りfocus-visibleが機能することを確認した
+- 教材数: 化学30件・物理16件、合計46件
+- 保留: 特になし
+- 次: アルデヒド・ケトンの命名法(coverage-map優先度10位)を想定

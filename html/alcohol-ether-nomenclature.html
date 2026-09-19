@@ -1,0 +1,358 @@
+<!doctype html>
+<html lang="ja">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>アルコール・エーテルの命名法・性質</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500&family=IBM+Plex+Sans+JP:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+*{box-sizing:border-box}
+:root{
+  --ink:#16232B; --muted:#5E6E76; --paper:#EDF1EF; --surface:#FFFFFF;
+  --rule:#D6DDDA; --rule-soft:#E8EDEB;
+  --s0:#B87A16; --s0t:#8A5A0C;
+  --s1:#158A6D; --s1t:#0D6A53;
+  --s2:#2457A6; --s2t:#1B4380;
+  --s3:#6E3AA7; --s3t:#572D85;
+  --sans:"IBM Plex Sans JP","Hiragino Sans","Yu Gothic UI",system-ui,sans-serif;
+  --mono:"IBM Plex Mono",ui-monospace,SFMono-Regular,Menlo,monospace;
+}
+html,body{margin:0;padding:0}
+body{background:var(--paper);color:var(--ink);font-family:var(--sans);font-size:13.5px;line-height:1.75;-webkit-text-size-adjust:100%}
+.mono{font-family:var(--mono);font-variant-numeric:tabular-nums}
+.wrap{max-width:900px;margin:0 auto;padding:20px 14px 60px}
+.card{background:var(--surface);border:1px solid var(--rule);border-radius:3px;padding:14px;margin-bottom:14px}
+.card.text{max-width:900px}
+.eyebrow{display:flex;align-items:center;gap:10px;font-family:var(--mono);font-size:11.5px;letter-spacing:.14em;color:var(--muted);text-transform:uppercase}
+.eyebrow::after{content:"";flex:1;height:1px;background:var(--rule)}
+h1{font-size:22px;font-weight:600;letter-spacing:.01em;margin:8px 0 2px}
+h2{font-size:14.5px;font-weight:600;margin:10px 0 4px}
+h3{font-size:13px;font-weight:600;margin:0 0 6px}
+p{margin:0 0 8px} p:last-child{margin-bottom:0}
+.lede{color:var(--muted);font-size:13px;margin:4px 0 0}
+.note{color:var(--muted);font-size:12px;line-height:1.7}
+.key{background:rgba(184,122,22,.08);border:1px solid #E0C592;border-radius:3px;padding:8px 10px;font-size:12.5px;line-height:1.7;margin:8px 0}
+
+.btn{font:inherit;font-size:12.5px;line-height:1.4;border:1px solid var(--rule);background:#fff;color:var(--ink);border-radius:2px;padding:6px 10px;cursor:pointer}
+.btn:hover{border-color:#B4C0BC}
+.btn[aria-pressed="true"]{background:var(--ink);color:#fff;border-color:var(--ink)}
+.btn:focus-visible{outline:2px solid var(--ink);outline-offset:1px}
+.btnrow{display:flex;flex-wrap:wrap;gap:6px;margin:8px 0}
+
+/* ---------- 表共通 ---------- */
+.scroll{overflow-x:auto;-webkit-overflow-scrolling:touch;padding-bottom:2px}
+table{border-collapse:collapse;width:100%;font-size:12.5px}
+table.compact{min-width:480px}
+th,td{padding:6px 8px;text-align:left;white-space:nowrap;border-bottom:1px solid var(--rule-soft)}
+th{font-family:var(--mono);font-size:10.5px;letter-spacing:.06em;color:var(--muted);font-weight:500}
+td.num,th.num{text-align:right;font-family:var(--mono)}
+td.gap{color:var(--rule);text-align:center;font-family:var(--mono)}
+td.arrow{text-align:center;color:var(--muted);width:24px}
+tr:last-child td{border-bottom:none}
+
+/* ---------- 分類ごとの色分け枠(distribution-series-design-system.md 準拠) ---------- */
+.classbox{border:2px solid var(--rule);border-radius:3px;padding:10px 12px 4px;margin:10px 0}
+.classlabel{font-family:var(--mono);font-size:11.5px;letter-spacing:.14em;display:flex;align-items:center;gap:8px;margin-bottom:6px}
+.classlabel .cnt{font-weight:400;letter-spacing:0;text-transform:none;font-size:11px}
+
+/* ---------- 凡例 ---------- */
+.legend-cats{display:flex;flex-wrap:wrap;gap:7px 14px;margin:8px 0 4px}
+.legend-item{display:flex;align-items:center;gap:6px;font-size:11.5px}
+.legend-swatch{width:14px;height:14px;border-radius:2px;flex:none;border-width:2px;border-style:solid}
+
+/* ---------- 構造アイコン(エポキシド) ---------- */
+.epoxrow{display:flex;align-items:center;gap:14px;margin-top:6px;flex-wrap:wrap}
+.epoxicon{width:52px;height:44px;flex:none}
+.epoxicon svg{width:100%;height:100%;display:block}
+.epoxlabel{font-size:12.5px;line-height:1.6}
+
+/* ---------- モード切替セクション ---------- */
+.section{display:none}
+.section.active{display:block}
+
+@media (prefers-reduced-motion:no-preference){ .btn{transition:border-color 120ms linear,background-color 120ms linear} }
+
+@media (max-width:430px){
+  body{font-size:13px}
+  .wrap{padding:14px 10px 50px}
+  .card{padding:11px}
+  h1{font-size:19px}
+  .btn{padding:6px 8px;font-size:12px}
+  table.compact{min-width:420px}
+}
+</style>
+</head>
+<body>
+<div class="wrap">
+
+<header>
+  <div class="eyebrow">ALCOHOL & ETHER NOMENCLATURE</div>
+  <h1>アルコール・エーテルの命名法・性質</h1>
+  <p class="lede">酸素を1個含む代表的な2つの官能基、アルコール(R-OH)とエーテル(R-O-R')を命名法で比較する。チップで切り替えると、それぞれの命名規則・データ表が入れ替わる。</p>
+</header>
+
+<div class="card text">
+  <div class="eyebrow">TWO NAMING SYSTEMS</div>
+  <p class="note" style="margin-top:8px">有機化合物には2種類の名前のつけ方がある。<b>基官能名</b>は「どの原子団(アルキル基)が組み合わさっているか」に着目した、慣用的で直感的な名前(例: ethyl alcohol、diethyl ether)。<b>置換名</b>は炭素骨格を基準に、官能基の位置を機械的に決める名前(例: ethanol、ethoxyethane)。どちらもIUPACで認められた命名法で、基官能名は短く覚えやすい一方、置換名は炭素数が増えても一意に決まるという利点がある。</p>
+</div>
+
+<div class="card">
+  <div class="eyebrow">SWITCH</div>
+  <h2>アルコール/エーテルを切り替える</h2>
+  <div class="btnrow" id="modeChips" role="group" aria-label="官能基の切り替え"></div>
+</div>
+
+<!-- ========== ALCOHOL ========== -->
+<section id="sectionAlcohol" class="section">
+
+  <div class="card">
+    <div class="eyebrow">GRADE RULE</div>
+    <h2>アルコールの級の判定</h2>
+    <p class="note" id="gradeRuleDesc"></p>
+    <div class="scroll"><table class="compact" id="gradeRuleTable"></table></div>
+  </div>
+
+  <div class="card">
+    <div class="eyebrow">PREFIXES</div>
+    <h2>iso-・sec-・tert-</h2>
+    <p class="note">いずれも慣用名(基官能名)側で使う接頭語。sec-とtert-は級と1対1で対応するが、iso-は「分岐の形」を表すだけで級とは連動しない点に注意する。</p>
+    <div class="scroll"><table class="compact" id="prefixTable"></table></div>
+  </div>
+
+  <div class="card">
+    <div class="eyebrow">NAMES BY GRADE</div>
+    <h2>1価アルコールの命名(級ごとに色分け)</h2>
+    <p class="note">同じ行の基官能名⇔置換名が同じ化合物を指す。枠の色は級を表す(凡例参照)。</p>
+    <div class="legend-cats" id="gradeLegend"></div>
+    <div id="gradeGroups"></div>
+  </div>
+
+  <div class="card">
+    <div class="eyebrow">POLYHYDRIC</div>
+    <h2>多価アルコール</h2>
+    <p class="note">OHを2個以上持つアルコール。分子内にOHが複数あるほど水素結合が増え、水への溶けやすさや甘みが増す傾向がある。</p>
+    <div id="polyhydricGroup"></div>
+    <p class="note" id="sugarAlcoholNote" style="margin-top:8px"></p>
+  </div>
+
+</section>
+
+<!-- ========== ETHER ========== -->
+<section id="sectionEther" class="section">
+
+  <div class="card">
+    <div class="eyebrow">NAMES</div>
+    <h2>エーテルの命名</h2>
+    <p class="note">基官能名は「dialkyl ether(2つのアルキル基名 + ether)」、置換名は「alkoxy(小さい方の炭素鎖側)+ alkane(大きい方の炭素鎖側)」の形で機械的に決まる。慣用名を持つものは併記する。</p>
+    <div class="scroll"><table class="compact" id="etherTable"></table></div>
+  </div>
+
+  <div class="card">
+    <div class="eyebrow">CYCLIC ETHER</div>
+    <h2>環状エーテル(エポキシド)の命名</h2>
+    <p class="note">酸素原子を含む3員環。置換名は「epoxy + 位置番号(酸素が架橋する2つの炭素の番号) + 鎖の名前」の形をとる。基官能名側には個別の慣用名(ethylene oxide・propylene oxideなど)が使われることが多い。</p>
+    <div id="epoxideHost"></div>
+  </div>
+
+</section>
+
+<div class="card text">
+  <div class="eyebrow">NOTES</div>
+  <p class="note" style="margin-top:8px" id="isomerCrossRefNote"></p>
+  <p class="note">次は酸素を含む化合物の続き、アルデヒド・ケトンの命名法を扱う予定。</p>
+</div>
+
+</div><!-- /wrap -->
+
+<script>
+/* ---------- データ(JSONをそのまま埋め込み。fetch は使わない) ---------- */
+const DATA = {"meta":{"atomicWeights":{"H":1,"C":12,"O":16},"note":"分子量はすべてH=1.0, C=12.0, O=16.0での計算値。指示により確定済みの数値をそのまま採用している。"},"gradeRule":{"description":"OHが結合した炭素に直接結合している他の炭素の数で級が決まる。","levels":[{"grade":1,"label":"1級","otherCarbons":"0個または1個"},{"grade":2,"label":"2級","otherCarbons":"2個"},{"grade":3,"label":"3級","otherCarbons":"3個"}]},"prefixNotes":[{"prefix":"iso-","meaning":"鎖の末端が(CH3)2CH-の構造(イソプロピル型の分岐)であることを示す接頭語","gradeNote":"級とは連動しない。isopropyl alcohol(2-propanol)は2級だが、isobutyl alcohol(2-methyl-1-propanol)は1級。","example":"isopropyl alcohol(2-propanol、2級)"},{"prefix":"sec-","meaning":"secondary(第二級)の略。OHが結合した炭素が2級であることを示す接頭語","gradeNote":"常に2級と対応する。","example":"sec-butyl alcohol(2-butanol、2級)"},{"prefix":"tert-","meaning":"tertiary(第三級)の略。OHが結合した炭素が3級であることを示す接頭語","gradeNote":"常に3級と対応する。","example":"tert-butyl alcohol(2-methyl-2-propanol、3級)"}],"alcohols":[{"id":"methanol","structuralFormula":"CH3-OH","functionalGroupName":"methyl alcohol","substitutiveName":"methanol","grade":1,"molecularWeight":32,"category":"mono"},{"id":"ethanol","structuralFormula":"CH3-CH2-OH","functionalGroupName":"ethyl alcohol","substitutiveName":"ethanol","grade":1,"molecularWeight":46,"category":"mono"},{"id":"1-propanol","structuralFormula":"CH3-CH2-CH2-OH","functionalGroupName":"n-propyl alcohol","substitutiveName":"1-propanol","grade":1,"molecularWeight":60,"category":"mono"},{"id":"2-propanol","structuralFormula":"CH3-CH(OH)-CH3","functionalGroupName":"isopropyl alcohol","substitutiveName":"2-propanol","grade":2,"molecularWeight":60,"category":"mono"},{"id":"2-methyl-2-propanol","structuralFormula":"(CH3)3C-OH","functionalGroupName":"tert-butyl alcohol","substitutiveName":"2-methyl-2-propanol","grade":3,"molecularWeight":74,"category":"mono"},{"id":"phenylmethanol","structuralFormula":"C6H5-CH2-OH","functionalGroupName":"benzyl alcohol","substitutiveName":"phenylmethanol","grade":1,"molecularWeight":108,"category":"mono"},{"id":"2-propen-1-ol","structuralFormula":"CH2=CH-CH2-OH","functionalGroupName":"allyl alcohol","substitutiveName":"2-propen-1-ol","grade":1,"molecularWeight":58,"category":"mono"},{"id":"1,2-ethanediol","structuralFormula":"HOCH2-CH2OH","functionalGroupName":"エチレングリコール","substitutiveName":"1,2-ethanediol","grade":null,"molecularWeight":62,"category":"polyhydric","valence":2},{"id":"1,2,3-propanetriol","structuralFormula":"HOCH2-CH(OH)-CH2OH","functionalGroupName":"グリセリン","substitutiveName":"1,2,3-propanetriol","grade":null,"molecularWeight":92,"category":"polyhydric","valence":3}],"ethers":[{"id":"methoxymethane","structuralFormula":"CH3-O-CH3","functionalGroupName":"dimethyl ether","substitutiveName":"methoxymethane","commonName":null,"molecularWeight":46,"cyclic":false},{"id":"methoxyethane","structuralFormula":"CH3-O-CH2-CH3","functionalGroupName":"ethylmethyl ether","substitutiveName":"methoxyethane","commonName":null,"molecularWeight":60,"cyclic":false},{"id":"ethoxyethane","structuralFormula":"CH3-CH2-O-CH2-CH3","functionalGroupName":"diethyl ether","substitutiveName":"ethoxyethane","commonName":null,"molecularWeight":74,"cyclic":false},{"id":"methoxybenzene","structuralFormula":"C6H5-O-CH3","functionalGroupName":"methylphenyl ether","substitutiveName":"methoxybenzene","commonName":"anisole","molecularWeight":108,"cyclic":false},{"id":"epoxyethane","structuralFormula":"CH2-CH2(環状、Oを含む3員環)","functionalGroupName":"ethylene oxide","substitutiveName":"epoxyethane","commonName":null,"molecularWeight":44,"cyclic":true},{"id":"1,2-epoxypropane","structuralFormula":"CH3-CH(環)-CH2(環、Oを含む3員環)","functionalGroupName":"propylene oxide","substitutiveName":"1,2-epoxypropane","commonName":null,"molecularWeight":58,"cyclic":true}],"notes":{"sugarAlcohol":"多価アルコールの一種として、糖アルコール(テトリトール・ヘキシトールなど)もある。本教材の範囲外。","isomerCrossRef":"2-メチル-1-プロパノール・2-ブタノール・2-メチル-2-プロパノールの詳しい構造比較・骨格/位置異性体の判定はchem-isomersを参照。"}};
+
+/* ---------- 起動時チェック ---------- */
+(function checkData(){
+  const msg=[];
+  if(DATA.alcohols.length!==9) msg.push('alcohols が9件ではない('+DATA.alcohols.length+'件)');
+  if(DATA.ethers.length!==6) msg.push('ethers が6件ではない('+DATA.ethers.length+'件)');
+  if(DATA.prefixNotes.length!==3) msg.push('prefixNotes が3件ではない('+DATA.prefixNotes.length+'件)');
+  if(DATA.gradeRule.levels.length!==3) msg.push('gradeRule.levels が3件ではない('+DATA.gradeRule.levels.length+'件)');
+  if(msg.length) console.warn('[DATA] 不整合\n'+msg.join('\n'));
+  else console.info('[DATA] alcohols '+DATA.alcohols.length+'件・ethers '+DATA.ethers.length+'件を読み込んだ');
+})();
+
+const esc = s => String(s).replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+
+/* ---------- 級ごとの色(系列カラーを流用) ---------- */
+const GRADE_COLOR = {
+  1: { bg:'rgba(184,122,22,.10)', bd:'#B87A16', tx:'#8A5A0C', label:'1級' },
+  2: { bg:'rgba(21,138,109,.10)', bd:'#158A6D', tx:'#0D6A53', label:'2級' },
+  3: { bg:'rgba(36,87,166,.10)',  bd:'#2457A6', tx:'#1B4380', label:'3級' },
+  poly: { bg:'rgba(110,58,167,.10)', bd:'#6E3AA7', tx:'#572D85', label:'多価' },
+};
+
+/* ---------- 状態: 選択中のモード ---------- */
+const st = { mode: 'alcohol' };
+
+/* ---------- MODE chips ---------- */
+function renderModeChips(){
+  const host = document.getElementById('modeChips');
+  const modes = [ {id:'alcohol', label:'アルコール'}, {id:'ether', label:'エーテル'} ];
+  host.innerHTML = modes.map(m=>{
+    const pressed = m.id===st.mode;
+    return '<button type="button" class="btn" data-mode="'+m.id+'" aria-pressed="'+pressed+'">'+esc(m.label)+'</button>';
+  }).join('');
+  host.addEventListener('click', (e)=>{
+    const b = e.target.closest('button[data-mode]');
+    if(!b) return;
+    st.mode = b.dataset.mode;
+    renderAll();
+  });
+}
+
+/* ---------- GRADE RULE ---------- */
+function renderGradeRule(){
+  document.getElementById('gradeRuleDesc').textContent = DATA.gradeRule.description;
+  const exampleFor = { 1: ['methanol','ethanol'], 2: ['2-propanol'], 3: ['2-methyl-2-propanol'] };
+  const byId = {}; DATA.alcohols.forEach(a=>{ byId[a.id]=a; });
+  let h = '<thead><tr><th>級</th><th>OH炭素に直接結合する他の炭素の数</th><th>この教材内の例(示性式)</th></tr></thead><tbody>';
+  DATA.gradeRule.levels.forEach(lv=>{
+    const c = GRADE_COLOR[lv.grade];
+    const exIds = exampleFor[lv.grade] || [];
+    const exText = exIds.map(id=>byId[id].structuralFormula+'('+byId[id].functionalGroupName+')').join('、');
+    h += '<tr><td style="color:'+c.tx+';font-weight:600">'+esc(lv.label)+'</td><td>'+esc(lv.otherCarbons)+'</td><td class="mono">'+esc(exText)+'</td></tr>';
+  });
+  h += '</tbody>';
+  document.getElementById('gradeRuleTable').innerHTML = h;
+}
+
+/* ---------- PREFIXES ---------- */
+function renderPrefixTable(){
+  let h = '<thead><tr><th>接頭語</th><th>意味</th><th>級との対応</th><th>具体例</th></tr></thead><tbody>';
+  DATA.prefixNotes.forEach(p=>{
+    h += '<tr><td class="mono" style="font-weight:600">'+esc(p.prefix)+'</td><td style="white-space:normal">'+esc(p.meaning)+'</td><td style="white-space:normal">'+esc(p.gradeNote)+'</td><td class="mono" style="white-space:normal">'+esc(p.example)+'</td></tr>';
+  });
+  h += '</tbody>';
+  document.getElementById('prefixTable').innerHTML = h;
+}
+
+/* ---------- 級ごとの凡例 ---------- */
+function renderGradeLegend(){
+  const host = document.getElementById('gradeLegend');
+  const items = [1,2,3,'poly'].map(k=>{
+    const c = GRADE_COLOR[k];
+    return '<div class="legend-item"><span class="legend-swatch" style="background:'+c.bg+';border-color:'+c.bd+'"></span>'+esc(c.label)+'</div>';
+  });
+  host.innerHTML = items.join('');
+}
+
+/* ---------- 1価アルコール: 級ごとに色分けした枠 ---------- */
+function alcoholRowsTable(list){
+  let h = '<thead><tr><th>示性式</th><th>基官能名</th><th class="arrow"></th><th>置換名</th><th class="num">分子量</th></tr></thead><tbody>';
+  list.forEach(a=>{
+    h += '<tr><td class="mono">'+esc(a.structuralFormula)+'</td><td class="mono">'+esc(a.functionalGroupName)+'</td><td class="arrow">⇔</td><td class="mono">'+esc(a.substitutiveName)+'</td><td class="num mono">'+a.molecularWeight+'</td></tr>';
+  });
+  h += '</tbody>';
+  return h;
+}
+function renderGradeGroups(){
+  const mono = DATA.alcohols.filter(a=>a.category==='mono');
+  const host = document.getElementById('gradeGroups');
+  let h = '';
+  [1,2,3].forEach(grade=>{
+    const list = mono.filter(a=>a.grade===grade);
+    if(!list.length) return;
+    const c = GRADE_COLOR[grade];
+    h += '<div class="classbox" style="background:'+c.bg+';border-color:'+c.bd+'">'+
+      '<div class="classlabel" style="color:'+c.tx+'">'+esc(c.label)+'<span class="cnt">('+list.length+'件)</span></div>'+
+      '<div class="scroll"><table class="compact">'+alcoholRowsTable(list)+'</table></div>'+
+      '</div>';
+  });
+  host.innerHTML = h;
+}
+
+/* ---------- 多価アルコール ---------- */
+function renderPolyhydric(){
+  const list = DATA.alcohols.filter(a=>a.category==='polyhydric');
+  const c = GRADE_COLOR.poly;
+  let rows = '<thead><tr><th>示性式</th><th>慣用名</th><th class="arrow"></th><th>置換名</th><th class="num">価数</th><th class="num">分子量</th></tr></thead><tbody>';
+  list.forEach(a=>{
+    rows += '<tr><td class="mono">'+esc(a.structuralFormula)+'</td><td class="mono">'+esc(a.functionalGroupName)+'</td><td class="arrow">⇔</td><td class="mono">'+esc(a.substitutiveName)+'</td><td class="num mono">'+a.valence+'</td><td class="num mono">'+a.molecularWeight+'</td></tr>';
+  });
+  rows += '</tbody>';
+  document.getElementById('polyhydricGroup').innerHTML =
+    '<div class="classbox" style="background:'+c.bg+';border-color:'+c.bd+'">'+
+    '<div class="classlabel" style="color:'+c.tx+'">'+esc(c.label)+'<span class="cnt">('+list.length+'件)</span></div>'+
+    '<div class="scroll"><table class="compact">'+rows+'</table></div>'+
+    '</div>';
+  document.getElementById('sugarAlcoholNote').textContent = DATA.notes.sugarAlcohol;
+}
+
+/* ---------- ETHER table ---------- */
+function renderEtherTable(){
+  const list = DATA.ethers.filter(e=>!e.cyclic);
+  let h = '<thead><tr><th>示性式</th><th>基官能名</th><th class="arrow"></th><th>置換名</th><th>慣用名</th><th class="num">分子量</th></tr></thead><tbody>';
+  list.forEach(e=>{
+    h += '<tr><td class="mono">'+esc(e.structuralFormula)+'</td><td class="mono">'+esc(e.functionalGroupName)+'</td><td class="arrow">⇔</td><td class="mono">'+esc(e.substitutiveName)+'</td>'+
+      (e.commonName ? '<td class="mono">'+esc(e.commonName)+'</td>' : '<td class="gap">―</td>')+
+      '<td class="num mono">'+e.molecularWeight+'</td></tr>';
+  });
+  h += '</tbody>';
+  document.getElementById('etherTable').innerHTML = h;
+}
+
+/* ---------- エポキシドのアイコン(酸素を含む3員環、模式図) ---------- */
+function epoxideIconSVG(hex){
+  return '<svg viewBox="0 0 70 60" aria-hidden="true">'+
+    '<polygon points="35,8 62,50 8,50" fill="none" stroke="'+hex+'" stroke-width="2.4" stroke-linejoin="round"/>'+
+    '<text x="35" y="19" text-anchor="middle" font-family="var(--mono)" font-size="13" fill="'+hex+'">O</text>'+
+    '<circle cx="8" cy="50" r="3.6" fill="'+hex+'"/><circle cx="62" cy="50" r="3.6" fill="'+hex+'"/>'+
+    '</svg>';
+}
+function renderEpoxide(){
+  const list = DATA.ethers.filter(e=>e.cyclic);
+  const c = GRADE_COLOR.poly;
+  let h = '<div class="scroll"><table class="compact"><thead><tr><th>示性式</th><th>基官能名</th><th class="arrow"></th><th>置換名</th><th class="num">分子量</th></tr></thead><tbody>';
+  list.forEach(e=>{
+    h += '<tr><td class="mono">'+esc(e.structuralFormula)+'</td><td class="mono">'+esc(e.functionalGroupName)+'</td><td class="arrow">⇔</td><td class="mono">'+esc(e.substitutiveName)+'</td><td class="num mono">'+e.molecularWeight+'</td></tr>';
+  });
+  h += '</tbody></table></div>';
+  h += '<div class="epoxrow">'+
+    '<div class="epoxicon">'+epoxideIconSVG(c.tx)+'</div>'+
+    '<div class="epoxlabel">酸素原子が2つの炭素と結合し、3員環を作る。置換名の「epoxy」はこの酸素の架橋を表し、続く数字(1,2-など)は架橋している炭素の位置番号。</div>'+
+    '</div>';
+  document.getElementById('epoxideHost').innerHTML = h;
+}
+
+/* ---------- NOTES ---------- */
+function renderNotes(){
+  document.getElementById('isomerCrossRefNote').textContent = DATA.notes.isomerCrossRef;
+}
+
+/* ---------- 表示切替 ---------- */
+function syncSections(){
+  document.getElementById('sectionAlcohol').classList.toggle('active', st.mode==='alcohol');
+  document.getElementById('sectionEther').classList.toggle('active', st.mode==='ether');
+  Array.prototype.forEach.call(document.querySelectorAll('#modeChips button'), b=>{
+    b.setAttribute('aria-pressed', b.dataset.mode===st.mode);
+  });
+}
+
+/* ---------- 初期化 ---------- */
+function renderAll(){
+  syncSections();
+}
+
+renderModeChips();
+renderGradeRule();
+renderPrefixTable();
+renderGradeLegend();
+renderGradeGroups();
+renderPolyhydric();
+renderEtherTable();
+renderEpoxide();
+renderNotes();
+renderAll();
+</script>
+</body>
+</html>
