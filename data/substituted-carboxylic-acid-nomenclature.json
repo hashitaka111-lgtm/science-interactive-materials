@@ -1,0 +1,42 @@
+{
+  "meta": {
+    "atomicWeights": { "H": 1.0, "C": 12.0, "N": 14.0, "O": 16.0, "Cl": 35.5 },
+    "note": "分子量はすべてH=1.0, C=12.0, N=14.0, O=16.0, Cl=35.5での計算値。指示により確定済みの数値をそのまま採用している(自分で全20件を検算し一致を確認済み)。",
+    "positionSystem": "カルボキシ基に対する置換基の位置を表す方法は2系統ある。ギリシャ文字系(慣用名でよく使う)はCOOHの炭素自体をカウントせず隣接する炭素からα→β→γ→δと数える。数字系(組織名で使う)はCOOHの炭素を1位として1→2→3→4と数える。対応関係はα位=2位、β位=3位、γ位=4位。"
+  },
+  "hydroxyAcidsAliphatic": [
+    { "id": "glycolic_acid", "structuralFormula": "HOCH2-COOH", "commonName": "グリコール酸", "systematicName": "2-hydroxyacetic acid", "positionGreek": "α", "positionNumber": "2", "molecularWeight": 76 },
+    { "id": "lactic_acid", "structuralFormula": "CH3-CH(OH)-COOH", "commonName": "乳酸(lactic acid)", "systematicName": "2-hydroxypropanoic acid", "positionGreek": "α", "positionNumber": "2", "molecularWeight": 90 },
+    { "id": "beta_hydroxybutyric_acid", "structuralFormula": "CH3-CH(OH)-CH2-COOH", "commonName": "β-ヒドロキシ酪酸", "systematicName": "3-hydroxybutanoic acid", "positionGreek": "β", "positionNumber": "3", "molecularWeight": 104 },
+    { "id": "glyceric_acid", "structuralFormula": "HOCH2-CH(OH)-COOH", "commonName": "グリセリン酸(glyceric acid)", "systematicName": "2,3-dihydroxypropanoic acid", "positionGreek": "α,β", "positionNumber": "2,3", "molecularWeight": 106 },
+    { "id": "malic_acid", "structuralFormula": "HOOC-CH(OH)-CH2-COOH", "commonName": "リンゴ酸(malic acid)", "systematicName": "2-hydroxybutanedioic acid", "positionGreek": "α", "positionNumber": "2", "molecularWeight": 134 },
+    { "id": "tartaric_acid", "structuralFormula": "HOOC-CH(OH)-CH(OH)-COOH", "commonName": "酒石酸(tartaric acid)", "systematicName": "2,3-dihydroxybutanedioic acid", "positionGreek": "α,β", "positionNumber": "2,3", "molecularWeight": 150 },
+    { "id": "citric_acid", "structuralFormula": "HOC(COOH)(CH2COOH)2", "commonName": "クエン酸(citric acid)", "systematicName": "2-hydroxypropane-1,2,3-tricarboxylic acid", "positionGreek": null, "positionNumber": null, "molecularWeight": 192, "specialNaming": true, "specialNamingNote": "COOHが3つあるため、鎖の末端の1つを主鎖の語尾(-oic acid)として選べない。そこでpropane(3炭素の主鎖)にヒドロキシ基と3つのカルボキシ基をすべて置換基として乗せ、tricarboxylic acidという語尾にする命名法に切り替わる。-oic acidで終わる他の化合物とは組織名の作り方そのものが異なる点に注意。" }
+  ],
+  "hydroxyAcidsAromatic": [
+    { "id": "salicylic_acid", "structuralFormula": "C6H4(OH)-COOH(オルト)", "commonName": "サリチル酸(salicylic acid)", "systematicName": "2-hydroxybenzoic acid", "positionGreek": null, "positionNumber": null, "molecularWeight": 138, "bridgeNote": "次教材(エステルの命名法)で、サリチル酸メチル(解熱鎮痛)・アセチルサリチル酸(アスピリン)につながる。" },
+    { "id": "p_hydroxybenzoic_acid", "structuralFormula": "C6H4(OH)-COOH(パラ)", "commonName": "p-ヒドロキシ安息香酸", "systematicName": "4-hydroxybenzoic acid", "positionGreek": null, "positionNumber": null, "molecularWeight": 138 },
+    { "id": "mandelic_acid", "structuralFormula": "C6H5-CH(OH)-COOH", "commonName": "マンデル酸(mandelic acid)", "systematicName": "2-hydroxy-2-phenylacetic acid", "positionGreek": "α", "positionNumber": "2", "molecularWeight": 152 }
+  ],
+  "aminoCarboxylicAcids": [
+    { "id": "glycine", "structuralFormula": "H2N-CH2-COOH", "commonName": "グリシン", "systematicName": "aminoacetic acid", "positionGreek": "α", "positionNumber": "2", "molecularWeight": 75, "introOnly": true, "seeAlso": "chem-amino-acids-matrix" },
+    { "id": "alanine", "structuralFormula": "CH3-CH(NH2)-COOH", "commonName": "アラニン", "systematicName": "2-aminopropanoic acid", "positionGreek": "α", "positionNumber": "2", "molecularWeight": 89, "introOnly": true, "seeAlso": "chem-amino-acids-matrix", "isomerPair": { "pairId": "beta_alanine", "type": "position" } },
+    { "id": "beta_alanine", "structuralFormula": "H2N-CH2-CH2-COOH", "commonName": "β-アラニン", "systematicName": "3-aminopropanoic acid", "positionGreek": "β", "positionNumber": "3", "molecularWeight": 89, "isomerPair": { "pairId": "alanine", "type": "position" } },
+    { "id": "gaba", "structuralFormula": "H2N-(CH2)3-COOH", "commonName": "γ-アミノ酪酸(GABA)", "systematicName": "4-aminobutanoic acid", "positionGreek": "γ", "positionNumber": "4", "molecularWeight": 103 },
+    { "id": "anthranilic_acid", "structuralFormula": "C6H4(NH2)-COOH(オルト)", "commonName": "アントラニル酸", "systematicName": "2-aminobenzoic acid", "positionGreek": null, "positionNumber": null, "molecularWeight": 137, "isomerPair": { "pairId": "paba", "type": "position" } },
+    { "id": "paba", "structuralFormula": "C6H4(NH2)-COOH(パラ)", "commonName": "p-アミノ安息香酸(PABA)", "systematicName": "4-aminobenzoic acid", "positionGreek": null, "positionNumber": null, "molecularWeight": 137, "isomerPair": { "pairId": "anthranilic_acid", "type": "position" } }
+  ],
+  "halogenatedAcids": [
+    { "id": "chloroacetic_acid", "structuralFormula": "Cl-CH2-COOH", "commonName": "クロロ酢酸", "systematicName": "2-chloroacetic acid", "positionGreek": "α", "positionNumber": "2", "molecularWeight": 94.5, "chlorineCount": 1 },
+    { "id": "dichloroacetic_acid", "structuralFormula": "Cl2CH-COOH", "commonName": "ジクロロ酢酸", "systematicName": "2,2-dichloroacetic acid", "positionGreek": "α", "positionNumber": "2", "molecularWeight": 129, "chlorineCount": 2 },
+    { "id": "trichloroacetic_acid", "structuralFormula": "Cl3C-COOH", "commonName": "トリクロロ酢酸", "systematicName": "2,2,2-trichloroacetic acid", "positionGreek": "α", "positionNumber": "2", "molecularWeight": 163.5, "chlorineCount": 3 }
+  ],
+  "aromaticUnsaturatedAcids": [
+    { "id": "cinnamic_acid", "structuralFormula": "C6H5-CH=CH-COOH", "commonName": "ケイ皮酸(cinnamic acid)", "systematicName": "3-phenylpropenoic acid", "positionGreek": null, "positionNumber": null, "molecularWeight": 148 }
+  ],
+  "notes": {
+    "aminoAcidIntro": "グリシン・アラニンはα-アミノ酸の命名パターンの例として名前と位置(α)だけを示す。標準アミノ酸20種の元素組成・分子量・pI・呈色反応はchem-amino-acids-matrixにすでにあるため、本教材ではそれ以上のデータ化は行わない。",
+    "betaAlaninePairCorrection": "指示文は当初β-アラニンとアラニンの関係を「骨格上の異性体」としていたが、両者は同じ分子式C3H7NO2・同じ直鎖3炭素骨格を持ち、アミノ基の位置(α位/β位)だけが異なる位置異性体であり、骨格異性体(炭素骨格そのものが枝分かれ等で異なる関係)ではない。実装時にこの一言をこの表現に修正した。",
+    "halogenAcidityTrend": "クロロ酢酸→ジクロロ酢酸→トリクロロ酢酸と塩素原子の数が増えるほど、電子求引効果でカルボキシ基から水素が電離しやすくなり酸性度が強くなる。詳しい酸性度の理論(電子求引効果そのものの仕組み)はchem-strong-weak-acid-base等の既存教材の範囲とし、本教材では「置換基の数と酸性度の関係」という事実の提示に留める。"
+  }
+}

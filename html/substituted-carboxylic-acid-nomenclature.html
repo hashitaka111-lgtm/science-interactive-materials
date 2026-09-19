@@ -1,0 +1,437 @@
+<!doctype html>
+<html lang="ja">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>置換カルボン酸の命名法</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500&family=IBM+Plex+Sans+JP:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+*{box-sizing:border-box}
+:root{
+  --ink:#16232B; --muted:#5E6E76; --paper:#EDF1EF; --surface:#FFFFFF;
+  --rule:#D6DDDA; --rule-soft:#E8EDEB;
+  --s0:#B87A16; --s0t:#8A5A0C;
+  --s1:#158A6D; --s1t:#0D6A53;
+  --s2:#2457A6; --s2t:#1B4380;
+  --s3:#6E3AA7; --s3t:#572D85;
+  --s4:#A82A6A; --s4t:#831F52;
+  --sans:"IBM Plex Sans JP","Hiragino Sans","Yu Gothic UI",system-ui,sans-serif;
+  --mono:"IBM Plex Mono",ui-monospace,SFMono-Regular,Menlo,monospace;
+}
+html,body{margin:0;padding:0}
+body{background:var(--paper);color:var(--ink);font-family:var(--sans);font-size:13.5px;line-height:1.75;-webkit-text-size-adjust:100%}
+.mono{font-family:var(--mono);font-variant-numeric:tabular-nums}
+.wrap{max-width:900px;margin:0 auto;padding:20px 14px 60px}
+.card{background:var(--surface);border:1px solid var(--rule);border-radius:3px;padding:14px;margin-bottom:14px}
+.card.text{max-width:900px}
+.eyebrow{display:flex;align-items:center;gap:10px;font-family:var(--mono);font-size:11.5px;letter-spacing:.14em;color:var(--muted);text-transform:uppercase}
+.eyebrow::after{content:"";flex:1;height:1px;background:var(--rule)}
+h1{font-size:22px;font-weight:600;letter-spacing:.01em;margin:8px 0 2px}
+h2{font-size:14.5px;font-weight:600;margin:10px 0 4px}
+h3{font-size:13px;font-weight:600;margin:0 0 6px}
+p{margin:0 0 8px} p:last-child{margin-bottom:0}
+.lede{color:var(--muted);font-size:13px;margin:4px 0 0}
+.note{color:var(--muted);font-size:12px;line-height:1.7}
+.key{background:rgba(184,122,22,.08);border:1px solid #E0C592;border-radius:3px;padding:8px 10px;font-size:12.5px;line-height:1.7;margin:8px 0}
+
+.btn{font:inherit;font-size:12.5px;line-height:1.4;border:1px solid var(--rule);background:#fff;color:var(--ink);border-radius:2px;padding:6px 10px;cursor:pointer}
+.btn:hover{border-color:#B4C0BC}
+.btn[aria-pressed="true"]{background:var(--ink);color:#fff;border-color:var(--ink)}
+.btn:focus-visible{outline:2px solid var(--ink);outline-offset:1px}
+.btnrow{display:flex;flex-wrap:wrap;gap:6px;margin:8px 0}
+
+/* ---------- 表共通 ---------- */
+.scroll{overflow-x:auto;-webkit-overflow-scrolling:touch;padding-bottom:2px}
+table{border-collapse:collapse;width:100%;font-size:12.5px}
+table.compact{min-width:560px}
+th,td{padding:6px 8px;text-align:left;white-space:nowrap;border-bottom:1px solid var(--rule-soft)}
+th{font-family:var(--mono);font-size:10.5px;letter-spacing:.06em;color:var(--muted);font-weight:500}
+td.num,th.num{text-align:right;font-family:var(--mono)}
+td.arrow{text-align:center;color:var(--muted);width:24px}
+tr:last-child td{border-bottom:none}
+
+/* ---------- カテゴリカード(section毎の色分け) ---------- */
+.catcard{border-top-width:3px;border-top-style:solid}
+.catlabel{font-family:var(--mono);font-size:11.5px;letter-spacing:.14em}
+
+/* ---------- 凡例 ---------- */
+.legend-cats{display:flex;flex-wrap:wrap;gap:7px 14px;margin:8px 0 4px}
+.legend-item{display:flex;align-items:center;gap:6px;font-size:11.5px}
+.legend-swatch{width:14px;height:14px;border-radius:2px;flex:none;border-width:2px;border-style:solid}
+
+/* ---------- 位置の対応図(骨格ミニ図) ---------- */
+.poscell{width:1%}
+.posdiagram{display:block}
+.posdiagram text{font-family:var(--mono)}
+.posn{fill:var(--muted)}
+.posdash{color:var(--muted);display:inline-block;text-align:center;line-height:1.4}
+.advbadge{display:block;font-family:var(--mono);font-size:9.5px;color:var(--s0t);letter-spacing:.06em}
+
+/* ---------- イントロの位置系統図 ---------- */
+.introdiagram{display:flex;justify-content:center;padding:10px 0 4px}
+.correspond-table{width:100%;max-width:360px;margin:8px auto 0;border-collapse:collapse;font-size:12.5px}
+.correspond-table th,.correspond-table td{padding:5px 8px;text-align:center;border-bottom:1px solid var(--rule-soft);font-family:var(--mono)}
+.correspond-table th{color:var(--muted);font-weight:500;font-size:10.5px}
+
+/* ---------- 発展ノート(クエン酸) ---------- */
+.advbox{background:rgba(184,122,22,.08);border:1px solid #E0C592;border-radius:3px;padding:10px 12px;font-size:12.5px;line-height:1.7;margin:10px 0 0}
+.advbox .advtag{font-family:var(--mono);font-size:10.5px;letter-spacing:.1em;color:var(--s0t);display:block;margin-bottom:4px}
+
+/* ---------- 橋渡しノート(サリチル酸) ---------- */
+.bridgebox{background:var(--rule-soft);border:1px solid var(--rule);border-radius:3px;padding:8px 10px;font-size:12px;color:var(--muted);line-height:1.7;margin-top:8px}
+
+/* ---------- 異性体ペア(隣り合わせ表示) ---------- */
+.pairwrap{margin:10px 0}
+.pairtitle{font-family:var(--mono);font-size:11.5px;letter-spacing:.08em;color:var(--muted);margin-bottom:6px}
+.pairrow{display:flex;flex-wrap:wrap;gap:10px}
+.paircard{flex:1 1 220px;border:1px solid var(--rule);border-radius:3px;padding:8px 10px;background:#FBFCFB}
+.paircard .pcname{font-family:var(--mono);font-size:12px;font-weight:500;margin-bottom:2px}
+.paircard .pcform{font-family:var(--mono);font-size:12.5px;color:var(--muted);margin-bottom:6px}
+.paircard .pcpos{font-size:11.5px}
+.pairnote{font-size:12px;color:var(--muted);line-height:1.6;margin-top:6px}
+.pairnote b{color:var(--ink)}
+
+/* ---------- ハロゲン系列の酸性度比較 ---------- */
+.halorow{display:flex;align-items:center;flex-wrap:wrap;gap:4px;margin:10px 0}
+.halobox{flex:1 1 130px;border:2px solid var(--s4);background:rgba(168,42,106,.08);border-radius:3px;padding:8px 10px;text-align:center}
+.halobox .hform{font-family:var(--mono);font-size:13px;margin-bottom:2px}
+.halobox .hname{font-size:11.5px;color:var(--muted)}
+.haloarrow{flex:0 0 auto;display:flex;flex-direction:column;align-items:center;font-family:var(--mono);font-size:16px;color:var(--s4t);padding:0 2px}
+.haloarrow .al{font-size:9px;letter-spacing:.04em;white-space:nowrap}
+
+/* ---------- モード切替セクション ---------- */
+.section{display:none}
+.section.active{display:block}
+
+@media (prefers-reduced-motion:no-preference){ .btn{transition:border-color 120ms linear,background-color 120ms linear} }
+
+@media (max-width:430px){
+  body{font-size:13px}
+  .wrap{padding:14px 10px 50px}
+  .card{padding:11px}
+  h1{font-size:19px}
+  .btn{padding:6px 8px;font-size:12px}
+  table.compact{min-width:480px}
+  .halorow{flex-direction:column}
+  .haloarrow{transform:rotate(90deg);padding:2px 0}
+}
+</style>
+</head>
+<body>
+<div class="wrap">
+
+<header>
+  <div class="eyebrow">SUBSTITUTED CARBOXYLIC ACID NOMENCLATURE</div>
+  <h1>置換カルボン酸の命名法</h1>
+  <p class="lede">ヒドロキシ基・アミノ基・ハロゲンなどでカルボキシ基以外の位置に置換基を持つカルボン酸を扱う。この教材を貫く核は「置換基の位置をどう数えるか」の2系統(ギリシャ文字α・β・γと数字1・2・3)の対応で、5分類すべてで繰り返し確認する。</p>
+</header>
+
+<div class="card text">
+  <div class="eyebrow">POSITION SYSTEM</div>
+  <h2>α・β・γと数字表記の対応</h2>
+  <p class="note" style="margin-top:8px" id="positionSystemNote"></p>
+  <div class="introdiagram" id="introDiagram"></div>
+  <table class="correspond-table">
+    <thead><tr><th>ギリシャ文字系(慣用名)</th><th>数字系(組織名)</th></tr></thead>
+    <tbody>
+      <tr><td>α位</td><td>2位</td></tr>
+      <tr><td>β位</td><td>3位</td></tr>
+      <tr><td>γ位</td><td>4位</td></tr>
+    </tbody>
+  </table>
+  <p class="note" style="margin-top:8px">COOHの炭素自体はギリシャ文字系ではカウントしない(番号を持たない)が、数字系では1位として数える。この1個分のズレが対応関係の正体。</p>
+</div>
+
+<div class="card">
+  <div class="eyebrow">SWITCH</div>
+  <h2>分類を切り替える</h2>
+  <div class="btnrow" id="modeChips" role="group" aria-label="分類の切り替え"></div>
+</div>
+
+<!-- ========== 脂肪族ヒドロキシ酸 ========== -->
+<section id="sectionHydroxyAliphatic" class="section">
+  <div class="card catcard" id="cardHydroxyAliphatic">
+    <div class="eyebrow">HYDROXY ACID &middot; ALIPHATIC</div>
+    <h2>脂肪族ヒドロキシ酸の命名</h2>
+    <p class="note">OH基の位置をα・β(・γ)、または2・3(・4)の数字で表す。「位置」列の色付きマーカーが置換基のある炭素を示す。</p>
+    <div class="scroll"><table class="compact" id="tableHydroxyAliphatic"></table></div>
+    <div class="advbox" id="citricNote"></div>
+  </div>
+</section>
+
+<!-- ========== 芳香族ヒドロキシ酸 ========== -->
+<section id="sectionHydroxyAromatic" class="section">
+  <div class="card catcard" id="cardHydroxyAromatic">
+    <div class="eyebrow">HYDROXY ACID &middot; AROMATIC</div>
+    <h2>芳香族ヒドロキシ酸の命名</h2>
+    <p class="note">ベンゼン環上の置換位置はオルト・パラ(o-, p-)で表し、α・β・数字系のギリシャ文字/数字対応は使わない(環の位置番号は別の体系)。マンデル酸のみ側鎖の炭素にα位を持つ。</p>
+    <div class="scroll"><table class="compact" id="tableHydroxyAromatic"></table></div>
+    <div class="bridgebox" id="salicylicBridge"></div>
+  </div>
+</section>
+
+<!-- ========== アミノカルボン酸 ========== -->
+<section id="sectionAmino" class="section">
+  <div class="card catcard" id="cardAminoIntro">
+    <div class="eyebrow">AMINO ACID &middot; INTRO</div>
+    <h2>グリシン・アラニン(命名パターンの導入例)</h2>
+    <p class="note" id="aminoIntroNote" style="margin-top:8px"></p>
+    <div class="scroll"><table class="compact" id="tableAminoIntro"></table></div>
+  </div>
+
+  <div class="card catcard" id="cardAmino">
+    <div class="eyebrow">AMINO ACID &middot; NON-PROTEIN</div>
+    <h2>タンパク質を構成しないアミノカルボン酸</h2>
+    <p class="note">この4つはいずれも標準アミノ酸20種に含まれない。位置(α/β/γ、またはオルト/パラ)の違いに注目する。</p>
+    <div class="scroll"><table class="compact" id="tableAmino"></table></div>
+
+    <div class="pairwrap">
+      <div class="pairtitle">位置だけが違う異性体ペア&middot;1: アラニン ⇔ β-アラニン</div>
+      <div class="pairrow" id="pairAlanine"></div>
+      <p class="pairnote">両者は分子式C3H7NO2・炭素骨格(直鎖3炭素)が同じで、アミノ基がα位(2位)にあるかβ位(3位)にあるかだけが異なる<b>位置異性体</b>。骨格そのものは変わらない。</p>
+    </div>
+
+    <div class="pairwrap">
+      <div class="pairtitle">位置だけが違う異性体ペア&middot;2: アントラニル酸 ⇔ p-アミノ安息香酸(PABA)</div>
+      <div class="pairrow" id="pairAnthranilic"></div>
+      <p class="pairnote">どちらも分子式C7H7NO2でCOOHとNH2をベンゼン環に持つが、NH2の位置がCOOHに対してオルト(隣)かパラ(対角)かだけが異なる<b>位置異性体</b>。</p>
+    </div>
+  </div>
+</section>
+
+<!-- ========== ハロゲン置換カルボン酸 ========== -->
+<section id="sectionHalogen" class="section">
+  <div class="card catcard" id="cardHalogen">
+    <div class="eyebrow">HALOGENATED ACID</div>
+    <h2>ハロゲン置換カルボン酸の命名</h2>
+    <p class="note">酢酸のα位(2位)の水素をClで置き換えた3種類。すべて組織名の位置番号は2(または2,2/2,2,2)で統一される。</p>
+    <div class="scroll"><table class="compact" id="tableHalogen"></table></div>
+
+    <div class="halorow" id="haloSeries"></div>
+    <p class="note" id="halogenAcidityNote" style="margin-top:4px"></p>
+  </div>
+</section>
+
+<!-- ========== 芳香族不飽和カルボン酸 ========== -->
+<section id="sectionAromaticUnsaturated" class="section">
+  <div class="card catcard" id="cardAromaticUnsaturated">
+    <div class="eyebrow">AROMATIC &amp; UNSATURATED</div>
+    <h2>芳香族不飽和カルボン酸の命名</h2>
+    <p class="note">ベンゼン環と炭素間二重結合の両方を持つカルボン酸の例として、ケイ皮酸を1つだけ扱う。</p>
+    <div class="scroll"><table class="compact" id="tableAromaticUnsaturated"></table></div>
+  </div>
+</section>
+
+<div class="card text">
+  <div class="eyebrow">NOTES</div>
+  <p class="note" style="margin-top:8px" id="salicylicNote"></p>
+</div>
+
+</div><!-- /wrap -->
+
+<script>
+/* ---------- データ(JSONをそのまま埋め込み。fetch は使わない) ---------- */
+const DATA = {"meta":{"atomicWeights":{"H":1.0,"C":12.0,"N":14.0,"O":16.0,"Cl":35.5},"note":"分子量はすべてH=1.0, C=12.0, N=14.0, O=16.0, Cl=35.5での計算値。指示により確定済みの数値をそのまま採用している(自分で全20件を検算し一致を確認済み)。","positionSystem":"カルボキシ基に対する置換基の位置を表す方法は2系統ある。ギリシャ文字系(慣用名でよく使う)はCOOHの炭素自体をカウントせず隣接する炭素からα→β→γ→δと数える。数字系(組織名で使う)はCOOHの炭素を1位として1→2→3→4と数える。対応関係はα位=2位、β位=3位、γ位=4位。"},"hydroxyAcidsAliphatic":[{"id":"glycolic_acid","structuralFormula":"HOCH2-COOH","commonName":"グリコール酸","systematicName":"2-hydroxyacetic acid","positionGreek":"α","positionNumber":"2","molecularWeight":76},{"id":"lactic_acid","structuralFormula":"CH3-CH(OH)-COOH","commonName":"乳酸(lactic acid)","systematicName":"2-hydroxypropanoic acid","positionGreek":"α","positionNumber":"2","molecularWeight":90},{"id":"beta_hydroxybutyric_acid","structuralFormula":"CH3-CH(OH)-CH2-COOH","commonName":"β-ヒドロキシ酪酸","systematicName":"3-hydroxybutanoic acid","positionGreek":"β","positionNumber":"3","molecularWeight":104},{"id":"glyceric_acid","structuralFormula":"HOCH2-CH(OH)-COOH","commonName":"グリセリン酸(glyceric acid)","systematicName":"2,3-dihydroxypropanoic acid","positionGreek":"α,β","positionNumber":"2,3","molecularWeight":106},{"id":"malic_acid","structuralFormula":"HOOC-CH(OH)-CH2-COOH","commonName":"リンゴ酸(malic acid)","systematicName":"2-hydroxybutanedioic acid","positionGreek":"α","positionNumber":"2","molecularWeight":134},{"id":"tartaric_acid","structuralFormula":"HOOC-CH(OH)-CH(OH)-COOH","commonName":"酒石酸(tartaric acid)","systematicName":"2,3-dihydroxybutanedioic acid","positionGreek":"α,β","positionNumber":"2,3","molecularWeight":150},{"id":"citric_acid","structuralFormula":"HOC(COOH)(CH2COOH)2","commonName":"クエン酸(citric acid)","systematicName":"2-hydroxypropane-1,2,3-tricarboxylic acid","positionGreek":null,"positionNumber":null,"molecularWeight":192,"specialNaming":true,"specialNamingNote":"COOHが3つあるため、鎖の末端の1つを主鎖の語尾(-oic acid)として選べない。そこでpropane(3炭素の主鎖)にヒドロキシ基と3つのカルボキシ基をすべて置換基として乗せ、tricarboxylic acidという語尾にする命名法に切り替わる。-oic acidで終わる他の化合物とは組織名の作り方そのものが異なる点に注意。"}],"hydroxyAcidsAromatic":[{"id":"salicylic_acid","structuralFormula":"C6H4(OH)-COOH(オルト)","commonName":"サリチル酸(salicylic acid)","systematicName":"2-hydroxybenzoic acid","positionGreek":null,"positionNumber":null,"molecularWeight":138,"bridgeNote":"次教材(エステルの命名法)で、サリチル酸メチル(解熱鎮痛)・アセチルサリチル酸(アスピリン)につながる。"},{"id":"p_hydroxybenzoic_acid","structuralFormula":"C6H4(OH)-COOH(パラ)","commonName":"p-ヒドロキシ安息香酸","systematicName":"4-hydroxybenzoic acid","positionGreek":null,"positionNumber":null,"molecularWeight":138},{"id":"mandelic_acid","structuralFormula":"C6H5-CH(OH)-COOH","commonName":"マンデル酸(mandelic acid)","systematicName":"2-hydroxy-2-phenylacetic acid","positionGreek":"α","positionNumber":"2","molecularWeight":152}],"aminoCarboxylicAcids":[{"id":"glycine","structuralFormula":"H2N-CH2-COOH","commonName":"グリシン","systematicName":"aminoacetic acid","positionGreek":"α","positionNumber":"2","molecularWeight":75,"introOnly":true,"seeAlso":"chem-amino-acids-matrix"},{"id":"alanine","structuralFormula":"CH3-CH(NH2)-COOH","commonName":"アラニン","systematicName":"2-aminopropanoic acid","positionGreek":"α","positionNumber":"2","molecularWeight":89,"introOnly":true,"seeAlso":"chem-amino-acids-matrix","isomerPair":{"pairId":"beta_alanine","type":"position"}},{"id":"beta_alanine","structuralFormula":"H2N-CH2-CH2-COOH","commonName":"β-アラニン","systematicName":"3-aminopropanoic acid","positionGreek":"β","positionNumber":"3","molecularWeight":89,"isomerPair":{"pairId":"alanine","type":"position"}},{"id":"gaba","structuralFormula":"H2N-(CH2)3-COOH","commonName":"γ-アミノ酪酸(GABA)","systematicName":"4-aminobutanoic acid","positionGreek":"γ","positionNumber":"4","molecularWeight":103},{"id":"anthranilic_acid","structuralFormula":"C6H4(NH2)-COOH(オルト)","commonName":"アントラニル酸","systematicName":"2-aminobenzoic acid","positionGreek":null,"positionNumber":null,"molecularWeight":137,"isomerPair":{"pairId":"paba","type":"position"}},{"id":"paba","structuralFormula":"C6H4(NH2)-COOH(パラ)","commonName":"p-アミノ安息香酸(PABA)","systematicName":"4-aminobenzoic acid","positionGreek":null,"positionNumber":null,"molecularWeight":137,"isomerPair":{"pairId":"anthranilic_acid","type":"position"}}],"halogenatedAcids":[{"id":"chloroacetic_acid","structuralFormula":"Cl-CH2-COOH","commonName":"クロロ酢酸","systematicName":"2-chloroacetic acid","positionGreek":"α","positionNumber":"2","molecularWeight":94.5,"chlorineCount":1},{"id":"dichloroacetic_acid","structuralFormula":"Cl2CH-COOH","commonName":"ジクロロ酢酸","systematicName":"2,2-dichloroacetic acid","positionGreek":"α","positionNumber":"2","molecularWeight":129,"chlorineCount":2},{"id":"trichloroacetic_acid","structuralFormula":"Cl3C-COOH","commonName":"トリクロロ酢酸","systematicName":"2,2,2-trichloroacetic acid","positionGreek":"α","positionNumber":"2","molecularWeight":163.5,"chlorineCount":3}],"aromaticUnsaturatedAcids":[{"id":"cinnamic_acid","structuralFormula":"C6H5-CH=CH-COOH","commonName":"ケイ皮酸(cinnamic acid)","systematicName":"3-phenylpropenoic acid","positionGreek":null,"positionNumber":null,"molecularWeight":148}],"notes":{"aminoAcidIntro":"グリシン・アラニンはα-アミノ酸の命名パターンの例として名前と位置(α)だけを示す。標準アミノ酸20種の元素組成・分子量・pI・呈色反応はchem-amino-acids-matrixにすでにあるため、本教材ではそれ以上のデータ化は行わない。","betaAlaninePairCorrection":"指示文は当初β-アラニンとアラニンの関係を「骨格上の異性体」としていたが、両者は同じ分子式C3H7NO2・同じ直鎖3炭素骨格を持ち、アミノ基の位置(α位/β位)だけが異なる位置異性体であり、骨格異性体(炭素骨格そのものが枝分かれ等で異なる関係)ではない。実装時にこの一言をこの表現に修正した。","halogenAcidityTrend":"クロロ酢酸→ジクロロ酢酸→トリクロロ酢酸と塩素原子の数が増えるほど、電子求引効果でカルボキシ基から水素が電離しやすくなり酸性度が強くなる。詳しい酸性度の理論(電子求引効果そのものの仕組み)はchem-strong-weak-acid-base等の既存教材の範囲とし、本教材では「置換基の数と酸性度の関係」という事実の提示に留める。"}};
+
+/* ---------- 起動時チェック ---------- */
+(function checkData(){
+  const msg=[];
+  const total = DATA.hydroxyAcidsAliphatic.length + DATA.hydroxyAcidsAromatic.length + DATA.aminoCarboxylicAcids.length + DATA.halogenatedAcids.length + DATA.aromaticUnsaturatedAcids.length;
+  if(DATA.hydroxyAcidsAliphatic.length!==7) msg.push('hydroxyAcidsAliphatic が7件ではない('+DATA.hydroxyAcidsAliphatic.length+'件)');
+  if(DATA.hydroxyAcidsAromatic.length!==3) msg.push('hydroxyAcidsAromatic が3件ではない('+DATA.hydroxyAcidsAromatic.length+'件)');
+  if(DATA.aminoCarboxylicAcids.length!==6) msg.push('aminoCarboxylicAcids が6件ではない('+DATA.aminoCarboxylicAcids.length+'件)');
+  if(DATA.halogenatedAcids.length!==3) msg.push('halogenatedAcids が3件ではない('+DATA.halogenatedAcids.length+'件)');
+  if(DATA.aromaticUnsaturatedAcids.length!==1) msg.push('aromaticUnsaturatedAcids が1件ではない('+DATA.aromaticUnsaturatedAcids.length+'件)');
+  if(total!==20) msg.push('合計が20件ではない('+total+'件)');
+  if(msg.length) console.warn('[DATA] 不整合\n'+msg.join('\n'));
+  else console.info('[DATA] 全'+total+'件を読み込んだ');
+})();
+
+const esc = s => String(s).replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+
+/* ---------- 分類ごとの色(系列カラーを流用、5分類=5系列カラー) ---------- */
+const CAT = {
+  hydroxyAliphatic:     { bd:'#158A6D', bg:'rgba(21,138,109,.08)',  tx:'#0D6A53', label:'脂肪族ヒドロキシ酸' },
+  hydroxyAromatic:      { bd:'#2457A6', bg:'rgba(36,87,166,.08)',   tx:'#1B4380', label:'芳香族ヒドロキシ酸' },
+  amino:                { bd:'#6E3AA7', bg:'rgba(110,58,167,.08)', tx:'#572D85', label:'アミノカルボン酸' },
+  halogen:               { bd:'#A82A6A', bg:'rgba(168,42,106,.08)', tx:'#831F52', label:'ハロゲン置換' },
+  aromaticUnsaturated:  { bd:'#B87A16', bg:'rgba(184,122,22,.08)', tx:'#8A5A0C', label:'芳香族不飽和' },
+};
+const CAT_ORDER = ['hydroxyAliphatic','hydroxyAromatic','amino','halogen','aromaticUnsaturated'];
+const SECTION_ID = {
+  hydroxyAliphatic: 'sectionHydroxyAliphatic',
+  hydroxyAromatic: 'sectionHydroxyAromatic',
+  amino: 'sectionAmino',
+  halogen: 'sectionHalogen',
+  aromaticUnsaturated: 'sectionAromaticUnsaturated',
+};
+
+/* ---------- 状態: 選択中の分類 ---------- */
+const st = { mode: 'hydroxyAliphatic' };
+
+/* ---------- MODE chips ---------- */
+function renderModeChips(){
+  const host = document.getElementById('modeChips');
+  host.innerHTML = CAT_ORDER.map(k=>{
+    const pressed = k===st.mode;
+    return '<button type="button" class="btn" data-mode="'+k+'" aria-pressed="'+pressed+'">'+esc(CAT[k].label)+'</button>';
+  }).join('');
+  host.addEventListener('click', (e)=>{
+    const b = e.target.closest('button[data-mode]');
+    if(!b) return;
+    st.mode = b.dataset.mode;
+    syncSections();
+  });
+}
+
+/* ---------- 位置の対応ミニ図(骨格・色付きマーカー・数字) ---------- */
+const GREEK_OF_NUM = {2:'α',3:'β',4:'γ',5:'δ'};
+function positionDiagram(posGreek, posNum, accent){
+  if(!posGreek) return '<span class="posdash mono">―</span>';
+  const nums = String(posNum).split(',').map(s=>Number(s.trim()));
+  const maxN = Math.max.apply(null, nums);
+  const hiSet = new Set(nums);
+  const gap = 30, padL = 22, padR = 8, h = 44;
+  const w = padL + (maxN-1)*gap + padR;
+  let s = '<svg class="posdiagram" viewBox="0 0 '+w+' '+h+'" width="'+w+'" height="'+h+'" role="img" aria-label="位置の対応: '+esc(posGreek)+' = '+esc(posNum)+'">';
+  s += '<line x1="'+padL+'" y1="'+(h/2)+'" x2="'+(padL+(maxN-1)*gap)+'" y2="'+(h/2)+'" stroke="var(--rule)" stroke-width="1.5"/>';
+  for(let n=1;n<=maxN;n++){
+    const cx = padL + (n-1)*gap;
+    if(n===1){
+      s += '<rect x="'+(cx-13)+'" y="'+(h/2-8)+'" width="26" height="16" rx="2" fill="var(--surface)" stroke="var(--muted)" stroke-width="1.5"/>';
+      s += '<text x="'+cx+'" y="'+(h/2+3)+'" text-anchor="middle" font-size="7" fill="var(--muted)">COOH</text>';
+      s += '<text x="'+cx+'" y="'+(h-2)+'" text-anchor="middle" class="posn" font-size="9">1</text>';
+    } else {
+      const hi = hiSet.has(n);
+      const fill = hi ? accent : '#fff';
+      const stroke = hi ? accent : 'var(--rule)';
+      const txt = hi ? '#fff' : 'var(--muted)';
+      s += '<circle cx="'+cx+'" cy="'+(h/2)+'" r="10" fill="'+fill+'" stroke="'+stroke+'" stroke-width="2"/>';
+      s += '<text x="'+cx+'" y="'+(h/2+3.5)+'" text-anchor="middle" font-size="10" font-weight="600" fill="'+txt+'">'+(GREEK_OF_NUM[n]||'')+'</text>';
+      s += '<text x="'+cx+'" y="'+(h-2)+'" text-anchor="middle" class="posn" font-size="9">'+n+'</text>';
+    }
+  }
+  s += '</svg>';
+  return s;
+}
+
+/* ---------- イントロの汎用対応図(強調なし、1〜4の全体像) ---------- */
+function renderIntroDiagram(){
+  document.getElementById('introDiagram').innerHTML = positionDiagram('α,β,γ', '2,3,4', 'var(--ink)');
+}
+
+/* ---------- 命名表(共通) ---------- */
+function rowsTable(list, accent){
+  let h = '<thead><tr><th>示性式</th><th>名称</th><th class="arrow"></th><th>組織名</th><th class="num">分子量</th><th>位置</th></tr></thead><tbody>';
+  list.forEach(a=>{
+    let posCell;
+    if(a.specialNaming){
+      posCell = '<span class="posdash mono">―<span class="advbadge">発展</span></span>';
+    } else {
+      posCell = positionDiagram(a.positionGreek, a.positionNumber, accent);
+    }
+    h += '<tr><td class="mono">'+esc(a.structuralFormula)+'</td><td class="mono">'+esc(a.commonName)+'</td><td class="arrow">⇔</td><td class="mono">'+esc(a.systematicName)+'</td>'+
+      '<td class="num mono">'+a.molecularWeight+'</td><td class="poscell">'+posCell+'</td></tr>';
+  });
+  h += '</tbody>';
+  return h;
+}
+
+/* ---------- カテゴリカードの縁色 ---------- */
+function applyCatBorder(cardId, key){
+  const el = document.getElementById(cardId);
+  el.style.borderTopColor = CAT[key].bd;
+}
+
+/* ---------- 脂肪族ヒドロキシ酸 ---------- */
+function renderHydroxyAliphatic(){
+  applyCatBorder('cardHydroxyAliphatic', 'hydroxyAliphatic');
+  document.getElementById('tableHydroxyAliphatic').innerHTML = rowsTable(DATA.hydroxyAcidsAliphatic, CAT.hydroxyAliphatic.bd);
+  const citric = DATA.hydroxyAcidsAliphatic.find(a=>a.id==='citric_acid');
+  document.getElementById('citricNote').innerHTML = '<span class="advtag">発展 &middot; クエン酸だけ組織名の作り方が違う</span>'+esc(citric.specialNamingNote);
+}
+
+/* ---------- 芳香族ヒドロキシ酸 ---------- */
+function renderHydroxyAromatic(){
+  applyCatBorder('cardHydroxyAromatic', 'hydroxyAromatic');
+  document.getElementById('tableHydroxyAromatic').innerHTML = rowsTable(DATA.hydroxyAcidsAromatic, CAT.hydroxyAromatic.bd);
+  const salicylic = DATA.hydroxyAcidsAromatic.find(a=>a.id==='salicylic_acid');
+  document.getElementById('salicylicBridge').textContent = salicylic.bridgeNote;
+}
+
+/* ---------- アミノカルボン酸 ---------- */
+function renderAmino(){
+  applyCatBorder('cardAminoIntro', 'amino');
+  applyCatBorder('cardAmino', 'amino');
+  document.getElementById('aminoIntroNote').textContent = DATA.notes.aminoAcidIntro;
+  const introList = DATA.aminoCarboxylicAcids.filter(a=>a.introOnly);
+  document.getElementById('tableAminoIntro').innerHTML = rowsTable(introList, CAT.amino.bd);
+  const mainList = DATA.aminoCarboxylicAcids.filter(a=>!a.introOnly);
+  document.getElementById('tableAmino').innerHTML = rowsTable(mainList, CAT.amino.bd);
+
+  renderPair('pairAlanine', 'alanine', 'beta_alanine');
+  renderPair('pairAnthranilic', 'anthranilic_acid', 'paba');
+}
+function findAminoById(id){ return DATA.aminoCarboxylicAcids.find(a=>a.id===id); }
+function renderPair(hostId, idA, idB){
+  const a = findAminoById(idA), b = findAminoById(idB);
+  const host = document.getElementById(hostId);
+  host.innerHTML = [a,b].map(x=>{
+    const pos = x.positionGreek ? (esc(x.positionGreek)+'位('+esc(x.positionNumber)+'位)') : '―';
+    return '<div class="paircard"><div class="pcname">'+esc(x.commonName)+'</div><div class="pcform">'+esc(x.structuralFormula)+'</div>'+
+      '<div class="pcpos mono">位置: '+pos+' &middot; 分子量'+x.molecularWeight+'</div></div>';
+  }).join('');
+}
+
+/* ---------- ハロゲン置換カルボン酸 ---------- */
+function renderHalogen(){
+  applyCatBorder('cardHalogen', 'halogen');
+  document.getElementById('tableHalogen').innerHTML = rowsTable(DATA.halogenatedAcids, CAT.halogen.bd);
+  const host = document.getElementById('haloSeries');
+  let h = '';
+  DATA.halogenatedAcids.forEach((a,i)=>{
+    if(i>0) h += '<div class="haloarrow">→<span class="al">酸性度 強</span></div>';
+    h += '<div class="halobox"><div class="hform mono">'+esc(a.structuralFormula)+'</div><div class="hname">'+esc(a.commonName)+'(Cl '+a.chlorineCount+'個)</div></div>';
+  });
+  host.innerHTML = h;
+  document.getElementById('halogenAcidityNote').textContent = DATA.notes.halogenAcidityTrend;
+}
+
+/* ---------- 芳香族不飽和カルボン酸 ---------- */
+function renderAromaticUnsaturated(){
+  applyCatBorder('cardAromaticUnsaturated', 'aromaticUnsaturated');
+  document.getElementById('tableAromaticUnsaturated').innerHTML = rowsTable(DATA.aromaticUnsaturatedAcids, CAT.aromaticUnsaturated.bd);
+}
+
+/* ---------- NOTES ---------- */
+function renderNotes(){
+  const salicylic = DATA.hydroxyAcidsAromatic.find(a=>a.id==='salicylic_acid');
+  document.getElementById('salicylicNote').textContent = salicylic.bridgeNote;
+  document.getElementById('positionSystemNote').textContent = DATA.meta.positionSystem;
+}
+
+/* ---------- 表示切替 ---------- */
+function syncSections(){
+  CAT_ORDER.forEach(k=>{
+    document.getElementById(SECTION_ID[k]).classList.toggle('active', st.mode===k);
+  });
+  Array.prototype.forEach.call(document.querySelectorAll('#modeChips button'), b=>{
+    b.setAttribute('aria-pressed', b.dataset.mode===st.mode);
+  });
+}
+
+/* ---------- 初期化 ---------- */
+renderModeChips();
+renderIntroDiagram();
+renderHydroxyAliphatic();
+renderHydroxyAromatic();
+renderAmino();
+renderHalogen();
+renderAromaticUnsaturated();
+renderNotes();
+syncSections();
+</script>
+</body>
+</html>
