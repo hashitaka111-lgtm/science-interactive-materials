@@ -183,6 +183,13 @@ const EMBED_CHECKS = [
       { varName: "DATA", dataFile: "data/substituted-carboxylic-acid-nomenclature.json" },
     ],
   },
+  {
+    materialId: "ester-nomenclature",
+    html: "html/ester-nomenclature.html",
+    checks: [
+      { varName: "DATA", dataFile: "data/ester-nomenclature.json" },
+    ],
+  },
 ];
 
 // HTML本文から `const VAR = {...};` の1行を取り出してJSON.parseする。

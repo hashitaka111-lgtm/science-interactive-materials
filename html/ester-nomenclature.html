@@ -1,0 +1,431 @@
+<!doctype html>
+<html lang="ja">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>エステルの命名法</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500&family=IBM+Plex+Sans+JP:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+*{box-sizing:border-box}
+:root{
+  --ink:#16232B; --muted:#5E6E76; --paper:#EDF1EF; --surface:#FFFFFF;
+  --rule:#D6DDDA; --rule-soft:#E8EDEB;
+  --s0:#B87A16; --s0t:#8A5A0C;
+  --s1:#158A6D; --s1t:#0D6A53;
+  --s2:#2457A6; --s2t:#1B4380;
+  --s3:#6E3AA7; --s3t:#572D85;
+  --s4:#A82A6A; --s4t:#831F52;
+  --sans:"IBM Plex Sans JP","Hiragino Sans","Yu Gothic UI",system-ui,sans-serif;
+  --mono:"IBM Plex Mono",ui-monospace,SFMono-Regular,Menlo,monospace;
+}
+html,body{margin:0;padding:0}
+body{background:var(--paper);color:var(--ink);font-family:var(--sans);font-size:13.5px;line-height:1.75;-webkit-text-size-adjust:100%}
+.mono{font-family:var(--mono);font-variant-numeric:tabular-nums}
+.wrap{max-width:900px;margin:0 auto;padding:20px 14px 60px}
+.card{background:var(--surface);border:1px solid var(--rule);border-radius:3px;padding:14px;margin-bottom:14px}
+.card.text{max-width:900px}
+.eyebrow{display:flex;align-items:center;gap:10px;font-family:var(--mono);font-size:11.5px;letter-spacing:.14em;color:var(--muted);text-transform:uppercase}
+.eyebrow::after{content:"";flex:1;height:1px;background:var(--rule)}
+h1{font-size:22px;font-weight:600;letter-spacing:.01em;margin:8px 0 2px}
+h2{font-size:14.5px;font-weight:600;margin:10px 0 4px}
+h3{font-size:13px;font-weight:600;margin:0 0 6px}
+p{margin:0 0 8px} p:last-child{margin-bottom:0}
+.lede{color:var(--muted);font-size:13px;margin:4px 0 0}
+.note{color:var(--muted);font-size:12px;line-height:1.7}
+.key{background:rgba(184,122,22,.08);border:1px solid #E0C592;border-radius:3px;padding:8px 10px;font-size:12.5px;line-height:1.7;margin:8px 0}
+
+.btn{font:inherit;font-size:12.5px;line-height:1.4;border:1px solid var(--rule);background:#fff;color:var(--ink);border-radius:2px;padding:6px 10px;cursor:pointer}
+.btn:hover{border-color:#B4C0BC}
+.btn[aria-pressed="true"]{background:var(--ink);color:#fff;border-color:var(--ink)}
+.btn:focus-visible{outline:2px solid var(--ink);outline-offset:1px}
+.btnrow{display:flex;flex-wrap:wrap;gap:6px;margin:8px 0}
+
+/* ---------- 表共通 ---------- */
+.scroll{overflow-x:auto;-webkit-overflow-scrolling:touch;padding-bottom:2px}
+table{border-collapse:collapse;width:100%;font-size:12.5px}
+table.compact{min-width:480px}
+th,td{padding:6px 8px;text-align:left;white-space:nowrap;border-bottom:1px solid var(--rule-soft)}
+th{font-family:var(--mono);font-size:10.5px;letter-spacing:.06em;color:var(--muted);font-weight:500}
+td.num,th.num{text-align:right;font-family:var(--mono)}
+tr:last-child td{border-bottom:none}
+
+/* ---------- カテゴリカード(分類ごとの色分け枠) ---------- */
+.catcard{border-top-width:3px;border-top-style:solid}
+
+/* ---------- 語順対比(酸パート/アルコールパートの色分け) ---------- */
+.acidpart{color:var(--s2t);font-weight:600}
+.alcpart{color:var(--s1t);font-weight:600}
+.orderdemo{display:flex;flex-wrap:wrap;gap:14px;align-items:center;margin:10px 0 4px;font-family:var(--mono);font-size:15px}
+.orderdemo .oline{display:flex;flex-direction:column;gap:2px}
+.orderdemo .olabel{font-size:10px;letter-spacing:.1em;color:var(--muted);font-family:var(--mono)}
+.orderdemo .oarrow{color:var(--muted);font-size:18px}
+.dualname{display:flex;flex-direction:column;gap:1px}
+.dualname .ja{font-family:var(--mono);font-size:13px}
+.dualname .en{font-family:var(--mono);font-size:12px;color:var(--muted)}
+.exceptionbadge{display:block;font-family:var(--mono);font-size:9.5px;color:var(--s0t);letter-spacing:.06em;margin-top:2px}
+
+/* ---------- 酸×アルコールの組み合わせグリッド ---------- */
+.gridtable{min-width:520px}
+.gridtable th{text-align:center}
+.gridtable td{text-align:center;padding:4px}
+.gridtable th.rowhead,.gridtable td.rowhead{text-align:left;font-family:var(--mono);font-size:11.5px;white-space:nowrap}
+.gridcell{font:inherit;font-family:var(--mono);font-size:12px;font-weight:500;width:100%;min-height:34px;
+  border:1px solid var(--rule);background:#fff;color:var(--ink);border-radius:2px;cursor:pointer;padding:4px 2px}
+.gridcell:hover{border-color:#B4C0BC}
+.gridcell[aria-pressed="true"]{background:var(--s1);color:#fff;border-color:var(--s1)}
+.gridcell:focus-visible{outline:2px solid var(--ink);outline-offset:1px}
+.gridempty{color:var(--rule);display:block;text-align:center}
+.griddetail{margin-top:10px;border:1px solid var(--rule);border-radius:3px;padding:10px 12px;background:#FBFCFB}
+.griddetail .gdformula{font-family:var(--mono);font-size:13px;color:var(--muted);margin-bottom:6px}
+.griddetail .gdnames{display:flex;flex-wrap:wrap;gap:16px;align-items:baseline}
+.griddetail .gdname{font-family:var(--mono);font-size:15px}
+.griddetail .gdlabel{font-family:var(--mono);font-size:9.5px;letter-spacing:.1em;color:var(--muted);display:block;margin-bottom:2px}
+.griddetail .gdmw{font-family:var(--mono);font-size:11.5px;color:var(--muted)}
+
+/* ---------- 入れ替えペア(酪酸エチル⇔酢酸ブチル) ---------- */
+.swapwrap{margin-top:12px}
+.swaprow{display:flex;align-items:center;flex-wrap:wrap;gap:8px}
+.swapcard{flex:1 1 200px;border:2px solid var(--s3);background:rgba(110,58,167,.08);border-radius:3px;padding:8px 10px}
+.swapcard .scformula{font-family:var(--mono);font-size:13px;margin-bottom:2px}
+.swaparrow{flex:0 0 auto;font-family:var(--mono);font-size:20px;color:var(--s3t)}
+.swapnote{font-size:12px;color:var(--muted);line-height:1.6;margin-top:8px}
+
+/* ---------- 発展/例外ノート ---------- */
+.advbox{background:rgba(184,122,22,.08);border:1px solid #E0C592;border-radius:3px;padding:10px 12px;font-size:12.5px;line-height:1.7;margin:10px 0 0}
+.advbox .advtag{font-family:var(--mono);font-size:10.5px;letter-spacing:.1em;color:var(--s0t);display:block;margin-bottom:4px}
+
+/* ---------- 橋渡しノート ---------- */
+.bridgebox{background:var(--rule-soft);border:1px solid var(--rule);border-radius:3px;padding:8px 10px;font-size:12px;color:var(--muted);line-height:1.7;margin-top:8px}
+
+/* ---------- モード切替セクション ---------- */
+.section{display:none}
+.section.active{display:block}
+
+@media (prefers-reduced-motion:no-preference){ .btn,.gridcell{transition:border-color 120ms linear,background-color 120ms linear} }
+
+@media (max-width:430px){
+  body{font-size:13px}
+  .wrap{padding:14px 10px 50px}
+  .card{padding:11px}
+  h1{font-size:19px}
+  .btn{padding:6px 8px;font-size:12px}
+  table.compact{min-width:420px}
+  .gridtable{min-width:460px}
+  .orderdemo{font-size:13px;gap:10px}
+  .swaprow{flex-direction:column}
+  .swaparrow{transform:rotate(90deg);padding:2px 0}
+}
+</style>
+</head>
+<body>
+<div class="wrap">
+
+<header>
+  <div class="eyebrow">ESTER NOMENCLATURE</div>
+  <h1>エステルの命名法</h1>
+  <p class="lede" id="defText"></p>
+</header>
+
+<div class="card text">
+  <div class="eyebrow">DEFINITION</div>
+  <h2>一般化した定義: オキソ酸+アルコールの脱水縮合</h2>
+  <p class="note" id="reactionEq" style="margin-top:8px;font-family:var(--mono);font-size:13px"></p>
+  <p class="note">オキソ酸とは酸素を含む酸の総称で、カルボン酸のような有機酸だけでなく、硫酸・硝酸・リン酸などの無機酸も含む。カルボン酸のO-H基が反応する「カルボン酸+アルコール」はこの一般化された定義の1つの例に過ぎない。</p>
+</div>
+
+<div class="card text">
+  <div class="eyebrow">NAMING ORDER</div>
+  <h2>日本語と英語で語順が完全に逆になる</h2>
+  <p class="note" id="orderNote" style="margin-top:8px"></p>
+  <div class="orderdemo">
+    <div class="oline">
+      <span class="olabel">日本語(酸→アルコール)</span>
+      <span><span class="acidpart">酢酸</span><span class="alcpart">エチル</span></span>
+    </div>
+    <span class="oarrow">⇔</span>
+    <div class="oline">
+      <span class="olabel">英語(アルキル→酸)</span>
+      <span><span class="alcpart">ethyl</span> <span class="acidpart">acetate</span></span>
+    </div>
+  </div>
+  <p class="note" style="margin-top:6px">色は酸の由来部分(<span class="acidpart">青</span>)とアルコール由来のアルキル基部分(<span class="alcpart">緑</span>)を示す。日本語では酸が先、英語ではアルキル基が先に来る。</p>
+</div>
+
+<div class="card">
+  <div class="eyebrow">SWITCH</div>
+  <h2>分類を切り替える</h2>
+  <div class="btnrow" id="modeChips" role="group" aria-label="分類の切り替え"></div>
+</div>
+
+<!-- ========== 脂肪族カルボン酸エステル ========== -->
+<section id="sectionAliphatic" class="section">
+  <div class="card catcard" id="cardGrid">
+    <div class="eyebrow">ALIPHATIC CARBOXYLIC ESTER &middot; GRID</div>
+    <h2>酸×アルコールの組み合わせで名前が決まる</h2>
+    <p class="note">行(酸)と列(アルコール)を選んでセルをタップすると、そのエステルの名前が下に表示される。命名は酸とアルコールの組み合わせだけで機械的に決まる。</p>
+    <div class="scroll"><div id="gridTable"></div></div>
+    <div class="griddetail" id="gridDetail"></div>
+  </div>
+
+  <div class="card catcard" id="cardSwap">
+    <div class="eyebrow">ALIPHATIC CARBOXYLIC ESTER &middot; SWAP PAIR</div>
+    <h2>酪酸エチル ⇔ 酢酸ブチル: 同じ分子式・別の化合物</h2>
+    <div class="swapwrap">
+      <div class="swaprow" id="swapRow"></div>
+      <p class="swapnote" id="swapNote"></p>
+    </div>
+  </div>
+</section>
+
+<!-- ========== 芳香族・医薬品系エステル ========== -->
+<section id="sectionAromaticMedicine" class="section">
+  <div class="card catcard" id="cardAromaticMedicine">
+    <div class="eyebrow">AROMATIC &amp; MEDICINE ESTER</div>
+    <h2>安息香酸メチルからサリチル酸メチル・アスピリンへ</h2>
+    <p class="note">安息香酸メチルのベンゼン環にOH(サリチル酸メチル)やNH2(アントラニル酸メチル)が付いた形。アセチルサリチル酸だけは通常のエステル命名パターンから外れる。</p>
+    <div class="scroll"><table class="compact" id="tableAromaticMedicine"></table></div>
+  </div>
+</section>
+
+<!-- ========== ヒドロキシ酸のエステル ========== -->
+<section id="sectionHydroxyAcid" class="section">
+  <div class="card catcard" id="cardHydroxyAcid">
+    <div class="eyebrow">HYDROXY ACID ESTER</div>
+    <h2>乳酸エチル</h2>
+    <p class="note">乳酸のカルボキシ基だけがエステル化され、ヒドロキシ基(OH)はそのまま残る。</p>
+    <div class="scroll"><table class="compact" id="tableHydroxyAcid"></table></div>
+  </div>
+</section>
+
+<!-- ========== 2価酸のエステル ========== -->
+<section id="sectionDiacid" class="section">
+  <div class="card catcard" id="cardDiacid">
+    <div class="eyebrow">DIACID ESTER</div>
+    <h2>フタル酸ジエチル</h2>
+    <p class="note">フタル酸が持つ2つのCOOHの両方がエステル化されたジエステル。</p>
+    <div class="scroll"><table class="compact" id="tableDiacid"></table></div>
+  </div>
+</section>
+
+<!-- ========== 無機酸エステル ========== -->
+<section id="sectionInorganic" class="section">
+  <div class="card catcard" id="cardInorganic">
+    <div class="eyebrow">INORGANIC ACID ESTER</div>
+    <h2>硝酸・硫酸・リン酸のエステル: 定義の一般化を確かめる</h2>
+    <p class="note">オキソ酸は有機酸(カルボン酸)に限らない。無機のオキソ酸でも、O-H基がアルコールのO-H基と脱水縮合すれば、まったく同じ原理でエステルができる。</p>
+    <div class="scroll"><table class="compact" id="tableInorganic"></table></div>
+    <div class="bridgebox" id="nitrocelluloseNote"></div>
+  </div>
+</section>
+
+<div class="card text">
+  <div class="eyebrow">NOTES</div>
+  <p class="note" style="margin-top:8px" id="fatsNote"></p>
+  <p class="note" id="nitrocelluloseNote2" style="margin-top:6px"></p>
+</div>
+
+</div><!-- /wrap -->
+
+<script>
+/* ---------- データ(JSONをそのまま埋め込み。fetch は使わない) ---------- */
+const DATA = {"meta":{"atomicWeights":{"H":1,"C":12,"N":14,"O":16,"S":32,"P":31},"note":"分子量はすべてH=1.0, C=12.0, N=14.0, O=16.0, S=32.0, P=31.0での計算値。指示により確定済みの数値をそのまま採用している(自分で全19件を検算し一致を確認済み)。"},"definition":{"text":"エステルとは、オキソ酸(酸素を含む酸の総称。カルボン酸のような有機酸だけでなく、硫酸・硝酸・リン酸などの無機酸も含む)のO-H基と、アルコールのO-H基が脱水縮合して生じる化合物である。高校教科書は「カルボン酸+アルコール」としか教えないことが多いが、この一般化した定義のほうが本質的で、無機酸エステル(ニトログリセリンなど)も同じ原理で説明できる。","generalReaction":"オキソ酸のO-H + H-O-R'(アルコール) → オキソ酸のO-R' + H2O"},"namingOrderContrast":{"ja":"(酸の名前)+(アルコール由来のアルキル基名)の順","jaExample":"酢酸エチル = 酢酸(acetic acid) + エチル(ethyl)","en":"(アルキル基名)+(酸の語尾を-ic acid→-ateに変えたもの)の順","enExample":"ethyl acetate = ethyl + acetate(acetic acidの語尾を変えたもの)","note":"日本語と英語で語順が完全に逆になる。カルボン酸エステルでも無機酸エステルでも、この対応関係は変わらない。"},"aliphaticEsters":{"acids":[{"id":"formic","ja":"ギ酸","en":"formic acid"},{"id":"acetic","ja":"酢酸","en":"acetic acid"},{"id":"propionic","ja":"プロピオン酸","en":"propionic acid"},{"id":"butyric","ja":"酪酸","en":"butyric acid"}],"alcohols":[{"id":"methyl","ja":"メチル","en":"methyl"},{"id":"ethyl","ja":"エチル","en":"ethyl"},{"id":"propyl","ja":"プロピル","en":"propyl"},{"id":"butyl","ja":"ブチル","en":"butyl"},{"id":"isoamyl","ja":"イソアミル","en":"isoamyl"}],"esters":[{"id":"formic_methyl","acidId":"formic","alcoholId":"methyl","structuralFormula":"H-COO-CH3","nameJa":"ギ酸メチル","nameEn":"methyl formate","molecularWeight":60},{"id":"formic_ethyl","acidId":"formic","alcoholId":"ethyl","structuralFormula":"H-COO-C2H5","nameJa":"ギ酸エチル","nameEn":"ethyl formate","molecularWeight":74},{"id":"acetic_methyl","acidId":"acetic","alcoholId":"methyl","structuralFormula":"CH3-COO-CH3","nameJa":"酢酸メチル","nameEn":"methyl acetate","molecularWeight":74},{"id":"acetic_ethyl","acidId":"acetic","alcoholId":"ethyl","structuralFormula":"CH3-COO-C2H5","nameJa":"酢酸エチル","nameEn":"ethyl acetate","molecularWeight":88},{"id":"acetic_propyl","acidId":"acetic","alcoholId":"propyl","structuralFormula":"CH3-COO-C3H7","nameJa":"酢酸プロピル","nameEn":"propyl acetate","molecularWeight":102},{"id":"acetic_butyl","acidId":"acetic","alcoholId":"butyl","structuralFormula":"CH3-COO-C4H9","nameJa":"酢酸ブチル","nameEn":"butyl acetate","molecularWeight":116},{"id":"acetic_isoamyl","acidId":"acetic","alcoholId":"isoamyl","structuralFormula":"CH3-COO-C5H11","nameJa":"酢酸イソアミル","nameEn":"isoamyl acetate","molecularWeight":130},{"id":"propionic_methyl","acidId":"propionic","alcoholId":"methyl","structuralFormula":"C2H5-COO-CH3","nameJa":"プロピオン酸メチル","nameEn":"methyl propionate","molecularWeight":88},{"id":"butyric_methyl","acidId":"butyric","alcoholId":"methyl","structuralFormula":"C3H7-COO-CH3","nameJa":"酪酸メチル","nameEn":"methyl butyrate","molecularWeight":102},{"id":"butyric_ethyl","acidId":"butyric","alcoholId":"ethyl","structuralFormula":"C3H7-COO-C2H5","nameJa":"酪酸エチル","nameEn":"ethyl butyrate","molecularWeight":116}],"swapPair":{"idA":"butyric_ethyl","idB":"acetic_butyl","note":"酪酸エチル(酪酸+エチル)と酢酸ブチル(酢酸+ブチル)は、酸とアルコールを入れ替えた関係にある。どちらも分子式C6H12O2・分子量116で一致するが、どの酸とどのアルコールが結びついているかが違う別の化合物である。同じ分子式でも組み合わせが違えば別の化合物になる、という命名パターンの核心をこのペアが示している。"}},"aromaticMedicineEsters":[{"id":"methyl_benzoate","structuralFormula":"C6H5-COO-CH3","nameJa":"安息香酸メチル","nameEn":"methyl benzoate","molecularWeight":136,"acidPartJa":"安息香酸","alcPartJa":"メチル","alcPartEn":"methyl","acidPartEn":"benzoate","note":"もっとも単純な芳香族カルボン酸エステル。ベンゼン環にOHを1つ加えるとサリチル酸メチルになる。"},{"id":"methyl_salicylate","structuralFormula":"C6H4(OH)-COO-CH3","nameJa":"サリチル酸メチル","nameEn":"methyl salicylate","molecularWeight":152,"acidPartJa":"サリチル酸","alcPartJa":"メチル","alcPartEn":"methyl","acidPartEn":"salicylate","note":"サリチル酸(前教材)のカルボキシ基がエステル化されたもの。消炎鎮痛の外用薬・湿布に使われる。"},{"id":"acetylsalicylic_acid","structuralFormula":"C6H4(OOCCH3)-COOH","nameJa":"アセチルサリチル酸(アスピリン)","nameEn":"2-acetoxybenzoic acid","molecularWeight":180,"namingException":true,"namingExceptionNote":"アセチルサリチル酸の組織名(2-acetoxybenzoic acid)は、通常のエステル命名(アルキル名+酸の語尾)とは異なるパターンで、遊離のカルボキシ基を持つ安息香酸の置換体として命名されている。","note":"サリチル酸のフェノール性OH(ヒドロキシ基)を酢酸でエステル化した構造。カルボキシ基(COOH)自体はエステル化されず、遊離のまま残っている点に注意。"},{"id":"methyl_anthranilate","structuralFormula":"C6H4(NH2)-COO-CH3","nameJa":"アントラニル酸メチル","nameEn":"methyl anthranilate","molecularWeight":151,"acidPartJa":"アントラニル酸","alcPartJa":"メチル","alcPartEn":"methyl","acidPartEn":"anthranilate","note":"アントラニル酸(前教材)のカルボキシ基がエステル化されたもの。ブドウ様の香気成分として使われる。"}],"hydroxyAcidEsters":[{"id":"ethyl_lactate","structuralFormula":"CH3-CH(OH)-COO-C2H5","nameJa":"乳酸エチル","nameEn":"ethyl lactate","molecularWeight":118,"acidPartJa":"乳酸","alcPartJa":"エチル","alcPartEn":"ethyl","acidPartEn":"lactate","note":"乳酸(前教材)のカルボキシ基がエステル化されたもの。ヒドロキシ基(OH)はエステル化されず残る。"}],"diacidEsters":[{"id":"diethyl_phthalate","structuralFormula":"C6H4(COOC2H5)2","nameJa":"フタル酸ジエチル","nameEn":"diethyl phthalate","molecularWeight":222,"acidPartJa":"フタル酸","alcPartJa":"ジエチル","alcPartEn":"diethyl","acidPartEn":"phthalate","note":"フタル酸(2価カルボン酸)が持つ2つのCOOHの両方がエチルエステル化されたジエステル。可塑剤(プラスチックを柔らかくする添加剤)として使われる。"}],"inorganicEsters":[{"id":"nitroglycerin","oxoAcidJa":"硝酸(HNO3)","alcoholJa":"グリセリン(1,2,3-プロパントリオール)","structuralFormula":"グリセリンの硝酸トリエステル","nameJa":"ニトログリセリン","nameEn":"glyceryl trinitrate","molecularWeight":227,"namingException":true,"namingExceptionNote":"日本語の慣用名「ニトログリセリン」はnitro+glycerinの縮約形で、他のエステルのような「酸+アルコール」の語順パターンとは異なる。英語名glyceryl trinitrateはglyceryl(アルキル部)+trinitrate(酸部)という通常のエステル命名パターンに従う。","note":"グリセリンが持つ3つのOH基すべてが硝酸でエステル化されたトリエステル。ダイナマイトの主成分であり、狭心症治療薬としても使われる。"},{"id":"dimethyl_sulfate","oxoAcidJa":"硫酸(H2SO4)","alcoholJa":"メタノール(CH3OH)","structuralFormula":"(CH3O)2SO2","nameJa":"硫酸ジメチル","nameEn":"dimethyl sulfate","molecularWeight":126,"acidPartJa":"硫酸","alcPartJa":"ジメチル","alcPartEn":"dimethyl","acidPartEn":"sulfate","note":"硫酸が持つ2つのOH基の両方がメチルエステル化されたジエステル。強い毒性を持つ。"},{"id":"trimethyl_phosphate","oxoAcidJa":"リン酸(H3PO4)","alcoholJa":"メタノール(CH3OH)","structuralFormula":"(CH3O)3PO","nameJa":"リン酸トリメチル","nameEn":"trimethyl phosphate","molecularWeight":140,"acidPartJa":"リン酸","alcPartJa":"トリメチル","alcPartEn":"trimethyl","acidPartEn":"phosphate","note":"リン酸が持つ3つのOH基すべてがメチルエステル化されたトリエステル。"}],"notes":{"fatsAndOils":"油脂(グリセリンと高級脂肪酸から生じるエステル)も同じ原理で説明できるエステルだが、脂肪酸の分類・けん化などの詳しい話は別教材で扱う予定のため、ここでは踏み込まない。","nitrocellulose":"ニトロセルロース(綿火薬)は、セルロースが持つ多数の水酸基が硝酸でエステル化された高分子である。無機酸エステルの原理がそのまま高分子にも当てはまる例として一言だけ触れる。重合度・分子量の計算はchem-polymer-degreeの範囲とし、本教材では立ち入らない。"}};
+
+/* ---------- 起動時チェック ---------- */
+(function checkData(){
+  const msg=[];
+  const total = DATA.aliphaticEsters.esters.length + DATA.aromaticMedicineEsters.length + DATA.hydroxyAcidEsters.length + DATA.diacidEsters.length + DATA.inorganicEsters.length;
+  if(DATA.aliphaticEsters.esters.length!==10) msg.push('aliphaticEsters.esters が10件ではない('+DATA.aliphaticEsters.esters.length+'件)');
+  if(DATA.aromaticMedicineEsters.length!==4) msg.push('aromaticMedicineEsters が4件ではない('+DATA.aromaticMedicineEsters.length+'件)');
+  if(DATA.hydroxyAcidEsters.length!==1) msg.push('hydroxyAcidEsters が1件ではない('+DATA.hydroxyAcidEsters.length+'件)');
+  if(DATA.diacidEsters.length!==1) msg.push('diacidEsters が1件ではない('+DATA.diacidEsters.length+'件)');
+  if(DATA.inorganicEsters.length!==3) msg.push('inorganicEsters が3件ではない('+DATA.inorganicEsters.length+'件)');
+  if(total!==19) msg.push('合計が19件ではない('+total+'件)');
+  if(msg.length) console.warn('[DATA] 不整合\n'+msg.join('\n'));
+  else console.info('[DATA] 全'+total+'件を読み込んだ');
+})();
+
+const esc = s => String(s).replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+
+/* ---------- 分類(モード)の色 ---------- */
+const CAT = {
+  aliphatic:            { bd:'#158A6D', tx:'#0D6A53', label:'脂肪族カルボン酸エステル' },
+  aromaticMedicine:     { bd:'#2457A6', tx:'#1B4380', label:'芳香族・医薬品系' },
+  hydroxyAcid:          { bd:'#6E3AA7', tx:'#572D85', label:'ヒドロキシ酸のエステル' },
+  diacid:               { bd:'#B87A16', tx:'#8A5A0C', label:'2価酸のエステル' },
+  inorganic:            { bd:'#A82A6A', tx:'#831F52', label:'無機酸エステル' },
+};
+const CAT_ORDER = ['aliphatic','aromaticMedicine','hydroxyAcid','diacid','inorganic'];
+const SECTION_ID = {
+  aliphatic: 'sectionAliphatic',
+  aromaticMedicine: 'sectionAromaticMedicine',
+  hydroxyAcid: 'sectionHydroxyAcid',
+  diacid: 'sectionDiacid',
+  inorganic: 'sectionInorganic',
+};
+
+/* ---------- 状態 ---------- */
+const st = { mode: 'aliphatic', selectedEster: 'acetic_ethyl' };
+
+/* ---------- MODE chips ---------- */
+function renderModeChips(){
+  const host = document.getElementById('modeChips');
+  host.innerHTML = CAT_ORDER.map(k=>{
+    const pressed = k===st.mode;
+    return '<button type="button" class="btn" data-mode="'+k+'" aria-pressed="'+pressed+'">'+esc(CAT[k].label)+'</button>';
+  }).join('');
+  host.addEventListener('click', (e)=>{
+    const b = e.target.closest('button[data-mode]');
+    if(!b) return;
+    st.mode = b.dataset.mode;
+    syncSections();
+  });
+}
+function applyCatBorder(cardId, key){
+  document.getElementById(cardId).style.borderTopColor = CAT[key].bd;
+}
+
+/* ---------- 日英名を色分けして表示する共通ヘルパー ---------- */
+function dualNameHtml(acidPartJa, alcPartJa, alcPartEn, acidPartEn){
+  return '<span class="dualname"><span class="ja"><span class="acidpart">'+esc(acidPartJa)+'</span><span class="alcpart">'+esc(alcPartJa)+'</span></span>'+
+    '<span class="en"><span class="alcpart">'+esc(alcPartEn)+'</span> <span class="acidpart">'+esc(acidPartEn)+'</span></span></span>';
+}
+
+/* ---------- 脂肪族カルボン酸エステル: GRID ---------- */
+function esterKey(acidId, alcoholId){ return acidId+'_'+alcoholId; }
+const ESTER_MAP = {};
+DATA.aliphaticEsters.esters.forEach(e=>{ ESTER_MAP[e.id]=e; });
+
+function renderGrid(){
+  applyCatBorder('cardGrid', 'aliphatic');
+  const acids = DATA.aliphaticEsters.acids, alcohols = DATA.aliphaticEsters.alcohols;
+  let h = '<table class="gridtable"><thead><tr><th></th>'+alcohols.map(a=>'<th>'+esc(a.ja)+'</th>').join('')+'</tr></thead><tbody>';
+  acids.forEach(acid=>{
+    h += '<tr><th class="rowhead">'+esc(acid.ja)+'</th>';
+    alcohols.forEach(alc=>{
+      const key = esterKey(acid.id, alc.id);
+      const ester = ESTER_MAP[key];
+      if(ester){
+        h += '<td><button type="button" class="gridcell" data-ester="'+key+'" aria-pressed="'+(st.selectedEster===key)+'">'+ester.molecularWeight+'</button></td>';
+      } else {
+        h += '<td><span class="gridempty mono">—</span></td>';
+      }
+    });
+    h += '</tr>';
+  });
+  h += '</tbody></table>';
+  document.getElementById('gridTable').innerHTML = h;
+  document.getElementById('gridTable').addEventListener('click', (e)=>{
+    const b = e.target.closest('button[data-ester]');
+    if(!b) return;
+    st.selectedEster = b.dataset.ester;
+    renderGrid();
+    renderGridDetail();
+  });
+  renderGridDetail();
+}
+function renderGridDetail(){
+  const ester = ESTER_MAP[st.selectedEster];
+  const acid = DATA.aliphaticEsters.acids.find(a=>a.id===ester.acidId);
+  const alc = DATA.aliphaticEsters.alcohols.find(a=>a.id===ester.alcoholId);
+  const enParts = ester.nameEn.split(' ');
+  const alcEn = enParts[0], acidEn = enParts.slice(1).join(' ');
+  document.getElementById('gridDetail').innerHTML =
+    '<div class="gdformula mono">'+esc(ester.structuralFormula)+'</div>'+
+    '<div class="gdnames">'+
+      '<div><span class="gdlabel">日本語(酸→アルコール)</span><span class="gdname"><span class="acidpart">'+esc(acid.ja)+'</span><span class="alcpart">'+esc(alc.ja)+'</span></span></div>'+
+      '<div><span class="gdlabel">英語(アルキル→酸)</span><span class="gdname"><span class="alcpart">'+esc(alcEn)+'</span> <span class="acidpart">'+esc(acidEn)+'</span></span></div>'+
+      '<div><span class="gdlabel">分子量</span><span class="gdmw">'+ester.molecularWeight+'</span></div>'+
+    '</div>';
+}
+
+/* ---------- 脂肪族カルボン酸エステル: SWAP PAIR ---------- */
+function renderSwapPair(){
+  applyCatBorder('cardSwap', 'aliphatic');
+  const pair = DATA.aliphaticEsters.swapPair;
+  const a = ESTER_MAP[pair.idA], b = ESTER_MAP[pair.idB];
+  document.getElementById('swapRow').innerHTML = [a,b].map(x=>
+    '<div class="swapcard"><div class="scformula mono">'+esc(x.structuralFormula)+'</div><div class="mono">'+esc(x.nameJa)+' &middot; '+esc(x.nameEn)+'</div>'+
+    '<div class="note" style="margin-top:2px">分子量 '+x.molecularWeight+'</div></div>'
+  ).join('<div class="swaparrow">⇄</div>');
+  document.getElementById('swapNote').textContent = pair.note;
+}
+
+/* ---------- 芳香族・医薬品系エステル ---------- */
+function rowsSimpleTable(list){
+  let h = '<thead><tr><th>示性式</th><th>名前(日本語 / 英語)</th><th class="num">分子量</th></tr></thead><tbody>';
+  list.forEach(a=>{
+    let nameCell;
+    if(a.namingException){
+      nameCell = '<span class="dualname"><span class="ja mono">'+esc(a.nameJa)+'</span><span class="en mono">'+esc(a.nameEn)+'</span></span><span class="exceptionbadge">命名パターンの例外</span>';
+    } else {
+      nameCell = dualNameHtml(a.acidPartJa, a.alcPartJa, a.alcPartEn, a.acidPartEn);
+    }
+    h += '<tr><td class="mono">'+esc(a.structuralFormula)+'</td><td>'+nameCell+'</td><td class="num mono">'+a.molecularWeight+'</td></tr>';
+  });
+  h += '</tbody>';
+  return h;
+}
+function renderAromaticMedicine(){
+  applyCatBorder('cardAromaticMedicine', 'aromaticMedicine');
+  document.getElementById('tableAromaticMedicine').innerHTML = rowsSimpleTable(DATA.aromaticMedicineEsters);
+  const asa = DATA.aromaticMedicineEsters.find(a=>a.id==='acetylsalicylic_acid');
+  document.getElementById('tableAromaticMedicine').insertAdjacentHTML('afterend',
+    '<div class="advbox"><span class="advtag">例外 &middot; アセチルサリチル酸(アスピリン)</span>'+esc(asa.namingExceptionNote)+' '+esc(asa.note)+'</div>');
+}
+
+/* ---------- ヒドロキシ酸のエステル ---------- */
+function renderHydroxyAcid(){
+  applyCatBorder('cardHydroxyAcid', 'hydroxyAcid');
+  document.getElementById('tableHydroxyAcid').innerHTML = rowsSimpleTable(DATA.hydroxyAcidEsters);
+}
+
+/* ---------- 2価酸のエステル ---------- */
+function renderDiacid(){
+  applyCatBorder('cardDiacid', 'diacid');
+  document.getElementById('tableDiacid').innerHTML = rowsSimpleTable(DATA.diacidEsters);
+}
+
+/* ---------- 無機酸エステル ---------- */
+function renderInorganic(){
+  applyCatBorder('cardInorganic', 'inorganic');
+  document.getElementById('tableInorganic').innerHTML = rowsSimpleTable(DATA.inorganicEsters);
+  const ng = DATA.inorganicEsters.find(a=>a.id==='nitroglycerin');
+  document.getElementById('tableInorganic').insertAdjacentHTML('afterend',
+    '<div class="advbox"><span class="advtag">例外 &middot; ニトログリセリン</span>'+esc(ng.namingExceptionNote)+'</div>');
+  document.getElementById('nitrocelluloseNote').textContent = DATA.notes.nitrocellulose;
+}
+
+/* ---------- NOTES ---------- */
+function renderNotes(){
+  document.getElementById('defText').textContent = DATA.definition.text;
+  document.getElementById('reactionEq').textContent = DATA.definition.generalReaction;
+  document.getElementById('orderNote').textContent = DATA.namingOrderContrast.note;
+  document.getElementById('fatsNote').textContent = DATA.notes.fatsAndOils;
+  document.getElementById('nitrocelluloseNote2').textContent = DATA.notes.nitrocellulose;
+}
+
+/* ---------- 表示切替 ---------- */
+function syncSections(){
+  CAT_ORDER.forEach(k=>{
+    document.getElementById(SECTION_ID[k]).classList.toggle('active', st.mode===k);
+  });
+  Array.prototype.forEach.call(document.querySelectorAll('#modeChips button'), b=>{
+    b.setAttribute('aria-pressed', b.dataset.mode===st.mode);
+  });
+}
+
+/* ---------- 初期化 ---------- */
+renderModeChips();
+renderGrid();
+renderSwapPair();
+renderAromaticMedicine();
+renderHydroxyAcid();
+renderDiacid();
+renderInorganic();
+renderNotes();
+syncSections();
+</script>
+</body>
+</html>

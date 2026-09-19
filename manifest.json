@@ -1292,7 +1292,8 @@
     "related": [
       "chem-peptide-sequencing",
       "chem-hydrocarbon-nomenclature",
-      "chem-carboxylic-acid-nomenclature"
+      "chem-carboxylic-acid-nomenclature",
+      "chem-ester-nomenclature"
     ]
   },
   {
@@ -1463,7 +1464,37 @@
     "confidence": "high",
     "type": "matrix",
     "related": [
-      "chem-carboxylic-acid-nomenclature"
+      "chem-carboxylic-acid-nomenclature",
+      "chem-ester-nomenclature"
+    ]
+  },
+  {
+    "id": "chem-ester-nomenclature",
+    "file": "html/ester-nomenclature.html",
+    "subject": "chemistry",
+    "unit": "有機化学 / エステルの命名法",
+    "course": "化学",
+    "section": "有機化合物の性質",
+    "order": 34,
+    "title": "エステルの命名法",
+    "heading": "エステルの命名法",
+    "summary": "オキソ酸とアルコールの脱水縮合という一般化した定義から、カルボン酸エステルと無機酸エステルの命名法を統一的に理解する",
+    "topics": [
+      "エステルの一般化定義(オキソ酸+アルコールの脱水縮合)",
+      "日本語と英語命名の語順の逆転",
+      "酸とアルコールの組み合わせによる命名パターン",
+      "無機酸エステル(硝酸・硫酸・リン酸)"
+    ],
+    "interactions": [
+      "チップ切り替え",
+      "組み合わせグリッド",
+      "色分け表示"
+    ],
+    "confidence": "high",
+    "type": "matrix",
+    "related": [
+      "chem-substituted-carboxylic-acid-nomenclature",
+      "chem-polymer-degree"
     ]
   }
 ]
