@@ -1,0 +1,97 @@
+{
+  "meta": {
+    "atomicWeights": { "H": 1.0, "C": 12.0, "O": 16.0 },
+    "constants": {
+      "glycerolMolecularWeight": 92,
+      "kohFormulaWeight": 56,
+      "iodineMolecularWeight": 254
+    },
+    "note": "分子量・けん化価・ヨウ素価はCEO指定の確定データをそのまま採用(原子量H=1.0,C=12.0,O=16.0。グリセリンの分子量92、KOHの式量56、I2の分子量254)。トリグリセリドの分子量=グリセリン92+脂肪酸の分子量×3-H2O×3(18×3=54)、けん化価=3×56000÷トリグリセリドの分子量、ヨウ素価=254×(C=C数×3)×100÷トリグリセリドの分子量で、自分でも全5件を検算し指示の表と一致することを確認済み。"
+  },
+  "fattyAcids": [
+    {
+      "id": "palmitic",
+      "nameJa": "パルミチン酸",
+      "structuralFormula": "CH3-(CH2)14-COOH",
+      "simpleTriglycerideName": "トリパルミチン",
+      "saturation": "saturated",
+      "carbonCount": 16,
+      "doubleBondCount": 0,
+      "fattyAcidMolecularWeight": 256,
+      "triglycerideMolecularWeight": 806,
+      "saponificationValue": 208.4,
+      "iodineValue": 0
+    },
+    {
+      "id": "stearic",
+      "nameJa": "ステアリン酸",
+      "structuralFormula": "CH3-(CH2)16-COOH",
+      "simpleTriglycerideName": "トリステアリン",
+      "saturation": "saturated",
+      "carbonCount": 18,
+      "doubleBondCount": 0,
+      "fattyAcidMolecularWeight": 284,
+      "triglycerideMolecularWeight": 890,
+      "saponificationValue": 188.8,
+      "iodineValue": 0
+    },
+    {
+      "id": "oleic",
+      "nameJa": "オレイン酸",
+      "structuralFormula": "CH3-(CH2)7-CH=CH-(CH2)7-COOH",
+      "simpleTriglycerideName": "トリオレイン",
+      "saturation": "unsaturated",
+      "carbonCount": 18,
+      "doubleBondCount": 1,
+      "fattyAcidMolecularWeight": 282,
+      "triglycerideMolecularWeight": 884,
+      "saponificationValue": 190.0,
+      "iodineValue": 86.2
+    },
+    {
+      "id": "linoleic",
+      "nameJa": "リノール酸",
+      "structuralFormula": "CH3-(CH2)4-CH=CH-CH2-CH=CH-(CH2)7-COOH",
+      "simpleTriglycerideName": "トリリノレイン",
+      "saturation": "unsaturated",
+      "carbonCount": 18,
+      "doubleBondCount": 2,
+      "fattyAcidMolecularWeight": 280,
+      "triglycerideMolecularWeight": 878,
+      "saponificationValue": 191.3,
+      "iodineValue": 173.6
+    },
+    {
+      "id": "linolenic",
+      "nameJa": "リノレン酸",
+      "structuralFormula": "CH3-CH2-CH=CH-CH2-CH=CH-CH2-CH=CH-(CH2)7-COOH",
+      "simpleTriglycerideName": "トリリノレニン",
+      "saturation": "unsaturated",
+      "carbonCount": 18,
+      "doubleBondCount": 3,
+      "fattyAcidMolecularWeight": 278,
+      "triglycerideMolecularWeight": 872,
+      "saponificationValue": 192.7,
+      "iodineValue": 262.2
+    }
+  ],
+  "unsaturatedSeriesNote": "オレイン酸・リノール酸・リノレン酸はいずれも炭素数18で、C=C二重結合の数だけが1→2→3と増えていく系列になっている。炭素数が同じでもC=C数が増えるほど脂肪酸の分子量はわずかに小さくなり(282→280→278、二重結合1つにつきH2分だけ軽くなる)、ヨウ素価は大きく増える。",
+  "simpleVsMixedTriglyceride": {
+    "simple": "3つのOHすべてが同じ脂肪酸1種でエステル化されたトリグリセリド。本教材はこちらを主に扱う。",
+    "mixed": "3つのOHが異なる脂肪酸でエステル化されたトリグリセリド(天然の油脂の多くは実際にはこちら)。組成の計算は発展として一言に留める。"
+  },
+  "dryingOilClassification": [
+    { "id": "drying", "label": "乾性油", "rangeLabel": "130超", "min": 130, "minInclusive": false, "max": null },
+    { "id": "semiDrying", "label": "半乾性油", "rangeLabel": "100〜130", "min": 100, "minInclusive": true, "max": 130, "maxInclusive": true },
+    { "id": "nonDrying", "label": "不乾性油", "rangeLabel": "100未満", "min": null, "max": 100, "maxInclusive": false }
+  ],
+  "hydrogenatedOil": {
+    "nameJa": "硬化油",
+    "description": "不飽和脂肪酸が持つC=C二重結合に、触媒(ニッケルなど)を使ってH2を付加し、飽和脂肪酸に変える工業プロセス。マーガリンやショートニングの製造に使われる。",
+    "effectOnIodineValue": "C=C二重結合が減る(H2が付加する)ほどヨウ素価は下がる。ヨウ素価のC=C数スライダーを小さい方へ動かす操作は、この硬化のシミュレーションでもある。",
+    "crossRefNote": "C=CへのH2付加そのものは、chem-hydrocarbon-nomenclatureで扱ったアルケンへのH2付加(触媒存在下でC=C+H2→C-C)と同じ反応。"
+  },
+  "notes": {
+    "soapNextTopic": "けん化で生じるセッケン自体の構造(親水基・疎水基)と界面活性作用は次教材で扱う。"
+  }
+}

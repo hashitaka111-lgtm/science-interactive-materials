@@ -1437,7 +1437,8 @@
     "related": [
       "chem-aldehyde-ketone-nomenclature",
       "chem-polymer-degree",
-      "chem-substituted-carboxylic-acid-nomenclature"
+      "chem-substituted-carboxylic-acid-nomenclature",
+      "chem-fats-oils-saponification"
     ]
   },
   {
@@ -1494,7 +1495,38 @@
     "type": "matrix",
     "related": [
       "chem-substituted-carboxylic-acid-nomenclature",
-      "chem-polymer-degree"
+      "chem-polymer-degree",
+      "chem-fats-oils-saponification"
+    ]
+  },
+  {
+    "id": "chem-fats-oils-saponification",
+    "file": "html/fats-oils-saponification.html",
+    "subject": "chemistry",
+    "unit": "有機化学 / 油脂の構造とけん化価・ヨウ素価",
+    "course": "化学",
+    "section": "有機化合物の性質",
+    "order": 35,
+    "title": "油脂の構造とけん化価・ヨウ素価",
+    "heading": "油脂の構造とけん化価・ヨウ素価",
+    "summary": "脂肪酸の分類と油脂(トリグリセリド)の構造から、けん化価・ヨウ素価を計算する",
+    "topics": [
+      "飽和・不飽和脂肪酸の分類",
+      "油脂(トリグリセリド)の構造とエステル結合",
+      "けん化価の計算",
+      "ヨウ素価の計算と乾性油・不乾性油の分類",
+      "硬化油(水素付加)の原理"
+    ],
+    "interactions": [
+      "チップ切り替え",
+      "スライダー",
+      "グラフ連動"
+    ],
+    "confidence": "high",
+    "type": "simulator",
+    "related": [
+      "chem-ester-nomenclature",
+      "chem-carboxylic-acid-nomenclature"
     ]
   }
 ]
