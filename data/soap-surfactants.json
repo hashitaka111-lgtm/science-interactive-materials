@@ -1,0 +1,102 @@
+{
+  "meta": {
+    "atomicWeights": { "H": 1.0, "C": 12.0, "O": 16.0, "S": 32.0, "Na": 23.0 },
+    "note": "分子量はCEO指定の確定データをそのまま採用(原子量H=1.0,C=12.0,O=16.0,S=32.0,Na=23.0)。パルミチン酸ナトリウムはパルミチン酸(分子量256)のCOOHのHをNaに置換(-1+23で+22)し256+22=278。ステアリン酸ナトリウムも同様に284+22=306。LASはC12H25(169)+C6H4(76)+SO3Na(103)の構造で348。すべて自分で検算し指示の表と一致することを確認済み。"
+  },
+  "compounds": [
+    {
+      "id": "sodium-palmitate",
+      "category": "soap",
+      "nameJa": "パルミチン酸ナトリウム",
+      "akaJa": "セッケン",
+      "structuralFormula": "C15H31COONa",
+      "acidTypeJa": "弱酸(カルボン酸)の塩",
+      "acidStrength": "weak",
+      "saltNatureJa": "弱塩基性",
+      "saltNature": "weaklyBasic",
+      "molecularWeight": 278
+    },
+    {
+      "id": "sodium-stearate",
+      "category": "soap",
+      "nameJa": "ステアリン酸ナトリウム",
+      "akaJa": "セッケン",
+      "structuralFormula": "C17H35COONa",
+      "acidTypeJa": "弱酸(カルボン酸)の塩",
+      "acidStrength": "weak",
+      "saltNatureJa": "弱塩基性",
+      "saltNature": "weaklyBasic",
+      "molecularWeight": 306
+    },
+    {
+      "id": "las",
+      "category": "synthetic",
+      "nameJa": "直鎖アルキルベンゼンスルホン酸ナトリウム",
+      "akaJa": "LAS(合成洗剤の代表例)",
+      "structuralFormula": "C12H25-C6H4-SO3Na",
+      "acidTypeJa": "強酸(スルホン酸)の塩",
+      "acidStrength": "strong",
+      "saltNatureJa": "中性",
+      "saltNature": "neutral",
+      "molecularWeight": 348
+    }
+  ],
+  "washingSteps": [
+    {
+      "id": 1,
+      "labelJa": "水面に油滴がある状態",
+      "descriptionJa": "水と油は混じり合わないため、水の中に油滴がそのまま浮かんでいる。まだセッケン分子は油に近づいていない。"
+    },
+    {
+      "id": 2,
+      "labelJa": "セッケン分子が油と水の境界に並ぶ状態",
+      "descriptionJa": "セッケン分子は、疎水基(長い炭化水素鎖、親油性)と親水基(COO⁻、親水性)を両端にもつ両親媒性分子。疎水基が油側、親水基が水側を向いて、油と水の境界に並ぶ。"
+    },
+    {
+      "id": 3,
+      "labelJa": "ミセルが水中に分散する状態(乳化)",
+      "descriptionJa": "油を疎水基で包み込んだセッケン分子の集まり(ミセル)ができ、水面から離れて水中に分散する。これが乳化で、セッケンの洗浄作用の仕組み。"
+    }
+  ],
+  "amphiphile": {
+    "hydrophobicPartJa": "疎水基(長い炭化水素鎖、親油性)",
+    "hydrophilicPartJa": "親水基(COO⁻、親水性)"
+  },
+  "hydrolysis": {
+    "ionizationEquation": "R-COONa → R-COO⁻ + Na⁺",
+    "hydrolysisEquation": "R-COO⁻ + H2O ⇌ R-COOH + OH⁻",
+    "generalTheoryCrossRefNote": "弱酸+強塩基の塩は加水分解して塩基性を示す、という一般論・電離定数からのpH計算はchem-salt-hydrolysisで扱っている。本教材ではその一般論をセッケンという具体例に適用した結論だけを扱う。",
+    "fibers": [
+      {
+        "id": "cellulose",
+        "nameJa": "綿・麻",
+        "materialJa": "セルロース繊維",
+        "result": "ok",
+        "reasonJa": "セルロースはアルカリ性の水溶液で変性しないため、弱塩基性のセッケンで洗っても問題ない。"
+      },
+      {
+        "id": "protein",
+        "nameJa": "絹・羊毛",
+        "materialJa": "タンパク質繊維",
+        "result": "ng",
+        "reasonJa": "タンパク質はアルカリ性の水溶液で変性してしまうため、弱塩基性を示すセッケンでは洗えない。"
+      }
+    ]
+  },
+  "hardWater": {
+    "calciumEquation": "2 R-COONa + Ca2+ → (R-COO)2Ca↓ + 2 Na+",
+    "magnesiumEquation": "2 R-COONa + Mg2+ → (R-COO)2Mg↓ + 2 Na+",
+    "note": "Ca2+・Mg2+が脂肪酸イオンと反応して水に溶けない塩(金属セッケン)をつくるため、硬水中ではセッケンの洗浄作用が低下する。"
+  },
+  "surfaceTension": {
+    "note": "セッケンは水の表面張力を低下させる(界面活性作用)。この性質が、水面や繊維のすき間へセッケン水溶液が浸透するのを助ける。"
+  },
+  "syntheticDetergent": {
+    "structuralChangeNoteJa": "脂肪酸のカルボキシ基(-COOH、弱酸)を、より強い酸であるスルホ基(-SO3H)に変える。",
+    "saltNatureChangeNoteJa": "そのナトリウム塩(LAS)は「強酸+強塩基の塩」になるため加水分解せず中性を示す。",
+    "advantageNoteJa": "セッケンとは異なり中性なので、絹・羊毛のタンパク質を変性させない。"
+  },
+  "notes": {
+    "seriesCompletionJa": "けん化で油脂からセッケンが得られるところ(chem-fats-oils-saponification)から始まり、セッケンの4つの性質と合成洗剤との対比までを扱う油脂・けん化価・ヨウ素価シリーズが、これで完結する。"
+  }
+}

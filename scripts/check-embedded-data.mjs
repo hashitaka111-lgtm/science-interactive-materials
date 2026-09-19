@@ -197,6 +197,13 @@ const EMBED_CHECKS = [
       { varName: "DATA", dataFile: "data/fats-oils-saponification.json" },
     ],
   },
+  {
+    materialId: "soap-surfactants",
+    html: "html/soap-surfactants.html",
+    checks: [
+      { varName: "DATA", dataFile: "data/soap-surfactants.json" },
+    ],
+  },
 ];
 
 // HTML本文から `const VAR = {...};` の1行を取り出してJSON.parseする。

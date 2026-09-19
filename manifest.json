@@ -474,7 +474,8 @@
     "type": "simulator",
     "related": [
       "chem-strong-weak-acid-base",
-      "chem-titration"
+      "chem-titration",
+      "chem-soap-surfactants"
     ]
   },
   {
@@ -1526,7 +1527,37 @@
     "type": "simulator",
     "related": [
       "chem-ester-nomenclature",
-      "chem-carboxylic-acid-nomenclature"
+      "chem-carboxylic-acid-nomenclature",
+      "chem-soap-surfactants"
+    ]
+  },
+  {
+    "id": "chem-soap-surfactants",
+    "file": "html/soap-surfactants.html",
+    "subject": "chemistry",
+    "unit": "有機化学 / セッケン・界面活性剤の構造と働き",
+    "course": "化学",
+    "section": "有機化合物の性質",
+    "order": 36,
+    "title": "セッケン・界面活性剤の構造と働き",
+    "heading": "セッケン・界面活性剤の構造と働き",
+    "summary": "セッケンの4つの性質と、合成洗剤が中性になる理由(弱酸から強酸への置換)を確かめる",
+    "topics": [
+      "けん化によるセッケンの生成と洗浄作用(乳化)",
+      "セッケン水溶液が弱塩基性を示す理由と絹・羊毛が洗えない理由",
+      "硬水での洗浄力低下と界面活性作用",
+      "合成洗剤(LAS)が中性になる理由"
+    ],
+    "interactions": [
+      "チップ切り替え",
+      "構造トグル",
+      "ステップ表示"
+    ],
+    "confidence": "high",
+    "type": "diagram",
+    "related": [
+      "chem-fats-oils-saponification",
+      "chem-salt-hydrolysis"
     ]
   }
 ]

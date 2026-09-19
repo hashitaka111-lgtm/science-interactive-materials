@@ -1,0 +1,421 @@
+<!doctype html>
+<html lang="ja">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>セッケン・界面活性剤の構造と働き</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500&family=IBM+Plex+Sans+JP:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+*{box-sizing:border-box}
+:root{
+  --ink:#16232B; --muted:#5E6E76; --paper:#EDF1EF; --surface:#FFFFFF;
+  --rule:#D6DDDA; --rule-soft:#E8EDEB;
+  --s0:#B87A16; --s0t:#8A5A0C;
+  --s1:#158A6D; --s1t:#0D6A53;
+  --s2:#2457A6; --s2t:#1B4380;
+  --s3:#6E3AA7; --s3t:#572D85;
+  --s4:#A82A6A; --s4t:#831F52;
+  --sans:"IBM Plex Sans JP","Hiragino Sans","Yu Gothic UI",system-ui,sans-serif;
+  --mono:"IBM Plex Mono",ui-monospace,SFMono-Regular,Menlo,monospace;
+}
+html,body{margin:0;padding:0}
+body{background:var(--paper);color:var(--ink);font-family:var(--sans);font-size:13.5px;line-height:1.75;-webkit-text-size-adjust:100%}
+.mono{font-family:var(--mono);font-variant-numeric:tabular-nums}
+.wrap{max-width:820px;margin:0 auto;padding:20px 14px 60px}
+.card{background:var(--surface);border:1px solid var(--rule);border-radius:3px;padding:14px;margin-bottom:14px}
+.eyebrow{display:flex;align-items:center;gap:10px;font-family:var(--mono);font-size:11.5px;letter-spacing:.14em;color:var(--muted);text-transform:uppercase}
+.eyebrow::after{content:"";flex:1;height:1px;background:var(--rule)}
+h1{font-size:22px;font-weight:600;letter-spacing:.01em;margin:8px 0 2px}
+h2{font-size:14.5px;font-weight:600;margin:10px 0 4px}
+h3{font-size:12.5px;font-weight:600;margin:14px 0 4px}
+p{margin:0 0 8px} p:last-child{margin-bottom:0}
+.lede{color:var(--muted);font-size:13px;margin:4px 0 0}
+.note{color:var(--muted);font-size:12px;line-height:1.75;margin-top:8px}
+.key{background:rgba(184,122,22,.08);border:1px solid #E0C592;border-radius:3px;padding:8px 10px;font-size:12.5px;line-height:1.7;margin:8px 0}
+
+.eq{font-family:var(--mono);font-size:13px;background:var(--paper);border:1px solid var(--rule-soft);
+  border-radius:3px;padding:9px 11px;margin:8px 0;overflow-x:auto;white-space:nowrap;font-variant-numeric:tabular-nums}
+
+.btn{font:inherit;font-size:12.5px;line-height:1.4;border:1px solid var(--rule);background:#fff;color:var(--ink);border-radius:2px;padding:6px 10px;cursor:pointer}
+.btn:hover{border-color:#B4C0BC}
+.btn[aria-pressed="true"]{background:var(--ink);color:#fff;border-color:var(--ink)}
+.btn:focus-visible{outline:2px solid var(--ink);outline-offset:1px}
+.btnrow{display:flex;flex-wrap:wrap;gap:6px;margin:8px 0}
+
+/* ---------- 表共通 ---------- */
+.scroll{overflow-x:auto;-webkit-overflow-scrolling:touch;padding-bottom:2px}
+table{border-collapse:collapse;width:100%;font-size:12.5px}
+table.compact{min-width:480px}
+th,td{padding:6px 8px;text-align:left;white-space:nowrap;border-bottom:1px solid var(--rule-soft)}
+th{font-family:var(--mono);font-size:10.5px;letter-spacing:.06em;color:var(--muted);font-weight:500}
+td.num,th.num{text-align:right;font-family:var(--mono)}
+tr:last-child td{border-bottom:none}
+tr.on td{background:var(--paper)}
+.tag{display:inline-block;font-family:var(--mono);font-size:10.5px;padding:2px 6px;border-radius:2px;border:1px solid}
+
+/* ---------- 数値パネル ---------- */
+.kv{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:0 16px;margin-top:8px}
+.kv div{display:flex;justify-content:space-between;align-items:baseline;gap:10px;border-bottom:1px solid var(--rule-soft);padding:4px 0}
+.kv b{font-family:var(--mono);font-size:10.5px;font-weight:500;letter-spacing:.05em;color:var(--muted)}
+.kv span{font-family:var(--mono);font-size:12.5px;font-weight:500;font-variant-numeric:tabular-nums;text-align:right}
+
+/* ---------- 構造模式図 / スキーム ---------- */
+.scheme{max-width:100%;margin:8px 0;display:block}
+.schemewrap{border:1px solid var(--rule-soft);border-radius:3px;background:#FBFCFB;overflow:hidden;margin-top:8px}
+
+.bridgebox{background:var(--rule-soft);border:1px solid var(--rule);border-radius:3px;padding:8px 10px;font-size:12px;color:var(--muted);line-height:1.7;margin-top:8px}
+
+/* ---------- 分類ごとの色分け枠(distribution-series-design-system準拠) ---------- */
+.classbox{border-radius:3px;padding:9px 10px;margin-top:0}
+.classbox .clabel{font-family:var(--mono);font-size:11.5px;letter-spacing:.14em;font-weight:500;margin-bottom:4px}
+.classbox .cbody{font-size:12.5px;line-height:1.7}
+.classbox .cname{font-weight:600;font-size:13px;margin:0 0 1px}
+.classbox .cmat{color:var(--muted);font-size:11.5px;margin:0 0 5px}
+.fibergrid{display:grid;grid-template-columns:repeat(auto-fit,minmax(148px,1fr));gap:10px;margin-top:8px}
+
+/* ---------- ステップ表示 ---------- */
+.stepbar{display:flex;flex-wrap:wrap;gap:6px;margin:8px 0}
+.stepbtn{font:inherit;font-size:12px;line-height:1.4;border:1px solid var(--rule);background:#fff;color:var(--muted);
+  border-radius:2px;padding:6px 10px;cursor:pointer;text-align:left;flex:1 1 150px}
+.stepbtn b{display:block;font-family:var(--mono);font-size:10px;letter-spacing:.08em;color:var(--muted)}
+.stepbtn[aria-current="true"]{background:var(--ink);color:#fff;border-color:var(--ink)}
+.stepbtn[aria-current="true"] b{color:#C8D2CE}
+.stepbtn:hover{border-color:#B4C0BC}
+.stepbtn:focus-visible{outline:2px solid var(--ink);outline-offset:1px}
+
+@media (prefers-reduced-motion:no-preference){ .btn,.stepbtn{transition:border-color 120ms linear,background-color 120ms linear} }
+
+@media (max-width:430px){
+  body{font-size:13px}
+  .wrap{padding:14px 10px 50px}
+  .card{padding:11px}
+  h1{font-size:19px}
+  .btn{padding:6px 8px;font-size:12px}
+  table.compact{min-width:420px}
+  .stepbtn{flex:1 1 100%}
+}
+</style>
+</head>
+<body>
+<div class="wrap">
+
+<header class="card">
+  <div class="eyebrow">SOAP &amp; SURFACTANTS</div>
+  <h1>セッケン・界面活性剤の構造と働き</h1>
+  <p class="lede">前の教材で見たとおり、油脂をNaOH水溶液でけん化すると、セッケンとグリセリンができる。セッケンは高級脂肪酸のアルカリ金属塩(弱酸+強塩基の塩)で、洗剤として使われる。ここではセッケンが持つ4つの性質と、それらを補う合成洗剤との違いを確かめる。</p>
+</header>
+
+<section class="card">
+  <div class="eyebrow">WASHING · ①洗浄作用(乳化)</div>
+  <h2>セッケン分子は疎水基と親水基をもつ両親媒性分子</h2>
+  <p>セッケン分子(R-COONa)は、長い炭化水素鎖でできた<b>疎水基</b>(親油性)と、COO⁻でできた<b>親水基</b>(親水性)を両端にもつ両親媒性分子。この構造が、水に溶けない油を水中に分散させる(乳化)洗浄作用のもとになる。</p>
+  <div class="stepbar" id="washSteps" role="group" aria-label="洗浄(乳化)の3段階"></div>
+  <div class="schemewrap"><div id="washScheme"></div></div>
+  <p class="note" id="washDesc"></p>
+</section>
+
+<section class="card">
+  <div class="eyebrow">BASICITY · ②弱塩基性</div>
+  <h2>セッケン水溶液はなぜ弱塩基性を示すか</h2>
+  <p>セッケンは水に溶けるとまず完全に電離し、生じたR-COO⁻の一部が水と反応して(加水分解して)OH⁻を生じる。2段階で理解する。</p>
+  <h3>① 電離</h3>
+  <div class="eq" id="eqIonize"></div>
+  <h3>② 加水分解</h3>
+  <div class="eq" id="eqHydrolysis"></div>
+  <div class="bridgebox" id="hydrolysisCrossRef"></div>
+  <h3>帰結: 洗える繊維・洗えない繊維</h3>
+  <p class="note">弱塩基性を示すセッケン水溶液で洗ってよいかどうかは、繊維の材質で決まる。</p>
+  <div class="fibergrid" id="fiberGrid"></div>
+</section>
+
+<section class="card">
+  <div class="eyebrow">HARD WATER · ③硬水での洗浄力低下</div>
+  <h2>Ca²⁺・Mg²⁺があると洗浄力が下がる</h2>
+  <p>硬水に含まれるCa²⁺・Mg²⁺は、脂肪酸イオン(R-COO⁻)と反応して水に溶けない塩(金属セッケン)をつくる。R-COO⁻が沈殿として使われてしまうぶん、洗浄に使えるセッケンが減る。</p>
+  <div class="btnrow">
+    <button type="button" class="btn" id="toggleCa" aria-pressed="false">硬水(Ca²⁺あり)に切り替える</button>
+  </div>
+  <div class="schemewrap"><div id="hardWaterScheme"></div></div>
+  <div class="eq" id="eqCalcium"></div>
+  <div class="eq" id="eqMagnesium"></div>
+  <p class="note" id="hardWaterNote"></p>
+</section>
+
+<section class="card">
+  <div class="eyebrow">SURFACE TENSION · ④界面活性作用</div>
+  <h2>水の表面張力を低下させる</h2>
+  <p class="note" id="surfaceTensionNote"></p>
+</section>
+
+<section class="card">
+  <div class="eyebrow">SYNTHETIC DETERGENT</div>
+  <h2>合成洗剤(中性洗剤)との対比: 酸の強さを変えると塩の性質が変わる</h2>
+  <p>脂肪酸のカルボキシ基(-COOH、弱酸)を、より強い酸である<b>スルホ基(-SO3H)</b>に変えると、そのナトリウム塩は「強酸+強塩基の塩」になり、加水分解せず<b>中性</b>を示す。下のチップで3つの化合物を切り替えて、酸の強さ・塩の性質・分子量がどう連動するかを確かめる。</p>
+  <div class="btnrow" id="compoundChips" role="group" aria-label="セッケン・LASの切り替え"></div>
+  <div class="kv" id="compoundSummary"></div>
+  <div class="scroll"><table class="compact" id="compoundTable"></table></div>
+  <div class="key" id="detergentAdvantage"></div>
+</section>
+
+<section class="card">
+  <div class="eyebrow">NOTES</div>
+  <p class="note" id="seriesNote"></p>
+  <p class="note">出典: 分子量は原子量H=1.0, C=12.0, O=16.0, S=32.0, Na=23.0からの計算値。すべて自分で検算し確定データと一致することを確認済み。</p>
+</section>
+
+</div><!-- /wrap -->
+
+<script>
+/* ---------- データ(JSONをそのまま埋め込み。fetch は使わない) ---------- */
+const DATA = {"meta":{"atomicWeights":{"H":1,"C":12,"O":16,"S":32,"Na":23},"note":"分子量はCEO指定の確定データをそのまま採用(原子量H=1.0,C=12.0,O=16.0,S=32.0,Na=23.0)。パルミチン酸ナトリウムはパルミチン酸(分子量256)のCOOHのHをNaに置換(-1+23で+22)し256+22=278。ステアリン酸ナトリウムも同様に284+22=306。LASはC12H25(169)+C6H4(76)+SO3Na(103)の構造で348。すべて自分で検算し指示の表と一致することを確認済み。"},"compounds":[{"id":"sodium-palmitate","category":"soap","nameJa":"パルミチン酸ナトリウム","akaJa":"セッケン","structuralFormula":"C15H31COONa","acidTypeJa":"弱酸(カルボン酸)の塩","acidStrength":"weak","saltNatureJa":"弱塩基性","saltNature":"weaklyBasic","molecularWeight":278},{"id":"sodium-stearate","category":"soap","nameJa":"ステアリン酸ナトリウム","akaJa":"セッケン","structuralFormula":"C17H35COONa","acidTypeJa":"弱酸(カルボン酸)の塩","acidStrength":"weak","saltNatureJa":"弱塩基性","saltNature":"weaklyBasic","molecularWeight":306},{"id":"las","category":"synthetic","nameJa":"直鎖アルキルベンゼンスルホン酸ナトリウム","akaJa":"LAS(合成洗剤の代表例)","structuralFormula":"C12H25-C6H4-SO3Na","acidTypeJa":"強酸(スルホン酸)の塩","acidStrength":"strong","saltNatureJa":"中性","saltNature":"neutral","molecularWeight":348}],"washingSteps":[{"id":1,"labelJa":"水面に油滴がある状態","descriptionJa":"水と油は混じり合わないため、水の中に油滴がそのまま浮かんでいる。まだセッケン分子は油に近づいていない。"},{"id":2,"labelJa":"セッケン分子が油と水の境界に並ぶ状態","descriptionJa":"セッケン分子は、疎水基(長い炭化水素鎖、親油性)と親水基(COO⁻、親水性)を両端にもつ両親媒性分子。疎水基が油側、親水基が水側を向いて、油と水の境界に並ぶ。"},{"id":3,"labelJa":"ミセルが水中に分散する状態(乳化)","descriptionJa":"油を疎水基で包み込んだセッケン分子の集まり(ミセル)ができ、水面から離れて水中に分散する。これが乳化で、セッケンの洗浄作用の仕組み。"}],"amphiphile":{"hydrophobicPartJa":"疎水基(長い炭化水素鎖、親油性)","hydrophilicPartJa":"親水基(COO⁻、親水性)"},"hydrolysis":{"ionizationEquation":"R-COONa → R-COO⁻ + Na⁺","hydrolysisEquation":"R-COO⁻ + H2O ⇌ R-COOH + OH⁻","generalTheoryCrossRefNote":"弱酸+強塩基の塩は加水分解して塩基性を示す、という一般論・電離定数からのpH計算はchem-salt-hydrolysisで扱っている。本教材ではその一般論をセッケンという具体例に適用した結論だけを扱う。","fibers":[{"id":"cellulose","nameJa":"綿・麻","materialJa":"セルロース繊維","result":"ok","reasonJa":"セルロースはアルカリ性の水溶液で変性しないため、弱塩基性のセッケンで洗っても問題ない。"},{"id":"protein","nameJa":"絹・羊毛","materialJa":"タンパク質繊維","result":"ng","reasonJa":"タンパク質はアルカリ性の水溶液で変性してしまうため、弱塩基性を示すセッケンでは洗えない。"}]},"hardWater":{"calciumEquation":"2 R-COONa + Ca2+ → (R-COO)2Ca↓ + 2 Na+","magnesiumEquation":"2 R-COONa + Mg2+ → (R-COO)2Mg↓ + 2 Na+","note":"Ca2+・Mg2+が脂肪酸イオンと反応して水に溶けない塩(金属セッケン)をつくるため、硬水中ではセッケンの洗浄作用が低下する。"},"surfaceTension":{"note":"セッケンは水の表面張力を低下させる(界面活性作用)。この性質が、水面や繊維のすき間へセッケン水溶液が浸透するのを助ける。"},"syntheticDetergent":{"structuralChangeNoteJa":"脂肪酸のカルボキシ基(-COOH、弱酸)を、より強い酸であるスルホ基(-SO3H)に変える。","saltNatureChangeNoteJa":"そのナトリウム塩(LAS)は「強酸+強塩基の塩」になるため加水分解せず中性を示す。","advantageNoteJa":"セッケンとは異なり中性なので、絹・羊毛のタンパク質を変性させない。"},"notes":{"seriesCompletionJa":"けん化で油脂からセッケンが得られるところ(chem-fats-oils-saponification)から始まり、セッケンの4つの性質と合成洗剤との対比までを扱う油脂・けん化価・ヨウ素価シリーズが、これで完結する。"}};
+
+/* ---------- 起動時チェック ---------- */
+(function checkData(){
+  const msg=[];
+  if(DATA.compounds.length!==3) msg.push('compounds が3件ではない('+DATA.compounds.length+'件)');
+  if(DATA.washingSteps.length!==3) msg.push('washingSteps が3件ではない('+DATA.washingSteps.length+'件)');
+  if(DATA.hydrolysis.fibers.length!==2) msg.push('hydrolysis.fibers が2件ではない('+DATA.hydrolysis.fibers.length+'件)');
+  if(msg.length) console.warn('[DATA] 不整合\n'+msg.join('\n'));
+  else console.info('[DATA] compounds '+DATA.compounds.length+'件・washingSteps '+DATA.washingSteps.length+'件を読み込んだ');
+})();
+
+const esc = s => String(s).replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+
+/* ---------- 化合物 ---------- */
+const CP = {};
+DATA.compounds.forEach(c=>{ CP[c.id]=c; });
+const CP_ORDER = DATA.compounds.map(c=>c.id);
+const CPCOL = { 'sodium-palmitate':{f:'#B87A16',t:'#8A5A0C'}, 'sodium-stearate':{f:'#158A6D',t:'#0D6A53'}, 'las':{f:'#2457A6',t:'#1B4380'} };
+const SALTCOL = { weaklyBasic:{f:'#2457A6',t:'#1B4380'}, neutral:{f:'#5E6E76',t:'#16232B'} };
+
+/* ---------- 状態 ---------- */
+const st = { compound:'sodium-palmitate', washStep:1, hardWater:false };
+let NARROW = false;
+
+function kvHtml(items){
+  return items.map(it=>'<div><b>' + esc(it[0]) + '</b><span>' + it[1] + '</span></div>').join('');
+}
+
+/* ---------- SVGヘルパー: セッケン分子(頭=親水基/尾=疎水基) ---------- */
+function moleculeSVG(bx, by, ox, oy, headR, tailLen, headCol){
+  const tsx = bx - ox*tailLen, tsy = by - oy*tailLen;
+  const hcx = bx + ox*(headR+1), hcy = by + oy*(headR+1);
+  return '<line x1="'+bx.toFixed(1)+'" y1="'+by.toFixed(1)+'" x2="'+tsx.toFixed(1)+'" y2="'+tsy.toFixed(1)+'" stroke="#B87A16" stroke-width="3" stroke-linecap="round"/>' +
+         '<circle cx="'+hcx.toFixed(1)+'" cy="'+hcy.toFixed(1)+'" r="'+headR+'" fill="'+headCol+'" stroke="#16232B" stroke-width="0.6"/>';
+}
+function ring(cx, cy, r, angles, headR, tailLen, headCol){
+  let o = '';
+  angles.forEach(a=>{
+    const rad = a*Math.PI/180;
+    const ox = Math.cos(rad), oy = Math.sin(rad);
+    const bx = cx + r*ox, by = cy + r*oy;
+    o += moleculeSVG(bx, by, ox, oy, headR, tailLen, headCol);
+  });
+  return o;
+}
+
+/* ---------- WASHING: 洗浄(乳化)の3段階 ---------- */
+function renderWashSteps(){
+  const host = document.getElementById('washSteps');
+  host.innerHTML = DATA.washingSteps.map(s=>{
+    return '<button type="button" class="stepbtn" data-step="'+s.id+'" aria-current="'+(s.id===st.washStep)+'"><b>STEP '+s.id+'</b>'+esc(s.labelJa)+'</button>';
+  }).join('');
+}
+function washSVG(step){
+  const W = NARROW ? 320 : 600, H = NARROW ? 190 : 220;
+  const surfaceY = 46;
+  const waterFill = 'rgba(36,87,166,.06)';
+  const oilFill = 'rgba(184,122,22,.22)';
+  let o = '<rect x="0" y="'+surfaceY+'" width="'+W+'" height="'+(H-surfaceY)+'" fill="'+waterFill+'"/>';
+  o += '<line x1="0" y1="'+surfaceY+'" x2="'+W+'" y2="'+surfaceY+'" stroke="#5E6E76" stroke-width="1" stroke-dasharray="2 3"/>';
+  o += '<text x="8" y="'+(surfaceY-8)+'" font-family="IBM Plex Mono,monospace" font-size="10" fill="#5E6E76">空気</text>';
+  o += '<text x="8" y="'+(H-10)+'" font-family="IBM Plex Mono,monospace" font-size="10" fill="#5E6E76">水</text>';
+
+  if(step === 1){
+    const cx = W/2, cy = surfaceY, r = 26;
+    o += '<circle cx="'+cx+'" cy="'+cy+'" r="'+r+'" fill="'+oilFill+'" stroke="#B87A16" stroke-width="1.4"/>';
+    o += '<text x="'+cx+'" y="'+(cy-r-8)+'" text-anchor="middle" font-family="IBM Plex Mono,monospace" font-size="10.5" fill="#8A5A0C">油滴</text>';
+  } else if(step === 2){
+    const cx = W/2, cy = surfaceY, r = 26;
+    o += '<circle cx="'+cx+'" cy="'+cy+'" r="'+r+'" fill="'+oilFill+'" stroke="#B87A16" stroke-width="1.4"/>';
+    o += ring(cx, cy, r, [15,45,75,105,135,165], 3.4, 13, '#2457A6');
+    o += '<text x="'+cx+'" y="'+(cy-r-8)+'" text-anchor="middle" font-family="IBM Plex Mono,monospace" font-size="10.5" fill="#8A5A0C">油滴</text>';
+    o += '<text x="'+(W-8)+'" y="'+(H-10)+'" text-anchor="end" font-family="IBM Plex Mono,monospace" font-size="9.5" fill="#1B4380">疎水基→油側 / 親水基→水側</text>';
+  } else {
+    const cx = W*0.36, cy = H*0.62, r = 22;
+    o += '<circle cx="'+cx+'" cy="'+cy+'" r="'+r+'" fill="'+oilFill+'" stroke="#B87A16" stroke-width="1.2"/>';
+    o += ring(cx, cy, r, [0,45,90,135,180,225,270,315], 3, 10, '#2457A6');
+    o += '<text x="'+cx+'" y="'+(cy+r+16)+'" text-anchor="middle" font-family="IBM Plex Mono,monospace" font-size="10" fill="#1B4380">ミセル</text>';
+    const cx2 = W*0.72, cy2 = H*0.32, r2 = 13;
+    o += '<circle cx="'+cx2+'" cy="'+cy2+'" r="'+r2+'" fill="'+oilFill+'" stroke="#B87A16" stroke-width="1.1"/>';
+    o += ring(cx2, cy2, r2, [20,80,140,200,260,320], 2.4, 7, '#2457A6');
+    const cx3 = W*0.82, cy3 = H*0.72, r3 = 10;
+    o += '<circle cx="'+cx3+'" cy="'+cy3+'" r="'+r3+'" fill="'+oilFill+'" stroke="#B87A16" stroke-width="1"/>';
+    o += ring(cx3, cy3, r3, [30,110,190,270], 2, 6, '#2457A6');
+    o += '<text x="8" y="20" font-family="IBM Plex Mono,monospace" font-size="9.5" fill="#1B4380">水中に分散(乳化)</text>';
+  }
+  return '<svg class="scheme" viewBox="0 0 '+W+' '+H+'" width="100%" height="'+H+'" role="img" aria-label="洗浄(乳化)のステップ'+step+'の模式図">'+o+'</svg>';
+}
+function renderWashing(){
+  document.getElementById('washScheme').innerHTML = washSVG(st.washStep);
+  const s = DATA.washingSteps.find(x=>x.id===st.washStep);
+  document.getElementById('washDesc').textContent = s ? s.descriptionJa : '';
+}
+
+/* ---------- BASICITY ---------- */
+function renderHydrolysis(){
+  document.getElementById('eqIonize').textContent = DATA.hydrolysis.ionizationEquation;
+  document.getElementById('eqHydrolysis').textContent = DATA.hydrolysis.hydrolysisEquation;
+  document.getElementById('hydrolysisCrossRef').textContent = DATA.hydrolysis.generalTheoryCrossRefNote;
+  const host = document.getElementById('fiberGrid');
+  host.innerHTML = DATA.hydrolysis.fibers.map(f=>{
+    const ok = f.result === 'ok';
+    const col = ok ? {f:'#158A6D',t:'#0D6A53'} : {f:'#A82A6A',t:'#831F52'};
+    return '<div class="classbox" style="background:'+col.f+'14;border:2px solid '+col.f+'">' +
+      '<div class="clabel" style="color:'+col.t+'">'+(ok?'○ 洗える':'× 洗えない')+'</div>' +
+      '<div class="cbody"><p class="cname">'+esc(f.nameJa)+'</p><p class="cmat">'+esc(f.materialJa)+'</p><p>'+esc(f.reasonJa)+'</p></div>' +
+      '</div>';
+  }).join('');
+}
+
+/* ---------- HARD WATER ---------- */
+function hardWaterSVG(hasCa){
+  const W = NARROW ? 320 : 600, H = NARROW ? 170 : 190;
+  let o = '<rect x="0" y="0" width="'+W+'" height="'+H+'" fill="rgba(36,87,166,.05)"/>';
+  if(!hasCa){
+    const pts = NARROW ? [[40,40],[110,70],[180,36],[250,66],[70,110],[150,130],[230,104],[290,50]]
+                        : [[60,40],[160,70],[260,34],[360,68],[100,120],[220,146],[340,112],[460,54],[520,96],[420,36]];
+    pts.forEach(p=>{
+      o += '<circle cx="'+p[0]+'" cy="'+p[1]+'" r="4" fill="#2457A6"/>';
+      o += '<text x="'+(p[0]+7)+'" y="'+(p[1]+3)+'" font-family="IBM Plex Mono,monospace" font-size="9" fill="#1B4380">R-COO&#8315;</text>';
+    });
+    o += '<text x="8" y="'+(H-10)+'" font-family="IBM Plex Mono,monospace" font-size="10" fill="#5E6E76">軟水: R-COO&#8315;が水中に均一に分散し、洗浄に使える</text>';
+  } else {
+    const bx = W*0.5, by = H*0.86, bw = W*0.5, bh = H*0.30;
+    o += '<path d="M '+(bx-bw/2)+' '+by+' Q '+(bx-bw/3)+' '+(by-bh)+' '+bx+' '+(by-bh*0.85)+' Q '+(bx+bw/3)+' '+(by-bh)+' '+(bx+bw/2)+' '+by+' Z" fill="rgba(94,110,118,.28)" stroke="#5E6E76" stroke-width="1.2"/>';
+    o += '<text x="'+bx+'" y="'+(by-bh*0.4)+'" text-anchor="middle" font-family="IBM Plex Mono,monospace" font-size="10" fill="#16232B">(R-COO)&#8322;Ca 沈殿</text>';
+    const free = NARROW ? [[40,36],[260,40],[60,86]] : [[50,36],[420,32],[70,80],[500,80]];
+    free.forEach(p=>{
+      o += '<circle cx="'+p[0]+'" cy="'+p[1]+'" r="4" fill="#2457A6"/>';
+      o += '<text x="'+(p[0]+7)+'" y="'+(p[1]+3)+'" font-family="IBM Plex Mono,monospace" font-size="9" fill="#1B4380">R-COO&#8315;</text>';
+    });
+    const ca = NARROW ? [[150,50],[220,66]] : [[220,44],[330,58]];
+    ca.forEach(p=>{
+      o += '<circle cx="'+p[0]+'" cy="'+p[1]+'" r="4.6" fill="#A82A6A"/>';
+      o += '<text x="'+(p[0]+7)+'" y="'+(p[1]+3)+'" font-family="IBM Plex Mono,monospace" font-size="9" fill="#831F52">Ca&#178;&#8314;</text>';
+      o += '<line x1="'+p[0]+'" y1="'+p[1]+'" x2="'+bx+'" y2="'+(by-bh*0.6)+'" stroke="#A82A6A" stroke-width="1" stroke-dasharray="3 2" opacity="0.6"/>';
+    });
+    o += '<text x="8" y="16" font-family="IBM Plex Mono,monospace" font-size="10" fill="#831F52">硬水: Ca&#178;&#8314;と反応して沈殿ができ、洗浄に使えるR-COO&#8315;が減る</text>';
+  }
+  return '<svg class="scheme" viewBox="0 0 '+W+' '+H+'" width="100%" height="'+H+'" role="img" aria-label="硬水での洗浄力低下の模式図('+(hasCa?'Ca2+あり':'Ca2+なし')+')">'+o+'</svg>';
+}
+function renderHardWater(){
+  document.getElementById('hardWaterScheme').innerHTML = hardWaterSVG(st.hardWater);
+  document.getElementById('eqCalcium').textContent = DATA.hardWater.calciumEquation;
+  document.getElementById('eqMagnesium').textContent = DATA.hardWater.magnesiumEquation;
+  document.getElementById('hardWaterNote').textContent = DATA.hardWater.note;
+  const btn = document.getElementById('toggleCa');
+  btn.setAttribute('aria-pressed', String(st.hardWater));
+  btn.textContent = st.hardWater ? '軟水(Ca²⁺なし)に戻す' : '硬水(Ca²⁺あり)に切り替える';
+}
+
+/* ---------- SURFACE TENSION ---------- */
+function renderSurfaceTension(){
+  document.getElementById('surfaceTensionNote').textContent = DATA.surfaceTension.note;
+}
+
+/* ---------- SYNTHETIC DETERGENT ---------- */
+function renderCompoundChips(){
+  const host = document.getElementById('compoundChips');
+  host.innerHTML = CP_ORDER.map(id=>{
+    const c = CP[id];
+    return '<button type="button" class="btn" data-cp="'+id+'" aria-pressed="'+(id===st.compound)+'">'+esc(c.nameJa)+'</button>';
+  }).join('');
+}
+function renderCompoundSummary(){
+  const c = CP[st.compound];
+  document.getElementById('compoundSummary').innerHTML = kvHtml([
+    ['示性式', '<span class="mono">'+esc(c.structuralFormula)+'</span>'],
+    ['酸の強さ', c.acidStrength==='weak' ? '弱酸' : '強酸'],
+    ['塩の性質', c.saltNatureJa],
+    ['分子量', c.molecularWeight]
+  ]);
+}
+function renderCompoundTable(){
+  const rows = DATA.compounds.map(c=>{
+    const col = SALTCOL[c.saltNature];
+    return '<tr class="'+(c.id===st.compound?'on':'')+'"><td>'+esc(c.nameJa)+'<br><span style="color:var(--muted);font-size:11px">'+esc(c.akaJa)+'</span></td>' +
+      '<td class="mono">'+esc(c.structuralFormula)+'</td>' +
+      '<td>'+esc(c.acidTypeJa)+'</td>' +
+      '<td><span class="tag" style="background:'+col.f+'22;color:'+col.t+';border-color:'+col.f+'">'+esc(c.saltNatureJa)+'</span></td>' +
+      '<td class="num mono">'+c.molecularWeight+'</td></tr>';
+  }).join('');
+  document.getElementById('compoundTable').innerHTML =
+    '<thead><tr><th>名称</th><th>示性式</th><th>酸の分類</th><th>塩の性質</th><th class="num">分子量</th></tr></thead><tbody>'+rows+'</tbody>';
+}
+function renderDetergentAdvantage(){
+  const sd = DATA.syntheticDetergent;
+  document.getElementById('detergentAdvantage').innerHTML =
+    '<b>'+esc(sd.structuralChangeNoteJa)+'</b> '+esc(sd.saltNatureChangeNoteJa)+' '+esc(sd.advantageNoteJa);
+}
+
+/* ---------- チップ選択 ---------- */
+function onCompound(id){
+  if(!CP[id]) return;
+  st.compound = id;
+  renderCompoundChips();
+  renderCompoundSummary();
+  renderCompoundTable();
+}
+function onWashStep(step){
+  st.washStep = step;
+  renderWashSteps();
+  renderWashing();
+}
+function onToggleHardWater(){
+  st.hardWater = !st.hardWater;
+  renderHardWater();
+}
+
+/* ---------- NOTES ---------- */
+function renderNotes(){
+  document.getElementById('seriesNote').textContent = DATA.notes.seriesCompletionJa;
+}
+
+/* ---------- 初期化 ---------- */
+function boot(){
+  NARROW = window.matchMedia('(max-width:430px)').matches;
+  renderWashSteps();
+  renderWashing();
+  renderHydrolysis();
+  renderHardWater();
+  renderSurfaceTension();
+  renderCompoundChips();
+  renderCompoundSummary();
+  renderCompoundTable();
+  renderDetergentAdvantage();
+  renderNotes();
+
+  document.addEventListener('click', e=>{
+    const cp = e.target.closest ? e.target.closest('button[data-cp]') : null;
+    if(cp){ onCompound(cp.dataset.cp); return; }
+    const ws = e.target.closest ? e.target.closest('button[data-step]') : null;
+    if(ws){ onWashStep(+ws.dataset.step); return; }
+    if(e.target.id === 'toggleCa'){ onToggleHardWater(); return; }
+  });
+
+  let tm = null;
+  window.addEventListener('resize', ()=>{
+    clearTimeout(tm);
+    tm = setTimeout(()=>{
+      const nw = window.matchMedia('(max-width:430px)').matches;
+      if(nw !== NARROW){ NARROW = nw; renderWashing(); renderHardWater(); }
+    }, 180);
+  });
+}
+if(typeof document !== 'undefined') boot();
+</script>
+</body>
+</html>
