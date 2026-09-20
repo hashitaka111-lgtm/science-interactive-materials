@@ -206,7 +206,8 @@
     "type": "simulator",
     "related": [
       "chem-reaction-kinetics",
-      "chem-chemical-equilibrium"
+      "chem-chemical-equilibrium",
+      "chem-disaccharides"
     ]
   },
   {
@@ -1264,7 +1265,8 @@
     "type": "procedure",
     "related": [
       "chem-isomers",
-      "chem-organic-reaction-map"
+      "chem-organic-reaction-map",
+      "chem-disaccharides"
     ]
   },
   {
@@ -1594,7 +1596,8 @@
     "related": [
       "chem-alcohol-ether-nomenclature",
       "chem-aldehyde-ketone-nomenclature",
-      "chem-starch-helix"
+      "chem-starch-helix",
+      "chem-disaccharides"
     ]
   },
   {
@@ -1627,7 +1630,41 @@
     "related": [
       "chem-monosaccharide-structure",
       "chem-soap-surfactants",
-      "chem-protein-structure"
+      "chem-protein-structure",
+      "chem-disaccharides"
+    ]
+  },
+  {
+    "id": "chem-disaccharides",
+    "file": "html/disaccharides.html",
+    "subject": "chemistry",
+    "unit": "有機化学 / 二糖類の構造と還元性・分解酵素",
+    "course": "化学",
+    "section": "有機化合物の性質",
+    "order": 39,
+    "title": "二糖類の構造・ヘミアセタールと還元性・分解酵素",
+    "heading": "二糖類の構造・ヘミアセタールと還元性・分解酵素",
+    "summary": "単糖の環状構造がヘミアセタールであることから出発し、グリコシド結合(アセタール)による還元性の有無・マルトース/スクロース/ラクトース/セロビオースの構造比較・メチル化による結合位置の決定までをつなげる",
+    "topics": [
+      "ヘミアセタール(環状構造)とアセタール(グリコシド結合)の違い",
+      "還元末端の平衡(α⇌鎖状⇌β)と還元性の判定",
+      "マルトース・スクロース・ラクトース・セロビオースの構造と分解酵素",
+      "スクロースが非還元糖になる理由(両方のアノマー炭素が結合に使われる)",
+      "メチル化による結合位置(1,4結合・1,2結合)の決定"
+    ],
+    "interactions": [
+      "チップ切り替え",
+      "構造トグル",
+      "ホバー/タップ",
+      "色分け表示"
+    ],
+    "confidence": "high",
+    "type": "diagram",
+    "related": [
+      "chem-monosaccharide-structure",
+      "chem-starch-helix",
+      "chem-structure-determination",
+      "chem-enzyme-kinetics"
     ]
   }
 ]

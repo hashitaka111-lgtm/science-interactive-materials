@@ -218,6 +218,13 @@ const EMBED_CHECKS = [
       { varName: "DATA", dataFile: "data/starch-helix.json" },
     ],
   },
+  {
+    materialId: "disaccharides",
+    html: "html/disaccharides.html",
+    checks: [
+      { varName: "DATA", dataFile: "data/disaccharides.json" },
+    ],
+  },
 ];
 
 // HTML本文から `const VAR = {...};` の1行を取り出してJSON.parseする。

@@ -1,0 +1,818 @@
+<!doctype html>
+<html lang="ja">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>二糖類の構造・ヘミアセタールと還元性・分解酵素</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500&family=IBM+Plex+Sans+JP:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+*{box-sizing:border-box}
+:root{
+  --ink:#16232B; --muted:#5E6E76; --paper:#EDF1EF; --surface:#FFFFFF;
+  --rule:#D6DDDA; --rule-soft:#E8EDEB; --scheme-bg:#FBFCFB;
+  --oh:#2457A6; --oh-t:#1B4380;
+  --ch2oh:#0D6A53;
+  --anomer:#A82A6A; --anomer-t:#831F52;
+  --bond:#B87A16; --bond-t:#8A5A0C;
+  --hemi:#0E8FA3; --hemi-bg:rgba(14,143,163,.08);
+  --och3:#B08A00; --och3-bg:rgba(176,138,0,.10);
+  --freeoh:#2457A6; --freeoh-bg:rgba(36,87,166,.08);
+  --pos:#1B6E3C; --neg:#8A2F2F;
+  --sans:"IBM Plex Sans JP","Hiragino Sans","Yu Gothic UI",system-ui,sans-serif;
+  --mono:"IBM Plex Mono",ui-monospace,SFMono-Regular,Menlo,monospace;
+}
+html,body{margin:0;padding:0}
+body{background:var(--paper);color:var(--ink);font-family:var(--sans);font-size:13.5px;line-height:1.75;-webkit-text-size-adjust:100%}
+.mono{font-family:var(--mono);font-variant-numeric:tabular-nums}
+.wrap{max-width:860px;margin:0 auto;padding:20px 14px 60px}
+.card{background:var(--surface);border:1px solid var(--rule);border-radius:3px;padding:14px;margin-bottom:14px}
+.eyebrow{display:flex;align-items:center;gap:10px;font-family:var(--mono);font-size:11.5px;letter-spacing:.14em;color:var(--muted);text-transform:uppercase}
+.eyebrow::after{content:"";flex:1;height:1px;background:var(--rule)}
+h1{font-size:21px;font-weight:600;letter-spacing:.01em;margin:8px 0 2px}
+h2{font-size:14.5px;font-weight:600;margin:10px 0 4px}
+h3{font-size:12.5px;font-weight:600;margin:14px 0 4px}
+p{margin:0 0 8px} p:last-child{margin-bottom:0}
+.lede{color:var(--muted);font-size:13px;margin:4px 0 0}
+.note{color:var(--muted);font-size:12px;line-height:1.75;margin-top:8px}
+a{color:var(--oh-t)}
+a:hover{text-decoration-thickness:1.5px}
+
+.btn{font:inherit;font-size:12.5px;line-height:1.4;border:1px solid var(--rule);background:#fff;color:var(--ink);border-radius:2px;padding:6px 10px;cursor:pointer}
+.btn:hover{border-color:#B4C0BC}
+.btn:focus-visible{outline:2px solid var(--ink);outline-offset:1px}
+.btnrow{display:flex;flex-wrap:wrap;gap:6px;margin:8px 0}
+
+.chipbar{display:flex;flex-wrap:wrap;gap:6px;margin:8px 0}
+.chip{font:inherit;font-size:12px;border:1.5px solid var(--rule);background:#fff;color:var(--ink);padding:6px 11px;border-radius:20px;cursor:pointer}
+.chip:hover{border-color:#B4C0BC}
+.chip[aria-pressed="true"]{background:var(--ink);color:#fff;border-color:var(--ink)}
+.chip:focus-visible{outline:2px solid var(--ink);outline-offset:1px}
+
+.ringbar{display:flex;gap:0;margin:8px 0;border:1px solid var(--rule);border-radius:2px;overflow:hidden;width:fit-content}
+.ringbtn{font:inherit;font-size:12px;border:none;background:#fff;color:var(--ink);padding:6px 12px;cursor:pointer;border-right:1px solid var(--rule)}
+.ringbtn:last-child{border-right:none}
+.ringbtn[aria-pressed="true"]{background:var(--ink);color:#fff}
+.ringbtn:focus-visible{outline:2px solid var(--ink);outline-offset:1px}
+.ringbtn:disabled{color:var(--rule);cursor:not-allowed}
+
+.schemewrap{border:1px solid var(--rule-soft);border-radius:3px;background:var(--scheme-bg);overflow:hidden;margin-top:8px;padding:4px}
+.scheme{max-width:100%;margin:0 auto;display:block}
+svg text{paint-order:stroke;stroke:var(--scheme-bg);stroke-width:3px;stroke-linejoin:round}
+
+.twocol{display:flex;flex-wrap:wrap;gap:10px}
+.twocol>div{flex:1 1 260px;min-width:0}
+.threecol{display:flex;flex-wrap:wrap;gap:8px}
+.threecol>div{flex:1 1 150px;min-width:0;border:1px solid var(--rule);border-radius:3px;padding:8px;background:#fff}
+
+.stepcards{display:flex;flex-direction:column;gap:6px;margin:8px 0}
+.stepcard{display:flex;gap:8px;border:1px solid var(--rule);border-radius:3px;padding:8px 10px;background:#fff}
+.stepcard b{font-family:var(--mono);font-size:11px;color:var(--muted);flex:0 0 auto}
+.stepcard span{font-size:12.5px;line-height:1.6}
+
+.badge{display:inline-flex;align-items:center;gap:5px;font-size:11.5px;font-family:var(--mono);border-radius:3px;padding:4px 9px;border:1px solid}
+.badge.pos{color:var(--pos);border-color:var(--pos);background:rgba(27,110,60,.07)}
+.badge.neg{color:var(--neg);border-color:var(--neg);background:rgba(138,47,47,.07)}
+.badgerow{display:flex;flex-wrap:wrap;gap:8px;margin:8px 0;align-items:center}
+
+table.info{width:100%;border-collapse:collapse;font-size:12px;margin:8px 0}
+table.info th,table.info td{border:1px solid var(--rule);padding:6px 8px;text-align:left;vertical-align:top}
+table.info th{background:var(--rule-soft);font-weight:600;width:112px;white-space:nowrap}
+
+.flowrow{margin:10px 0}
+.flowrow .flowlabel{font-family:var(--mono);font-size:10.5px;color:var(--muted);letter-spacing:.06em;text-transform:uppercase;margin-bottom:4px}
+.scroll{overflow-x:auto;-webkit-overflow-scrolling:touch}
+.flow{display:flex;align-items:stretch;gap:0;width:max-content;min-width:100%}
+.flow .node{flex:0 0 auto;border:1.5px solid var(--rule);border-radius:4px;padding:7px 10px;background:#fff;font-size:12px;cursor:pointer;font:inherit;color:var(--ink);white-space:nowrap}
+.flow .node:hover{border-color:#B4C0BC}
+.flow .node[aria-pressed="true"]{background:var(--ink);color:#fff;border-color:var(--ink)}
+.flow .node:focus-visible{outline:2px solid var(--ink);outline-offset:1px}
+.flow .node.nr{position:relative}
+.flow .node.nr::after{content:"非還元";position:absolute;top:-8px;right:-4px;font-size:8.5px;font-family:var(--mono);background:var(--anomer);color:#fff;border-radius:8px;padding:1px 5px;white-space:nowrap}
+.flow .arrow{flex:0 0 auto;display:flex;align-items:center;font-size:10.5px;color:var(--muted);padding:0 8px;white-space:nowrap}
+.flow .arrow b{color:var(--bond-t);font-weight:600}
+.mapdetail{margin-top:8px;border:1px solid var(--hemi);background:var(--hemi-bg);border-radius:3px;padding:8px 10px;font-size:12px}
+
+.reducetable{display:flex;gap:8px;margin:10px 0;flex-wrap:wrap}
+.reducetable>div{flex:1 1 100px;border:1px solid var(--rule);border-radius:3px;padding:8px;text-align:center;background:#fff}
+.reducetable .k{font-family:var(--mono);font-size:10px;color:var(--muted);text-transform:uppercase}
+.reducetable .v{font-size:12.5px;font-weight:600;margin-top:3px}
+
+@media (prefers-reduced-motion:no-preference){ .btn,.chip,.ringbtn,.flow .node{transition:border-color 120ms linear,background-color 120ms linear} }
+
+@media (max-width:430px){
+  body{font-size:13px}
+  .wrap{padding:14px 10px 50px}
+  .card{padding:11px}
+  h1{font-size:18px}
+  .btn{padding:6px 8px;font-size:12px}
+  .twocol>div{flex:1 1 100%}
+  table.info th{width:88px}
+}
+</style>
+</head>
+<body>
+<div class="wrap">
+
+<header class="card">
+  <div class="eyebrow">DISACCHARIDES</div>
+  <h1>二糖類の構造・ヘミアセタールと還元性・分解酵素</h1>
+  <p class="lede"><a href="monosaccharide-structure.html">単糖類の構造</a>で確認したフィッシャー配置とハース式、<a href="starch-helix.html">デンプンとシクロデキストリンのらせん構造</a>で確認したグリコシド結合をふまえ、二糖類4種の構造・還元性・分解酵素までをひとつながりで見る。</p>
+</header>
+
+<!-- ============ 1. MAP ============ -->
+<section class="card" id="sceneMap">
+  <div class="eyebrow">MAP · 糖の関係マップ</div>
+  <h2>単糖・二糖・多糖のつながり</h2>
+  <p class="note">植物は光合成でグルコースを作り、縮合・縮合重合でスクロース・マルトース・デンプンなどにする。動物はデンプンを分解して単糖にし、呼吸でエネルギーを取り出す。ノードをタップすると詳細が出る。</p>
+
+  <div class="flowrow">
+    <div class="flowlabel" id="mapPlantLabel"></div>
+    <div class="scroll"><div class="flow" id="mapPlantFlow"></div></div>
+  </div>
+  <div class="flowrow">
+    <div class="flowlabel" id="mapAnimalLabel"></div>
+    <div class="scroll"><div class="flow" id="mapAnimalFlow"></div></div>
+  </div>
+  <div class="mapdetail" id="mapDetail" hidden></div>
+
+  <h3>還元性(水溶液中)</h3>
+  <div class="reducetable" id="mapReduceTable"></div>
+  <p class="note" id="mapRiceNote"></p>
+</section>
+
+<!-- ============ 2. HEMIACETAL ============ -->
+<section class="card" id="sceneHemi">
+  <div class="eyebrow">HEMIACETAL · ヘミアセタールと還元性</div>
+  <h2>環状構造はヘミアセタール、グリコシド結合はアセタール</h2>
+  <p class="note" id="hemiGeneralNote"></p>
+
+  <div class="schemewrap"><div id="hemiStagesScheme"></div></div>
+  <p class="note" id="hemiRingNote"></p>
+
+  <div class="ringbar" id="hemiSugarToggle" role="group" aria-label="マルトース・スクロースの切り替え"></div>
+  <div class="ringbar" id="hemiAnomerToggle" role="group" aria-label="還元末端側の状態の切り替え"></div>
+
+  <div class="schemewrap"><div id="hemiPairScheme"></div></div>
+  <p class="note" id="hemiPairNote"></p>
+
+  <h3>フェーリング液・銀鏡反応</h3>
+  <div class="badgerow" id="hemiBadges"></div>
+  <p class="note" id="hemiDetectNote"></p>
+  <p class="note" id="hemiFructoseNote"></p>
+</section>
+
+<!-- ============ 3. DISACCHARIDES ============ -->
+<section class="card" id="sceneDs">
+  <div class="eyebrow">DISACCHARIDES · 二糖類の比較</div>
+  <h2>マルトース・スクロース・ラクトース・セロビオース</h2>
+  <div class="chipbar" id="dsChips" role="group" aria-label="二糖の切り替え"></div>
+
+  <div class="schemewrap"><div id="dsScheme"></div></div>
+  <p class="note" id="dsHemiNote"></p>
+
+  <table class="info" id="dsTable"></table>
+  <p class="note" id="dsFormulaNote"></p>
+  <p class="note" id="dsEnzymeNote"></p>
+  <p class="note" id="dsExtraNote"></p>
+</section>
+
+<!-- ============ 4. METHYLATION ============ -->
+<section class="card" id="sceneMeth">
+  <div class="eyebrow">METHYLATION · メチル化による結合位置の決定</div>
+  <h2>CH3-Iで遊離OHをふさぎ、加水分解で結合位置を読む</h2>
+  <div class="ringbar" id="methChips" role="group" aria-label="マルトース・スクロースの切り替え"></div>
+
+  <div class="stepcards" id="methSteps"></div>
+  <p class="note" id="methRuleNote"></p>
+
+  <h3 id="methBeforeHeading"></h3>
+  <div class="schemewrap"><div id="methBeforeScheme"></div></div>
+
+  <h3 id="methAfterHeading"></h3>
+  <div class="schemewrap"><div id="methAfterScheme"></div></div>
+
+  <p class="note" id="methConclusionNote"></p>
+  <p class="note" id="methGlycosideNote"></p>
+  <p class="note" id="methFuranoseNote"></p>
+</section>
+
+<section class="card" id="notes">
+  <div class="eyebrow">NOTES</div>
+  <ol id="notesList" style="padding-left:18px;margin:8px 0"></ol>
+</section>
+
+</div><!-- /wrap -->
+
+<script>
+/* ---------- データ(JSONをそのまま埋め込み。fetch は使わない) ---------- */
+const DATA = {"meta":{"atomicWeights":{"H":1,"C":12,"O":16},"note":"二糖類はすべてC12H22O11=342(整数原子量による)の異性体。加水分解はC12H22O11+H2O→2C6H12O6で、質量は342+18=360=180×2と一致する。単糖類の構造(chem-monosaccharide-structure)のフィッシャー配置(グルコースRLRR・ガラクトースRLLR・フルクトースLRR)と整合させてハース式の上下を導出している。"},"formula":{"disaccharideFormula":"C12H22O11","disaccharideMolecularWeight":342,"hydrolysis":{"equationJa":"C12H22O11 + H2O → 2 C6H12O6","massCheckJa":"342+18=360=180×2"}},"ringConfigSource":{"noteJa":"フィッシャー配置(data/monosaccharide-structure.jsonのグルコースRLRR・ガラクトースRLLR・フルクトースLRR)から、ハース則(右のOH=環の下、左のOH=環の上、D系列のC6は上)で導出。","rings":{"glucopyranose":{"kind":"pyranose","ringAtoms":["O","C1","C2","C3","C4","C5"],"positions":["C1","C2","C3","C4","C6"],"anomericCarbon":"C1","substituents":[{"carbon":"C2","group":"OH","up":false},{"carbon":"C3","group":"OH","up":true},{"carbon":"C4","group":"OH","up":false},{"carbon":"C5","group":"CH2OH","labelCarbon":"C6","up":true}],"anomer":{"carbon":"C1","group":"OH","alphaUp":false,"betaUp":true}},"galactopyranose":{"kind":"pyranose","ringAtoms":["O","C1","C2","C3","C4","C5"],"positions":["C1","C2","C3","C4","C6"],"anomericCarbon":"C1","substituents":[{"carbon":"C2","group":"OH","up":false},{"carbon":"C3","group":"OH","up":true},{"carbon":"C4","group":"OH","up":true},{"carbon":"C5","group":"CH2OH","labelCarbon":"C6","up":true}],"anomer":{"carbon":"C1","group":"OH","alphaUp":false,"betaUp":true},"epimerNoteJa":"D-グルコピラノースのC4エピマー(C4のOHだけ上、他はグルコースと同じ)"},"fructofuranose":{"kind":"furanose","ringAtoms":["O","C2","C3","C4","C5"],"positions":["C1","C2","C3","C4","C6"],"anomericCarbon":"C2","substituents":[{"carbon":"C3","group":"OH","up":true},{"carbon":"C4","group":"OH","up":false},{"carbon":"C5","group":"CH2OH","labelCarbon":"C6","up":true}],"anomer":{"carbon":"C2","group":"OH","alphaUp":false,"betaUp":true,"exocyclicLabel":"C1(CH2OH)"},"noteJa":"五員環(O・C2・C3・C4・C5)。アノマー炭素はC2。C5側のC6(CH2OHの向き)を基準に、C2のOHが同じ側=β・反対側=αとする(D-グルコピラノースのC1と同じ規則)。"}}},"disaccharides":[{"id":"maltose","nameJa":"マルトース","altNameJa":"麦芽糖","units":[{"role":"nonReducing","sugarJa":"グルコース","ring":"glucopyranose","anomer":"alpha","bondCarbon":"C1"},{"role":"reducing","sugarJa":"グルコース","ring":"glucopyranose","bondCarbon":"C4"}],"bond":{"shortJa":"α-1,4結合","flipSecondRing":false},"fullNameJa":"4-O-(α-D-グルコピラノシル)-D-グルコース","enzyme":{"nameJa":"マルターゼ","nameEn":"maltase","aliasJa":"α-グルコシダーゼ"},"productsJa":"グルコース2分子","sourceJa":"デンプンをアミラーゼで分解して得られる","digestionSiteJa":"腸液(小腸)"},{"id":"sucrose","nameJa":"スクロース","altNameJa":"ショ糖","units":[{"role":"glucoseUnit","sugarJa":"グルコース","ring":"glucopyranose","anomer":"alpha","bondCarbon":"C1"},{"role":"fructoseUnit","sugarJa":"フルクトース","ring":"fructofuranose","anomer":"beta","bondCarbon":"C2"}],"bond":{"shortJa":"1,2-グリコシド結合(α-1・β-2)","flipSecondRing":false},"fullNameJa":"β-D-フルクトフラノシル-α-D-グルコピラノシド","enzyme":{"nameJa":"スクラーゼ","nameEn":"sucrase","aliasJa":"インベルターゼ(invertase)"},"productsJa":"グルコース+フルクトース(等量混合物=転化糖。ハチミツなど)","invertSugarNoteJa":"「転化糖」の名は、加水分解で旋光性が右旋性から左旋性に逆転するため(D-フルクトースが左旋性なのはchem-monosaccharide-structureのNOTES参照)。","sourceJa":"サトウキビ・テンサイ","digestionSiteJa":"腸液(小腸)","molecularWeightNoteJa":"この教材では整数原子量による342を使う(chem-dilute-solutionsでは342.30を使用)。","kineticsLinkNoteJa":"スクロースの加水分解の速度論(擬1次反応)はchem-reaction-kineticsで扱っている。"},{"id":"lactose","nameJa":"ラクトース","altNameJa":"乳糖","units":[{"role":"nonReducing","sugarJa":"ガラクトース","ring":"galactopyranose","anomer":"beta","bondCarbon":"C1"},{"role":"reducing","sugarJa":"グルコース","ring":"glucopyranose","bondCarbon":"C4"}],"bond":{"shortJa":"β-1,4結合","flipSecondRing":true},"fullNameJa":"4-O-(β-D-ガラクトピラノシル)-D-グルコース","enzyme":{"nameJa":"ラクターゼ","nameEn":"lactase","aliasJa":"β-ガラクトシダーゼ"},"productsJa":"ガラクトース+グルコース","sourceJa":"哺乳類の乳に含まれる","digestionSiteJa":"腸液(小腸)"},{"id":"cellobiose","nameJa":"セロビオース","altNameJa":null,"units":[{"role":"nonReducing","sugarJa":"グルコース","ring":"glucopyranose","anomer":"beta","bondCarbon":"C1"},{"role":"reducing","sugarJa":"グルコース","ring":"glucopyranose","bondCarbon":"C4"}],"bond":{"shortJa":"β-1,4結合","flipSecondRing":true},"fullNameJa":"4-O-(β-D-グルコピラノシル)-D-グルコース","enzyme":{"nameJa":"セロビアーゼ","nameEn":"cellobiase","aliasJa":"β-グルコシダーゼ"},"productsJa":"グルコース2分子","sourceJa":"セルロースをセルラーゼで分解して得られる","digestionSiteJa":null,"humanNoteJa":"ヒトはセルロースを消化できない(セルラーゼをもたない)"}],"enzymeSpecificityJa":"酵素は結合の種類(α/β)と単糖の種類の両方を区別する(基質特異性)。マルターゼはα結合を、セロビアーゼはβ結合を加水分解する。","digestion":{"stomachJa":"胃液は糖を分解しない","amylaseJa":"だ液・すい液のアミラーゼがデンプンをマルトースにする","disaccharidaseJa":"腸液(小腸)のマルターゼ・スクラーゼ・ラクターゼが二糖を単糖にする"},"hemiacetal":{"generalSchemeJa":"アルデヒド + R'OH ⇌ ヘミアセタール C(OH)(OR')(分子内なら環状ヘミアセタール)","acetalSchemeJa":"ヘミアセタール + R''OH → アセタール C(OR')(OR'')(H+触媒の脱水縮合)。グリコシド結合はこのアセタール。","ringIsHemiacetalJa":"単糖の環状構造は分子内ヘミアセタール。そのヘミアセタール性OHが別の糖のOHと脱水縮合したものがグリコシド結合(アセタール)で、開環できない。","reducingRuleJa":"ヘミアセタール性OHが1つでも残っていれば、水溶液中で 環状(α)⇌鎖状(CHO/C=O)⇌環状(β) と平衡して還元性を示す。","maltoseNoteJa":"マルトースは還元末端側だけがこの平衡にあり、非還元末端側はグリコシド結合で固定される。","sucroseNoteJa":"スクロースはグルコースC1・フルクトースC2の両方がグリコシド結合に使われてヘミアセタール構造がなく、平衡がないため非還元糖になる。","fructoseKetoseNoteJa":"フルクトースはケトース(ケトン基由来)だが、ヒドロキシケトン基(−CO−CH2OH)をもち還元性を示す。ケトース由来の環状構造は正式にはヘミケタールだが、高校化学ではヘミアセタール構造とまとめて呼ぶ。","detection":{"fehlingJa":"フェーリング液(Cu2+→Cu2O 赤色沈殿)","silverMirrorJa":"銀鏡反応(Ag+→Ag)","resultRuleJa":"還元糖は陽性、非還元糖は陰性","crossRefNoteJa":"反応式・検出反応そのものはchem-structure-determinationで扱っている。ここでは繰り返さない。"},"byClassJa":"単糖類はすべて還元性を示す、二糖類はものによる、多糖類は示さない(次のNOTES参照)。"},"methylation":{"reagentJa":"CH3-I(ヨウ化メチル)","ruleJa":"遊離のOHはすべてOCH3(エーテル)になる。ヘミアセタール性OHもメチル化されてメチルグリコシドになる。","hydrolysisRuleJa":"酸による加水分解ではアセタール(グリコシド結合・メチルグリコシド)だけが切れ、OCH3(エーテル)は切れない。結合に使われていたOHはメチル化されないので、加水分解後に遊離のOHとして現れる。","steps":["① 遊離OHをすべてOCH3にする(完全メチル化)","② 酸で加水分解する:アセタールだけが切れ、エーテル(OCH3)は残る","③ 生成物の遊離OHの位置から、結合位置を読む"],"colorJa":{"och3":"黄","freeOH":"青"},"molecularWeightRuleJa":"ヘキソースのOH1個をOCH3に置き換えるごとに+14(CH2分)。ヘキソース180に対し、テトラ-O-メチルヘキソース=180+14×4=236、トリ-O-メチルヘキソース=180+14×3=222。","sucroseFullyMethylatedOCH3":8,"maltoseFullyMethylatedOCH3":8,"maltoseMethylGlycosideNoteJa":"マルトースの還元末端は、加水分解前は自分自身のヘミアセタール性OHもメチル化されてメチルグリコシドになっている。加水分解時にこのメチルグリコシドも(グリコシド結合と同様にアセタールなので)加水分解されて遊離OHに戻るため、還元末端側の生成物はテトラではなくトリ-O-メチル体になる。","furanoseRingEvidenceJa":"フルクトース側の生成物は6位がOCH3で5位にOCH3がない(C5の酸素は環の酸素だから)ので、五員環(フラノース)と分かる。"},"map":{"columns":[{"id":"mono","labelJa":"単糖類","formula":"C6(H2O)6"},{"id":"di","labelJa":"二糖類","formula":"C12(H2O)11"},{"id":"poly","labelJa":"多糖類","formula":"[C6(H2O)5]n"}],"plant":{"labelJa":"植物(同化)","stepsJa":["6CO2+6H2O →(光合成)→ グルコース","グルコース →(異性化)→ フルクトース","グルコース+フルクトース →(縮合)→ スクロース","グルコース →(縮合)→ マルトース","グルコース →(縮合重合)→ デンプン(アミロース・アミロペクチン)","フルクトース →(縮合重合)→ イヌリン"],"nonReducingJa":["スクロース","デンプン","イヌリン"],"starchDetailNoteJa":"アミロース(α-1,4のらせん)・アミロペクチン(α-1,6の枝分かれ)の違いはchem-starch-helixで確認済み。","riceNoteJa":"うるち米はアミロースとアミロペクチンの混合(アミロースは2割前後)、もち米はほぼアミロペクチンだけ。"},"animal":{"labelJa":"動物(異化)","stepsJa":["デンプン →(アミラーゼ:だ液・すい液)→ マルトース","マルトース →(マルターゼ:腸液)→ グルコース","グルコース →(呼吸)→ CO2+H2O","グリコーゲン(肝臓)⇄グルコース(縮合重合/加水分解)"],"nonReducingJa":["グリコーゲン"],"glycogenNoteJa":"グリコーゲンはらせんが短く枝分かれがさらに多い(アミロペクチンより短い)。","respirationNoteJa":"解糖系・クエン酸回路・電子伝達系・ATP収量などの詳細は高校化学の範囲外。ここでは「呼吸」とだけ表す。"},"reducingSummary":[{"classJa":"単糖","resultJa":"すべて示す"},{"classJa":"二糖","resultJa":"ものによる"},{"classJa":"多糖","resultJa":"すべて示さない"}]},"notes":["多糖類が還元性を「示さない」というのは高校範囲の扱い。厳密には鎖の一端に還元末端が1つあるが、分子が大きく実質検出されない。","米は、うるち米がアミロースとアミロペクチンの混合(アミロースは2割前後)、もち米はほぼアミロペクチンだけ。","二糖類は互いに異性体(すべてC12H22O11)で、酵素が結合のα/βと単糖の種類を区別するため、消化できる糖の組み合わせが決まっている。ヒトはセルロース(β-1,4のグルコース重合体)を消化できない。"]};
+
+/* ---------- 起動時チェック ---------- */
+(function checkData(){
+  const msg=[];
+  if(DATA.disaccharides.length!==4) msg.push('disaccharides が4件ではない('+DATA.disaccharides.length+'件)');
+  if(Object.keys(DATA.ringConfigSource.rings).length!==3) msg.push('ringConfigSource.rings が3件ではない');
+  if(DATA.notes.length!==3) msg.push('notes が3件ではない');
+  if(msg.length) console.warn('[DATA] 不整合\n'+msg.join('\n'));
+  else console.info('[DATA] disaccharides '+DATA.disaccharides.length+'件・rings '+Object.keys(DATA.ringConfigSource.rings).length+'件を読み込んだ');
+})();
+
+const esc = s => String(s).replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+const D2R = Math.PI/180;
+const MONO = 'IBM Plex Mono,monospace';
+
+/* ---------- SVG組み立て用の小さいヘルパー(単糖類の構造・デンプンのらせん構造と同じ流儀。
+   ラベルは結合線・矢印の上に載せない。背景色縁取りはCSSのsvg text側で一括指定する) ---------- */
+function svgLine(x1,y1,x2,y2,color,w,dash){
+  return '<line x1="'+x1.toFixed(1)+'" y1="'+y1.toFixed(1)+'" x2="'+x2.toFixed(1)+'" y2="'+y2.toFixed(1)+'" stroke="'+color+'" stroke-width="'+w+'"'+(dash?' stroke-dasharray="'+dash+'"':'')+'/>';
+}
+function svgCircle(x,y,r,fill,stroke,sw){
+  return '<circle cx="'+x.toFixed(1)+'" cy="'+y.toFixed(1)+'" r="'+r+'" fill="'+fill+'"'+(stroke?' stroke="'+stroke+'" stroke-width="'+(sw||1)+'"':'')+'/>';
+}
+function svgText(x,y,label,size,color,anchor,weight){
+  return '<text x="'+x.toFixed(1)+'" y="'+y.toFixed(1)+'" text-anchor="'+(anchor||'middle')+'" font-family="'+MONO+'" font-size="'+size+'" fill="'+color+'"'+(weight?' font-weight="'+weight+'"':'')+'>'+esc(label)+'</text>';
+}
+function bestLabelDir(vectors){
+  const N = 32;
+  let best = {x:1,y:0}, bestScore = Infinity;
+  for(let i=0;i<N;i++){
+    const ang = i*2*Math.PI/N;
+    const cx_ = Math.cos(ang), cy_ = Math.sin(ang);
+    let maxDot = -Infinity;
+    for(const v of vectors){ const d = cx_*v.x+cy_*v.y; if(d>maxDot) maxDot=d; }
+    if(maxDot < bestScore){ bestScore = maxDot; best = {x:cx_,y:cy_}; }
+  }
+  return best;
+}
+
+/* ---------- 状態 ---------- */
+const st = {
+  mapDetail: null,
+  hemiSugar: 'maltose',
+  hemiAnomer: 'open', // 'alpha' | 'open'(鎖状) | 'beta'
+  dsId: 'maltose',
+  methId: 'maltose'
+};
+let NARROW = false;
+const DS_BY_ID = {}; DATA.disaccharides.forEach(d=>{ DS_BY_ID[d.id]=d; });
+const RINGS = DATA.ringConfigSource.rings;
+
+/* ================= 環(ハース式)の共通描画 =================
+   単糖類の構造のhemiRingSVGと同じ流儀(頂点にオフセットを入れて重なりを避ける・
+   置換基は固定pxで結合線から離す・ラベル方向はbestLabelDirで選ぶ)を、
+   六員環(ピラノース)・五員環(フラノース)の両方・флип(裏返し)に対応させて一般化した。 */
+function ringSVG(ring, cx, cy, r, subst, flip, otherCenter){
+  const n = ring.ringAtoms.length; // 6=ピラノース(O,C1..C5) / 5=フラノース(O,C2..C5)
+  let pts = [];
+  for(let i=0;i<n;i++){
+    const ang = (90 - i*(360/n) - 8) * D2R;
+    pts.push([cx + r*Math.cos(ang), cy - r*Math.sin(ang)*0.62]);
+  }
+  if(flip) pts = pts.map(p=>[p[0], 2*cy - p[1]]);
+  const byCarbon = {}; ring.ringAtoms.forEach((label,i)=>{ byCarbon[label]=pts[i]; });
+  const k = Math.max(r/60, 0.66);
+  let o = '';
+  for(let i=0;i<n;i++){ const a=pts[i], b=pts[(i+1)%n]; o += svgLine(a[0],a[1],b[0],b[1],'#5E6E76',1.5); }
+
+  function neighborDirs(i, extra){
+    const p = pts[i], dirs=[];
+    const add=(tx,ty)=>{ const dx=tx-p[0], dy=ty-p[1], l=Math.hypot(dx,dy)||1; dirs.push({x:dx/l,y:dy/l}); };
+    add(pts[(i+n-1)%n][0], pts[(i+n-1)%n][1]);
+    add(pts[(i+1)%n][0], pts[(i+1)%n][1]);
+    if(extra) dirs.push(extra);
+    return dirs;
+  }
+  // O原子のラベル
+  const oIdx = ring.ringAtoms.indexOf('O');
+  const oDir = bestLabelDir(neighborDirs(oIdx));
+  o += svgText(pts[oIdx][0]+oDir.x*(10+6*k), pts[oIdx][1]+oDir.y*(10+6*k)+3*k, 'O', Math.max(8,9*k), '#5E6E76');
+  // 環炭素番号(小さく、隣接線・置換基から離す)。結合(mode==='bond')の炭素は、
+  // 置換基の線ではなく相方の環へ向かう橋かけ線を避ける必要があるため、上下ではなく
+  // 相方の環の中心方向を避ける方向として渡す
+  const substByCarbon = {}; subst.forEach(s=>{ substByCarbon[s.carbon]=s; });
+  ring.ringAtoms.forEach((label,i)=>{
+    if(label==='O') return;
+    const s = substByCarbon[label];
+    const effUp = s ? (flip? !s.up : s.up) : true;
+    let extra = null;
+    if(s && s.mode==='bond' && otherCenter){
+      const dx_ = otherCenter.x-pts[i][0], dy_ = otherCenter.y-pts[i][1], l=Math.hypot(dx_,dy_)||1;
+      extra = {x:dx_/l, y:dy_/l};
+    } else if(s){
+      extra = {x:0,y: effUp? -1:1};
+    }
+    const dir = bestLabelDir(neighborDirs(i, extra));
+    o += svgText(pts[i][0]+dir.x*(9+7*k), pts[i][1]+dir.y*(9+7*k)+3*k, label, Math.max(7,8*k), '#5E6E76');
+  });
+
+  function subLine(idx, up, label, color, len, xShift, labelXShift, labelGap){
+    const p = pts[idx]; const ln=(len||18)*k; const xs=(xShift||0)*k;
+    const x2 = p[0]+xs, y2 = up? p[1]-ln : p[1]+ln;
+    o += svgLine(p[0],p[1],x2,y2,color,1.6);
+    // ラベルは線の端から離す。kが小さいとフォントの高さに対してオフセットが不足し
+    // 線の端とラベルが接してしまうため、最小値(下限)を設ける。
+    // labelXShiftを渡した場合は、線の端(x2)とは別にラベルだけをさらに横へ離す
+    // (隣の頂点が近いとき、線の向き〈化学的な上下の意味〉を変えずにラベルだけ逃がすため)
+    const lx = x2 + (labelXShift||0)*k;
+    const gap = labelGap!=null ? labelGap : (up? Math.max(9,8*k) : Math.max(16,14*k));
+    o += svgText(lx, up? y2-gap : y2+gap, label, Math.max(7.5,8.5*k), color, 'middle', '500');
+    return [x2,y2];
+  }
+
+  const bondAnchors = {};
+  for(const s of subst){
+    const idx = ring.ringAtoms.indexOf(s.carbon);
+    if(idx<0) continue;
+    const effUp = flip ? !s.up : s.up;
+    const label = s.group;
+    const color = s.group==='CH2OH' ? '#0D6A53' : (s.mode==='anomer' ? '#A82A6A' : '#2457A6');
+    if(s.mode==='bond'){
+      // グリコシド結合に使われる炭素:自由な置換基は描かず、結合先へ向けた仮アンカーだけを記録する
+      // (実際の橋かけ線は2つの環を両方描いたあとに呼び出し側が描く)
+      bondAnchors[s.carbon] = { p: pts[idx], up: effUp };
+      continue;
+    }
+    if(s.mode==='open'){
+      // 未確定(還元末端の平衡): OHとHを両方、開いて併記する(単糖類の構造のhemiRingSVGと同じ表現)。
+      // ラベルは線の端からMath.max()で下限を設けた分だけ離す(kが小さいと詰まるため)
+      const p = pts[idx];
+      const dy = effUp ? -1 : 1;
+      const len1=20*k, len2=24*k, gap=Math.max(14,12*k);
+      o += svgLine(p[0],p[1],p[0]-16*k,p[1]+dy*len1,'#A82A6A',1.4);
+      o += svgLine(p[0],p[1],p[0]+9*k,p[1]+dy*len2,'#A82A6A',1.4);
+      o += svgText(p[0]-16*k, p[1]+dy*(len1+gap), 'OH', Math.max(7,8*k), '#831F52', 'middle');
+      o += svgText(p[0]+9*k, p[1]+dy*(len2+gap), 'H', Math.max(7,8*k), '#831F52', 'middle');
+      continue;
+    }
+    // アノマー炭素(C1、フルクトースはC2)の置換基は、環のもう1つの隣接頂点(C2、
+    // フルクトースはC3)がすぐ近くにある。線の向き(化学的な上下の意味)は変えず、
+    // ラベルだけを横に大きくずらして隣の頂点から離す
+    const isAnomeric = s.carbon===ring.anomer.carbon && s.group!=='CH2OH';
+    // アノマー炭素の隣の頂点(2つの環をつなぐ橋かけ線が通る側)も、上方向の置換基だと
+    // 橋かけ線に触れることがあるため、線を少し短めにしてラベルを内側に留める
+    const anomIdx = ring.ringAtoms.indexOf(ring.anomer.carbon);
+    const isNextToAnomeric = idx===(anomIdx+1)%n || idx===(anomIdx+n-1)%n;
+    // C4が上向き(ガラクトースなど、グルコースのC4エピマー)のときは、六角形の配置上
+    // C5(左上)の方向へ伸びてC5の番号ラベルに触れることがあるため、同様に内側へ留める
+    const isC4Up = s.carbon==='C4' && effUp;
+    const len = s.group==='CH2OH' ? 20 : (isNextToAnomeric ? 13 : (isC4Up ? 9 : 18));
+    subLine(idx, effUp, label, color, len, 0, isAnomeric?-30:(isC4Up?26:0), isAnomeric?Math.max(9,8*k):(isC4Up?Math.max(9,8*k):null));
+  }
+  return { svg:o, pts, byCarbon, bondAnchors };
+}
+
+// アノマー炭素の置換基をlistに追加する。フラノース(フルクトース)はアノマー炭素(C2)に
+// OHだけでなく外側のC1(CH2OH)も付いているため、フラノースならC1の腕も一緒に追加する
+// (C1はグリコシド結合に使われないので常に通常のmode。上下はOHと反対側)。
+function pushAnomericSubst(list, ring, up, mode){
+  list.push({carbon: ring.anomer.carbon, group:'OH', up, mode});
+  if(ring.kind==='furanose'){
+    list.push({carbon: ring.anomer.carbon, group:'CH2OH', labelCarbon:'C1', up: !up});
+  }
+}
+
+// 2つの環をグリコシド結合でつなぐ橋かけの線とO(グリコシド)ラベルを描く
+function bridgeSVG(anchorA, anchorB){
+  // 直線だと、アノマー炭素どうしを結ぶ橋かけ線が環の下部(C2・C3・C4のOHなど)の
+  // ラベルの密集地帯を横切ってしまうことがあるため、2つの環のあいだの空いた上側を
+  // 通るよう上向きに弧を曲げる(2次ベジェ曲線)
+  const p1 = anchorA.p, p2 = anchorB.p;
+  const bowY = -34;
+  const ctrlX = (p1[0]+p2[0])/2, ctrlY = (p1[1]+p2[1])/2 + bowY;
+  let o = '<path d="M '+p1[0].toFixed(1)+' '+p1[1].toFixed(1)+' Q '+ctrlX.toFixed(1)+' '+ctrlY.toFixed(1)+' '+p2[0].toFixed(1)+' '+p2[1].toFixed(1)+'" fill="none" stroke="#B87A16" stroke-width="2.2"/>';
+  // 曲線上のt=0.5の点(中点)にO原子のマーカーとラベルを置く。
+  // フルネーム表記(O(グリコシド結合))は幅が広く、環のC5のCH2OHラベルなどに
+  // 触れやすいため、ここでは常に短い「O」だけを表示する(説明文の側で
+  // 「グリコシド結合」であることを補う)
+  const mx = 0.25*p1[0] + 0.5*ctrlX + 0.25*p2[0], my = 0.25*p1[1] + 0.5*ctrlY + 0.25*p2[1];
+  o += svgCircle(mx,my,3,'#B87A16');
+  o += svgText(mx, my-9, 'O', 9, '#8A5A0C', 'middle', '600');
+  return o;
+}
+
+/* ================= 1. MAP ================= */
+function mapNodeBtn(text, id, nonReducing){
+  return '<button type="button" class="node'+(nonReducing?' nr':'')+'" data-map="'+esc(id)+'" aria-pressed="'+(st.mapDetail===id)+'">'+esc(text)+'</button>';
+}
+function mapArrow(text){ return '<span class="arrow">→<b>'+esc(text)+'</b>→</span>'; }
+const MAP_DETAILS = {
+  'グルコース': 'グルコース(C6H12O6): 血糖。光合成で作られ、マルトース・スクロースの構成糖でもある。環の構造は単糖類の構造を参照。',
+  'フルクトース': 'フルクトース(C6H12O6): 果糖。ケトースだがヒドロキシケトン基により還元性を示す(下のHEMIACETAL参照)。',
+  'スクロース': 'スクロース: グルコース+フルクトースが1,2結合した非還元糖(下のDISACCHARIDES参照)。',
+  'マルトース': 'マルトース: グルコース2分子がα-1,4結合した還元糖(下のDISACCHARIDES参照)。',
+  'デンプン': 'デンプン(アミロース・アミロペクチン): グルコースの縮合重合体。詳しい構造・らせん・ヨウ素デンプン反応はデンプンとシクロデキストリンのらせん構造を参照。',
+  'イヌリン': 'イヌリン: フルクトースが縮合重合した多糖(果糖の貯蔵形。ゴボウ・キクイモなどに含まれる)。',
+  'グリコーゲン': 'グリコーゲン: 動物(肝臓)の貯蔵多糖。アミロペクチンよりさらに枝分かれが多く、らせんは短い。非還元糖。'
+};
+function renderMap(){
+  const m = DATA.map;
+  document.getElementById('mapPlantLabel').textContent = m.plant.labelJa;
+  document.getElementById('mapAnimalLabel').textContent = m.animal.labelJa;
+  document.getElementById('mapPlantFlow').innerHTML =
+    '<span class="node" style="cursor:default;background:var(--rule-soft)">6CO2+6H2O</span>'+
+    mapArrow('光合成')+ mapNodeBtn('グルコース','グルコース') +
+    mapArrow('異性化')+ mapNodeBtn('フルクトース','フルクトース') +
+    mapArrow('縮合')+ mapNodeBtn('スクロース','スクロース',true) +
+    mapArrow('縮合重合')+ mapNodeBtn('デンプン','デンプン',true) +
+    mapArrow('縮合重合')+ mapNodeBtn('イヌリン','イヌリン',true);
+  document.getElementById('mapAnimalFlow').innerHTML =
+    mapNodeBtn('デンプン','デンプン',true) +
+    mapArrow('アミラーゼ(だ液・すい液)')+ mapNodeBtn('マルトース','マルトース') +
+    mapArrow('マルターゼ(腸液)')+ mapNodeBtn('グルコース','グルコース') +
+    mapArrow('呼吸')+ '<span class="node" style="cursor:default;background:var(--rule-soft)">CO2+H2O</span>'+
+    mapArrow('⇄縮合重合/加水分解')+ mapNodeBtn('グリコーゲン','グリコーゲン',true);
+  const detail = document.getElementById('mapDetail');
+  if(st.mapDetail && MAP_DETAILS[st.mapDetail]){
+    detail.hidden = false;
+    detail.textContent = MAP_DETAILS[st.mapDetail];
+  } else {
+    detail.hidden = true;
+  }
+  document.getElementById('mapReduceTable').innerHTML = m.reducingSummary.map(r=>
+    '<div><div class="k">'+esc(r.classJa)+'</div><div class="v">'+esc(r.resultJa)+'</div></div>'
+  ).join('');
+  document.getElementById('mapRiceNote').textContent = m.plant.riceNoteJa+' '+m.animal.glycogenNoteJa+' '+m.animal.respirationNoteJa;
+}
+
+/* ================= 2. HEMIACETAL ================= */
+function hemiStagesSVG(){
+  const stack = NARROW; // 375pxでは縦積み、広ければ横並び
+  const W = stack?320:700, H = stack?660:190;
+  const r = stack?46:50;
+  const glc = RINGS.glucopyranose;
+  const panelH = 220;
+  const cx1 = stack? W/2 : W*0.18, cy1 = stack? panelH*0.5 : H*0.55;
+  const cx2 = stack? W/2 : W*0.5,  cy2 = stack? panelH*1.5 : H*0.55;
+  const cx3 = stack? W/2 : W*0.82, cy3 = stack? panelH*2.5 : H*0.55;
+  let o = '';
+  // (1) 鎖状のアルデヒド(簡略、C1=CHOを強調しC5にOHがある形だけ示す)
+  const chainY = cy1;
+  o += svgLine(cx1-40,chainY+6, cx1-14,chainY-10, '#16232B',1.8);
+  o += svgLine(cx1-14,chainY-10, cx1+14,chainY+6, '#16232B',1.8);
+  o += svgLine(cx1+14,chainY+6, cx1+34,chainY-6, '#16232B',1.8);
+  o += svgCircle(cx1-40,chainY+6,2.2,'#16232B');
+  o += svgCircle(cx1-14,chainY-10,2.2,'#A82A6A');
+  o += svgCircle(cx1+14,chainY+6,2.2,'#16232B');
+  o += svgCircle(cx1+34,chainY-6,2.2,'#0D6A53');
+  o += svgText(cx1-14,chainY-24,'CHO(C1)',9,'#831F52','middle','600');
+  o += svgText(cx1+34,chainY-20,'C5-OH',8.5,'#2457A6','middle');
+  o += svgText(cx1,(stack?chainY+34:H-14),'① 鎖状(ヘミアセタール形成前)',9.5,'#5E6E76','middle');
+  // (2) 環状ヘミアセタール(C1にOHとHが両方=未確定)
+  const r2 = ringSVG(glc, cx2, cy2, r, [
+    {carbon:'C2',group:'OH',up:glc.substituents[0].up},
+    {carbon:'C3',group:'OH',up:glc.substituents[1].up},
+    {carbon:'C4',group:'OH',up:glc.substituents[2].up},
+    {carbon:'C5',group:'CH2OH',labelCarbon:'C6',up:true},
+    {carbon:'C1',group:'OH',up:true,mode:'open'}
+  ], false);
+  o += r2.svg;
+  o += svgText(cx2,(stack?cy2+r+30:H-14),'② 環状ヘミアセタール(C1が未確定)',9.5,'#5E6E76','middle');
+  // (3) アセタール(グリコシド結合。C1がRに結合、もう開環できない)
+  const r3 = ringSVG(glc, cx3, cy3, r, [
+    {carbon:'C2',group:'OH',up:glc.substituents[0].up},
+    {carbon:'C3',group:'OH',up:glc.substituents[1].up},
+    {carbon:'C4',group:'OH',up:glc.substituents[2].up},
+    {carbon:'C5',group:'CH2OH',labelCarbon:'C6',up:true},
+    {carbon:'C1',group:'O-R',up:false}
+  ], false);
+  o += r3.svg;
+  o += svgText(cx3,(stack?cy3+r+30:H-14),'③ アセタール(グリコシド結合、開環不可)',9.5,'#5E6E76','middle');
+  if(!stack){
+    o += svgText((cx1+cx2)/2, H*0.2, '+R\'OH ⇌', 11, '#5E6E76','middle','600');
+    o += svgText((cx2+cx3)/2, H*0.2, '+R\'\'OH →(−H2O)', 10.5, '#5E6E76','middle','600');
+  }
+  return '<svg class="scheme" viewBox="0 0 '+W+' '+H+'" width="100%" height="'+H+'" role="img" aria-label="アルデヒドからヘミアセタール、アセタールへの3段階">'+o+'</svg>';
+}
+function renderHemiStages(){
+  document.getElementById('hemiGeneralNote').textContent = DATA.hemiacetal.generalSchemeJa+' '+DATA.hemiacetal.acetalSchemeJa;
+  document.getElementById('hemiStagesScheme').innerHTML = hemiStagesSVG();
+  document.getElementById('hemiRingNote').textContent = DATA.hemiacetal.ringIsHemiacetalJa+' '+DATA.hemiacetal.reducingRuleJa;
+}
+function hemiPairSVG(){
+  const d = DS_BY_ID[st.hemiSugar];
+  const W = NARROW?320:480, H = NARROW?230:230;
+  const cx=W/2, dx=NARROW?98:120, cy=H*0.55, r=NARROW?40:50;
+  const u0=d.units[0], u1=d.units[1];
+  const ring0 = RINGS[u0.ring], ring1 = RINGS[u1.ring];
+  function substFor(ring, unit, isReducingUnit){
+    // 結合に使われる炭素(bondCarbon)は、base一覧(ring.substituents)にも同じ炭素の
+    // 通常置換基が載っている場合があるので、先に取り除いてから'bond'モードで置き換える
+    // (取り除かないと同じ炭素に2本の置換基線が重なって描かれてしまう)
+    const list = ring.substituents.filter(s=>s.carbon!==unit.bondCarbon).map(s=>({carbon:s.carbon, group:s.group, labelCarbon:s.labelCarbon, up:s.up}));
+    if(unit.bondCarbon === ring.anomericCarbon){
+      pushAnomericSubst(list, ring, unit.anomer==='beta'?ring.anomer.betaUp:ring.anomer.alphaUp, 'bond');
+    } else {
+      // 還元末端側: st.hemiAnomerで α固定/鎖状(未確定)/β固定を切り替える
+      pushAnomericSubst(list, ring, ring.anomer.betaUp, st.hemiAnomer==='open' ? 'open' : 'anomerFixed');
+      list.push({carbon: unit.bondCarbon, group:'OH', up: ring.substituents.find(s=>s.carbon===unit.bondCarbon)?.up ?? false, mode:'bond'});
+    }
+    return list.map(s=>{
+      if(s.mode==='anomerFixed'){ s.up = st.hemiAnomer==='beta' ? ring.anomer.betaUp : ring.anomer.alphaUp; s.mode='anomer'; }
+      return s;
+    });
+  }
+  const A = ringSVG(ring0, cx-dx, cy, r, substFor(ring0,u0,false), false, {x:cx+dx,y:cy});
+  const B = ringSVG(ring1, cx+dx, cy, r, substFor(ring1,u1,true), d.bond.flipSecondRing, {x:cx-dx,y:cy});
+  let o = A.svg + B.svg;
+  o += bridgeSVG(A.bondAnchors[u0.bondCarbon], B.bondAnchors[u1.bondCarbon]);
+  if(d.id==='sucrose'){
+    o += svgText(cx, H-10, 'ヘミアセタール構造なし(両方の環がグリコシド結合に使われている)', NARROW?8.5:9.5, '#0E8FA3','middle','600');
+  } else if(st.hemiAnomer==='open') {
+    o += svgText(cx, H-10, '還元末端: α⇌鎖状(CHO)⇌βの平衡 ⇒ 還元性', NARROW?8.5:9.5, '#0E8FA3','middle','600');
+  } else {
+    o += svgText(cx, H-10, '還元末端を'+(st.hemiAnomer==='alpha'?'α':'β')+'型に固定して表示(実際は平衡している)', NARROW?8.5:9.5, '#5E6E76','middle');
+  }
+  return '<svg class="scheme" viewBox="0 0 '+W+' '+H+'" width="100%" height="'+H+'" role="img" aria-label="'+esc(d.nameJa)+'のヘミアセタール構造">'+o+'</svg>';
+}
+function renderHemiSugarToggle(){
+  document.getElementById('hemiSugarToggle').innerHTML =
+    '<button type="button" class="ringbtn" data-hemisugar="maltose" aria-pressed="'+(st.hemiSugar==='maltose')+'">マルトース</button>'+
+    '<button type="button" class="ringbtn" data-hemisugar="sucrose" aria-pressed="'+(st.hemiSugar==='sucrose')+'">スクロース</button>';
+}
+function renderHemiAnomerToggle(){
+  const disabled = st.hemiSugar==='sucrose';
+  document.getElementById('hemiAnomerToggle').innerHTML =
+    ['alpha','open','beta'].map(v=>
+      '<button type="button" class="ringbtn" data-hemianomer="'+v+'" aria-pressed="'+(st.hemiAnomer===v)+'"'+(disabled?' disabled':'')+'>'+(v==='alpha'?'α型':v==='open'?'鎖状(CHO)':'β型')+'</button>'
+    ).join('');
+}
+function renderHemiPair(){
+  const d = DS_BY_ID[st.hemiSugar];
+  document.getElementById('hemiPairScheme').innerHTML = hemiPairSVG();
+  document.getElementById('hemiPairNote').textContent = d.id==='maltose'
+    ? DATA.hemiacetal.maltoseNoteJa
+    : DATA.hemiacetal.sucroseNoteJa;
+  const reducing = d.id!=='sucrose';
+  document.getElementById('hemiBadges').innerHTML =
+    '<span class="badge '+(reducing?'pos':'neg')+'">フェーリング液: '+(reducing?'陽性(Cu2O 赤色沈殿)':'陰性')+'</span>'+
+    '<span class="badge '+(reducing?'pos':'neg')+'">銀鏡反応: '+(reducing?'陽性(Ag析出)':'陰性')+'</span>';
+  document.getElementById('hemiDetectNote').innerHTML =
+    esc(DATA.hemiacetal.detection.fehlingJa)+'・'+esc(DATA.hemiacetal.detection.silverMirrorJa)+'。'+esc(DATA.hemiacetal.detection.resultRuleJa)+
+    '。反応式は<a href="structure-determination.html">構造決定の手順</a>を参照(ここでは繰り返さない)。';
+  document.getElementById('hemiFructoseNote').textContent = DATA.hemiacetal.fructoseKetoseNoteJa;
+}
+
+/* ================= 3. DISACCHARIDES ================= */
+function renderDsChips(){
+  document.getElementById('dsChips').innerHTML = DATA.disaccharides.map(d=>
+    '<button type="button" class="chip" data-ds="'+d.id+'" aria-pressed="'+(st.dsId===d.id)+'">'+esc(d.nameJa)+(d.altNameJa?'('+esc(d.altNameJa)+')':'')+'</button>'
+  ).join('');
+}
+function dsSVG(){
+  const d = DS_BY_ID[st.dsId];
+  const W = NARROW?320:480, H = NARROW?240:240;
+  const cx=W/2, dx=NARROW?98:120, cy=H*0.5, r=NARROW?40:50;
+  const u0=d.units[0], u1=d.units[1];
+  const ring0 = RINGS[u0.ring], ring1 = RINGS[u1.ring];
+  function subst(ring, unit){
+    const list = ring.substituents.filter(s=>s.carbon!==unit.bondCarbon).map(s=>({carbon:s.carbon, group:s.group, labelCarbon:s.labelCarbon, up:s.up}));
+    const reducingHere = unit.bondCarbon !== ring.anomericCarbon;
+    if(!reducingHere){
+      pushAnomericSubst(list, ring, unit.anomer==='beta'?ring.anomer.betaUp:ring.anomer.alphaUp, 'bond');
+    } else {
+      pushAnomericSubst(list, ring, ring.anomer.betaUp, 'open');
+      list.push({carbon: unit.bondCarbon, group:'OH', up: ring.substituents.find(s=>s.carbon===unit.bondCarbon)?.up ?? false, mode:'bond'});
+    }
+    return list;
+  }
+  const A = ringSVG(ring0, cx-dx, cy, r, subst(ring0,u0), false, {x:cx+dx,y:cy});
+  const B = ringSVG(ring1, cx+dx, cy, r, subst(ring1,u1), d.bond.flipSecondRing, {x:cx-dx,y:cy});
+  let o = A.svg + B.svg;
+  o += bridgeSVG(A.bondAnchors[u0.bondCarbon], B.bondAnchors[u1.bondCarbon]);
+  // 還元末端に水色の丸で強調
+  const reducingUnitIdx = d.units.findIndex(u=>{ const rg=RINGS[u.ring]; return u.bondCarbon!==rg.anomericCarbon; });
+  if(reducingUnitIdx>=0){
+    const ring = RINGS[d.units[reducingUnitIdx].ring];
+    const pts = reducingUnitIdx===0 ? A.pts : B.pts;
+    const idx = ring.ringAtoms.indexOf(ring.anomericCarbon);
+    const p = pts[idx];
+    o = '<circle cx="'+p[0].toFixed(1)+'" cy="'+(p[1]+ (reducingUnitIdx===0? -6: -6)).toFixed(1)+'" r="26" fill="none" stroke="#0E8FA3" stroke-width="2" stroke-dasharray="3 3"/>' + o;
+  }
+  return '<svg class="scheme" viewBox="0 0 '+W+' '+H+'" width="100%" height="'+H+'" role="img" aria-label="'+esc(d.nameJa)+'のハース式">'+o+'</svg>';
+}
+function renderDs(){
+  const d = DS_BY_ID[st.dsId];
+  document.getElementById('dsScheme').innerHTML = dsSVG();
+  const reducing = d.id!=='sucrose';
+  document.getElementById('dsHemiNote').innerHTML = reducing
+    ? '水色の破線は還元末端(遊離のヘミアセタール性OH)。'
+    : '<b style="color:#0E8FA3">ヘミアセタール構造なし</b>(両方のアノマー炭素がグリコシド結合に使われている)。';
+  const u0=d.units[0], u1=d.units[1];
+  document.getElementById('dsTable').innerHTML =
+    '<tr><th>構成単糖</th><td>'+esc(u0.sugarJa)+' + '+esc(u1.sugarJa)+'</td></tr>'+
+    '<tr><th>結合</th><td>'+esc(d.bond.shortJa)+'('+esc(d.fullNameJa)+')</td></tr>'+
+    '<tr><th>還元性</th><td>'+(reducing?'還元糖':'非還元糖')+'</td></tr>'+
+    '<tr><th>分解酵素</th><td>'+esc(d.enzyme.nameJa)+'(<span class="mono">'+esc(d.enzyme.nameEn)+'</span>、'+esc(d.enzyme.aliasJa)+')</td></tr>'+
+    '<tr><th>生成物</th><td>'+esc(d.productsJa)+'</td></tr>'+
+    '<tr><th>由来</th><td>'+esc(d.sourceJa)+(d.humanNoteJa?'。'+esc(d.humanNoteJa):'')+'</td></tr>'+
+    (d.digestionSiteJa? '<tr><th>消化される場所</th><td>'+esc(d.digestionSiteJa)+'</td></tr>' : '');
+  document.getElementById('dsFormulaNote').textContent =
+    'いずれも'+DATA.formula.disaccharideFormula+'='+DATA.formula.disaccharideMolecularWeight+'の異性体。加水分解: '+DATA.formula.hydrolysis.equationJa+'('+DATA.formula.hydrolysis.massCheckJa+')。';
+  document.getElementById('dsEnzymeNote').textContent = DATA.enzymeSpecificityJa;
+  let extra = '';
+  if(d.id==='sucrose'){
+    extra = d.invertSugarNoteJa+' '+d.molecularWeightNoteJa+' '+d.kineticsLinkNoteJa;
+  }
+  const extraEl = document.getElementById('dsExtraNote');
+  if(extra){
+    extraEl.innerHTML = esc(d.invertSugarNoteJa)+' '+esc(d.molecularWeightNoteJa)+' '+esc(d.kineticsLinkNoteJa).replace('chem-reaction-kinetics','')+' <a href="reaction-kinetics.html">反応速度の理論(擬1次反応)</a>';
+    extraEl.hidden = false;
+  } else {
+    extraEl.hidden = true;
+    extraEl.textContent = '';
+  }
+}
+
+/* ================= 4. METHYLATION ================= */
+function methylationFor(unit, ring){
+  const positions = ring.positions;
+  const pre = positions.filter(p=>p!==unit.bondCarbon);
+  const ownAnomericFree = unit.bondCarbon !== ring.anomericCarbon;
+  const post = ownAnomericFree ? pre.filter(p=>p!==ring.anomericCarbon) : pre;
+  return { pre, post, freeOHPost: positions.filter(p=>!post.includes(p)) };
+}
+// positions(C1,C2,C3,C4,C6)は必ずしもピラノースの炭素番号どおりの環頂点ではない。
+// フラノース(フルクトース)ではC1はアノマー炭素(C2)から外側に伸びるCH2OHの腕なので、
+// 頂点としてはC2の位置に描く。C6は両方の環でC5に付くCH2OHなのでC5の位置に描く。
+function positionVertex(ring, p){
+  if(p==='C6') return 'C5';
+  if(ring.kind==='furanose' && p==='C1') return ring.anomer.carbon; // 'C2'
+  return p;
+}
+// メチル化の図は色分けが要のため、ringSVGを直接使わず専用の簡易描画にする
+function methRingDraw(ring, cx, cy, r, methInfo, bondCarbon, flip, otherCenter){
+  const n = ring.ringAtoms.length;
+  let pts = [];
+  for(let i=0;i<n;i++){ const ang=(90 - i*(360/n) - 8)*D2R; pts.push([cx+r*Math.cos(ang), cy-r*Math.sin(ang)*0.62]); }
+  if(flip) pts = pts.map(p=>[p[0], 2*cy-p[1]]);
+  const byCarbon = {}; ring.ringAtoms.forEach((l,i)=>{ byCarbon[l]=pts[i]; });
+  const k = Math.max(r/60,0.66);
+  let o='';
+  for(let i=0;i<n;i++){ const a=pts[i], b=pts[(i+1)%n]; o+=svgLine(a[0],a[1],b[0],b[1],'#5E6E76',1.5); }
+  const oIdx = ring.ringAtoms.indexOf('O');
+  function neighborDirs(i, extras){
+    const p=pts[i], dirs=[];
+    const add=(tx,ty)=>{ const dx=tx-p[0],dy=ty-p[1],l=Math.hypot(dx,dy)||1; dirs.push({x:dx/l,y:dy/l}); };
+    add(pts[(i+n-1)%n][0],pts[(i+n-1)%n][1]); add(pts[(i+1)%n][0],pts[(i+1)%n][1]);
+    (extras||[]).forEach(e=>dirs.push(e));
+    return dirs;
+  }
+  o += svgText(pts[oIdx][0]+bestLabelDir(neighborDirs(oIdx)).x*(10+6*k), pts[oIdx][1]+bestLabelDir(neighborDirs(oIdx)).y*(10+6*k)+3*k, 'O', Math.max(8,9*k), '#5E6E76');
+
+  // 各positionの描画情報(頂点・上下・メチル化か)を先に計算する(頂点番号ラベルは
+  // 同じ頂点に複数のpositionが乗る〈フラノースのC1・C2〉場合に重複表示しないよう、
+  // 先にすべての置換基の上下を集めてから頂点ごとに1回だけ描く)
+  const instrs = ring.positions.map(p=>{
+    const ringCarbon = positionVertex(ring, p);
+    const idx = ring.ringAtoms.indexOf(ringCarbon);
+    const base = ring.substituents.find(s=>(s.labelCarbon||s.carbon)===p);
+    let up;
+    if(base) up = base.up;
+    else if(ring.kind==='furanose' && p==='C1') up = !ring.anomer.betaUp; // アノマーOHと反対側
+    else up = ring.anomer.betaUp; // アノマー炭素そのもの(C1 または C2)の代表向き
+    return { p, ringCarbon, idx, up: flip? !up : up, isBond: p===bondCarbon };
+  });
+  const labeledVertex = new Set();
+  instrs.forEach(ins=>{
+    if(labeledVertex.has(ins.idx)) return;
+    labeledVertex.add(ins.idx);
+    const same = instrs.filter(s=>s.idx===ins.idx);
+    const extras = same.map(s=>{
+      if(s.isBond && otherCenter){
+        const dx_=otherCenter.x-pts[s.idx][0], dy_=otherCenter.y-pts[s.idx][1], l=Math.hypot(dx_,dy_)||1;
+        return {x:dx_/l,y:dy_/l};
+      }
+      return {x:0,y:s.up?-1:1};
+    });
+    const dir = bestLabelDir(neighborDirs(ins.idx, extras));
+    const p0 = pts[ins.idx];
+    o += svgText(p0[0]+dir.x*(9+7*k), p0[1]+dir.y*(9+7*k)+3*k, ins.ringCarbon, Math.max(7,8*k), '#5E6E76');
+  });
+  // アノマー炭素(C1、フルクトースはC2)、およびその隣の頂点(結合の橋かけ線・
+  // アノマー炭素のラベルが通る側)は頂点間が近いため、線を短くしてラベルを内側に留める
+  const anomVertexIdx = ring.ringAtoms.indexOf(ring.anomer.carbon);
+  instrs.forEach(ins=>{
+    if(ins.isBond) return; // 結合に使われる位置は番号ラベルだけ(結合線はbridgeSVGで別途描く)
+    const p0 = pts[ins.idx];
+    const methylated = methInfo.includes(ins.p);
+    const label = methylated ? (ins.p==='C6'?'CH2OCH3':'OCH3') : (ins.p==='C6'?'CH2OH':'OH');
+    const color = methylated ? '#B08A00' : '#2457A6';
+    const isAnomeric = ins.idx===anomVertexIdx;
+    const isNextToAnomeric = ins.idx===(anomVertexIdx+1)%n || ins.idx===(anomVertexIdx+n-1)%n;
+    // フラノース(フルクトース)のアノマー炭素(C2)は、すぐ外側にC1の腕(CH2OH)も
+    // 一緒に生えていて隣のC3側と混み合うため、横にずらす代わりに真っすぐ長く伸ばして
+    // 隣接頂点の領域を飛び越えさせる
+    const isFuranoseAnomeric = isAnomeric && ring.kind==='furanose';
+    const len = (ins.p==='C6' ? 20 : isFuranoseAnomeric ? 34 : (isNextToAnomeric ? 13 : (isAnomeric?22:18))) * k;
+    const x2 = p0[0], y2 = ins.up? p0[1]-len : p0[1]+len;
+    o += svgLine(p0[0],p0[1],x2,y2,color,1.6);
+    const gap = isFuranoseAnomeric ? Math.max(9,8*k) : (ins.up? Math.max(9,8*k) : Math.max(16,14*k));
+    o += svgText(x2, ins.up? y2-gap : y2+gap, label, Math.max(7,8.2*k), color, 'middle','500');
+  });
+  return { svg:o, pts, byCarbon };
+}
+function methBeforeSVG(){
+  const d = DS_BY_ID[st.methId];
+  const W = NARROW?320:480, H = NARROW?220:210;
+  const cx=W/2, dx=NARROW?98:120, cy=H*0.55, r=NARROW?40:48;
+  const u0=d.units[0], u1=d.units[1], r0=RINGS[u0.ring], r1=RINGS[u1.ring];
+  const m0 = methylationFor(u0, r0), m1 = methylationFor(u1, r1);
+  const A = methRingDraw(r0, cx-dx, cy, r, m0.pre, u0.bondCarbon, false, {x:cx+dx,y:cy});
+  const B = methRingDraw(r1, cx+dx, cy, r, m1.pre, u1.bondCarbon, d.bond.flipSecondRing, {x:cx-dx,y:cy});
+  let o = A.svg + B.svg;
+  const c0 = u0.bondCarbon==='C6'?'C5':u0.bondCarbon, c1 = u1.bondCarbon==='C6'?'C5':u1.bondCarbon;
+  o += bridgeSVG({p:A.byCarbon[c0]}, {p:B.byCarbon[c1]});
+  return '<svg class="scheme" viewBox="0 0 '+W+' '+H+'" width="100%" height="'+H+'" role="img" aria-label="'+esc(d.nameJa)+'の完全メチル化体(黄=OCH3)">'+o+'</svg>';
+}
+function methAfterSVG(){
+  const d = DS_BY_ID[st.methId];
+  const W = NARROW?320:480, H = NARROW?220:210;
+  const cx1=W*0.27, cx2=W*0.73, cy=H*0.55, r=NARROW?40:48;
+  const u0=d.units[0], u1=d.units[1], r0=RINGS[u0.ring], r1=RINGS[u1.ring];
+  const m0 = methylationFor(u0, r0), m1 = methylationFor(u1, r1);
+  const A = methRingDraw(r0, cx1, cy, r, m0.post, null, false);
+  const B = methRingDraw(r1, cx2, cy, r, m1.post, null, false);
+  let o = A.svg + B.svg;
+  o += svgText(cx1, H-8, m0.post.length+'-O-メチル体('+m0.freeOHPost.join('・')+'が遊離OH)', NARROW?8:8.5, '#5E6E76','middle');
+  o += svgText(cx2, H-8, m1.post.length+'-O-メチル体('+m1.freeOHPost.join('・')+'が遊離OH)', NARROW?8:8.5, '#5E6E76','middle');
+  return '<svg class="scheme" viewBox="0 0 '+W+' '+H+'" width="100%" height="'+H+'" role="img" aria-label="'+esc(d.nameJa)+'の加水分解生成物(黄=OCH3、青=遊離OH)">'+o+'</svg>';
+}
+const METHYL_COUNT_JA = {1:'モノ',2:'ジ',3:'トリ',4:'テトラ',5:'ペンタ'};
+function renderMeth(){
+  const d = DS_BY_ID[st.methId];
+  document.getElementById('methSteps').innerHTML = DATA.methylation.steps.map((s,i)=>
+    '<div class="stepcard"><b>STEP '+(i+1)+'</b><span>'+esc(s.replace(/^①|②|③/,''))+'</span></div>'
+  ).join('');
+  document.getElementById('methRuleNote').textContent = DATA.methylation.reagentJa+'。'+DATA.methylation.ruleJa+' '+DATA.methylation.hydrolysisRuleJa;
+  document.getElementById('methBeforeHeading').textContent = '① 完全メチル化体('+d.nameJa+')';
+  document.getElementById('methAfterHeading').textContent = '② 酸で加水分解した生成物';
+  document.getElementById('methBeforeScheme').innerHTML = methBeforeSVG();
+  document.getElementById('methAfterScheme').innerHTML = methAfterSVG();
+
+  const u0=d.units[0], u1=d.units[1], r0=RINGS[u0.ring], r1=RINGS[u1.ring];
+  const m0 = methylationFor(u0,r0), m1 = methylationFor(u1,r1);
+  let concl;
+  if(d.id==='maltose'){
+    concl = '非還元末端側は'+METHYL_COUNT_JA[m0.post.length]+'-O-メチル-D-グルコース(C1が遊離OH)、還元末端側は'+METHYL_COUNT_JA[m1.post.length]+'-O-メチル-D-グルコース(C1とC4が遊離OH)。アノマー炭素でない遊離OHがC4にあるので、1,4結合と分かる。';
+  } else {
+    concl = 'グルコース側は'+METHYL_COUNT_JA[m0.post.length]+'-O-メチル-D-グルコース(C1が遊離OH)、フルクトース側は'+METHYL_COUNT_JA[m1.post.length]+'-O-メチル-D-フルクトース(C2が遊離OH)。どちらもアノマー炭素だけが遊離OHなので、1,2結合と分かる。';
+  }
+  document.getElementById('methConclusionNote').textContent = concl;
+  const glyEl = document.getElementById('methGlycosideNote');
+  if(d.id==='maltose'){ glyEl.textContent = DATA.methylation.maltoseMethylGlycosideNoteJa; glyEl.hidden=false; }
+  else { glyEl.hidden = true; glyEl.textContent=''; }
+  const furEl = document.getElementById('methFuranoseNote');
+  if(d.id==='sucrose'){ furEl.textContent = DATA.methylation.furanoseRingEvidenceJa; furEl.hidden=false; }
+  else { furEl.hidden = true; furEl.textContent=''; }
+}
+function renderMethChips(){
+  document.getElementById('methChips').innerHTML =
+    '<button type="button" class="ringbtn" data-meth="maltose" aria-pressed="'+(st.methId==='maltose')+'">マルトース</button>'+
+    '<button type="button" class="ringbtn" data-meth="sucrose" aria-pressed="'+(st.methId==='sucrose')+'">スクロース</button>';
+}
+
+/* ================= 共通 ================= */
+function renderNotes(){
+  document.getElementById('notesList').innerHTML = DATA.notes.map(n=>'<li style="margin-bottom:4px">'+esc(n)+'</li>').join('');
+}
+
+/* ================= イベント ================= */
+function onMapNode(id){ st.mapDetail = st.mapDetail===id ? null : id; renderMap(); }
+function onHemiSugar(id){ st.hemiSugar=id; if(id==='sucrose') st.hemiAnomer='open'; renderHemiSugarToggle(); renderHemiAnomerToggle(); renderHemiPair(); }
+function onHemiAnomer(v){ if(st.hemiSugar==='sucrose') return; st.hemiAnomer=v; renderHemiAnomerToggle(); renderHemiPair(); }
+function onDs(id){ st.dsId=id; renderDsChips(); renderDs(); }
+function onMeth(id){ st.methId=id; renderMethChips(); renderMeth(); }
+
+document.addEventListener('click', e=>{
+  const mapBtn = e.target.closest('[data-map]'); if(mapBtn){ onMapNode(mapBtn.getAttribute('data-map')); return; }
+  const hs = e.target.closest('[data-hemisugar]'); if(hs){ onHemiSugar(hs.getAttribute('data-hemisugar')); return; }
+  const ha = e.target.closest('[data-hemianomer]'); if(ha && !ha.disabled){ onHemiAnomer(ha.getAttribute('data-hemianomer')); return; }
+  const ds = e.target.closest('[data-ds]'); if(ds){ onDs(ds.getAttribute('data-ds')); return; }
+  const mt = e.target.closest('[data-meth]'); if(mt){ onMeth(mt.getAttribute('data-meth')); return; }
+});
+
+/* ================= 初期化・リサイズ ================= */
+function renderAll(){
+  renderMap();
+  renderHemiStages();
+  renderHemiSugarToggle();
+  renderHemiAnomerToggle();
+  renderHemiPair();
+  renderDsChips();
+  renderDs();
+  renderMethChips();
+  renderMeth();
+  renderNotes();
+}
+function applyNarrow(){
+  const next = window.innerWidth < 460;
+  if(next!==NARROW){ NARROW = next; renderAll(); }
+}
+applyNarrow();
+renderAll();
+window.addEventListener('resize', applyNarrow);
+</script>
+</body>
+</html>
