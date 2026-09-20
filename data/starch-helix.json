@@ -73,9 +73,9 @@
       { "id": "cellulose", "nameJa": "セルロース", "colorJa": "呈色しない", "colorHex": null, "helixLengthJa": "らせんを作らない(β-1,4結合で直線状)", "reacts": false },
       { "id": "monodisaccharide", "nameJa": "グルコース・マルトース・スクロース", "colorJa": "呈色しない", "colorHex": null, "helixLengthJa": "らせんを作らない(単糖・二糖)", "reacts": false }
     ],
-    "mechanismJa": "疎水性の空洞にヨウ素(I2、実際はI3−などの鎖状のヨウ素)が包接されるために呈色する",
-    "lengthColorRuleJa": "らせんが長いほど青く、短いほど赤みが強くなり、らせんがなければ呈色しない",
-    "heatCoolJa": "加熱するとらせんがほどけてヨウ素が抜け、色が消える。冷却すると再びらせんが巻き、色が戻る",
+    "mechanismJa": "疎水性の空洞にヨウ素(I2、実際はI3−などの鎖状のヨウ素)が包接されるために呈色する。",
+    "lengthColorRuleJa": "らせんが長いほど青く、短いほど赤みが強くなり、らせんがなければ呈色しない。",
+    "heatCoolJa": "加熱するとらせんがほどけてヨウ素が抜け、色が消える。冷却すると再びらせんが巻き、色が戻る。",
     "differentFromIodineValueJa": "油脂の「ヨウ素価」(C=Cへの付加)とは別の反応"
   },
   "notes": [
