@@ -68,6 +68,8 @@ tr.on td{background:var(--paper)}
 
 .schemewrap{border:1px solid var(--rule-soft);border-radius:3px;background:#FBFCFB;overflow:hidden;margin-top:8px;padding:4px}
 .scheme{max-width:100%;margin:0 auto;display:block}
+/* SVGラベルは背景色で縁取りし、線や矢印と交差しても読めるようにする */
+svg text{paint-order:stroke;stroke:#FBFCFB;stroke-width:3px;stroke-linejoin:round}
 
 /* ---------- 分類ごとの色分け枠 ---------- */
 .classbox{border-radius:3px;padding:9px 10px}
@@ -279,6 +281,21 @@ function svgCircle(x,y,r,fill,stroke,sw){
 }
 function svgText(x,y,label,size,color,anchor,weight){
   return '<text x="'+x.toFixed(1)+'" y="'+y.toFixed(1)+'" text-anchor="'+(anchor||'middle')+'" font-family="'+MONO+'" font-size="'+size+'" fill="'+color+'"'+(weight?' font-weight="'+weight+'"':'')+'>'+esc(label)+'</text>';
+}
+// ある頂点から複数の線(環の隣接結合・置換基など)が出ているとき、どの線からも
+// 最も離れた向きを選ぶ(単純な外向き放射方向だけだと置換基の向きと一致して重なることがあるため)。
+// vectors: その頂点から各方向へ伸びる単位ベクトル{x,y}の配列
+function bestLabelDir(vectors){
+  const N = 32;
+  let best = {x:1,y:0}, bestScore = Infinity;
+  for(let i=0;i<N;i++){
+    const ang = i*2*Math.PI/N;
+    const cx_ = Math.cos(ang), cy_ = Math.sin(ang);
+    let maxDot = -Infinity;
+    for(const v of vectors){ const d = cx_*v.x+cy_*v.y; if(d>maxDot) maxDot=d; }
+    if(maxDot < bestScore){ bestScore = maxDot; best = {x:cx_,y:cy_}; }
+  }
+  return best;
 }
 
 /* ---------- フィッシャー配置(親子則)ヘルパー ---------- */
@@ -586,8 +603,8 @@ function ringStep2SVG(){
   let o = '';
   for(let i=0;i<n-1;i++) o += svgLine(pts[i][0],pts[i][1],pts[i+1][0],pts[i+1][1],'#5E6E76',1.6);
   pts.forEach(p=> o += svgCircle(p[0],p[1],2.6,'#16232B'));
-  // C1: CHO(上)
-  o += svgText(pts[0][0], pts[0][1]-22, 'C1', 9, '#5E6E76');
+  // C1: CHO(上)。C1の番号はCHOの真下(矢印が上から降りてくる経路)を避け、原子の左に置く
+  o += svgText(pts[0][0]-9, pts[0][1]+3, 'C1', 9, '#5E6E76', 'end');
   o += svgText(pts[0][0], pts[0][1]-36, 'CHO', 10, '#1B4380', 'middle', '500');
   // C2〜C4: 通常の向き(上=R寄り, 下=L寄り。表示のみの約束で、フィッシャーの左右とは対応方向が異なる旨は本文で説明)
   const dirs = [true,false,true]; // C2上 C3下 C4上(交互のジグザグに沿わせた模式的な向き)
@@ -630,10 +647,14 @@ function ringStep3SVG(){
   for(let i=0;i<5;i++) o += svgLine(pts[i][0],pts[i][1],pts[i+1][0],pts[i+1][1],'#5E6E76',1.6);
   pts.forEach(p=>{ o += svgCircle(p[0],p[1],2.6,'#16232B'); });
   // C2〜C4のOHを弧の外側に短く(炭素番号はCHO/OH/CH2OHの位置で分かるため重ねて描かない)
+  // i=1(C2)はpts[0]へ向かう弧の弦・C5→C1の破線矢印がどちらも左側から近づくため、
+  // OHを右にずらして避ける(i=2,3は近くの弧・矢印から十分離れているためそのまま)
+  const ohXShift3 = {1:14, 2:0, 3:0};
   for(let i=1;i<=3;i++){
     const p = pts[i];
-    o += svgLine(p[0],p[1], p[0], p[1]+26, '#2457A6', 1.5);
-    o += svgText(p[0], p[1]+40, 'OH', 9, '#2457A6', 'middle', '500');
+    const x2 = p[0] + (ohXShift3[i]||0);
+    o += svgLine(p[0],p[1], x2, p[1]+26, '#2457A6', 1.5);
+    o += svgText(x2, p[1]+40, 'OH', 9, '#2457A6', 'middle', '500');
   }
   // C1: CHO、C5: OH(向き合っている)を強調
   o += svgText(pts[0][0]-4, pts[0][1]-26, 'CHO(C1)', 10, '#1B4380', 'end', '500');
@@ -661,36 +682,53 @@ function hemiRingSVG(anomerState, cx, cy, r){
     const a=ring[i], b=ring[(i+1)%6];
     o += svgLine(a[0],a[1],b[0],b[1],'#5E6E76',1.6);
   }
-  // 環炭素の番号は中心から外向き(放射方向)にオフセットして置く。隣の置換基ラベルと
-  // 同じ側に寄って衝突するのを避けるため、固定の上下オフセットではなく中心からの方向を使う
-  function radial(p, dist){
-    const dx=p[0]-cx, dy=p[1]-cy, dlen=Math.hypot(dx,dy)||1;
-    return [p[0]+(dx/dlen)*dist, p[1]+(dy/dlen)*dist];
+  // 環炭素の番号は、その頂点から出る線(環の隣接2本+OH/H等の置換基があればその向き)から
+  // 最も離れた向きに置く(中心からの単純な放射方向だけだと置換基の向きと一致して重なることがある)
+  function ringDirs(i, subDir){
+    const p = ring[i];
+    const dirs = [];
+    const addDir=(tx,ty)=>{ const dx=tx-p[0], dy=ty-p[1], l=Math.hypot(dx,dy)||1; dirs.push({x:dx/l,y:dy/l}); };
+    addDir(ring[(i+5)%6][0], ring[(i+5)%6][1]);
+    addDir(ring[(i+1)%6][0], ring[(i+1)%6][1]);
+    if(subDir) addDir(p[0]+subDir.x, p[1]+subDir.y);
+    return dirs;
   }
   const numFont = Math.max(7, 8*k);
-  const oLabelPos = radial(ring[0], 10*k);
-  o += svgText(oLabelPos[0], oLabelPos[1]+3*k, 'O', Math.max(8,9.5*k), '#5E6E76');
+  // オフセットはkに完全比例させず下限を持たせる(小さい2枚並びパネルではk=0.62で線の本数が
+  // 多く、offset*kだけだと近すぎて置換基や環の結合線に触れてしまうため)
+  const oOffset = 9 + 6*k, numOffset = 9 + 7*k;
+  const oDir = bestLabelDir(ringDirs(0, null));
+  o += svgText(ring[0][0]+oDir.x*oOffset, ring[0][1]+oDir.y*oOffset+3*k, 'O', Math.max(8,9.5*k), '#5E6E76');
   const labels = ['','C1','C2','C3','C4','C5'];
+  // sub()の実装(下)と対応させたおおよその置換基方向(C1のみ左に9kずれる。未確定〈anomerState=null〉のC1は左右2本のため方向を特定しない)
+  const subDirs = {
+    1: anomerState===null ? null : {x:-9*k, y:(anomerState==='beta'?-18:18)*k},
+    2: {x:0,y:18*k}, 3: {x:0,y:-18*k}, 4: {x:0,y:18*k}, 5: {x:0,y:-20*k}
+  };
   for(let i=1;i<6;i++){
-    const lp = radial(ring[i], 12*k);
-    o += svgText(lp[0], lp[1]+3*k, labels[i], numFont, '#5E6E76');
+    const dir = bestLabelDir(ringDirs(i, subDirs[i]));
+    o += svgText(ring[i][0]+dir.x*numOffset, ring[i][1]+dir.y*numOffset+3*k, labels[i], numFont, '#5E6E76');
   }
-  // C2:下 C3:上 C4:下(D-グルコース) / C5:CH2OH上
-  function sub(idx, up, label, color, len){
-    const p = ring[idx]; const ln=(len||18)*k; const y2 = up? p[1]-ln : p[1]+ln;
-    o += svgLine(p[0],p[1],p[0],y2,color,1.6);
-    o += svgText(p[0], up? y2-4*k : y2+10*k, label, Math.max(7.5,8.5*k), color, 'middle', '500');
+  // C2:下 C3:上 C4:下(D-グルコース) / C5:CH2OH上。xShiftは環の隣の結合線を避けるための水平方向の追加ずらし
+  function sub(idx, up, label, color, len, xShift){
+    const p = ring[idx]; const ln=(len||18)*k; const xs=(xShift||0)*k;
+    const x2 = p[0]+xs, y2 = up? p[1]-ln : p[1]+ln;
+    o += svgLine(p[0],p[1],x2,y2,color,1.6);
+    o += svgText(x2, up? y2-8*k : y2+14*k, label, Math.max(7.5,8.5*k), color, 'middle', '500');
   }
   sub(2,false,'OH','#2457A6'); sub(3,true,'OH','#2457A6'); sub(4,false,'OH','#2457A6'); sub(5,true,'CH2OH','#0D6A53',20);
   if(anomerState===null){
-    // 未確定: OHとHを両方、C1から真下寄りに短く小さく併記(隣のC2側へ寄りすぎないよう水平方向を狭くする)
+    // 未確定: OHとHを両方、C1から下向きに開いて併記する。C1-C2の環の結合線は右下へ斜めに
+    // 伸びるため、OH側は左により大きく開いて角度をつけ、結合線と平行に近づかないようにする
     const p = ring[1];
-    o += svgLine(p[0],p[1],p[0]-9*k,p[1]+24*k,'#A82A6A',1.4);
+    o += svgLine(p[0],p[1],p[0]-16*k,p[1]+20*k,'#A82A6A',1.4);
     o += svgLine(p[0],p[1],p[0]+9*k,p[1]+24*k,'#A82A6A',1.4);
-    o += svgText(p[0]-9*k, p[1]+38*k, 'OH', Math.max(7,8*k), '#831F52', 'middle');
+    o += svgText(p[0]-16*k, p[1]+34*k, 'OH', Math.max(7,8*k), '#831F52', 'middle');
     o += svgText(p[0]+9*k, p[1]+38*k, 'H', Math.max(7,8*k), '#831F52', 'middle');
   } else {
-    sub(1, anomerState==='beta', 'OH', '#A82A6A');
+    // C1はC2が右下にあるため、真下/真上ではなく左に16k寄せてC1-C2の環の結合線から離す
+    // (9kでは2枚並びの小さい表示〈k=0.62〉で角度差が足りずラベルが結合線に触れたため広げた)
+    sub(1, anomerState==='beta', 'OH', '#A82A6A', undefined, -16);
   }
   return { svg:o, ring };
 }
@@ -745,8 +783,10 @@ function haworthSVG(anomer){
   const W = NARROW ? 300:380, H = NARROW ? 190:210;
   const cx=W/2, cy=H/2-6, r= NARROW?70:82;
   let ring=[];
+  // 角度に8°のオフセットを入れ、六角形の対称性でC1とC2(・C4とC5)が同じx座標になって
+  // 結合線が真上下に重なり、ラベルも衝突しやすくなるのを崩す(環の形自体は変わらない)
   for(let i=0;i<6;i++){
-    const ang = (90 - i*60) * D2R;
+    const ang = (90 - i*60 - 8) * D2R;
     ring.push([cx + r*Math.cos(ang), cy - r*Math.sin(ang)*0.55]);
   }
   // ring[0]=O(top), 1=C1(右上),2=C2(右下),3=C3(下),4=C4(左下),5=C5(左上)
@@ -759,13 +799,19 @@ function haworthSVG(anomer){
   frontEdges.forEach(([a,b])=>{
     o += '<line x1="'+ring[a][0]+'" y1="'+ring[a][1]+'" x2="'+ring[b][0]+'" y2="'+ring[b][1]+'" stroke="#16232B" stroke-width="2.2"/>';
   });
-  o += '<text x="'+ring[0][0]+'" y="'+(ring[0][1]-8)+'" text-anchor="middle" font-family="IBM Plex Mono,monospace" font-size="10.5" fill="#5E6E76">O</text>';
+  const oDir = bestLabelDir([
+    {x: ring[1][0]-ring[0][0], y: ring[1][1]-ring[0][1]},
+    {x: ring[5][0]-ring[0][0], y: ring[5][1]-ring[0][1]}
+  ].map(v=>{ const l=Math.hypot(v.x,v.y)||1; return {x:v.x/l,y:v.y/l}; }));
+  o += svgText(ring[0][0]+oDir.x*13, ring[0][1]+oDir.y*13+3, 'O', 10.5, '#5E6E76');
 
+  // dirUpは常に「純粋な上下」で描く(ハース投影式の約束事として意味を持つため向きは変えない)。
+  // ラベルは結合線の延長線上、十分離れた位置に置く(見た目の縮尺kが無いためpxは固定)
   function sub(idx, dirUp, label, color, extraDown){
     const p = ring[idx];
     const y2 = dirUp ? p[1]-22 : p[1]+22+(extraDown||0);
     o += '<line x1="'+p[0]+'" y1="'+p[1]+'" x2="'+p[0]+'" y2="'+y2+'" stroke="'+color+'" stroke-width="1.8"/>';
-    o += '<text x="'+p[0]+'" y="'+(dirUp? y2-4 : y2+11)+'" text-anchor="middle" font-family="IBM Plex Mono,monospace" font-size="10.5" fill="'+color+'" font-weight="500">'+esc(label)+'</text>';
+    o += '<text x="'+p[0]+'" y="'+(dirUp? y2-9 : y2+15)+'" text-anchor="middle" font-family="IBM Plex Mono,monospace" font-size="10.5" fill="'+color+'" font-weight="500">'+esc(label)+'</text>';
   }
   // C2:下 C3:上 C4:下 C5:CH2OH上
   sub(2, false, 'OH', '#2457A6');
@@ -773,9 +819,16 @@ function haworthSVG(anomer){
   sub(4, false, 'OH', '#2457A6');
   sub(5, true, 'CH2OH', '#0D6A53');
   // C1: alpha=下(ax) beta=上(eq)
-  sub(1, anomer==='beta', 'OH', '#A82A6A');
+  const c1Up = anomer==='beta';
+  sub(1, c1Up, 'OH', '#A82A6A');
   ring.forEach((p,i)=>{ o += '<circle cx="'+p[0]+'" cy="'+p[1]+'" r="2.4" fill="#16232B"/>'; });
-  o += '<text x="'+ring[1][0]+'" y="'+(ring[1][1]+16)+'" text-anchor="start" font-family="IBM Plex Mono,monospace" font-size="9" fill="#5E6E76">C1</text>';
+  const c1SubDir = { x:0, y: c1Up? -1:1 };
+  const c1Dir = bestLabelDir([
+    {x: ring[0][0]-ring[1][0], y: ring[0][1]-ring[1][1]},
+    {x: ring[2][0]-ring[1][0], y: ring[2][1]-ring[1][1]},
+    c1SubDir
+  ].map(v=>{ const l=Math.hypot(v.x,v.y)||1; return {x:v.x/l,y:v.y/l}; }));
+  o += svgText(ring[1][0]+c1Dir.x*13, ring[1][1]+c1Dir.y*13+3, 'C1', 9, '#5E6E76');
   return '<svg class="scheme" viewBox="0 0 '+W+' '+H+'" width="100%" height="'+H+'" role="img" aria-label="'+(anomer==='alpha'?'α':'β')+'-D-グルコピラノースのハース投影式">'+o+'</svg>';
 }
 function renderHaworth(){
@@ -853,13 +906,17 @@ function ringPathSVG(atoms, cx, cy){
   pts.forEach(p=>{ o += svgCircle(p[0],p[1],2.6,'#16232B'); });
   return { svg:o, pts, proj };
 }
-function subSVG(atom, cx, cy, kind, label, color, labelOffset){
+// ラベルは結合線の向きに沿って固定px分だけ離す(投影で結合が短く見える角度でも
+// 離れる距離が縮まないよう、伸ばす量は投影後の線の長さに比例させない)
+function subSVG(atom, cx, cy, kind, label, color, extraPx){
   const a = project(atom);
   const sp = substituentPoint(atom, kind);
   const b = project(sp);
   const ax1=cx+a.x, ay1=cy+a.y, ax2=cx+b.x, ay2=cy+b.y;
-  const ext = labelOffset===undefined ? 0.30 : labelOffset;
-  const lx = ax2 + (ax2-ax1)*ext, ly = ay2 + (ay2-ay1)*ext;
+  const dx=ax2-ax1, dy=ay2-ay1, dlen=Math.hypot(dx,dy)||1;
+  const ux=dx/dlen, uy=dy/dlen;
+  const px = extraPx===undefined ? (9+label.length*2.4) : extraPx;
+  const lx = ax2 + ux*px, ly = ay2 + uy*px;
   return {
     svg: svgLine(ax1,ay1,ax2,ay2,color,1.8) + svgText(lx,ly,label,9.5,color),
     tip: [ax2,ay2], labelPos: [lx,ly]
@@ -876,12 +933,23 @@ function chairFormSVG(){
   const atoms = [0,1,2,3,4,5].map(k=>atomFn(k));
   const ring = ringPathSVG(atoms, cx, cy);
   let o = ring.svg;
-  // 環炭素にC1〜C6の小さいラベル(中心から外向きにオフセット)
+  // 環炭素にC1〜C6の小さいラベル。各原子から出る線(環の隣接2本+置換基)の向きをすべて集め、
+  // どの線からも最も離れた向きにラベルを置いて重なりを避ける(投影で線が短く見えても崩れない)
   atoms.forEach((a,i)=>{
-    const p = ring.proj[i];
-    const outward = Math.hypot(p.x,p.y) || 1;
-    const lx = cx + p.x + (p.x/outward)*11, ly = cy + p.y + (p.y/outward)*11 - 2;
-    o += svgText(lx, ly, 'C'+(i+1), 8, '#5E6E76');
+    const p = ring.pts[i];
+    const dirs = [];
+    const addDir = (tx,ty)=>{ const dx=tx-p[0], dy=ty-p[1], l=Math.hypot(dx,dy)||1; dirs.push({x:dx/l,y:dy/l}); };
+    addDir(ring.pts[(i+5)%6][0], ring.pts[(i+5)%6][1]);
+    addDir(ring.pts[(i+1)%6][0], ring.pts[(i+1)%6][1]);
+    if(st.chairForm==='chair'){
+      const axTip = project(substituentPoint(a,'axial')); addDir(cx+axTip.x, cy+axTip.y);
+      const eqTip = project(substituentPoint(a,'equatorial')); addDir(cx+eqTip.x, cy+eqTip.y);
+    } else {
+      const flag = DATA.boatGeometry.flagpoleIndices.indexOf(i)!==-1;
+      const tip = project(substituentPoint(a, flag?'axial':'equatorial')); addDir(cx+tip.x, cy+tip.y);
+    }
+    const dir = bestLabelDir(dirs);
+    o += svgText(p[0]+dir.x*15, p[1]+dir.y*15+3, 'C'+(i+1), 8, '#5E6E76');
   });
   if(st.chairForm==='chair'){
     // いす形: アキシアル(マゼンタ)/エクアトリアル(緑)で色分け
@@ -892,9 +960,10 @@ function chairFormSVG(){
     if(st.diaxial){
       const idxs = [0,2,4]; // C1・C3・C5相当(1つおき)
       const tips = idxs.map(i=>{ const sp = substituentPoint(atoms[i],'axial'); const p = project(sp); return [cx+p.x, cy+p.y]; });
-      const midY = Math.min(tips[0][1],tips[1][1],tips[2][1]) - 26;
+      // 弧を高めに持ち上げ、間にあるC2・C4・C6のアキシアルHラベルと交差しないようにする
+      const midY = Math.min(tips[0][1],tips[1][1],tips[2][1]) - 42;
       o += '<path d="M '+tips[0][0].toFixed(1)+' '+tips[0][1].toFixed(1)+' Q '+cx.toFixed(1)+' '+midY.toFixed(1)+' '+tips[1][0].toFixed(1)+' '+tips[1][1].toFixed(1)+'" fill="none" stroke="#A82A6A" stroke-width="1.6" stroke-dasharray="3 3"/>';
-      o += '<path d="M '+tips[1][0].toFixed(1)+' '+tips[1][1].toFixed(1)+' Q '+cx.toFixed(1)+' '+(midY-24).toFixed(1)+' '+tips[2][0].toFixed(1)+' '+tips[2][1].toFixed(1)+'" fill="none" stroke="#A82A6A" stroke-width="1.6" stroke-dasharray="3 3"/>';
+      o += '<path d="M '+tips[1][0].toFixed(1)+' '+tips[1][1].toFixed(1)+' Q '+cx.toFixed(1)+' '+(midY-34).toFixed(1)+' '+tips[2][0].toFixed(1)+' '+tips[2][1].toFixed(1)+'" fill="none" stroke="#A82A6A" stroke-width="1.6" stroke-dasharray="3 3"/>';
     }
   } else {
     // 舟形: 中立色(グレー)のみ、旗竿位(1,4位=k0,3)だけ強調して破線で結ぶ
@@ -904,7 +973,7 @@ function chairFormSVG(){
       const flag = flagIdx.indexOf(i)!==-1;
       const kind = flag ? 'axial' : 'equatorial';
       const color = flag ? '#A82A6A' : '#8C98A0';
-      const r = subSVG(a, cx, cy, kind, flag?'H(旗竿位)':'H', color, flag?0.34:0.28);
+      const r = subSVG(a, cx, cy, kind, flag?'H(旗竿位)':'H', color, flag?18:12);
       o += r.svg;
       if(flag) tips.push(r.tip);
     });
@@ -949,18 +1018,40 @@ function glucoseChairSVG(){
   const byLabel = {}; GLUCOSE_RING_ORDER.forEach((label,k)=>{ byLabel[label]=atoms[k]; });
   const ring = ringPathSVG(atoms, cx, cy);
   let o = ring.svg;
-  // 環原子のラベル(C1〜C5・O)
+  const subKind = {
+    C1: st.glucoseAnomer==='alpha' ? 'axial':'equatorial',
+    C2: isAxial('C2')?'axial':'equatorial',
+    C3: isAxial('C3')?'axial':'equatorial',
+    C4: isAxial('C4')?'axial':'equatorial',
+    C5: 'equatorial'
+  };
+  // 環原子のラベル(C1〜C5・O)。各原子から出る線(環の隣接2本+OH/CH2OHがあればその向き)を
+  // すべて集め、どの線からも最も離れた向きにラベルを置いて重なりを避ける。環のOはCH2OH等の
+  // 置換基を持たず埋もれやすいため、短い引き出し線を足し、フォントも大きく太くして位置を分かりやすくする
   atoms.forEach((a,i)=>{
-    const p = ring.proj[i];
-    const outward = Math.hypot(p.x,p.y) || 1;
-    const lx = cx + p.x + (p.x/outward)*12, ly = cy + p.y + (p.y/outward)*12 - 2;
-    o += svgText(lx, ly, GLUCOSE_RING_ORDER[i], 8.5, '#5E6E76');
+    const p = ring.pts[i];
+    const label = GLUCOSE_RING_ORDER[i];
+    const dirs = [];
+    const addDir = (tx,ty)=>{ const dx=tx-p[0], dy=ty-p[1], l=Math.hypot(dx,dy)||1; dirs.push({x:dx/l,y:dy/l}); };
+    addDir(ring.pts[(i+5)%6][0], ring.pts[(i+5)%6][1]);
+    addDir(ring.pts[(i+1)%6][0], ring.pts[(i+1)%6][1]);
+    if(subKind[label]){
+      const tip = project(substituentPoint(a, subKind[label])); addDir(cx+tip.x, cy+tip.y);
+    }
+    const dir = bestLabelDir(dirs);
+    if(label==='O'){
+      const lx1=p[0], ly1=p[1], lx2=p[0]+dir.x*17, ly2=p[1]+dir.y*17;
+      o += svgLine(lx1,ly1,lx2,ly2,'#8C98A0',1.1);
+      o += svgText(lx2+dir.x*9, ly2+dir.y*9, 'O', 11, '#16232B', 'middle', '700');
+      return;
+    }
+    o += svgText(p[0]+dir.x*15, p[1]+dir.y*15+3, label, 8.5, '#5E6E76');
   });
   const subs = [
-    { id:'C1', atom: byLabel.C1, kind: st.glucoseAnomer==='alpha' ? 'axial':'equatorial', label:'OH', color:'#A82A6A' },
-    { id:'C2', atom: byLabel.C2, kind: isAxial('C2')?'axial':'equatorial', label:'OH', color:'#2457A6' },
-    { id:'C3', atom: byLabel.C3, kind: isAxial('C3')?'axial':'equatorial', label:'OH', color:'#2457A6' },
-    { id:'C4', atom: byLabel.C4, kind: isAxial('C4')?'axial':'equatorial', label:'OH', color:'#2457A6' },
+    { id:'C1', atom: byLabel.C1, kind: subKind.C1, label:'OH', color:'#A82A6A' },
+    { id:'C2', atom: byLabel.C2, kind: subKind.C2, label:'OH', color:'#2457A6' },
+    { id:'C3', atom: byLabel.C3, kind: subKind.C3, label:'OH', color:'#2457A6' },
+    { id:'C4', atom: byLabel.C4, kind: subKind.C4, label:'OH', color:'#2457A6' },
     { id:'C5', atom: byLabel.C5, kind: 'equatorial', label:'CH2OH', color:'#0D6A53' }
   ];
   subs.forEach(s=>{ o += subSVG(s.atom, cx, cy, s.kind, s.label, s.color).svg; });
