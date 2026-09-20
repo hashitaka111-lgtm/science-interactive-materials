@@ -105,7 +105,7 @@ tr.on td{background:var(--paper)}
 .node.hl{border-color:var(--s4);background:rgba(168,42,106,.06)}
 .node[aria-pressed="true"]{outline:2px solid var(--ink)}
 .node .nname{font-size:11px;font-weight:600;margin-top:3px}
-.node .nen{font-size:9px;color:var(--muted);font-family:var(--mono)}
+.node .nen{font-size:9px;color:var(--muted);font-family:var(--mono);overflow-wrap:anywhere;word-break:break-word;line-height:1.3}
 .nodedetail{margin-top:10px}
 
 /* ---------- ハース環・いす形(シーン4・5) ---------- */
@@ -120,6 +120,10 @@ tr.on td{background:var(--paper)}
 .subtag:focus-visible{outline:2px solid var(--ink);outline-offset:1px}
 .chairgrid{display:grid;grid-template-columns:1fr;gap:14px;margin-top:8px}
 @media(min-width:600px){.chairgrid{grid-template-columns:1fr 1fr}}
+.schemecaption{font-family:var(--mono);font-size:10.5px;color:var(--muted);margin:6px 2px 0}
+.axeqlegend{display:flex;flex-wrap:wrap;gap:12px;margin-top:6px;font-size:11px;color:var(--muted)}
+.axeqlegend span{display:inline-flex;align-items:center;gap:4px}
+.axeqlegend i{display:inline-block;width:14px;height:2px;border-radius:1px}
 
 @media (prefers-reduced-motion:no-preference){ .btn,.stepbtn,.node,.mcell,.ringbtn{transition:border-color 120ms linear,background-color 120ms linear} }
 
@@ -218,6 +222,8 @@ tr.on td{background:var(--paper)}
   <h2>シクロヘキサンのいす形 ⇄ 舟形</h2>
   <div class="ringbar" id="chairFormToggle" role="group" aria-label="いす形・舟形の切り替え"></div>
   <div class="schemewrap"><div id="chairFormScheme"></div></div>
+  <p class="schemecaption" id="chairFormCaption"></p>
+  <div class="axeqlegend" id="chairFormLegend"></div>
   <p class="note" id="chairFormNote"></p>
   <div class="btnrow"><button type="button" class="btn" id="toggleDiaxial" aria-pressed="false">1,3-ジアキシアル相互作用を表示</button></div>
   <p class="note" id="diaxialNote" hidden></p>
@@ -227,6 +233,8 @@ tr.on td{background:var(--paper)}
   <h2>D-グルコピラノースのいす形(4C1)</h2>
   <div class="ringbar" id="glucoseAnomerToggle" role="group" aria-label="D-グルコピラノースのαβ切り替え"></div>
   <div class="schemewrap"><div id="glucoseChairScheme"></div></div>
+  <p class="schemecaption" id="glucoseChairCaption"></p>
+  <div class="axeqlegend" id="glucoseChairLegend"></div>
   <p class="note">置換基をタップするとアキシアル/エクアトリアルを表示する。</p>
   <div class="key" id="chairSubDetail" hidden></div>
 </section>
@@ -260,6 +268,18 @@ const DATA = {"meta":{"atomicWeights":{"H":1,"C":12,"O":16},"note":"分子量は
 
 const esc = s => String(s).replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
 const D2R = Math.PI/180;
+
+/* ---------- SVG組み立て用の小さいヘルパー ---------- */
+const MONO = 'IBM Plex Mono,monospace';
+function svgLine(x1,y1,x2,y2,color,w,dash){
+  return '<line x1="'+x1.toFixed(1)+'" y1="'+y1.toFixed(1)+'" x2="'+x2.toFixed(1)+'" y2="'+y2.toFixed(1)+'" stroke="'+color+'" stroke-width="'+w+'"'+(dash?' stroke-dasharray="'+dash+'"':'')+'/>';
+}
+function svgCircle(x,y,r,fill,stroke,sw){
+  return '<circle cx="'+x.toFixed(1)+'" cy="'+y.toFixed(1)+'" r="'+r+'" fill="'+fill+'"'+(stroke?' stroke="'+stroke+'" stroke-width="'+(sw||1)+'"':'')+'/>';
+}
+function svgText(x,y,label,size,color,anchor,weight){
+  return '<text x="'+x.toFixed(1)+'" y="'+y.toFixed(1)+'" text-anchor="'+(anchor||'middle')+'" font-family="'+MONO+'" font-size="'+size+'" fill="'+color+'"'+(weight?' font-weight="'+weight+'"':'')+'>'+esc(label)+'</text>';
+}
 
 /* ---------- フィッシャー配置(親子則)ヘルパー ---------- */
 function deriveConfig(tree, id){
@@ -326,20 +346,27 @@ function renderCommonProps(){
       '<div class="cbody"><p>'+pp.items.map(esc).join('・')+'</p></div></div>';
 }
 
-// 分類スケルトングリフ(骨格+不斉炭素に*)
+// 分類グリフ: ノートのように基の表記を縦に積んだ構造式(不斉炭素には*)
 function skeletonGlyph(n, kind){
-  const rowH=13, topPad=6, cx=15;
+  const rowH=13.5, topPad=8, cx=4;
   const totalH = topPad*2 + rowH*(n-1);
-  const w = 46;
-  let o = '<line x1="'+cx+'" y1="'+topPad+'" x2="'+cx+'" y2="'+(topPad+rowH*(n-1))+'" stroke="var(--rule)" stroke-width="1.3"/>';
+  const w = 56;
   let color = kind==='aldose' ? '#1B4380' : (kind==='ketose' ? '#0D6A53' : '#8A5A0C');
+  let o = '';
   for(let i=0;i<n;i++){
     const y = topPad + rowH*i;
-    let isCarbonyl=false, isChiral=false;
-    if(kind==='aldose'){ isCarbonyl = (i===0); isChiral = (i>0 && i<n-1); }
-    else if(kind==='ketose'){ isCarbonyl = (i===1); isChiral = (i>1 && i<n-1); }
-    o += '<circle cx="'+cx+'" cy="'+y+'" r="'+(isCarbonyl?2.6:1.8)+'" fill="'+(isCarbonyl?color:'var(--ink)')+'"/>';
-    if(isChiral) o += '<text x="'+(cx+7)+'" y="'+(y+3)+'" font-family="IBM Plex Mono,monospace" font-size="9.5" fill="'+color+'">*</text>';
+    let label, isCarbonyl=false, isChiral=false;
+    if(kind==='aldose'){
+      isCarbonyl = (i===0); isChiral = (i>0 && i<n-1);
+      label = isCarbonyl ? 'CHO' : (i===n-1 ? 'CH2OH' : 'CHOH');
+    } else if(kind==='ketose'){
+      isCarbonyl = (i===1); isChiral = (i>1 && i<n-1);
+      label = (i===0 || i===n-1) ? 'CH2OH' : (isCarbonyl ? 'C=O' : 'CHOH');
+    } else {
+      label = (i===0 || i===n-1) ? 'CH2OH' : 'CHOH';
+    }
+    o += '<text x="'+cx+'" y="'+(y+3)+'" font-family="IBM Plex Mono,monospace" font-size="9.5" fill="'+(isCarbonyl?color:'var(--ink)')+'" font-weight="'+(isCarbonyl?'600':'400')+'">'+label+'</text>';
+    if(isChiral) o += '<text x="'+(cx+40)+'" y="'+(y+3)+'" font-family="IBM Plex Mono,monospace" font-size="10" fill="'+color+'" font-weight="600">*</text>';
   }
   return '<svg class="skel" viewBox="0 0 '+w+' '+totalH+'" width="'+w+'" height="'+totalH+'" aria-hidden="true">'+o+'</svg>';
 }
@@ -387,7 +414,9 @@ function renderFischerSteps(){
 }
 
 // D-グルコースの完全なフィッシャー投影式(configStr: 4文字, idx0=C2..idx3=C5)
-function fischerDetailSVG(configStr, seriesLabel){
+// highlightLabel省略時は"D/L判定"(通常のFISCHERシーン)。RINGシーンのSTEP1ではC5を強調する目的が異なるため差し替える。
+function fischerDetailSVG(configStr, seriesLabel, highlightLabel){
+  highlightLabel = highlightLabel===undefined ? 'D/L判定' : highlightLabel;
   const rowH=38, barHalf=30, topPad=16;
   const cx = 112;
   const n = configStr.length+2;
@@ -414,19 +443,19 @@ function fischerDetailSVG(configStr, seriesLabel){
     }
     o += '<g>'+rowSvg+'<circle cx="'+cx+'" cy="'+y+'" r="2.4" fill="#16232B"/>'+
       '<text x="'+(cx-barHalf-36)+'" y="'+(y+4)+'" text-anchor="end" font-family="IBM Plex Mono,monospace" font-size="10" fill="#5E6E76">C'+carbonNum+'</text></g>';
-    if(i===n-2){
+    if(i===n-2 && highlightLabel){
       o += '<rect x="'+(cx-barHalf-4)+'" y="'+(y-14)+'" width="'+(barHalf*2+56)+'" height="28" rx="3" fill="none" stroke="#A82A6A" stroke-width="1.8"/>';
-      o += '<text x="'+(cx+barHalf+56)+'" y="'+(y+4)+'" font-family="IBM Plex Mono,monospace" font-size="9.5" fill="#831F52">D/L判定</text>';
+      o += '<text x="'+(cx+barHalf+56)+'" y="'+(y+4)+'" font-family="IBM Plex Mono,monospace" font-size="9.5" fill="#831F52">'+esc(highlightLabel)+'</text>';
     }
   }
-  return '<svg viewBox="0 0 '+totalW+' '+totalH+'" width="100%" height="'+totalH+'" role="img" aria-label="'+esc(seriesLabel)+'のフィッシャー投影式">'+o+'</svg>';
+  return { svg: '<svg viewBox="0 0 '+totalW+' '+totalH+'" width="100%" height="'+totalH+'" role="img" aria-label="'+esc(seriesLabel)+'のフィッシャー投影式">'+o+'</svg>', width: totalW, height: totalH };
 }
 function renderFischerMain(){
   const glucoseD = deriveConfig(DATA.aldoseTree, 'glucose'); // RLRR
   const configStr = st.dSeries ? glucoseD : flipAll(glucoseD);
   const prefix = st.dSeries ? 'D' : 'L';
   document.getElementById('fischerHeading').textContent = prefix+'-グルコース のフィッシャー投影式';
-  document.getElementById('fischerMain').innerHTML = fischerDetailSVG(configStr, prefix+'-グルコース');
+  document.getElementById('fischerMain').innerHTML = fischerDetailSVG(configStr, prefix+'-グルコース').svg;
   document.getElementById('fischerDLNote').textContent =
     (st.dSeries ? DATA.fischerRules.determinantCarbonNoteJa : 'L-グルコースは全ての不斉炭素のOHの向きがD-グルコースと逆になる(C5のOHが左なのでL)。');
 }
@@ -546,56 +575,146 @@ function renderTreeDetail(){
 }
 
 /* ================= 4. RING ================= */
-function ringSVG(step){
-  const W = NARROW ? 320 : 560, H = NARROW ? 150 : 170;
-  const cy = H/2;
+// C2〜C5の置換基(OH/H)をD-グルコースの配置から求め、鎖状・環状の各ステップ図に共通で使う
+const GLUCOSE_CFG = deriveConfig(DATA.aldoseTree, 'glucose'); // "RLRR": idx0=C2,1=C3,2=C4,3=C5
+
+// STEP2: C5まわりを回してC5-OHがC1側に来た鎖(水平ジグザグ、置換基つき)
+function ringStep2SVG(){
+  const W = NARROW ? 320 : 560, H = NARROW ? 210 : 220;
+  const n = 6, dx = (W-70)/(n-1), startX = 35, baseY = H*0.52;
+  const pts = []; for(let i=0;i<n;i++) pts.push([startX+i*dx, baseY + (i%2===0?-13:13)]);
   let o = '';
-  if(step<=3){
-    // 鎖状のジグザグ(簡略化)
-    const n=6, dx=(step===3? 22 : 34), startX = step===3 ? W*0.3 : W*0.12;
-    let pts=[];
-    for(let i=0;i<n;i++){
-      const x = startX + i*dx;
-      const y = cy + (i%2===0? -14:14) + (step===3 ? i*4 : 0);
-      pts.push([x,y]);
-    }
-    for(let i=0;i<n-1;i++){
-      o += '<line x1="'+pts[i][0]+'" y1="'+pts[i][1]+'" x2="'+pts[i+1][0]+'" y2="'+pts[i+1][1]+'" stroke="#5E6E76" stroke-width="1.6"/>';
-    }
-    pts.forEach((p,i)=>{
-      o += '<circle cx="'+p[0]+'" cy="'+p[1]+'" r="3" fill="#16232B"/>';
-      o += '<text x="'+p[0]+'" y="'+(p[1]-8)+'" text-anchor="middle" font-family="IBM Plex Mono,monospace" font-size="9.5" fill="#5E6E76">C'+(i+1)+'</text>';
-    });
-    o += '<text x="'+pts[0][0]+'" y="'+(pts[0][1]+18)+'" text-anchor="middle" font-family="IBM Plex Mono,monospace" font-size="9.5" fill="#1B4380">CHO</text>';
-    if(step>=2){
-      o += '<text x="'+pts[4][0]+'" y="'+(pts[4][1]-16)+'" text-anchor="middle" font-family="IBM Plex Mono,monospace" font-size="9.5" fill="#0D6A53">C5-OH→C1へ</text>';
-    }
-    if(step===3){
-      o += '<path d="M '+pts[4][0]+' '+pts[4][1]+' Q '+((pts[4][0]+pts[0][0])/2)+' '+(cy-46)+' '+pts[0][0]+' '+pts[0][1]+'" fill="none" stroke="#A82A6A" stroke-width="1.4" stroke-dasharray="3 3"/>';
-    }
-  } else {
-    // 六員環(概念図)
-    const r = NARROW? 46:56, cx=W/2;
-    let ring=[];
-    for(let i=0;i<6;i++){
-      const ang = (90 - i*60) * D2R;
-      ring.push([cx + r*Math.cos(ang), cy - r*Math.sin(ang)*0.62]);
-    }
-    for(let i=0;i<6;i++){
-      const a=ring[i], b=ring[(i+1)%6];
-      o += '<line x1="'+a[0]+'" y1="'+a[1]+'" x2="'+b[0]+'" y2="'+b[1]+'" stroke="#5E6E76" stroke-width="1.6"/>';
-    }
-    o += '<text x="'+ring[0][0]+'" y="'+(ring[0][1]-9)+'" text-anchor="middle" font-family="IBM Plex Mono,monospace" font-size="10" fill="#5E6E76">O</text>';
-    for(let i=1;i<6;i++){
-      o += '<circle cx="'+ring[i][0]+'" cy="'+ring[i][1]+'" r="2.6" fill="#16232B"/>';
-      o += '<text x="'+ring[i][0]+'" y="'+(ring[i][1]+ (i<3?-8:14))+'" text-anchor="middle" font-family="IBM Plex Mono,monospace" font-size="9" fill="#5E6E76">C'+i+'</text>';
-    }
-    if(step===5){
-      o += '<circle cx="'+ring[1][0]+'" cy="'+ring[1][1]+'" r="8" fill="none" stroke="#A82A6A" stroke-width="1.6"/>';
-      o += '<text x="'+ring[1][0]+'" y="'+(ring[1][1]+22)+'" text-anchor="middle" font-family="IBM Plex Mono,monospace" font-size="9.5" fill="#831F52">α/β(C1)</text>';
-    }
+  for(let i=0;i<n-1;i++) o += svgLine(pts[i][0],pts[i][1],pts[i+1][0],pts[i+1][1],'#5E6E76',1.6);
+  pts.forEach(p=> o += svgCircle(p[0],p[1],2.6,'#16232B'));
+  // C1: CHO(上)
+  o += svgText(pts[0][0], pts[0][1]-22, 'C1', 9, '#5E6E76');
+  o += svgText(pts[0][0], pts[0][1]-36, 'CHO', 10, '#1B4380', 'middle', '500');
+  // C2〜C4: 通常の向き(上=R寄り, 下=L寄り。表示のみの約束で、フィッシャーの左右とは対応方向が異なる旨は本文で説明)
+  const dirs = [true,false,true]; // C2上 C3下 C4上(交互のジグザグに沿わせた模式的な向き)
+  for(let i=1;i<=3;i++){
+    const up = dirs[i-1];
+    const p = pts[i];
+    const y2 = up ? p[1]-30 : p[1]+30;
+    o += svgLine(p[0],p[1],p[0],y2,'#2457A6',1.6);
+    o += svgText(p[0], up?y2-5:y2+11, 'OH', 9.5, '#2457A6', 'middle', '500');
+    o += svgText(p[0]-14, p[1]+(up?9:-9), 'C'+(i+1), 8.5, '#5E6E76', 'end');
   }
-  return '<svg class="scheme" viewBox="0 0 '+W+' '+H+'" width="100%" height="'+H+'" role="img" aria-label="環化ステップ'+step+'の模式図">'+o+'</svg>';
+  // C5: OHを強調し、C1へ向かう矢印を添える
+  const p5 = pts[4];
+  o += svgText(p5[0], p5[1]+24, 'C5', 9, '#5E6E76');
+  o += svgLine(p5[0],p5[1], p5[0], p5[1]-32, '#A82A6A', 2.2);
+  o += svgText(p5[0], p5[1]-38, 'OH', 10.5, '#831F52', 'middle', '600');
+  o += '<path d="M '+(p5[0]-3).toFixed(1)+' '+(p5[1]-30).toFixed(1)+' Q '+((p5[0]+pts[0][0])/2).toFixed(1)+' '+(baseY-70)+' '+(pts[0][0]+4).toFixed(1)+' '+(pts[0][1]-30).toFixed(1)+'" fill="none" stroke="#A82A6A" stroke-width="1.5" stroke-dasharray="3 3" marker-end="url(#arrowRing)"/>';
+  // C6: CH2OH(向きが変わったことを示すため下向きに)
+  const p6 = pts[5];
+  o += svgLine(p6[0],p6[1], p6[0], p6[1]+30, '#0D6A53', 1.8);
+  o += svgText(p6[0], p6[1]+42, 'CH2OH', 9.5, '#0D6A53', 'middle', '500');
+  o += svgText(p6[0], p6[1]-18, 'C6', 9, '#5E6E76');
+  const defs = '<defs><marker id="arrowRing" markerWidth="7" markerHeight="7" refX="5" refY="3" orient="auto"><path d="M0,0 L6,3 L0,6 Z" fill="#A82A6A"/></marker></defs>';
+  return '<svg class="scheme" viewBox="0 0 '+W+' '+H+'" width="100%" height="'+H+'" role="img" aria-label="C5まわりを回した鎖の模式図">'+defs+o+'</svg>';
+}
+
+// STEP3: 横に倒して環を巻く途中(C5のOからC1のC=Oへ向かう矢印を強調)
+function ringStep3SVG(){
+  const W = NARROW ? 320 : 560, H = NARROW ? 210 : 220;
+  const cx = W/2, cy = H*0.56, r = NARROW?110:150;
+  // C1〜C6をゆるい弧の上に配置(まだ閉環していない、C1とC5が向き合う直前)
+  const pts = [];
+  const startDeg = 200, endDeg = -20; // 弧の開始・終了角
+  for(let i=0;i<6;i++){
+    const deg = startDeg + (endDeg-startDeg)*(i/5);
+    const rad = deg*D2R;
+    pts.push([cx + r*Math.cos(rad), cy - r*0.55*Math.sin(rad)]);
+  }
+  let o = '';
+  for(let i=0;i<5;i++) o += svgLine(pts[i][0],pts[i][1],pts[i+1][0],pts[i+1][1],'#5E6E76',1.6);
+  pts.forEach(p=>{ o += svgCircle(p[0],p[1],2.6,'#16232B'); });
+  // C2〜C4のOHを弧の外側に短く(炭素番号はCHO/OH/CH2OHの位置で分かるため重ねて描かない)
+  for(let i=1;i<=3;i++){
+    const p = pts[i];
+    o += svgLine(p[0],p[1], p[0], p[1]+26, '#2457A6', 1.5);
+    o += svgText(p[0], p[1]+40, 'OH', 9, '#2457A6', 'middle', '500');
+  }
+  // C1: CHO、C5: OH(向き合っている)を強調
+  o += svgText(pts[0][0]-4, pts[0][1]-26, 'CHO(C1)', 10, '#1B4380', 'end', '500');
+  o += svgText(pts[4][0]+4, pts[4][1]-26, 'OH(C5)', 10, '#831F52', 'start', '600');
+  o += svgText(pts[5][0], pts[5][1]+22, 'CH2OH(C6)', 9, '#0D6A53', 'middle');
+  const defs = '<defs><marker id="arrowRing3" markerWidth="7" markerHeight="7" refX="5" refY="3" orient="auto"><path d="M0,0 L6,3 L0,6 Z" fill="#A82A6A"/></marker></defs>';
+  o += '<path d="M '+(pts[4][0]).toFixed(1)+' '+(pts[4][1]-20).toFixed(1)+' Q '+((pts[4][0]+pts[0][0])/2).toFixed(1)+' '+(cy-r*0.9).toFixed(1)+' '+(pts[0][0]).toFixed(1)+' '+(pts[0][1]-20).toFixed(1)+'" fill="none" stroke="#A82A6A" stroke-width="1.6" stroke-dasharray="3 3" marker-end="url(#arrowRing3)"/>';
+  o += svgText((pts[0][0]+pts[4][0])/2, cy-r*0.9-8, 'C5-O → C1-C=O', 9.5, '#831F52');
+  return '<svg class="scheme" viewBox="0 0 '+W+' '+H+'" width="100%" height="'+H+'" role="img" aria-label="環を巻く途中の模式図">'+defs+o+'</svg>';
+}
+
+// 六員環(ハース風の概念図)。anomerState: null(step4, C1未確定) / 'alpha' / 'beta'
+function hemiRingSVG(anomerState, cx, cy, r){
+  // 角度に小さいオフセット(8°)を入れ、C1とC2(・C4とC5)が同じx座標に重なって
+  // ラベルが衝突するのを避ける(六角形の対称性による偶然の一致を崩すだけで、環の形は変わらない)
+  const ring = [];
+  for(let i=0;i<6;i++){
+    const ang = (90 - i*60 - 8) * D2R;
+    ring.push([cx + r*Math.cos(ang), cy - r*Math.sin(ang)*0.62]);
+  }
+  const k = Math.max(r/74, 0.62); // 半径に応じてティック長・ラベルオフセットを縮尺
+  // ring[0]=O, 1=C1, 2=C2, 3=C3, 4=C4, 5=C5
+  let o = '';
+  for(let i=0;i<6;i++){
+    const a=ring[i], b=ring[(i+1)%6];
+    o += svgLine(a[0],a[1],b[0],b[1],'#5E6E76',1.6);
+  }
+  // 環炭素の番号は中心から外向き(放射方向)にオフセットして置く。隣の置換基ラベルと
+  // 同じ側に寄って衝突するのを避けるため、固定の上下オフセットではなく中心からの方向を使う
+  function radial(p, dist){
+    const dx=p[0]-cx, dy=p[1]-cy, dlen=Math.hypot(dx,dy)||1;
+    return [p[0]+(dx/dlen)*dist, p[1]+(dy/dlen)*dist];
+  }
+  const numFont = Math.max(7, 8*k);
+  const oLabelPos = radial(ring[0], 10*k);
+  o += svgText(oLabelPos[0], oLabelPos[1]+3*k, 'O', Math.max(8,9.5*k), '#5E6E76');
+  const labels = ['','C1','C2','C3','C4','C5'];
+  for(let i=1;i<6;i++){
+    const lp = radial(ring[i], 12*k);
+    o += svgText(lp[0], lp[1]+3*k, labels[i], numFont, '#5E6E76');
+  }
+  // C2:下 C3:上 C4:下(D-グルコース) / C5:CH2OH上
+  function sub(idx, up, label, color, len){
+    const p = ring[idx]; const ln=(len||18)*k; const y2 = up? p[1]-ln : p[1]+ln;
+    o += svgLine(p[0],p[1],p[0],y2,color,1.6);
+    o += svgText(p[0], up? y2-4*k : y2+10*k, label, Math.max(7.5,8.5*k), color, 'middle', '500');
+  }
+  sub(2,false,'OH','#2457A6'); sub(3,true,'OH','#2457A6'); sub(4,false,'OH','#2457A6'); sub(5,true,'CH2OH','#0D6A53',20);
+  if(anomerState===null){
+    // 未確定: OHとHを両方、C1から真下寄りに短く小さく併記(隣のC2側へ寄りすぎないよう水平方向を狭くする)
+    const p = ring[1];
+    o += svgLine(p[0],p[1],p[0]-9*k,p[1]+24*k,'#A82A6A',1.4);
+    o += svgLine(p[0],p[1],p[0]+9*k,p[1]+24*k,'#A82A6A',1.4);
+    o += svgText(p[0]-9*k, p[1]+38*k, 'OH', Math.max(7,8*k), '#831F52', 'middle');
+    o += svgText(p[0]+9*k, p[1]+38*k, 'H', Math.max(7,8*k), '#831F52', 'middle');
+  } else {
+    sub(1, anomerState==='beta', 'OH', '#A82A6A');
+  }
+  return { svg:o, ring };
+}
+
+function ringSVG(step){
+  if(step===2) return ringStep2SVG();
+  if(step===3) return ringStep3SVG();
+  const W = NARROW ? 320 : 400, H = NARROW ? 220 : 240;
+  if(step===4){
+    const r = NARROW? 62:74;
+    const res = hemiRingSVG(null, W/2, H*0.55, r);
+    let o = res.svg;
+    o += svgText(W/2, 24, 'ヘミアセタール(α・βは未確定)', 10, '#5E6E76');
+    return '<svg class="scheme" viewBox="0 0 '+W+' '+H+'" width="100%" height="'+H+'" role="img" aria-label="環状ヘミアセタールの模式図">'+o+'</svg>';
+  }
+  // step5: α・βを並べて両方示す
+  const halfW = W/2, r = NARROW? 46:56;
+  const resA = hemiRingSVG('alpha', halfW/2+8, H*0.58, r);
+  const resB = hemiRingSVG('beta', halfW+halfW/2-8, H*0.58, r);
+  let o = resA.svg + resB.svg;
+  o += svgLine(halfW, 30, halfW, H-16, '#D6DDDA', 1);
+  o += svgText(halfW/2+8, 22, 'α(C1-OHが下)', 10.5, '#831F52', 'middle', '600');
+  o += svgText(halfW+halfW/2-8, 22, 'β(C1-OHが上)', 10.5, '#1B4380', 'middle', '600');
+  return '<svg class="scheme" viewBox="0 0 '+W+' '+H+'" width="100%" height="'+H+'" role="img" aria-label="α・β2通りのアノマーの模式図">'+o+'</svg>';
 }
 function renderRingSteps(){
   const host = document.getElementById('ringSteps');
@@ -604,7 +723,12 @@ function renderRingSteps(){
   }).join('');
 }
 function renderRing(){
-  document.getElementById('ringScheme').innerHTML = ringSVG(st.ringStep);
+  const host = document.getElementById('ringScheme');
+  if(st.ringStep===1){
+    host.innerHTML = fischerDetailSVG(GLUCOSE_CFG, 'D-グルコース', 'この後C1と結合').svg;
+  } else {
+    host.innerHTML = ringSVG(st.ringStep);
+  }
   const s = DATA.ringConversion.steps.find(x=>x.id===st.ringStep);
   document.getElementById('ringDesc').textContent = s ? s.descJa : '';
 }
@@ -671,23 +795,31 @@ function renderConversionTable(){
 }
 
 /* ================= 5. CHAIR ================= */
-// 描画専用の回転オフセット(見た目の重なりを避けるため)。角度の基準をずらすだけで、
-// 環の形・結合長・アキシアル/エクアトリアルの向き(±z、外向き)はDATA.chairGeometry/boatGeometryの
-// 定義どおりで変わらない(check-monosaccharide-structure.mjsはこの回転を使わずdata.json通りに検算する)。
-const RING_ROT = 24*D2R;
-function chairAtom(k){
+// 3D座標(DATA.chairGeometry/boatGeometryの定義)は変更しない。変更するのは視点(回転・仰角)だけ。
+// RING_ROT: 環の開始角度(教科書的ないす形に見えるよう0°付近に設定)。ELEV: 仰角(見下ろす角度)。
+// GLUCOSE_ROT: D-グルコピラノース図だけ180°ずらし、C4が左上・C1が右下・環のOが奥右側になる向きにする
+// (六員環の対称性から、ラベルの割り当てをk+3だけずらすのと等価。3D座標そのものは同じ式のまま)。
+// check-monosaccharide-structure.mjsはこれらの視点変換を使わず、data.json通りの結合長だけを検算する。
+const RING_ROT = 9*D2R;
+const ELEV = 25*D2R;
+const GLUCOSE_ROT = RING_ROT + Math.PI;
+
+function chairAtom(k, rot){
   const g = DATA.chairGeometry;
-  const ang = k*60*D2R + RING_ROT;
+  const ang = k*60*D2R + (rot===undefined?RING_ROT:rot);
   return { x: g.ringRadiusAngstrom*Math.cos(ang), y: g.ringRadiusAngstrom*Math.sin(ang), z: (k%2===0? g.zAmplitudeAngstrom : -g.zAmplitudeAngstrom), ang };
 }
-function boatAtom(k){
+function boatAtom(k, rot){
   const g = DATA.boatGeometry;
-  const ang = k*60*D2R + RING_ROT;
+  const ang = k*60*D2R + (rot===undefined?RING_ROT:rot);
   return { x: g.ringRadiusAngstrom*Math.cos(ang), y: g.ringRadiusAngstrom*Math.sin(ang), z: (g.flagpoleIndices.indexOf(k)!==-1 ? g.zAmplitudeAngstrom : 0), ang };
 }
+// カメラを仰角ELEVで見下ろした投影。depth(y2)は奥行き(手前が正)で、線の太さ・濃さに使う。
 function project(p){
-  const scale = NARROW? 46:58;
-  return { x: p.x*scale, y: -(p.y*0.60*scale) - p.z*1.3*scale };
+  const scale = NARROW? 50:64;
+  const y2 = p.y*Math.cos(ELEV) - p.z*Math.sin(ELEV); // depth(手前が+)
+  const z2 = p.y*Math.sin(ELEV) + p.z*Math.cos(ELEV); // 画面の縦方向
+  return { x: p.x*scale, y: -z2*scale, depth: y2 };
 }
 function substituentPoint(atom, kind, bondLen){
   bondLen = bondLen || 1.35;
@@ -702,24 +834,36 @@ function substituentPoint(atom, kind, bondLen){
     z: atom.z - sign*Math.sin(tilt)*bondLen
   };
 }
+// 環の結合を奥行き(depth)に応じて太さ・濃さを変えて描く(手前=太く濃く、奥=細く薄く)
 function ringPathSVG(atoms, cx, cy){
-  let pts = atoms.map(a=>{ const p=project(a); return [cx+p.x, cy+p.y]; });
+  const proj = atoms.map(a=>project(a));
+  const pts = proj.map(p=>[cx+p.x, cy+p.y]);
+  const depths = [];
+  for(let i=0;i<atoms.length;i++) depths.push((proj[i].depth + proj[(i+1)%atoms.length].depth)/2);
+  const minD = Math.min(...depths), maxD = Math.max(...depths);
+  const span = (maxD-minD) || 1;
   let o = '';
   for(let i=0;i<atoms.length;i++){
     const a=pts[i], b=pts[(i+1)%atoms.length];
-    o += '<line x1="'+a[0]+'" y1="'+a[1]+'" x2="'+b[0]+'" y2="'+b[1]+'" stroke="#16232B" stroke-width="2"/>';
+    const t = (depths[i]-minD)/span;
+    const w = 1.3 + t*1.9;
+    const op = 0.4 + t*0.6;
+    o += '<line x1="'+a[0].toFixed(1)+'" y1="'+a[1].toFixed(1)+'" x2="'+b[0].toFixed(1)+'" y2="'+b[1].toFixed(1)+'" stroke="#16232B" stroke-width="'+w.toFixed(2)+'" stroke-opacity="'+op.toFixed(2)+'" stroke-linecap="round"/>';
   }
-  pts.forEach(p=>{ o += '<circle cx="'+p[0]+'" cy="'+p[1]+'" r="3" fill="#16232B"/>'; });
-  return { svg:o, pts };
+  pts.forEach(p=>{ o += svgCircle(p[0],p[1],2.6,'#16232B'); });
+  return { svg:o, pts, proj };
 }
-function subSVG(atom, cx, cy, kind, label, color){
+function subSVG(atom, cx, cy, kind, label, color, labelOffset){
   const a = project(atom);
   const sp = substituentPoint(atom, kind);
   const b = project(sp);
   const ax1=cx+a.x, ay1=cy+a.y, ax2=cx+b.x, ay2=cy+b.y;
-  const lx = ax2 + (ax2-ax1)*0.28, ly = ay2 + (ay2-ay1)*0.28;
-  return '<line x1="'+ax1+'" y1="'+ay1+'" x2="'+ax2+'" y2="'+ay2+'" stroke="'+color+'" stroke-width="1.8"/>' +
-    '<text x="'+lx+'" y="'+ly+'" text-anchor="middle" font-family="IBM Plex Mono,monospace" font-size="9.5" fill="'+color+'">'+esc(label)+'</text>';
+  const ext = labelOffset===undefined ? 0.30 : labelOffset;
+  const lx = ax2 + (ax2-ax1)*ext, ly = ay2 + (ay2-ay1)*ext;
+  return {
+    svg: svgLine(ax1,ay1,ax2,ay2,color,1.8) + svgText(lx,ly,label,9.5,color),
+    tip: [ax2,ay2], labelPos: [lx,ly]
+  };
 }
 function renderChairFormToggle(){
   document.getElementById('chairFormToggle').innerHTML =
@@ -727,36 +871,64 @@ function renderChairFormToggle(){
     '<button type="button" class="ringbtn" data-chairform="boat" aria-pressed="'+(st.chairForm==='boat')+'">舟形</button>';
 }
 function chairFormSVG(){
-  const W = NARROW?320:420, H = NARROW?320:360, cx=W/2, cy=H/2;
+  const W = NARROW?300:360, H = NARROW?300:340, cx=W/2, cy=H*0.50;
   const atomFn = st.chairForm==='chair' ? chairAtom : boatAtom;
-  const atoms = [0,1,2,3,4,5].map(atomFn);
+  const atoms = [0,1,2,3,4,5].map(k=>atomFn(k));
   const ring = ringPathSVG(atoms, cx, cy);
   let o = ring.svg;
+  // 環炭素にC1〜C6の小さいラベル(中心から外向きにオフセット)
   atoms.forEach((a,i)=>{
-    const axColor = '#A82A6A', eqColor='#158A6D';
-    o += subSVG(a, cx, cy, 'axial', 'H', axColor);
-    o += subSVG(a, cx, cy, 'equatorial', 'H', eqColor);
+    const p = ring.proj[i];
+    const outward = Math.hypot(p.x,p.y) || 1;
+    const lx = cx + p.x + (p.x/outward)*11, ly = cy + p.y + (p.y/outward)*11 - 2;
+    o += svgText(lx, ly, 'C'+(i+1), 8, '#5E6E76');
   });
-  // 1,3-ジアキシアル強調(C1・C3・C5 = k0,2,4)
-  if(st.diaxial){
-    const idxs = [0,2,4];
-    const tips = idxs.map(i=>{ const sp = substituentPoint(atoms[i],'axial'); const p = project(sp); return [cx+p.x, cy+p.y]; });
-    o += '<path d="M '+tips[0][0]+' '+tips[0][1]+' Q '+cx+' '+(cy - (st.chairForm==='chair'?60:70))+' '+tips[1][0]+' '+tips[1][1]+'" fill="none" stroke="#A82A6A" stroke-width="1.6" stroke-dasharray="3 3"/>';
-    o += '<path d="M '+tips[1][0]+' '+tips[1][1]+' Q '+cx+' '+(cy - (st.chairForm==='chair'?90:100))+' '+tips[2][0]+' '+tips[2][1]+'" fill="none" stroke="#A82A6A" stroke-width="1.6" stroke-dasharray="3 3"/>';
+  if(st.chairForm==='chair'){
+    // いす形: アキシアル(マゼンタ)/エクアトリアル(緑)で色分け
+    atoms.forEach(a=>{
+      o += subSVG(a, cx, cy, 'axial', 'H', '#A82A6A').svg;
+      o += subSVG(a, cx, cy, 'equatorial', 'H', '#158A6D').svg;
+    });
+    if(st.diaxial){
+      const idxs = [0,2,4]; // C1・C3・C5相当(1つおき)
+      const tips = idxs.map(i=>{ const sp = substituentPoint(atoms[i],'axial'); const p = project(sp); return [cx+p.x, cy+p.y]; });
+      const midY = Math.min(tips[0][1],tips[1][1],tips[2][1]) - 26;
+      o += '<path d="M '+tips[0][0].toFixed(1)+' '+tips[0][1].toFixed(1)+' Q '+cx.toFixed(1)+' '+midY.toFixed(1)+' '+tips[1][0].toFixed(1)+' '+tips[1][1].toFixed(1)+'" fill="none" stroke="#A82A6A" stroke-width="1.6" stroke-dasharray="3 3"/>';
+      o += '<path d="M '+tips[1][0].toFixed(1)+' '+tips[1][1].toFixed(1)+' Q '+cx.toFixed(1)+' '+(midY-24).toFixed(1)+' '+tips[2][0].toFixed(1)+' '+tips[2][1].toFixed(1)+'" fill="none" stroke="#A82A6A" stroke-width="1.6" stroke-dasharray="3 3"/>';
+    }
+  } else {
+    // 舟形: 中立色(グレー)のみ、旗竿位(1,4位=k0,3)だけ強調して破線で結ぶ
+    const flagIdx = DATA.boatGeometry.flagpoleIndices;
+    const tips = [];
+    atoms.forEach((a,i)=>{
+      const flag = flagIdx.indexOf(i)!==-1;
+      const kind = flag ? 'axial' : 'equatorial';
+      const color = flag ? '#A82A6A' : '#8C98A0';
+      const r = subSVG(a, cx, cy, kind, flag?'H(旗竿位)':'H', color, flag?0.34:0.28);
+      o += r.svg;
+      if(flag) tips.push(r.tip);
+    });
+    if(tips.length===2){
+      o += svgLine(tips[0][0],tips[0][1],tips[1][0],tips[1][1],'#A82A6A',1.4,'3 3');
+    }
   }
-  o += '<text x="8" y="16" font-family="IBM Plex Mono,monospace" font-size="10" fill="#5E6E76">'+(st.chairForm==='chair'?'いす形(すべてねじれ形、安定)':'舟形(旗竿位のH同士が接近、不安定)')+'</text>';
   return '<svg class="scheme" viewBox="0 0 '+W+' '+H+'" width="100%" height="'+H+'" role="img" aria-label="シクロヘキサンの'+(st.chairForm==='chair'?'いす形':'舟形')+'">'+o+'</svg>';
 }
 function renderChairForm(){
   document.getElementById('chairFormScheme').innerHTML = chairFormSVG();
+  document.getElementById('chairFormCaption').textContent = st.chairForm==='chair' ? 'いす形(すべてねじれ形、安定)' : '舟形(旗竿位のH同士が接近、不安定)';
+  const legend = document.getElementById('chairFormLegend');
+  legend.innerHTML = st.chairForm==='chair'
+    ? '<span><i style="background:#A82A6A"></i>アキシアル</span><span><i style="background:#158A6D"></i>エクアトリアル</span>'
+    : '<span><i style="background:#A82A6A"></i>旗竿位(強調)</span><span><i style="background:#8C98A0"></i>その他(中立色)</span>';
   document.getElementById('chairFormNote').textContent = st.chairForm==='chair'
-    ? '各炭素の置換基はアキシアル(上下に交互、'+'#A82A6A'.length?'':''+'空間が狭い)とエクアトリアル(外側、空間が広い)に分かれる。'
+    ? '各炭素の置換基はアキシアル(上下に交互、空間が狭い)とエクアトリアル(外側、空間が広い)に分かれる。'
     : '先端(1,4位)のH同士が旗竿位で近づき、側面の結合が重なり形になるため、いす形より不安定になる。';
   document.getElementById('diaxialNote').hidden = !st.diaxial;
   if(st.diaxial) document.getElementById('diaxialNote').textContent = DATA.chairAxialRule.diaxialNoteJa;
 }
 
-const GLUCOSE_CONFIG = 'RLRR'; // C2,C3,C4,C5
+const GLUCOSE_CONFIG = GLUCOSE_CFG; // 'RLRR' (C2,C3,C4,C5)
 function isAxial(carbonLetter){
   const idxMap = { C2:0, C3:1, C4:2 };
   const rule = DATA.chairAxialRule.conditionsJa.find(r=>r.carbon===carbonLetter);
@@ -768,30 +940,42 @@ function renderGlucoseAnomerToggle(){
     '<button type="button" class="ringbtn" data-glucoseanomer="alpha" aria-pressed="'+(st.glucoseAnomer==='alpha')+'">α</button>' +
     '<button type="button" class="ringbtn" data-glucoseanomer="beta" aria-pressed="'+(st.glucoseAnomer==='beta')+'">β</button>';
 }
+// 標準的な4C1表示: k=0..5の順にC4,C5,O,C1,C2,C3を割り当てる(GLUCOSE_ROTと組み合わせて
+// 環のOが奥の右側、左端がC4(上向き)、右端がC1(下向き)、手前の結合がC2-C3になることを確認済み)
+const GLUCOSE_RING_ORDER = ['C4','C5','O','C1','C2','C3'];
 function glucoseChairSVG(){
-  const W = NARROW?320:440, H = NARROW?320:360, cx=W/2, cy=H/2;
-  const atoms = [0,1,2,3,4,5].map(chairAtom); // k0..5 = C1,C2,C3,C4,C5,O(ring)
+  const W = NARROW?320:380, H = NARROW?320:360, cx=W/2, cy=H*0.50;
+  const atoms = [0,1,2,3,4,5].map(k=>chairAtom(k, GLUCOSE_ROT));
+  const byLabel = {}; GLUCOSE_RING_ORDER.forEach((label,k)=>{ byLabel[label]=atoms[k]; });
   const ring = ringPathSVG(atoms, cx, cy);
   let o = ring.svg;
+  // 環原子のラベル(C1〜C5・O)
+  atoms.forEach((a,i)=>{
+    const p = ring.proj[i];
+    const outward = Math.hypot(p.x,p.y) || 1;
+    const lx = cx + p.x + (p.x/outward)*12, ly = cy + p.y + (p.y/outward)*12 - 2;
+    o += svgText(lx, ly, GLUCOSE_RING_ORDER[i], 8.5, '#5E6E76');
+  });
   const subs = [
-    { k:0, id:'C1', kind: st.glucoseAnomer==='alpha' ? 'axial':'equatorial', label:'OH', color:'#A82A6A' },
-    { k:1, id:'C2', kind: isAxial('C2')?'axial':'equatorial', label:'OH', color:'#2457A6' },
-    { k:2, id:'C3', kind: isAxial('C3')?'axial':'equatorial', label:'OH', color:'#2457A6' },
-    { k:3, id:'C4', kind: isAxial('C4')?'axial':'equatorial', label:'OH', color:'#2457A6' },
-    { k:4, id:'C5', kind: 'equatorial', label:'CH2OH', color:'#0D6A53' }
+    { id:'C1', atom: byLabel.C1, kind: st.glucoseAnomer==='alpha' ? 'axial':'equatorial', label:'OH', color:'#A82A6A' },
+    { id:'C2', atom: byLabel.C2, kind: isAxial('C2')?'axial':'equatorial', label:'OH', color:'#2457A6' },
+    { id:'C3', atom: byLabel.C3, kind: isAxial('C3')?'axial':'equatorial', label:'OH', color:'#2457A6' },
+    { id:'C4', atom: byLabel.C4, kind: isAxial('C4')?'axial':'equatorial', label:'OH', color:'#2457A6' },
+    { id:'C5', atom: byLabel.C5, kind: 'equatorial', label:'CH2OH', color:'#0D6A53' }
   ];
-  subs.forEach(s=>{ o += subSVG(atoms[s.k], cx, cy, s.kind, s.label, s.color); });
+  subs.forEach(s=>{ o += subSVG(s.atom, cx, cy, s.kind, s.label, s.color).svg; });
   // タップ用の透明ヒットエリア
   subs.forEach(s=>{
-    const a=atoms[s.k]; const sp=substituentPoint(a,s.kind); const p=project(sp);
-    const x=cx+p.x, y=cy+p.y;
-    o += '<circle class="subtag" data-sub="'+s.id+'" cx="'+x+'" cy="'+y+'" r="13" fill="rgba(0,0,0,0)" tabindex="0" role="button" aria-label="'+s.id+'のアキシアル/エクアトリアルを表示"/>';
+    const r = subSVG(s.atom, cx, cy, s.kind, s.label, s.color);
+    o += '<circle class="subtag" data-sub="'+s.id+'" cx="'+r.tip[0].toFixed(1)+'" cy="'+r.tip[1].toFixed(1)+'" r="13" fill="rgba(0,0,0,0)" tabindex="0" role="button" aria-label="'+s.id+'のアキシアル/エクアトリアルを表示"/>';
   });
-  o += '<text x="8" y="16" font-family="IBM Plex Mono,monospace" font-size="10" fill="#5E6E76">'+(st.glucoseAnomer==='alpha'?'α-D-グルコピラノース':'β-D-グルコピラノース')+'</text>';
   return '<svg class="scheme" viewBox="0 0 '+W+' '+H+'" width="100%" height="'+H+'" role="img" aria-label="D-グルコピラノースのいす形('+(st.glucoseAnomer==='alpha'?'α':'β')+')">'+o+'</svg>';
 }
 function renderGlucoseChair(){
   document.getElementById('glucoseChairScheme').innerHTML = glucoseChairSVG();
+  document.getElementById('glucoseChairCaption').textContent = (st.glucoseAnomer==='alpha'?'α':'β')+'-D-グルコピラノース(4C1)';
+  document.getElementById('glucoseChairLegend').innerHTML =
+    '<span><i style="background:#A82A6A"></i>C1-OH</span><span><i style="background:#2457A6"></i>C2〜C4-OH</span><span><i style="background:#0D6A53"></i>C5-CH2OH</span>';
 }
 function renderChairSubDetail(){
   const host = document.getElementById('chairSubDetail');
