@@ -1,0 +1,651 @@
+<!doctype html>
+<html lang="ja">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>デンプンとシクロデキストリンのらせん構造</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500&family=IBM+Plex+Sans+JP:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+*{box-sizing:border-box}
+:root{
+  --ink:#16232B; --muted:#5E6E76; --paper:#EDF1EF; --surface:#FFFFFF;
+  --rule:#D6DDDA; --rule-soft:#E8EDEB; --scheme-bg:#FBFCFB;
+  --inside:#8A5A0C; --inside-t:#6B4609;
+  --outside:#2457A6; --outside-t:#1B4380;
+  --accent:#A82A6A; --accent-t:#831F52;
+  --iodine:#3B2A5C;
+  --sans:"IBM Plex Sans JP","Hiragino Sans","Yu Gothic UI",system-ui,sans-serif;
+  --mono:"IBM Plex Mono",ui-monospace,SFMono-Regular,Menlo,monospace;
+}
+html,body{margin:0;padding:0}
+body{background:var(--paper);color:var(--ink);font-family:var(--sans);font-size:13.5px;line-height:1.75;-webkit-text-size-adjust:100%}
+.mono{font-family:var(--mono);font-variant-numeric:tabular-nums}
+.wrap{max-width:820px;margin:0 auto;padding:20px 14px 60px}
+.card{background:var(--surface);border:1px solid var(--rule);border-radius:3px;padding:14px;margin-bottom:14px}
+.eyebrow{display:flex;align-items:center;gap:10px;font-family:var(--mono);font-size:11.5px;letter-spacing:.14em;color:var(--muted);text-transform:uppercase}
+.eyebrow::after{content:"";flex:1;height:1px;background:var(--rule)}
+h1{font-size:22px;font-weight:600;letter-spacing:.01em;margin:8px 0 2px}
+h2{font-size:14.5px;font-weight:600;margin:10px 0 4px}
+h3{font-size:12.5px;font-weight:600;margin:14px 0 4px}
+p{margin:0 0 8px} p:last-child{margin-bottom:0}
+.lede{color:var(--muted);font-size:13px;margin:4px 0 0}
+.note{color:var(--muted);font-size:12px;line-height:1.75;margin-top:8px}
+a{color:var(--outside-t)}
+a:hover{text-decoration-thickness:1.5px}
+
+.btn{font:inherit;font-size:12.5px;line-height:1.4;border:1px solid var(--rule);background:#fff;color:var(--ink);border-radius:2px;padding:6px 10px;cursor:pointer}
+.btn:hover{border-color:#B4C0BC}
+.btn[aria-pressed="true"]{background:var(--ink);color:#fff;border-color:var(--ink)}
+.btn:focus-visible{outline:2px solid var(--ink);outline-offset:1px}
+.btnrow{display:flex;flex-wrap:wrap;gap:6px;margin:8px 0}
+
+.ringbar{display:flex;gap:0;margin:8px 0;border:1px solid var(--rule);border-radius:2px;overflow:hidden;width:fit-content}
+.ringbtn{font:inherit;font-size:12px;border:none;background:#fff;color:var(--ink);padding:6px 12px;cursor:pointer;border-right:1px solid var(--rule)}
+.ringbtn:last-child{border-right:none}
+.ringbtn[aria-pressed="true"]{background:var(--ink);color:#fff}
+.ringbtn:focus-visible{outline:2px solid var(--ink);outline-offset:1px}
+
+.chipbar{display:flex;flex-wrap:wrap;gap:6px;margin:8px 0}
+.chip{font:inherit;font-size:12px;border:1.5px solid var(--rule);background:#fff;color:var(--ink);padding:6px 11px;border-radius:20px;cursor:pointer}
+.chip:hover{border-color:#B4C0BC}
+.chip[aria-pressed="true"]{background:var(--ink);color:#fff;border-color:var(--ink)}
+.chip:focus-visible{outline:2px solid var(--ink);outline-offset:1px}
+
+.schemewrap{border:1px solid var(--rule-soft);border-radius:3px;background:var(--scheme-bg);overflow:hidden;margin-top:8px;padding:4px}
+.scheme{max-width:100%;margin:0 auto;display:block}
+svg text{paint-order:stroke;stroke:var(--scheme-bg);stroke-width:3px;stroke-linejoin:round}
+
+.twocol{display:flex;flex-wrap:wrap;gap:10px}
+.twocol>div{flex:1 1 260px;min-width:0}
+
+.key{background:rgba(36,87,166,.06);border:1px solid #A9C3E2;border-radius:3px;padding:8px 10px;font-size:12.5px;line-height:1.7;margin:8px 0}
+.stepcards{display:flex;flex-direction:column;gap:6px;margin:8px 0}
+.stepcard{display:flex;gap:8px;border:1px solid var(--rule);border-radius:3px;padding:8px 10px;background:#fff}
+.stepcard b{font-family:var(--mono);font-size:11px;color:var(--muted);flex:0 0 auto}
+.stepcard span{font-size:12.5px;line-height:1.6}
+
+.statrow{display:flex;flex-wrap:wrap;gap:10px;margin:8px 0}
+.stat{border:1px solid var(--rule);border-radius:3px;padding:8px 12px;flex:1 1 120px}
+.stat .slabel{font-family:var(--mono);font-size:10px;letter-spacing:.08em;color:var(--muted);text-transform:uppercase}
+.stat .sval{font-family:var(--mono);font-size:19px;font-weight:600;margin-top:2px}
+
+.swatchrow{display:flex;align-items:center;gap:10px;margin:8px 0;flex-wrap:wrap}
+.swatch{width:26px;height:26px;border-radius:4px;border:1px solid var(--rule);flex:0 0 auto}
+.swatchlabel{font-size:12.5px}
+
+.legend{display:flex;flex-wrap:wrap;gap:12px;margin-top:6px;font-size:11px;color:var(--muted)}
+.legend span{display:inline-flex;align-items:center;gap:4px}
+.legend i{display:inline-block;width:12px;height:12px;border-radius:2px}
+
+@media (prefers-reduced-motion:no-preference){ .btn,.chip,.ringbtn{transition:border-color 120ms linear,background-color 120ms linear} }
+
+@media (max-width:430px){
+  body{font-size:13px}
+  .wrap{padding:14px 10px 50px}
+  .card{padding:11px}
+  h1{font-size:19px}
+  .btn{padding:6px 8px;font-size:12px}
+  .twocol>div{flex:1 1 100%}
+}
+</style>
+</head>
+<body>
+<div class="wrap">
+
+<header class="card">
+  <div class="eyebrow">STARCH HELIX</div>
+  <h1>デンプンとシクロデキストリンのらせん構造</h1>
+  <p class="lede">グルコースがα-1,4結合でつながるとなぜ曲がってらせんを巻くのかを、<a href="monosaccharide-structure.html">単糖類の構造</a>で見たいす形のグルコースから出発して確認する。らせんの内側・外側の性質の違いから、シクロデキストリンの包接・ヨウ素デンプン反応の呈色までをひとつながりで見る。</p>
+</header>
+
+<!-- ============ 1. GLYCOSIDIC BOND ============ -->
+<section class="card" id="sceneBond">
+  <div class="eyebrow">GLYCOSIDIC BOND</div>
+  <h2>α-1,4結合とβ-1,4結合</h2>
+  <p class="note" id="bondIntro"></p>
+  <div class="ringbar" id="bondToggle" role="group" aria-label="α-1,4・β-1,4の切り替え"></div>
+
+  <h3 id="bondCloseupHeading"></h3>
+  <div class="schemewrap"><div id="bondCloseupScheme"></div></div>
+  <p class="note" id="bondCloseupNote"></p>
+
+  <h3>鎖が何個もつながると</h3>
+  <div class="schemewrap"><div id="bondChainScheme"></div></div>
+  <p class="note" id="bondChainNote"></p>
+</section>
+
+<!-- ============ 2. HELIX ============ -->
+<section class="card" id="sceneHelix">
+  <div class="eyebrow">HELIX · アミロースのらせん</div>
+  <h2>鎖が曲がって巻き、6残基で1巻きになる</h2>
+
+  <h3>上から見た断面(6つのグルコース単位の環)</h3>
+  <div class="chipbar" id="helixHighlightChips" role="group" aria-label="内側・外側の色分け表示"></div>
+  <div class="schemewrap"><div id="helixCrossScheme"></div></div>
+
+  <h3>横から見たらせん</h3>
+  <div class="schemewrap"><div id="helixSideScheme"></div></div>
+  <p class="note" id="helixSideNote"></p>
+
+  <h3>なぜ外側が親水性、内側が疎水性か</h3>
+  <div class="stepcards" id="helixReasonSteps"></div>
+  <p class="note" id="helixAnalogyNote"></p>
+</section>
+
+<!-- ============ 3. CYCLODEXTRIN ============ -->
+<section class="card" id="sceneCD">
+  <div class="eyebrow">CYCLODEXTRIN · シクロデキストリン</div>
+  <h2>アミロースのらせん1巻きを環に閉じた形</h2>
+  <div class="chipbar" id="cdChips" role="group" aria-label="α・β・γシクロデキストリンの切り替え"></div>
+
+  <div class="statrow" id="cdStats"></div>
+
+  <div class="twocol">
+    <div>
+      <h3>上から見た環</h3>
+      <div class="schemewrap"><div id="cdTopScheme"></div></div>
+    </div>
+    <div>
+      <h3>断面(先細りの筒)</h3>
+      <div class="schemewrap"><div id="cdCrossScheme"></div></div>
+    </div>
+  </div>
+  <p class="note" id="cdNote"></p>
+</section>
+
+<!-- ============ 4. IODINE ============ -->
+<section class="card" id="sceneIodine">
+  <div class="eyebrow">IODINE · ヨウ素デンプン反応</div>
+  <h2>らせんの内側にヨウ素が包接されると呈色する</h2>
+  <div class="chipbar" id="iodineSugarChips" role="group" aria-label="糖の種類の切り替え"></div>
+
+  <div class="btnrow">
+    <button type="button" class="btn" id="btnAddIodine" aria-pressed="false">ヨウ素を入れる</button>
+    <div class="ringbar" id="heatToggle" role="group" aria-label="加熱・冷却の切り替え"></div>
+  </div>
+
+  <div class="schemewrap"><div id="iodineScheme"></div></div>
+  <div class="swatchrow" id="iodineSwatch"></div>
+  <p class="note" id="iodineNote"></p>
+  <p class="note" id="iodineValueNote"></p>
+</section>
+
+<section class="card" id="notes">
+  <div class="eyebrow">NOTES</div>
+  <ol id="notesList" style="padding-left:18px;margin:8px 0"></ol>
+</section>
+
+</div><!-- /wrap -->
+
+<script>
+/* ---------- データ(JSONをそのまま埋め込み。fetch は使わない) ---------- */
+const DATA = {"meta":{"atomicWeights":{"H":1,"C":12,"O":16},"note":"マルトースC12H22O11=342(180×2−18、単糖2分子から水1分子がとれる)。アミロース(C6H10O5)nは繰り返し単位162n+18(両端のHとOHを含む)で、n=2のとき162×2+18=342となり単糖類シリーズ1本目(chem-monosaccharide-structure)の二糖の式量と一致することを確認済み。シクロデキストリンは環状で末端(H・OH)を持たないため162n(+18が付かない)。α=162×6=972、β=162×7=1134、γ=162×8=1296。"},"glycosidicBond":{"maltose":{"nameJa":"マルトース","descJa":"α-グルコース2分子が、1分子目のC1のα-OH(アキシアル)と2分子目のC4のOHのあいだで脱水縮合したもの","formula":"C12H22O11","molecularWeight":342,"molecularWeightNoteJa":"180×2−18=342"},"bondTypes":[{"id":"alpha14","nameJa":"α-1,4結合","shortJa":"α-1,4","descJa":"隣り合う単位が同じ向きに約60°ずつ傾いてつながるため、鎖全体が同じ方向へ曲がっていく","turnAnglePerUnitDeg":60,"chainShapeJa":"曲がる(らせん状に巻く)","exampleJa":"アミロース・アミロペクチン・グリコーゲン"},{"id":"beta14","nameJa":"β-1,4結合","shortJa":"β-1,4","descJa":"隣り合う単位が交互に裏返ってつながるため、鎖全体はまっすぐになる","chainShapeJa":"まっすぐ(直線状)","exampleJa":"セルロース"}]},"helix":{"residuesPerTurn":6,"degPerResidue":60,"closureCheckJa":"60°×6=360°で1巻き","insideJa":["C–H(特にC3–H・C5–H)","グリコシド結合のO"],"insidePropertyJa":"疎水性","outsideJa":["C2・C3のOH(広い縁)","C6のCH2OH(狭い縁)"],"outsidePropertyJa":"親水性","reasonSteps":["α-1,4結合で鎖が同じ向きに曲がって巻く","OHは環の外周側に出て、C–Hとグリコシド結合のOは環の内側を向く","水中では、水と水素結合できるOHが外側で水と接し、水となじまないC–Hが内側にまとまる"],"micelleAnalogyJa":"疎水基が内側・親水基が外側に集まる点は、セッケンのミセル(疎水基が内・親水基が外)と同じ考え方","proteinContrastJa":"タンパク質のα-ヘリックスは3.6残基で1巻きになる点が異なる"},"cyclodextrin":{"variants":[{"id":"alpha","nameJa":"α-シクロデキストリン","shortJa":"α","units":6,"molecularWeight":972},{"id":"beta","nameJa":"β-シクロデキストリン","shortJa":"β","units":7,"molecularWeight":1134},{"id":"gamma","nameJa":"γ-シクロデキストリン","shortJa":"γ","units":8,"molecularWeight":1296}],"formulaNoteJa":"分子量=162×単位数(環状で末端のH・OHが無いため+18は付かない)","amyloseRelationJa":"α-シクロデキストリンは、アミロースのらせん1巻き分をそのまま環に閉じた形","cavity":{"wideRimJa":"C2・C3のOH(広い縁)","narrowRimJa":"C6のCH2OH(狭い縁)","insideJa":"C–HとO(疎水性)","outsideJa":"OH(親水性)"},"inclusionJa":"疎水性の空洞に、疎水性の分子を取り込める(包接)","usesJa":"消臭・薬の溶解補助など"},"iodineReaction":{"reagentJa":"ヨウ素ヨウ化カリウム水溶液","sugars":[{"id":"amylose","nameJa":"アミロース","colorJa":"濃青〜青紫","colorHex":"#22297A","helixLengthJa":"長い","reacts":true},{"id":"amylopectin","nameJa":"アミロペクチン","colorJa":"赤紫","colorHex":"#7C2D63","helixLengthJa":"やや短い(α-1,6分岐あり)","reacts":true},{"id":"glycogen","nameJa":"グリコーゲン","colorJa":"赤褐色","colorHex":"#8A4A2A","helixLengthJa":"短い(分岐がさらに多い)","reacts":true},{"id":"cellulose","nameJa":"セルロース","colorJa":"呈色しない","colorHex":null,"helixLengthJa":"らせんを作らない(β-1,4結合で直線状)","reacts":false},{"id":"monodisaccharide","nameJa":"グルコース・マルトース・スクロース","colorJa":"呈色しない","colorHex":null,"helixLengthJa":"らせんを作らない(単糖・二糖)","reacts":false}],"mechanismJa":"疎水性の空洞にヨウ素(I2、実際はI3−などの鎖状のヨウ素)が包接されるために呈色する","lengthColorRuleJa":"らせんが長いほど青く、短いほど赤みが強くなり、らせんがなければ呈色しない","heatCoolJa":"加熱するとらせんがほどけてヨウ素が抜け、色が消える。冷却すると再びらせんが巻き、色が戻る","differentFromIodineValueJa":"油脂の「ヨウ素価」(C=Cへの付加)とは別の反応"},"notes":["アミロペクチン・グリコーゲンはα-1,6結合の枝分かれによってらせんが短くなり、その分だけ呈色が赤みを帯びる方向に変わる","二糖類の性質・還元性・酵素による加水分解は次の教材(糖類シリーズ3本目)で扱う"]};
+
+/* ---------- 起動時チェック ---------- */
+(function checkData(){
+  const msg=[];
+  if(DATA.cyclodextrin.variants.length!==3) msg.push('cyclodextrin.variants が3件ではない');
+  if(DATA.iodineReaction.sugars.length!==5) msg.push('iodineReaction.sugars が5件ではない');
+  if(DATA.helix.residuesPerTurn*DATA.helix.degPerResidue!==360) msg.push('残基数×1残基あたりの角度が360にならない');
+  if(msg.length) console.warn('[DATA] 不整合\n'+msg.join('\n'));
+  else console.info('[DATA] cyclodextrin.variants '+DATA.cyclodextrin.variants.length+'件・iodineReaction.sugars '+DATA.iodineReaction.sugars.length+'件を読み込んだ');
+})();
+
+const esc = s => String(s).replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+const D2R = Math.PI/180;
+const MONO = 'IBM Plex Mono,monospace';
+
+/* ---------- SVG組み立て用の小さいヘルパー(単糖類の構造での修正を踏まえ、ラベルは
+   固定pxで結合線から離し、背景色縁取り〈CSSのsvg text側で一括指定〉と併用する) ---------- */
+function svgLine(x1,y1,x2,y2,color,w,dash){
+  return '<line x1="'+x1.toFixed(1)+'" y1="'+y1.toFixed(1)+'" x2="'+x2.toFixed(1)+'" y2="'+y2.toFixed(1)+'" stroke="'+color+'" stroke-width="'+w+'"'+(dash?' stroke-dasharray="'+dash+'"':'')+'/>';
+}
+function svgCircle(x,y,r,fill,stroke,sw){
+  return '<circle cx="'+x.toFixed(1)+'" cy="'+y.toFixed(1)+'" r="'+r+'" fill="'+fill+'"'+(stroke?' stroke="'+stroke+'" stroke-width="'+(sw||1)+'"':'')+'/>';
+}
+function svgText(x,y,label,size,color,anchor,weight){
+  return '<text x="'+x.toFixed(1)+'" y="'+y.toFixed(1)+'" text-anchor="'+(anchor||'middle')+'" font-family="'+MONO+'" font-size="'+size+'" fill="'+color+'"'+(weight?' font-weight="'+weight+'"':'')+'>'+esc(label)+'</text>';
+}
+// ある頂点から複数の線が出ているとき、どの線からも最も離れた向きを選ぶ
+// (単純な放射方向だけだと置換基や隣接図形の向きと一致して重なることがあるため)
+function bestLabelDir(vectors){
+  const N = 32;
+  let best = {x:1,y:0}, bestScore = Infinity;
+  for(let i=0;i<N;i++){
+    const ang = i*2*Math.PI/N;
+    const cx_ = Math.cos(ang), cy_ = Math.sin(ang);
+    let maxDot = -Infinity;
+    for(const v of vectors){ const d = cx_*v.x+cy_*v.y; if(d>maxDot) maxDot=d; }
+    if(maxDot < bestScore){ bestScore = maxDot; best = {x:cx_,y:cy_}; }
+  }
+  return best;
+}
+
+/* ---------- 状態 ---------- */
+const st = {
+  bondType: 'alpha14',
+  helixHighlight: null,
+  cdVariant: 'alpha',
+  iodineSugar: 'amylose',
+  iodineAdded: false,
+  heated: false
+};
+let NARROW = false;
+const BOND_BY_ID = {}; DATA.glycosidicBond.bondTypes.forEach(b=>{ BOND_BY_ID[b.id]=b; });
+const CD_BY_ID = {}; DATA.cyclodextrin.variants.forEach(v=>{ CD_BY_ID[v.id]=v; });
+const SUGAR_BY_ID = {}; DATA.iodineReaction.sugars.forEach(s=>{ SUGAR_BY_ID[s.id]=s; });
+
+/* ================= 1. GLYCOSIDIC BOND ================= */
+// D-グルコピラノースのいす形(単糖類の構造〈chem-monosaccharide-structure〉と同じ幾何の値を
+// この教材でも使う。3D座標そのものは変更しない)
+const CHAIR_R = 1.45, CHAIR_Z = 0.25, ELEV = 25*D2R;
+function chairAtom(k, rot){
+  const ang = k*60*D2R + rot;
+  return { x: CHAIR_R*Math.cos(ang), y: CHAIR_R*Math.sin(ang), z: (k%2===0? CHAIR_Z : -CHAIR_Z), ang };
+}
+function project(p, scale){
+  const y2 = p.y*Math.cos(ELEV) - p.z*Math.sin(ELEV);
+  const z2 = p.y*Math.sin(ELEV) + p.z*Math.cos(ELEV);
+  return { x: p.x*scale, y: -z2*scale, depth: y2 };
+}
+// 環の開始角度(9°)+180°でD-グルコピラノースの標準的な向き(左端がC4・右端がC1)にする。
+// 単糖類の構造でのGLUCOSE_ROTと同じ値
+const GLUCOSE_ROT = (9+180)*D2R;
+const RING_ORDER = ['C4','C5','O','C1','C2','C3'];
+function ringPathSVG(atoms, cx, cy, scale, flipY){
+  const proj = atoms.map(a=>project(a,scale));
+  const pts = proj.map(p=>[cx+p.x, cy+(flipY?-p.y:p.y)]);
+  const depths = [];
+  for(let i=0;i<atoms.length;i++) depths.push((proj[i].depth + proj[(i+1)%atoms.length].depth)/2);
+  const minD = Math.min(...depths), maxD = Math.max(...depths), span = (maxD-minD)||1;
+  let o = '';
+  for(let i=0;i<atoms.length;i++){
+    const a=pts[i], b=pts[(i+1)%atoms.length];
+    const t = (depths[i]-minD)/span, w = 1.2+t*1.6, op = 0.4+t*0.6;
+    o += '<line x1="'+a[0].toFixed(1)+'" y1="'+a[1].toFixed(1)+'" x2="'+b[0].toFixed(1)+'" y2="'+b[1].toFixed(1)+'" stroke="#16232B" stroke-width="'+w.toFixed(2)+'" stroke-opacity="'+op.toFixed(2)+'" stroke-linecap="round"/>';
+  }
+  pts.forEach(p=>{ o += svgCircle(p[0],p[1],2.3,'#16232B'); });
+  return { svg:o, pts };
+}
+// 環の骨格(結合線+原子の点)だけを作る。ラベルは別関数(chairRingLabels)で、
+// グリコシド結合の向きも考慮に入れてから配置する
+function chairRingGeometry(cx, cy, scale, flipY){
+  const atoms = [0,1,2,3,4,5].map(k=>chairAtom(k, GLUCOSE_ROT));
+  const ring = ringPathSVG(atoms, cx, cy, scale, flipY);
+  const byLabel = {}; RING_ORDER.forEach((label,k)=>{ byLabel[label]=ring.pts[k]; });
+  return { svg: ring.svg, pts: ring.pts, byLabel };
+}
+// extraDirTargets: {label: [x,y]} で、その原子から実際に外へ伸びる結合(グリコシド結合など)の
+// 先の座標を渡すと、環の隣接2辺だけでなくその方向からも離してラベルを置く
+function chairRingLabels(ring, extraDirTargets){
+  let o = '';
+  ring.pts.forEach((p,i)=>{
+    const label = RING_ORDER[i];
+    const dirs = [];
+    const addDir=(tx,ty)=>{ const dx=tx-p[0], dy=ty-p[1], l=Math.hypot(dx,dy)||1; dirs.push({x:dx/l,y:dy/l}); };
+    addDir(ring.pts[(i+5)%6][0], ring.pts[(i+5)%6][1]);
+    addDir(ring.pts[(i+1)%6][0], ring.pts[(i+1)%6][1]);
+    if(extraDirTargets && extraDirTargets[label]) addDir(extraDirTargets[label][0], extraDirTargets[label][1]);
+    const dir = bestLabelDir(dirs);
+    const isKey = (label==='C1'||label==='C4');
+    o += svgText(p[0]+dir.x*14, p[1]+dir.y*14+3, label, isKey?9.5:8, isKey?'#831F52':'#5E6E76', 'middle', isKey?'600':'400');
+  });
+  return o;
+}
+function bondCloseupSVG(){
+  const W = NARROW?320:480, H = NARROW?220:230, cx=W/2, cy=H*0.56, scale=NARROW?32:38;
+  const dx = NARROW?86:120;
+  const A = chairRingGeometry(cx-dx, cy, scale, false);
+  const B = chairRingGeometry(cx+dx, cy, scale, st.bondType==='beta14');
+  const p1 = A.byLabel['C1'], p2 = B.byLabel['C4'];
+  let o = A.svg + B.svg;
+  o += chairRingLabels(A, { C1: p2 });
+  o += chairRingLabels(B, { C4: p1 });
+  o += svgLine(p1[0],p1[1],p2[0],p2[1], '#B87A16', 2.2);
+  const mx=(p1[0]+p2[0])/2, my=(p1[1]+p2[1])/2;
+  o += svgCircle(mx,my,3.2,'#B87A16');
+  // 375px幅では2つの環が近く、フルの表記だと隣の環のCラベルに触れるため短くする
+  o += svgText(mx, my-11, NARROW ? 'グリコシドO' : 'O(グリコシド結合)', 9.5, '#8A5A0C', 'middle', '600');
+  o += svgText(mx, my+34, '−H2O(脱水縮合)', 9.5, '#831F52', 'middle', '500');
+  o += '<path d="M '+(mx-2).toFixed(1)+' '+(my+16).toFixed(1)+' Q '+mx.toFixed(1)+' '+(my+26).toFixed(1)+' '+(mx+2).toFixed(1)+' '+(my+16).toFixed(1)+'" fill="none" stroke="#A82A6A" stroke-width="1.4" stroke-dasharray="2 3"/>';
+  return '<svg class="scheme" viewBox="0 0 '+W+' '+H+'" width="100%" height="'+H+'" role="img" aria-label="α-グルコース2分子の脱水縮合">'+o+'</svg>';
+}
+// 簡易六角形(鎖が何個も連なる様子だけを見せる模式図。立体配置の詳細は上の図に譲る)
+function simpleHexSVG(cx,cy,r,rotDeg){
+  const ang0 = (90) * D2R + rotDeg*D2R;
+  let pts=[];
+  for(let i=0;i<6;i++){ const a=ang0+i*60*D2R; pts.push([cx+r*Math.cos(a), cy-r*Math.sin(a)]); }
+  let o='';
+  for(let i=0;i<6;i++){ const a=pts[i], b=pts[(i+1)%6]; o+=svgLine(a[0],a[1],b[0],b[1],'#8C98A0',1.4); }
+  o += svgCircle(pts[0][0],pts[0][1],2,'#5E6E76');
+  return { svg:o, top:pts[0], pts };
+}
+function bondChainSVG(){
+  const W = NARROW?320:480, H = NARROW?150:150;
+  const n=4, step=NARROW?52:64;
+  const alpha = st.bondType==='alpha14';
+  // 各単位の中心をタートルグラフィックスで歩かせる: alphaは1単位ごとにheadingを60°ずつ
+  // 累積回転させて鎖を曲げ、betaはheadingを変えず水平に進めて鎖をまっすぐにする
+  let x = NARROW?40:44, y = H*0.55, heading = 0;
+  let o='', centers=[];
+  for(let i=0;i<n;i++){
+    centers.push([x,y]);
+    o += simpleHexSVG(x,y,13, alpha? heading*180/Math.PI : (i%2===1?180:0)).svg;
+    if(i<n-1){
+      x += Math.cos(heading)*step;
+      y += Math.sin(heading)*step*0.55;
+      if(alpha) heading -= 60*D2R;
+    }
+  }
+  for(let i=0;i<centers.length-1;i++) o += svgLine(centers[i][0],centers[i][1],centers[i+1][0],centers[i+1][1],'#B87A16',1.8);
+  const lastDir = alpha ? '曲がっていく(らせんの始まり)' : 'まっすぐ伸びる';
+  o += svgText(W/2, H-10, lastDir, 10, alpha?'#8A5A0C':'#1B4380', 'middle', '600');
+  return '<svg class="scheme" viewBox="0 0 '+W+' '+H+'" width="100%" height="'+H+'" role="img" aria-label="複数単位がつながったときの鎖の形('+(alpha?'曲がる':'まっすぐ')+')">'+o+'</svg>';
+}
+function renderBondToggle(){
+  document.getElementById('bondToggle').innerHTML = DATA.glycosidicBond.bondTypes.map(b=>
+    '<button type="button" class="ringbtn" data-bond="'+b.id+'" aria-pressed="'+(st.bondType===b.id)+'">'+esc(b.shortJa)+'</button>'
+  ).join('');
+}
+function renderBond(){
+  const b = BOND_BY_ID[st.bondType];
+  const m = DATA.glycosidicBond.maltose;
+  document.getElementById('bondIntro').textContent =
+    'マルトース('+m.formula+'、分子量'+m.molecularWeight+' = '+m.molecularWeightNoteJa+')は'+m.descJa+'。';
+  document.getElementById('bondCloseupHeading').textContent = '2分子の脱水縮合('+b.nameJa+'の場合)';
+  document.getElementById('bondCloseupScheme').innerHTML = bondCloseupSVG();
+  document.getElementById('bondCloseupNote').textContent =
+    (st.bondType==='alpha14'
+      ? 'C1のα-OH(アキシアル、単糖類の構造のいす形で確認した向き)とC4のOHから水がとれて結合する。'
+      : 'β-1,4では隣の単位が裏返ってつながる(模式的に上下反転させて示した)。')+
+    ' 立体配置の詳細は単糖類の構造を参照。';
+  document.getElementById('bondChainScheme').innerHTML = bondChainSVG();
+  document.getElementById('bondChainNote').textContent =
+    b.descJa+'(例: '+b.exampleJa+')。';
+}
+
+/* ================= 2. HELIX ================= */
+function annularSegment(cx,cy,r0,r1,a0,a1,fill){
+  const p=(r,a)=>[cx+r*Math.cos(a), cy+r*Math.sin(a)];
+  const p00=p(r0,a0), p01=p(r1,a0), p11=p(r1,a1), p10=p(r0,a1);
+  return '<path d="M '+p00[0].toFixed(1)+' '+p00[1].toFixed(1)+
+    ' L '+p01[0].toFixed(1)+' '+p01[1].toFixed(1)+
+    ' A '+r1.toFixed(1)+' '+r1.toFixed(1)+' 0 0 1 '+p11[0].toFixed(1)+' '+p11[1].toFixed(1)+
+    ' L '+p10[0].toFixed(1)+' '+p10[1].toFixed(1)+
+    ' A '+r0.toFixed(1)+' '+r0.toFixed(1)+' 0 0 0 '+p00[0].toFixed(1)+' '+p00[1].toFixed(1)+' Z" fill="'+fill+'" stroke="#FBFCFB" stroke-width="1.2"/>';
+}
+function ringWedgesSVG(cx,cy,rOuter,rMid,rInner,n,highlight){
+  let o='';
+  const insideFill = highlight==='outside' ? '#D9CDB0' : '#B87A16';
+  const outsideFill = highlight==='inside' ? '#C7D6E8' : '#2457A6';
+  for(let i=0;i<n;i++){
+    const a0 = (i/n)*2*Math.PI - Math.PI/2 - (Math.PI/n);
+    const a1 = ((i+1)/n)*2*Math.PI - Math.PI/2 - (Math.PI/n);
+    o += annularSegment(cx,cy,rMid,rOuter,a0,a1,outsideFill);
+    o += annularSegment(cx,cy,rInner,rMid,a0,a1,insideFill);
+  }
+  return o;
+}
+function helixCrossSVG(){
+  const rOuter = NARROW?82:100, rMid = rOuter*0.68, rInner = rOuter*0.34;
+  // 上下に「外側/内側」の2行ラベル+引き出し線を置くための余白をあらかじめ確保する
+  // (以前rOuterが大きすぎてラベルがviewBoxの外〈負のy〉に出てしまっていたため、
+  // 環の直径+固定マージンからHを逆算する形に直した)
+  const topMargin = 54, bottomMargin = 68;
+  const W = NARROW?300:360, H = topMargin + rOuter*2 + bottomMargin, cx=W/2, cy=topMargin+rOuter;
+  let o = ringWedgesSVG(cx,cy,rOuter,rMid,rInner,6, st.helixHighlight);
+  // 代表セグメントへの引き出し線(上=外側、下=内側)
+  const topAng = -Math.PI/2, botAng = Math.PI/2;
+  const outP = [cx+((rMid+rOuter)/2)*Math.cos(topAng), cy+((rMid+rOuter)/2)*Math.sin(topAng)];
+  const inP = [cx+((rInner+rMid)/2)*Math.cos(botAng), cy+((rInner+rMid)/2)*Math.sin(botAng)];
+  const outLabelY = topMargin-30, inLabelY = H-bottomMargin+26;
+  o += svgLine(outP[0],outP[1], outP[0], outLabelY+26, '#5E6E76', 1);
+  o += svgText(outP[0], outLabelY, '外側: OH(親水性)', 10, '#1B4380', 'middle', '600');
+  o += svgText(outP[0], outLabelY+18, DATA.helix.outsideJa.join('・'), 9, '#5E6E76');
+  o += svgLine(inP[0],inP[1], inP[0], inLabelY-17, '#5E6E76', 1);
+  o += svgText(inP[0], inLabelY, '内側: C–H,O(疎水性)', 10, '#8A5A0C', 'middle', '600');
+  o += svgText(inP[0], inLabelY+18, DATA.helix.insideJa.join('・'), 9, '#5E6E76');
+  return '<svg class="scheme" viewBox="0 0 '+W+' '+H+'" width="100%" height="'+H+'" role="img" aria-label="アミロースらせんの断面(6つのグルコース単位)">'+o+'</svg>';
+}
+function renderHelixHighlightChips(){
+  const opts = [{id:null,labelJa:'両方'},{id:'inside',labelJa:'内側を強調'},{id:'outside',labelJa:'外側を強調'}];
+  document.getElementById('helixHighlightChips').innerHTML = opts.map(o=>
+    '<button type="button" class="chip" data-hl="'+(o.id===null?'':o.id)+'" aria-pressed="'+(st.helixHighlight===o.id)+'">'+esc(o.labelJa)+'</button>'
+  ).join('');
+}
+function helixSideSVG(){
+  const W = NARROW?320:420, H = NARROW?300:320;
+  const turns = 3, residuesPerTurn = DATA.helix.residuesPerTurn;
+  const total = turns*residuesPerTurn;
+  const topPad = 22, pitchPx = (H-topPad*2)/turns, radiusPx = NARROW?46:56;
+  const cx = W/2;
+  const N = 240;
+  let prev=null, o='';
+  for(let i=0;i<=N;i++){
+    const frac = i/N*total;
+    const theta = frac/residuesPerTurn*2*Math.PI;
+    const x = cx + radiusPx*Math.sin(theta);
+    const y = topPad + frac/turns*pitchPx;
+    const depth = Math.cos(theta);
+    if(prev){
+      const t=(depth+1)/2, w=1.2+t*1.8, op=0.35+t*0.65;
+      o += '<line x1="'+prev[0].toFixed(1)+'" y1="'+prev[1].toFixed(1)+'" x2="'+x.toFixed(1)+'" y2="'+y.toFixed(1)+'" stroke="#B87A16" stroke-width="'+w.toFixed(2)+'" stroke-opacity="'+op.toFixed(2)+'" stroke-linecap="round"/>';
+    }
+    prev=[x,y];
+  }
+  // 6残基ごとに目盛りと「1巻き」ラベル
+  for(let turn=1; turn<=turns; turn++){
+    const y = topPad + turn*pitchPx;
+    o += svgLine(cx-radiusPx-14, y, cx+radiusPx+14, y, '#D6DDDA', 1, '3 3');
+    o += svgText(cx+radiusPx+22, y+3, turn+'巻き目', 9.5, '#5E6E76', 'start');
+  }
+  o += svgText(cx, topPad-8, '6残基で1巻き('+DATA.helix.closureCheckJa+')', 10, '#5E6E76', 'middle');
+  return '<svg class="scheme" viewBox="0 0 '+W+' '+H+'" width="100%" height="'+H+'" role="img" aria-label="アミロースらせんの側面(パラメトリックな2D投影)">'+o+'</svg>';
+}
+function renderHelix(){
+  document.getElementById('helixCrossScheme').innerHTML = helixCrossSVG();
+  document.getElementById('helixSideScheme').innerHTML = helixSideSVG();
+  document.getElementById('helixSideNote').textContent =
+    '1残基あたり約'+DATA.helix.degPerResidue+'°ずつ回転しながら鎖が伸びる('+DATA.helix.closureCheckJa+')。';
+  document.getElementById('helixReasonSteps').innerHTML = DATA.helix.reasonSteps.map((s,i)=>
+    '<div class="stepcard"><b>'+(i+1)+'</b><span>'+esc(s)+'</span></div>'
+  ).join('');
+  document.getElementById('helixAnalogyNote').innerHTML =
+    esc(DATA.helix.micelleAnalogyJa)+'(<a href="soap-surfactants.html">セッケン・界面活性剤の構造と働き</a>)。'+
+    esc(DATA.helix.proteinContrastJa)+'(<a href="protein-structure.html">タンパク質の立体構造</a>のα-ヘリックスは3.6残基/巻き)。';
+}
+
+/* ================= 3. CYCLODEXTRIN ================= */
+function renderCdChips(){
+  document.getElementById('cdChips').innerHTML = DATA.cyclodextrin.variants.map(v=>
+    '<button type="button" class="chip" data-cd="'+v.id+'" aria-pressed="'+(st.cdVariant===v.id)+'">'+esc(v.shortJa)+'-CD('+v.units+'個)</button>'
+  ).join('');
+}
+function cdTopSVG(){
+  const v = CD_BY_ID[st.cdVariant];
+  const W = NARROW?260:300, H = NARROW?260:280, cx=W/2, cy=H*0.48;
+  const rOuter = NARROW?92:104, rMid=rOuter*0.66, rInner=rOuter*0.3;
+  let o = ringWedgesSVG(cx,cy,rOuter,rMid,rInner,v.units,null);
+  o += svgText(cx, H-14, v.units+'個のグルコース単位', 10, '#5E6E76', 'middle');
+  return '<svg class="scheme" viewBox="0 0 '+W+' '+H+'" width="100%" height="'+H+'" role="img" aria-label="'+esc(v.nameJa)+'を上から見た環">'+o+'</svg>';
+}
+function cdCrossSVG(){
+  const W = NARROW?260:300, H = NARROW?220:230;
+  const topW = NARROW?170:190, botW = NARROW?96:108, topY=34, botY=topY+130, cx=W/2;
+  const tl=[cx-topW/2,topY], tr=[cx+topW/2,topY], bl=[cx-botW/2,botY], br=[cx+botW/2,botY];
+  let o='';
+  o += '<path d="M '+tl[0]+' '+tl[1]+' L '+tr[0]+' '+tr[1]+' L '+br[0]+' '+br[1]+' L '+bl[0]+' '+bl[1]+' Z" fill="rgba(184,122,22,.10)" stroke="#8A5A0C" stroke-width="1.6"/>';
+  o += svgLine(tl[0],tl[1],tr[0],tr[1],'#2457A6',2.4);
+  o += svgLine(bl[0],bl[1],br[0],br[1],'#0D6A53',2.4);
+  o += svgText(cx, topY-12, '広い縁: '+DATA.cyclodextrin.cavity.wideRimJa, 10, '#1B4380', 'middle','600');
+  o += svgText(cx, botY+20, '狭い縁: '+DATA.cyclodextrin.cavity.narrowRimJa, 10, '#0D6A53', 'middle','600');
+  o += svgText(cx, (topY+botY)/2-6, '空洞', 10, '#8A5A0C', 'middle','600');
+  o += svgText(cx, (topY+botY)/2+8, DATA.cyclodextrin.cavity.insideJa, 9.5, '#8A5A0C', 'middle');
+  return '<svg class="scheme" viewBox="0 0 '+W+' '+H+'" width="100%" height="'+H+'" role="img" aria-label="シクロデキストリンの断面(先細りの筒)">'+o+'</svg>';
+}
+function renderCd(){
+  const v = CD_BY_ID[st.cdVariant];
+  document.getElementById('cdStats').innerHTML =
+    '<div class="stat"><div class="slabel">単位数</div><div class="sval">'+v.units+'</div></div>'+
+    '<div class="stat"><div class="slabel">分子量</div><div class="sval">'+v.molecularWeight+'</div></div>'+
+    '<div class="stat"><div class="slabel">式</div><div class="sval" style="font-size:13px">162×'+v.units+'</div></div>';
+  document.getElementById('cdTopScheme').innerHTML = cdTopSVG();
+  document.getElementById('cdCrossScheme').innerHTML = cdCrossSVG();
+  document.getElementById('cdNote').innerHTML =
+    esc(DATA.cyclodextrin.formulaNoteJa)+'。'+esc(DATA.cyclodextrin.amyloseRelationJa)+'。'+
+    esc(DATA.cyclodextrin.inclusionJa)+'。用途例: '+esc(DATA.cyclodextrin.usesJa)+'。';
+}
+
+/* ================= 4. IODINE ================= */
+function renderIodineSugarChips(){
+  document.getElementById('iodineSugarChips').innerHTML = DATA.iodineReaction.sugars.map(s=>
+    '<button type="button" class="chip" data-sugar="'+s.id+'" aria-pressed="'+(st.iodineSugar===s.id)+'">'+esc(s.nameJa)+'</button>'
+  ).join('');
+}
+function renderHeatToggle(){
+  document.getElementById('heatToggle').innerHTML =
+    '<button type="button" class="ringbtn" data-heat="cool" aria-pressed="'+(!st.heated)+'">冷却</button>'+
+    '<button type="button" class="ringbtn" data-heat="hot" aria-pressed="'+(st.heated)+'">加熱</button>';
+}
+function iodineSceneSVG(){
+  const s = SUGAR_BY_ID[st.iodineSugar];
+  const W = NARROW?320:420, H = NARROW?220:230, cx=W/2;
+  const showColor = st.iodineAdded && s.reacts && !st.heated;
+  if(s.id==='monodisaccharide'){
+    let o = svgCircle(cx-16,H*0.5,4,'#5E6E76')+svgCircle(cx+16,H*0.5,4,'#5E6E76')+svgLine(cx-16,H*0.5,cx+16,H*0.5,'#5E6E76',1.6);
+    o += svgText(cx,H*0.5+28,'単糖・二糖はらせんを作らない',10,'#5E6E76','middle');
+    return '<svg class="scheme" viewBox="0 0 '+W+' '+H+'" width="100%" height="'+H+'" role="img" aria-label="単糖・二糖(らせんなし)">'+o+'</svg>';
+  }
+  if(s.id==='cellulose'){
+    let o='';
+    const y=H*0.5, n=6, step=(W-60)/n;
+    let pts=[]; for(let i=0;i<=n;i++) pts.push([30+i*step, y+(i%2===0?-8:8)]);
+    for(let i=0;i<n;i++) o+=svgLine(pts[i][0],pts[i][1],pts[i+1][0],pts[i+1][1],'#5E6E76',2);
+    o += svgText(cx,y+34,'β-1,4結合で直線状。らせんを作らない',10,'#5E6E76','middle');
+    return '<svg class="scheme" viewBox="0 0 '+W+' '+H+'" width="100%" height="'+H+'" role="img" aria-label="セルロース(直線状、らせんなし)">'+o+'</svg>';
+  }
+  // アミロース・アミロペクチン・グリコーゲン: らせん(ほどけ具合と分岐の数を変える)
+  const turnsBase = { amylose:2.6, amylopectin:1.5, glycogen:0.9 }[s.id];
+  const turns = st.heated ? turnsBase*0.22 : turnsBase;
+  const branches = { amylose:0, amylopectin:1, glycogen:3 }[s.id];
+  const topPad=20, radiusPx=NARROW?42:52;
+  const N=200, residuesPerTurn=DATA.helix.residuesPerTurn;
+  const total = turns*residuesPerTurn;
+  let prev=null, o='';
+  const fillColor = showColor ? s.colorHex : null;
+  // ヨウ素を入れた(非加熱)ときはI2の玉・ラベルを置く場所だけ、らせんの線を空けておく
+  // (ヨウ素がらせんの内側に収まっている、という見せ方にする。加熱時はI2を右外に出すので不要)
+  const gapBox = (st.iodineAdded && s.reacts && !st.heated) ? {x0:cx-18,x1:cx+18,y0:H*0.5-24,y1:H*0.5+8} : null;
+  for(let i=0;i<=N;i++){
+    const frac=i/N*total;
+    const theta=frac/residuesPerTurn*2*Math.PI;
+    const x=cx+radiusPx*Math.sin(theta);
+    const y=topPad+(frac/total)*(H-topPad*2);
+    const depth=Math.cos(theta);
+    if(prev){
+      const mx=(prev[0]+x)/2, my=(prev[1]+y)/2;
+      const inGap = gapBox && mx>=gapBox.x0 && mx<=gapBox.x1 && my>=gapBox.y0 && my<=gapBox.y1;
+      if(!inGap){
+        const t=(depth+1)/2, w=1.6+t*2.4, op=0.4+t*0.6;
+        o += '<line x1="'+prev[0].toFixed(1)+'" y1="'+prev[1].toFixed(1)+'" x2="'+x.toFixed(1)+'" y2="'+y.toFixed(1)+'" stroke="'+(fillColor||'#B87A16')+'" stroke-width="'+w.toFixed(2)+'" stroke-opacity="'+op.toFixed(2)+'" stroke-linecap="round"/>';
+      }
+    }
+    prev=[x,y];
+  }
+  for(let b=0;b<branches;b++){
+    const by = topPad+20+b*((H-topPad*2-40)/Math.max(branches,1));
+    o += svgLine(cx+radiusPx*0.4, by, cx+radiusPx+22, by+14, '#8A5A0C', 1.6);
+  }
+  if(branches>0) o += svgText(cx+radiusPx+30, topPad+16, 'α-1,6分岐×'+branches, 9, '#8A5A0C','start');
+  if(st.iodineAdded && s.reacts){
+    // 加熱時は分岐ラベル(右上)と重ならないよう、抜けていくヨウ素は右下に置く
+    const ix = st.heated ? cx+radiusPx+34 : cx, iy = st.heated ? H-topPad-8 : H*0.5;
+    o += svgCircle(ix-6,iy,4.5,'#3B2A5C')+svgCircle(ix+6,iy,4.5,'#3B2A5C')+svgLine(ix-6,iy,ix+6,iy,'#3B2A5C',2);
+    o += svgText(ix, iy-12, 'I2', 9.5, '#3B2A5C','middle','600');
+    if(st.heated) o += svgText(ix, iy+16, '(抜けていく)', 8.5, '#5E6E76','middle');
+  }
+  return '<svg class="scheme" viewBox="0 0 '+W+' '+H+'" width="100%" height="'+H+'" role="img" aria-label="'+esc(s.nameJa)+'のらせんとヨウ素">'+o+'</svg>';
+}
+function renderIodine(){
+  const s = SUGAR_BY_ID[st.iodineSugar];
+  document.getElementById('btnAddIodine').setAttribute('aria-pressed', String(st.iodineAdded));
+  document.getElementById('btnAddIodine').textContent = st.iodineAdded ? 'ヨウ素を取り出す' : 'ヨウ素を入れる';
+  document.getElementById('iodineScheme').innerHTML = iodineSceneSVG();
+  const showColor = st.iodineAdded && s.reacts && !st.heated;
+  const swatchBg = showColor ? s.colorHex : '#FFFFFF';
+  document.getElementById('iodineSwatch').innerHTML =
+    '<div class="swatch" style="background:'+swatchBg+';'+(showColor?'':'border-style:dashed')+'"></div>'+
+    '<div class="swatchlabel">観察される色: <b>'+(showColor ? esc(s.colorJa) : (st.iodineAdded && s.reacts && st.heated ? '加熱で消えている' : esc(s.colorJa)))+'</b>('+esc(s.helixLengthJa)+')</div>';
+  document.getElementById('iodineNote').textContent =
+    DATA.iodineReaction.mechanismJa+' '+DATA.iodineReaction.lengthColorRuleJa+' '+DATA.iodineReaction.heatCoolJa;
+  document.getElementById('iodineValueNote').innerHTML =
+    esc(DATA.iodineReaction.differentFromIodineValueJa)+'(<a href="fats-oils-saponification.html">油脂の構造とけん化価・ヨウ素価</a>)。';
+}
+
+/* ================= 共通 ================= */
+function renderNotes(){
+  document.getElementById('notesList').innerHTML = DATA.notes.map(n=>'<li style="margin-bottom:4px">'+esc(n)+'</li>').join('');
+}
+
+/* ================= イベント ================= */
+function onBond(id){ st.bondType=id; renderBondToggle(); renderBond(); }
+function onHelixHighlight(id){ st.helixHighlight = id||null; renderHelixHighlightChips(); document.getElementById('helixCrossScheme').innerHTML = helixCrossSVG(); }
+function onCd(id){ st.cdVariant=id; renderCdChips(); renderCd(); }
+function onIodineSugar(id){ st.iodineSugar=id; st.iodineAdded=false; renderIodineSugarChips(); renderIodine(); }
+function onAddIodine(){ st.iodineAdded=!st.iodineAdded; renderIodine(); }
+function onHeat(v){ st.heated = (v==='hot'); renderHeatToggle(); renderIodine(); }
+
+function boot(){
+  NARROW = window.matchMedia('(max-width:430px)').matches;
+
+  renderBondToggle();
+  renderBond();
+
+  renderHelixHighlightChips();
+  renderHelix();
+
+  renderCdChips();
+  renderCd();
+
+  renderIodineSugarChips();
+  renderHeatToggle();
+  renderIodine();
+
+  renderNotes();
+
+  document.addEventListener('click', e=>{
+    const t = e.target;
+    const bond = t.closest ? t.closest('button[data-bond]') : null;
+    if(bond){ onBond(bond.dataset.bond); return; }
+    const hl = t.closest ? t.closest('button[data-hl]') : null;
+    if(hl){ onHelixHighlight(hl.dataset.hl); return; }
+    const cd = t.closest ? t.closest('button[data-cd]') : null;
+    if(cd){ onCd(cd.dataset.cd); return; }
+    const sugar = t.closest ? t.closest('button[data-sugar]') : null;
+    if(sugar){ onIodineSugar(sugar.dataset.sugar); return; }
+    if(t.id==='btnAddIodine'){ onAddIodine(); return; }
+    const heat = t.closest ? t.closest('button[data-heat]') : null;
+    if(heat){ onHeat(heat.dataset.heat); return; }
+  });
+
+  let tm=null;
+  window.addEventListener('resize', ()=>{
+    clearTimeout(tm);
+    tm = setTimeout(()=>{
+      const nw = window.matchMedia('(max-width:430px)').matches;
+      if(nw!==NARROW){
+        NARROW=nw;
+        renderBond();
+        renderHelix();
+        renderCd();
+        renderIodine();
+      }
+    }, 180);
+  });
+}
+if(typeof document !== 'undefined') boot();
+</script>
+</body>
+</html>

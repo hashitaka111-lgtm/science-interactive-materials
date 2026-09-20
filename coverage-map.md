@@ -62,7 +62,7 @@
 | 有機 | 構造決定 | 元素分析と分子式決定 | | | 未 |
 | 有機 | 構造決定 | 異性体 | | | 未 |
 | 有機 | 構造決定 | 構造決定の手順 | | | 未 |
-| 高分子 | 天然高分子 | 糖類 | chem-monosaccharide-structure | | 部分 |
+| 高分子 | 天然高分子 | 糖類 | chem-monosaccharide-structure, chem-starch-helix | | 部分 |
 | 高分子 | 天然高分子 | アミノ酸とタンパク質 | | chem-acid-base-distribution, chem-titration | 部分 |
 | 高分子 | 天然高分子 | 核酸 | | | 未 |
 | 高分子 | 合成高分子 | 合成樹脂・合成繊維・ゴム | | | 未 |

@@ -994,7 +994,8 @@
     "type": "matrix",
     "related": [
       "chem-amino-acids-matrix",
-      "chem-peptide-sequencing"
+      "chem-peptide-sequencing",
+      "chem-starch-helix"
     ]
   },
   {
@@ -1559,7 +1560,8 @@
     "type": "diagram",
     "related": [
       "chem-fats-oils-saponification",
-      "chem-salt-hydrolysis"
+      "chem-salt-hydrolysis",
+      "chem-starch-helix"
     ]
   },
   {
@@ -1591,7 +1593,41 @@
     "type": "diagram",
     "related": [
       "chem-alcohol-ether-nomenclature",
-      "chem-aldehyde-ketone-nomenclature"
+      "chem-aldehyde-ketone-nomenclature",
+      "chem-starch-helix"
+    ]
+  },
+  {
+    "id": "chem-starch-helix",
+    "file": "html/starch-helix.html",
+    "subject": "chemistry",
+    "unit": "有機化学 / デンプンとシクロデキストリンのらせん構造",
+    "course": "化学",
+    "section": "有機化合物の性質",
+    "order": 38,
+    "title": "デンプンとシクロデキストリンのらせん構造",
+    "heading": "デンプンとシクロデキストリンのらせん構造",
+    "summary": "α-1,4結合が鎖を曲げてらせんを作る仕組みから出発し、アミロースのらせんの内側・外側の親水性/疎水性、シクロデキストリンの環状構造と包接、ヨウ素デンプン反応の呈色までをつなげる",
+    "topics": [
+      "α-1,4結合とβ-1,4結合の違い(鎖が曲がる/まっすぐになる)",
+      "アミロースのらせん(6残基で1巻き)と内側・外側の親水性/疎水性",
+      "シクロデキストリン(α・β・γ)の環状構造と包接",
+      "ヨウ素デンプン反応の呈色とらせんの長さの関係",
+      "アミロペクチン・グリコーゲンの枝分かれによるらせんの短縮"
+    ],
+    "interactions": [
+      "構造トグル",
+      "チップ切り替え",
+      "ホバー/タップ",
+      "ステップ表示",
+      "色分け表示"
+    ],
+    "confidence": "high",
+    "type": "diagram",
+    "related": [
+      "chem-monosaccharide-structure",
+      "chem-soap-surfactants",
+      "chem-protein-structure"
     ]
   }
 ]
