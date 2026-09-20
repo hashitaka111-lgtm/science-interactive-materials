@@ -1380,7 +1380,8 @@
     "type": "matrix",
     "related": [
       "chem-isomers",
-      "chem-aldehyde-ketone-nomenclature"
+      "chem-aldehyde-ketone-nomenclature",
+      "chem-monosaccharide-structure"
     ]
   },
   {
@@ -1409,7 +1410,8 @@
     "related": [
       "chem-alcohol-ether-nomenclature",
       "chem-hydrocarbon-nomenclature",
-      "chem-carboxylic-acid-nomenclature"
+      "chem-carboxylic-acid-nomenclature",
+      "chem-monosaccharide-structure"
     ]
   },
   {
@@ -1558,6 +1560,38 @@
     "related": [
       "chem-fats-oils-saponification",
       "chem-salt-hydrolysis"
+    ]
+  },
+  {
+    "id": "chem-monosaccharide-structure",
+    "file": "html/monosaccharide-structure.html",
+    "subject": "chemistry",
+    "unit": "有機化学 / 単糖類の構造(D/L・フィッシャー・ハース・いす形)",
+    "course": "化学",
+    "section": "有機化合物の性質",
+    "order": 37,
+    "title": "単糖類の構造",
+    "heading": "単糖類の構造",
+    "summary": "単糖の分類マトリクスから出発し、フィッシャー投影式のD/L判定、D系列アルドース・ケトースの枝分かれ、ハース投影式への変換、いす形のアキシアル/エクアトリアルまでをD-グルコースを軸につなげる",
+    "topics": [
+      "単糖・二糖・多糖の分類と分子量の関係",
+      "フィッシャー投影式とD/L判定(カルボニル基から最も遠い不斉炭素)",
+      "D系列アルドース15種・ケトース8種の枝分かれ(エピマーと鏡像異性体の違い)",
+      "フィッシャー→ハース変換とα/βアノマー",
+      "いす形のアキシアル/エクアトリアルとD-グルコースが全置換基エクアトリアルになる理由"
+    ],
+    "interactions": [
+      "構造トグル",
+      "チップ切り替え",
+      "ホバー/タップ",
+      "ステップ表示",
+      "色分け表示"
+    ],
+    "confidence": "high",
+    "type": "diagram",
+    "related": [
+      "chem-alcohol-ether-nomenclature",
+      "chem-aldehyde-ketone-nomenclature"
     ]
   }
 ]

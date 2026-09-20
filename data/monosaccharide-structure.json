@@ -1,0 +1,212 @@
+{
+  "meta": {
+    "atomicWeights": { "H": 1.0, "C": 12.0, "O": 16.0 },
+    "note": "分子量は原子量H=1.0,C=12.0,O=16.0からの計算値。単糖C6(H2O)6=C6H12O6=180、二糖C12(H2O)11=C12H22O11=342(180×2−18)、多糖(繰り返し単位[C6(H2O)5]x、両端にHとOHを持つH-[C6(H2O)5]x-OH)は162x+18で、x=2で342・x=1で180になり単糖・二糖の値と矛盾しないことを確認済み。"
+  },
+  "sugarClasses": [
+    {
+      "id": "mono",
+      "nameJa": "単糖類",
+      "defJa": "それ以上加水分解されない糖",
+      "generalFormula": "Cn(H2O)n",
+      "exampleFormula": "C6(H2O)6 = C6H12O6",
+      "molecularWeight": 180,
+      "molecularWeightNoteJa": "C=12.0×6+H=1.0×12+O=16.0×6=180"
+    },
+    {
+      "id": "di",
+      "nameJa": "二糖類",
+      "defJa": "2つの単糖類が縮合(脱水縮合)したもの",
+      "generalFormula": "C2n(H2O)2n-1",
+      "exampleFormula": "C12(H2O)11 = C12H22O11",
+      "molecularWeight": 342,
+      "molecularWeightNoteJa": "180×2−18=342(単糖2分子から水1分子がとれる)"
+    },
+    {
+      "id": "poly",
+      "nameJa": "多糖類",
+      "defJa": "多数の単糖類が縮合重合したもの",
+      "generalFormula": "繰り返し単位 [Cn(H2O)n-1]、六炭糖なら H-[C6(H2O)5]x-OH",
+      "exampleFormula": "(C6H10O5)x",
+      "molecularWeightFormulaJa": "162x+18(両端のHとOHを含む)",
+      "molecularWeightCheckpoints": [
+        { "x": 1, "molecularWeight": 180, "matchesJa": "単糖(x=1)の180と一致" },
+        { "x": 2, "molecularWeight": 342, "matchesJa": "二糖(x=2)の342と一致" }
+      ]
+    }
+  ],
+  "commonProperties": {
+    "monoDi": {
+      "nameJa": "単糖・二糖",
+      "items": ["白色結晶", "水によく溶ける", "甘味がある", "エタノールに少し溶ける(その他の有機溶媒には溶けない)"],
+      "reasonJa": "OH基が多く水と水素結合するため"
+    },
+    "poly": {
+      "nameJa": "多糖",
+      "items": ["冷水に溶けにくい", "ほとんど甘味を示さない"]
+    }
+  },
+  "classificationMatrix": {
+    "introJa": "列は「ケトース ← 酸化 ← 糖アルコール → 酸化 → アルドース」。糖アルコール(多価アルコール)の末端CH2OHを酸化するとアルドース(-CHO)、内部のCH(OH)を酸化するとケトースになる(C=O)。アルドースの光学異性体数は2^(n-2)、ケトースは2^(n-3)。",
+    "rows": [
+      {
+        "carbon": 2,
+        "rowNameJa": "二炭糖(diose)",
+        "aldose": { "count": 1, "formula": "2^(2-2)=1", "exampleJa": "グリコールアルデヒド", "chiral": false },
+        "ketose": { "count": 0, "formula": null, "exampleJa": null, "noteJa": "3炭素未満ではケトースは存在しない" },
+        "sugarAlcoholJa": "エチレングリコール"
+      },
+      {
+        "carbon": 3,
+        "rowNameJa": "triose",
+        "aldose": { "count": 2, "formula": "2^(3-2)=2", "exampleJa": "グリセルアルデヒド(光学異性体2種)", "chiral": true },
+        "ketose": { "count": 1, "formula": "2^(3-3)=1", "exampleJa": "ジヒドロキシアセトン", "chiral": false },
+        "sugarAlcoholJa": "グリセリン"
+      },
+      {
+        "carbon": 4,
+        "rowNameJa": "tetrose",
+        "aldose": { "count": 4, "formula": "2^(4-2)=4", "exampleJa": "エリトロースなど4種", "chiral": true },
+        "ketose": { "count": 2, "formula": "2^(4-3)=2", "exampleJa": "エリトルロース(D/L)", "chiral": true },
+        "sugarAlcoholJa": "テトリトール(例: エリトリトール)"
+      },
+      {
+        "carbon": 5,
+        "rowNameJa": "pentose",
+        "aldose": { "count": 8, "formula": "2^(5-2)=8", "exampleJa": "リボースなど8種", "chiral": true },
+        "ketose": { "count": 4, "formula": "2^(5-3)=4", "exampleJa": "リブロースなど4種", "chiral": true },
+        "sugarAlcoholJa": "ペンチトール(例: キシリトール)"
+      },
+      {
+        "carbon": 6,
+        "rowNameJa": "hexose",
+        "aldose": { "count": 16, "formula": "2^(6-2)=16", "exampleJa": "グルコースなど16種", "chiral": true },
+        "ketose": { "count": 8, "formula": "2^(6-3)=8", "exampleJa": "フルクトースなど8種", "chiral": true },
+        "sugarAlcoholJa": "ヘキシトール(例: ソルビトール)"
+      }
+    ]
+  },
+  "aldoseTree": [
+    { "id": "glyceraldehyde", "nameJa": "グリセルアルデヒド", "nameEn": "glyceraldehyde", "carbon": 3, "parentId": null, "branch": "R" },
+    { "id": "erythrose", "nameJa": "エリトロース", "nameEn": "erythrose", "carbon": 4, "parentId": "glyceraldehyde", "branch": "R" },
+    { "id": "threose", "nameJa": "トレオース", "nameEn": "threose", "carbon": 4, "parentId": "glyceraldehyde", "branch": "L" },
+    { "id": "ribose", "nameJa": "リボース", "nameEn": "ribose", "carbon": 5, "parentId": "erythrose", "branch": "R", "highlight": true, "highlightNoteJa": "RNAの糖" },
+    { "id": "arabinose", "nameJa": "アラビノース", "nameEn": "arabinose", "carbon": 5, "parentId": "erythrose", "branch": "L" },
+    { "id": "xylose", "nameJa": "キシロース", "nameEn": "xylose", "carbon": 5, "parentId": "threose", "branch": "R" },
+    { "id": "lyxose", "nameJa": "リキソース", "nameEn": "lyxose", "carbon": 5, "parentId": "threose", "branch": "L" },
+    { "id": "allose", "nameJa": "アロース", "nameEn": "allose", "carbon": 6, "parentId": "ribose", "branch": "R" },
+    { "id": "altrose", "nameJa": "アルトロース", "nameEn": "altrose", "carbon": 6, "parentId": "ribose", "branch": "L" },
+    { "id": "glucose", "nameJa": "グルコース", "nameEn": "glucose", "carbon": 6, "parentId": "arabinose", "branch": "R", "highlight": true, "highlightNoteJa": "血糖" },
+    { "id": "mannose", "nameJa": "マンノース", "nameEn": "mannose", "carbon": 6, "parentId": "arabinose", "branch": "L" },
+    { "id": "gulose", "nameJa": "グロース", "nameEn": "gulose", "carbon": 6, "parentId": "xylose", "branch": "R" },
+    { "id": "idose", "nameJa": "イドース", "nameEn": "idose", "carbon": 6, "parentId": "xylose", "branch": "L" },
+    { "id": "galactose", "nameJa": "ガラクトース", "nameEn": "galactose", "carbon": 6, "parentId": "lyxose", "branch": "R", "highlight": true, "highlightNoteJa": "乳糖の構成糖" },
+    { "id": "talose", "nameJa": "タロース", "nameEn": "talose", "carbon": 6, "parentId": "lyxose", "branch": "L" }
+  ],
+  "ketoseTree": [
+    { "id": "dihydroxyacetone", "nameJa": "ジヒドロキシアセトン", "nameEn": "dihydroxyacetone", "carbon": 3, "parentId": null, "branch": null, "chiral": false },
+    { "id": "erythrulose", "nameJa": "エリトルロース", "nameEn": "erythrulose", "carbon": 4, "parentId": "dihydroxyacetone", "branch": "R" },
+    { "id": "ribulose", "nameJa": "リブロース", "nameEn": "ribulose", "carbon": 5, "parentId": "erythrulose", "branch": "R" },
+    { "id": "xylulose", "nameJa": "キシルロース", "nameEn": "xylulose", "carbon": 5, "parentId": "erythrulose", "branch": "L" },
+    { "id": "psicose", "nameJa": "プシコース", "nameEn": "psicose", "carbon": 6, "parentId": "ribulose", "branch": "R" },
+    { "id": "fructose", "nameJa": "フルクトース", "nameEn": "fructose", "carbon": 6, "parentId": "ribulose", "branch": "L", "highlight": true, "highlightNoteJa": "果糖" },
+    { "id": "sorbose", "nameJa": "ソルボース", "nameEn": "sorbose", "carbon": 6, "parentId": "xylulose", "branch": "R" },
+    { "id": "tagatose", "nameJa": "タガトース", "nameEn": "tagatose", "carbon": 6, "parentId": "xylulose", "branch": "L" }
+  ],
+  "fischerRules": {
+    "steps": [
+      "炭素鎖を縦に描き、酸化数の高い端(アルデヒド基・ケトン基に近い端)を上にする",
+      "縦の結合は紙の奥へ、横の結合は手前へ突き出ていると約束する(実際の四面体構造を平面に投影したもの)",
+      "D/Lは、カルボニル基から最も遠い不斉炭素についたOHの向きで判定する。右にあればD、左にあればL",
+      "判定の基準になる化合物はD-グリセルアルデヒド(不斉炭素は1個だけで、そのOHが右)"
+    ],
+    "baseReferenceId": "glyceraldehyde",
+    "determinantCarbonNoteJa": "D-グルコース(炭素数6)では、カルボニル基(C1)から最も遠い不斉炭素はC5。C5のOHが右向きなのでD"
+  },
+  "flipDemo": {
+    "baseId": "glucose",
+    "positions": [
+      { "id": "all", "labelJa": "全部" },
+      { "id": "C2", "labelJa": "C2", "index": 0 },
+      { "id": "C3", "labelJa": "C3", "index": 1 },
+      { "id": "C4", "labelJa": "C4", "index": 2 },
+      { "id": "C5", "labelJa": "C5", "index": 3 }
+    ],
+    "ruleNoteJa": "反転後の配置を求め、最後の文字(D/L判定の文字)がLならその鏡像配置(全文字反転)の名称にL-を付ける",
+    "meaningJa": {
+      "all": "全部反転は鏡像(エナンチオマー)になる",
+      "single": "1か所だけの反転は鏡像ではなく別の糖(エピマー)になる"
+    }
+  },
+  "ringConversion": {
+    "steps": [
+      { "id": 1, "labelJa": "鎖状", "descJa": "D-グルコースは鎖状ではC1がアルデヒド基(CHO)、C5にOHをもつ" },
+      { "id": 2, "labelJa": "C5まわりを回す", "descJa": "C5-C6結合を軸に回転させ、C5のOHをC1(CHO)側に近づける" },
+      { "id": 3, "labelJa": "右に90°倒す", "descJa": "炭素鎖を右に90°倒し、奥へ曲げてC1とC5のOHが向き合う形にする" },
+      { "id": 4, "labelJa": "ヘミアセタール形成", "descJa": "C5のOがC1のC=Oに付加し、酸素1個・炭素5個からなる六員環(ピラノース)ができる。C1がヘミアセタール炭素になる" },
+      { "id": 5, "labelJa": "アノマー生成", "descJa": "付加によりC1が新しい不斉炭素(アノマー炭素)になり、OHの向きでα・βの2通りが生じる" }
+    ]
+  },
+  "haworthRule": {
+    "conversionTableJa": [
+      { "fischerJa": "右のOH", "haworthJa": "環の下" },
+      { "fischerJa": "左のOH", "haworthJa": "環の上" },
+      { "fischerJa": "D系列のC6(CH2OH)", "haworthJa": "上" }
+    ],
+    "glucoseRingPositionsJa": [
+      { "carbon": "C2", "haworthJa": "下" },
+      { "carbon": "C3", "haworthJa": "上" },
+      { "carbon": "C4", "haworthJa": "下" },
+      { "carbon": "C5(CH2OH)", "haworthJa": "上" }
+    ],
+    "anomerRuleJa": "C1のOHは、C6(CH2OH)と反対側ならα(下)、同じ側ならβ(上)"
+  },
+  "anomer": {
+    "alphaPercent": 36,
+    "betaPercent": 64,
+    "openChainNoteJa": "鎖状は0.1%以下のごく微量",
+    "equilibriumNoteJa": "α ⇌ 鎖状 ⇌ β の平衡"
+  },
+  "hemiacetal": {
+    "generalSchemeJa": "RCHO + R'OH ⇌ R-CH(OH)(OR')(ヘミアセタール、H+触媒)",
+    "glucoseSpecificJa": "D-グルコースではC1のC=O(アルデヒド基)とC5のOHが分子内で反応し、環状ヘミアセタールになる"
+  },
+  "chairGeometry": {
+    "ringRadiusAngstrom": 1.45,
+    "zAmplitudeAngstrom": 0.25,
+    "axialTiltDeg": 19.5,
+    "noteJa": "環炭素k=0〜5を角度60°×k・半径1.45Åに置き、z=+0.25Å(kが偶数)/−0.25Å(kが奇数)で上下させるといす形になる(隣接C-C間≈1.53Å)。アキシアルは±z方向、エクアトリアルは外向き(cos19.5°)で逆符号のz成分(sin19.5°)"
+  },
+  "boatGeometry": {
+    "ringRadiusAngstrom": 1.53,
+    "zAmplitudeAngstrom": 0.25,
+    "flagpoleIndices": [0, 3],
+    "noteJa": "環炭素6個を半径1.53Åの正六角形に置き、1,4位(k=0,3)だけをz=+0.25Å持ち上げて他4炭素と同一平面にしない。旗竿位のH同士(k=0,3)が近づき、側面(k=1-2,4-5)の結合が重なり形になって不安定になる"
+  },
+  "chairAxialRule": {
+    "conditionsJa": [
+      { "carbon": "C2", "axialIfConfig": "L", "positionIndex": 0 },
+      { "carbon": "C3", "axialIfConfig": "R", "positionIndex": 1 },
+      { "carbon": "C4", "axialIfConfig": "L", "positionIndex": 2 }
+    ],
+    "c5NoteJa": "C5のCH2OH(D系列)は常にエクアトリアル",
+    "c1NoteJa": "β-C1のOHはエクアトリアル、α-C1のOHはアキシアル",
+    "diaxialNoteJa": "アキシアル位は、同じ側の1つおきの炭素(C1・C3・C5)のアキシアル置換基どうしが空間的に近づいて込み合う(1,3-ジアキシアル相互作用)",
+    "expectedAxialCounts": [
+      { "id": "allose", "axialCarbonsJa": ["C3"] },
+      { "id": "altrose", "axialCarbonsJa": ["C2", "C3"] },
+      { "id": "glucose", "axialCarbonsJa": [] },
+      { "id": "mannose", "axialCarbonsJa": ["C2"] },
+      { "id": "gulose", "axialCarbonsJa": ["C3", "C4"] },
+      { "id": "idose", "axialCarbonsJa": ["C2", "C3", "C4"] },
+      { "id": "galactose", "axialCarbonsJa": ["C4"] },
+      { "id": "talose", "axialCarbonsJa": ["C2", "C4"] }
+    ]
+  },
+  "isomersCrossRefNoteJa": "不斉炭素・鏡像異性体の一般論はchem-isomersで扱っている。ここでは繰り返さない。",
+  "notes": [
+    "D/Lは配置の表記で、旋光の向き(+/−、d/l)ではない。D-グルコースは右旋性(+)、D-フルクトースは左旋性(−)",
+    "天然の糖はほとんどD体。タンパク質を作るα-アミノ酸はL体で、どちらもD/Lの基準はグリセルアルデヒド",
+    "ハース式は環を平面で描いた略図で、実際の環はいす形をとる。ハースの上/下とアキシアル/エクアトリアルは別の概念"
+  ]
+}

@@ -287,3 +287,18 @@
 - 教材数: 化学36件・物理16件、合計52件
 - 保留: 特になし
 - 次: 特になし
+
+## 2026-09-20 — 新規教材「単糖類の構造」の実装(糖類シリーズ①)
+
+- 変更: `data/monosaccharide-structure.json`(新規)、`html/monosaccharide-structure.html`(新規)、`scripts/check-monosaccharide-structure.mjs`(新規)、`scripts/check-embedded-data.mjs`(EMBED_CHECKSに`monosaccharide-structure`エントリを追加)、`manifest.json`(`chem-monosaccharide-structure`を新規追加、`chem-alcohol-ether-nomenclature`・`chem-aldehyde-ketone-nomenclature`のrelatedに相互リンクを追加)、`coverage-map.md`(「糖類」行の主教材列に`chem-monosaccharide-structure`を追加、状態を未→部分に変更)、`index.html`(build.mjsで再生成)
+- coverage-map優先度6位。糖類は2〜3本に分ける予定の1本目で、分類・D/L・フィッシャー投影式・ハース投影式・いす形を扱う。デンプン・シクロデキストリン・ヨウ素デンプン反応(2本目)、二糖類・還元性・セルロース(3本目以降)は範囲外。手書きノートの参照画像はなく、CEO確定データ(フィッシャー配置のR/L親子則、ハース変換規則、いす形のアキシアル条件)のみで実装した
+- 核となる設計: D系列アルドース15種・ケトース8種の名称と立体配置(R=OH右/L=OH左、CIPのR/Sとは無関係)を「子の配置=新しいC2の文字+親の配置」という親子則から導出する仕組みを実装し、ハードコードした名称リストではなく`aldoseTree`/`ketoseTree`の親子関係(id・parentId・branch)から実行時に配置文字列を組み立てた。フィッシャー→反転→D/L判定(最後の文字がLなら全反転して鏡像のD名にL-を付ける)も同じ一般化した関数(`nameFromConfig`)で扱い、「全部反転=鏡像」「1か所反転=エピマー」の両方を同じロジックで導出できることを確認した
+- いす形のアキシアル/エクアトリアル判定も同様に、CEO指定の条件(C2はL・C3はR・C4はLでアキシアル)を`chairAxialRule`としてデータに持ち、実行時に8種のD-アルドヘキソースそれぞれの配置から算出する実装にした(アロース1・アルトロース2・グルコース0・マンノース1・グロース2・イドース3・ガラクトース1・タロース2という指示の表と一致することを検算済み。アキシアル0個はグルコースだけという表の要点も検証)
+- いす形・舟形の3D座標は指示の目安どおり実装した(環炭素k=0〜5を角度60°×k・半径1.45Å〈舟形は1.53Å〉に置き、chairはz=±0.25Åを偶奇で交互に、boatは1,4位〈k=0,3〉だけをz=+0.25Å持ち上げる)。結合長が全て1.50〜1.56Åに収まることをcheck-monosaccharide-structure.mjsで検算した。HTML側は描画専用に環の開始角度を24°回転させている(隣接する2原子のx座標が一致して軸性結合線が重なって見える問題を解消するための表示上の工夫で、check-monosaccharide-structure.mjsはこの回転なしでdata.json通りに検算するため、化学的な数値には影響しない)
+- 5シーン構成(CLASSIFICATION/FISCHER/TREE/RING/CHAIR)をすべて実装。D/L切り替えボタンはシーン2・3で共有する画面上部固定バーとし、シーン4・5はD-グルコース固定でL体は「ハース式の上下が反転する」という一言注記のみに留めた(指示どおり)
+- 重複確認: 実装前にhtml/・data/を「フィッシャー|ハース|D体|L体|いす形|アキシアル|ヘミアセタール」で検索し該当なしを確認済み。不斉炭素・鏡像異性体の一般論はchem-isomersが扱うため、ヘッダー導入文に一言リンクを置くだけに留め、本文では繰り返していない。chem-aldehyde-ketone-nomenclature(3→4件)・chem-alcohol-ether-nomenclature(2→3件)のrelatedはどちらも上限4件に達していなかったため、指示どおりそのまま追加した(chem-elemental-analysisへの差し替えは不要だった)
+- アクセシビリティ対応中に見つけて直した不具合: 分類マトリクスのセルを`<div role="button" tabindex="0">`で実装していたため、Tabでフォーカスは移るがEnter/Spaceでは`click`イベントが発火しない状態だった。ネイティブな`<button>`要素に置き換えて解決した。いす形の置換基タップ領域(SVGの`<circle>`)も同様にキーボードから操作できなかったため、`tabindex="0"`・`role="button"`・`aria-label`を付け、Enter/Spaceで同じ処理を呼ぶ`keydown`リスナーを追加した
+- 検証: `node scripts/check-monosaccharide-structure.mjs`(親子則からの配置導出・L体/エピマー反転・アキシアル数・分子量180/342/162x+18・いす形と舟形の結合長、すべて一致)、`node scripts/check-embedded-data.mjs`、`node build.mjs`がいずれもエラーなく通ることを確認(化学37件・物理16件、合計53件)。ブラウザで実際にページを開き、375px幅・820px幅の両方で`documentElement.scrollWidth===clientWidth`(表・数式のみ`.scroll`/`.eq`内部でスクロール)であること、コンソールエラーがゼロであること、5シーンの全チップ・トグル・ステップ・タップ可能要素(D/L・反転チップ・アルドース/ケトースタブ・ツリーノード・環化5ステップ・α/βトグル×2・いす形/舟形トグル・1,3-ジアキシアル表示・置換基タップ)をプログラムから一括発火させて水平オーバーフローが出ないことを確認した。フィッシャー投影式の炭素番号ラベルとOHラベルが接近して読みにくかった箇所(C3行)を修正し、いす形の3D投影で軸性結合線が2本重なって見えた箇所も回転オフセットで解消した
+- 教材数: 化学37件・物理16件、合計53件
+- 保留: 2本目(chem-starch-helix・仮、デンプン・シクロデキストリン・ヨウ素デンプン反応)の実装時に、本教材のrelatedへの追加と、2本目のrelatedに本教材を含めることを双方向で行う
+- 次: 糖類シリーズ2本目(デンプン・シクロデキストリン・ヨウ素デンプン反応)を想定

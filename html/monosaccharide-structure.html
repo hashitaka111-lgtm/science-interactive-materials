@@ -1,0 +1,936 @@
+<!doctype html>
+<html lang="ja">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>単糖類の構造</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500&family=IBM+Plex+Sans+JP:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+*{box-sizing:border-box}
+:root{
+  --ink:#16232B; --muted:#5E6E76; --paper:#EDF1EF; --surface:#FFFFFF;
+  --rule:#D6DDDA; --rule-soft:#E8EDEB;
+  --s0:#B87A16; --s0t:#8A5A0C;
+  --s1:#158A6D; --s1t:#0D6A53;
+  --s2:#2457A6; --s2t:#1B4380;
+  --s3:#6E3AA7; --s3t:#572D85;
+  --s4:#A82A6A; --s4t:#831F52;
+  --sans:"IBM Plex Sans JP","Hiragino Sans","Yu Gothic UI",system-ui,sans-serif;
+  --mono:"IBM Plex Mono",ui-monospace,SFMono-Regular,Menlo,monospace;
+}
+html,body{margin:0;padding:0}
+body{background:var(--paper);color:var(--ink);font-family:var(--sans);font-size:13.5px;line-height:1.75;-webkit-text-size-adjust:100%}
+.mono{font-family:var(--mono);font-variant-numeric:tabular-nums}
+.wrap{max-width:820px;margin:0 auto;padding:20px 14px 60px}
+.card{background:var(--surface);border:1px solid var(--rule);border-radius:3px;padding:14px;margin-bottom:14px}
+.eyebrow{display:flex;align-items:center;gap:10px;font-family:var(--mono);font-size:11.5px;letter-spacing:.14em;color:var(--muted);text-transform:uppercase}
+.eyebrow::after{content:"";flex:1;height:1px;background:var(--rule)}
+h1{font-size:22px;font-weight:600;letter-spacing:.01em;margin:8px 0 2px}
+h2{font-size:14.5px;font-weight:600;margin:10px 0 4px}
+h3{font-size:12.5px;font-weight:600;margin:14px 0 4px}
+p{margin:0 0 8px} p:last-child{margin-bottom:0}
+.lede{color:var(--muted);font-size:13px;margin:4px 0 0}
+.note{color:var(--muted);font-size:12px;line-height:1.75;margin-top:8px}
+.legend{color:var(--muted);font-size:11.5px;line-height:1.7;margin-top:6px}
+.key{background:rgba(184,122,22,.08);border:1px solid #E0C592;border-radius:3px;padding:8px 10px;font-size:12.5px;line-height:1.7;margin:8px 0}
+
+.eq{font-family:var(--mono);font-size:13px;background:var(--paper);border:1px solid var(--rule-soft);
+  border-radius:3px;padding:9px 11px;margin:8px 0;overflow-x:auto;white-space:nowrap;font-variant-numeric:tabular-nums}
+
+.btn{font:inherit;font-size:12.5px;line-height:1.4;border:1px solid var(--rule);background:#fff;color:var(--ink);border-radius:2px;padding:6px 10px;cursor:pointer}
+.btn:hover{border-color:#B4C0BC}
+.btn[aria-pressed="true"]{background:var(--ink);color:#fff;border-color:var(--ink)}
+.btn:focus-visible{outline:2px solid var(--ink);outline-offset:1px}
+.btnrow{display:flex;flex-wrap:wrap;gap:6px;margin:8px 0}
+
+/* ---------- 表共通 ---------- */
+.scroll{overflow-x:auto;-webkit-overflow-scrolling:touch;padding-bottom:2px}
+table{border-collapse:collapse;width:100%;font-size:12.5px}
+table.compact{min-width:480px}
+th,td{padding:6px 8px;text-align:left;white-space:nowrap;border-bottom:1px solid var(--rule-soft)}
+th{font-family:var(--mono);font-size:10.5px;letter-spacing:.06em;color:var(--muted);font-weight:500}
+td.num,th.num{text-align:right;font-family:var(--mono)}
+tr:last-child td{border-bottom:none}
+tr.on td{background:var(--paper)}
+.tag{display:inline-block;font-family:var(--mono);font-size:10.5px;padding:2px 6px;border-radius:2px;border:1px solid}
+
+/* ---------- ステップ表示 ---------- */
+.stepbar{display:flex;flex-wrap:wrap;gap:6px;margin:8px 0}
+.stepbtn{font:inherit;font-size:12px;line-height:1.4;border:1px solid var(--rule);background:#fff;color:var(--muted);
+  border-radius:2px;padding:6px 10px;cursor:pointer;text-align:left;flex:1 1 120px}
+.stepbtn b{display:block;font-family:var(--mono);font-size:10px;letter-spacing:.08em;color:var(--muted)}
+.stepbtn[aria-current="true"]{background:var(--ink);color:#fff;border-color:var(--ink)}
+.stepbtn[aria-current="true"] b{color:#C8D2CE}
+.stepbtn:hover{border-color:#B4C0BC}
+.stepbtn:focus-visible{outline:2px solid var(--ink);outline-offset:1px}
+
+.schemewrap{border:1px solid var(--rule-soft);border-radius:3px;background:#FBFCFB;overflow:hidden;margin-top:8px;padding:4px}
+.scheme{max-width:100%;margin:0 auto;display:block}
+
+/* ---------- 分類ごとの色分け枠 ---------- */
+.classbox{border-radius:3px;padding:9px 10px}
+.classbox .clabel{font-family:var(--mono);font-size:11.5px;letter-spacing:.14em;font-weight:500;margin-bottom:4px}
+.classbox .cbody{font-size:12.5px;line-height:1.7}
+.classbox .cname{font-weight:600;font-size:13px;margin:0 0 1px}
+.classbox .cmat{color:var(--muted);font-size:11.5px;margin:0 0 5px}
+
+/* ---------- D/L 共有トグルバー ---------- */
+.dlbar{position:sticky;top:0;z-index:6;background:var(--paper);padding:9px 12px;margin:0 0 14px;border:1px solid var(--rule);border-radius:3px;
+  display:flex;align-items:center;gap:10px;flex-wrap:wrap}
+.dlbar .dllabel{font-family:var(--mono);font-size:10.5px;letter-spacing:.1em;color:var(--muted)}
+
+/* ---------- 分類マトリクス(シーン1) ---------- */
+.mgrid{display:flex;flex-direction:column;gap:8px;margin-top:10px}
+.mrow{display:grid;grid-template-columns:1fr;gap:6px}
+@media(min-width:560px){.mrow{grid-template-columns:1fr 1fr 1fr}}
+.mrowlabel{font-family:var(--mono);font-size:10.5px;letter-spacing:.1em;color:var(--muted);margin-bottom:2px}
+.mcell{cursor:pointer;display:flex;gap:8px;align-items:flex-start;border:2px solid var(--rule);border-radius:3px;padding:8px;width:100%;font:inherit;text-align:left;color:inherit;background:#fff}
+.mcell:focus-visible{outline:2px solid var(--ink);outline-offset:1px}
+.mcell .mtext{flex:1;min-width:0}
+.mcell .mname{font-weight:600;font-size:12.5px;margin:0 0 1px}
+.mcell .mmeta{color:var(--muted);font-size:11px}
+.mdash{color:var(--muted);font-size:12px;padding:10px;text-align:center;border:1px dashed var(--rule);border-radius:3px}
+.skel{display:block;flex:0 0 auto}
+.mdetail{margin-top:8px}
+
+/* ---------- ツリー(シーン3) ---------- */
+.tier{margin-bottom:12px}
+.tier h3{font-family:var(--mono);font-size:10.5px;letter-spacing:.1em;color:var(--muted);text-transform:uppercase;margin:0 0 6px}
+.tierscroll{display:flex;gap:8px;padding-bottom:4px}
+.node{flex:0 0 auto;width:96px;border:1.5px solid var(--rule);border-radius:3px;padding:6px;background:#fff;cursor:pointer;text-align:center;font:inherit}
+.node:hover{border-color:#B4C0BC}
+.node:focus-visible{outline:2px solid var(--ink);outline-offset:1px}
+.node.hl{border-color:var(--s4);background:rgba(168,42,106,.06)}
+.node[aria-pressed="true"]{outline:2px solid var(--ink)}
+.node .nname{font-size:11px;font-weight:600;margin-top:3px}
+.node .nen{font-size:9px;color:var(--muted);font-family:var(--mono)}
+.nodedetail{margin-top:10px}
+
+/* ---------- ハース環・いす形(シーン4・5) ---------- */
+.ringbar{display:flex;gap:0;margin:8px 0;border:1px solid var(--rule);border-radius:2px;overflow:hidden;width:fit-content}
+.ringbtn{font:inherit;font-size:12px;border:none;background:#fff;color:var(--ink);padding:6px 12px;cursor:pointer;border-right:1px solid var(--rule)}
+.ringbtn:last-child{border-right:none}
+.ringbtn[aria-pressed="true"]{background:var(--ink);color:#fff}
+.ringbtn:focus-visible{outline:2px solid var(--ink);outline-offset:1px}
+.ratiobar{display:flex;height:20px;border-radius:2px;overflow:hidden;margin:8px 0;border:1px solid var(--rule-soft)}
+.ratiobar div{display:flex;align-items:center;justify-content:center;font-family:var(--mono);font-size:10.5px;color:#fff}
+.subtag{cursor:pointer;font:inherit}
+.subtag:focus-visible{outline:2px solid var(--ink);outline-offset:1px}
+.chairgrid{display:grid;grid-template-columns:1fr;gap:14px;margin-top:8px}
+@media(min-width:600px){.chairgrid{grid-template-columns:1fr 1fr}}
+
+@media (prefers-reduced-motion:no-preference){ .btn,.stepbtn,.node,.mcell,.ringbtn{transition:border-color 120ms linear,background-color 120ms linear} }
+
+@media (max-width:430px){
+  body{font-size:13px}
+  .wrap{padding:14px 10px 50px}
+  .card{padding:11px}
+  h1{font-size:19px}
+  .btn{padding:6px 8px;font-size:12px}
+  table.compact{min-width:420px}
+  .stepbtn{flex:1 1 100%}
+  .node{width:82px}
+}
+</style>
+</head>
+<body>
+<div class="wrap">
+
+<header class="card">
+  <div class="eyebrow">MONOSACCHARIDES</div>
+  <h1>単糖類の構造</h1>
+  <p class="lede">単糖類を分類・D/L・フィッシャー投影式・ハース投影式・いす形の5つの角度から見る。不斉炭素と鏡像異性体の一般論は<a href="isomers.html">isomers.html</a>で扱っているので、ここでは繰り返さない。</p>
+</header>
+
+<div class="dlbar card" id="dlBar">
+  <span class="dllabel">D体 ⇄ L体(FISCHER・TREEに適用)</span>
+  <div class="btnrow" id="dlToggle" role="group" aria-label="D体・L体の切り替え" style="margin:0"></div>
+</div>
+
+<!-- ============ 1. CLASSIFICATION ============ -->
+<section class="card" id="sceneClassification">
+  <div class="eyebrow">CLASSIFICATION</div>
+  <h2>単糖・二糖・多糖の分類</h2>
+  <div class="scroll"><table class="compact" id="sugarClassTable"></table></div>
+  <h3>共通の性質</h3>
+  <div class="mrow" id="commonProps" style="grid-template-columns:1fr 1fr"></div>
+
+  <h3>単糖の分類マトリクス</h3>
+  <p class="note">列は「ケトース ← 酸化 ← 糖アルコール → 酸化 → アルドース」。糖アルコールの末端CH2OHを酸化するとアルドース、内部のCH(OH)を酸化するとケトースになる。セルをタップ/ホバーすると詳細を表示する。</p>
+  <div class="mgrid" id="classMatrix"></div>
+  <div class="key mdetail" id="matrixDetail" hidden></div>
+</section>
+
+<!-- ============ 2. FISCHER ============ -->
+<section class="card" id="sceneFischer">
+  <div class="eyebrow">FISCHER · フィッシャー投影式とD/L</div>
+  <h2>フィッシャー投影式の約束事</h2>
+  <ol id="fischerSteps" style="padding-left:18px;margin:8px 0"></ol>
+  <p class="legend">この教材ではOHが右向きを<b>R</b>、左向きを<b>L</b>と表記する(CIPのR/S表示ではない)。</p>
+
+  <h3 id="fischerHeading"></h3>
+  <div class="schemewrap"><div id="fischerMain"></div></div>
+  <p class="note" id="fischerDLNote"></p>
+
+  <h3>C2の立体的な見え方</h3>
+  <div class="schemewrap"><div id="fischerWedge"></div></div>
+  <p class="note">縦の結合(鎖の続き)は奥へ、横の結合(OH・H)は手前へ突き出ている。</p>
+
+  <h3>どこを反転する?(D-グルコース基準)</h3>
+  <div class="btnrow" id="flipChips" role="group" aria-label="反転位置の選択"></div>
+  <div class="key" id="flipResult"></div>
+</section>
+
+<!-- ============ 3. TREE ============ -->
+<section class="card" id="sceneTree">
+  <div class="eyebrow">TREE · D系列のアルドースとケトース</div>
+  <h2>1つ炭素が増えるごとに2倍に枝分かれする</h2>
+  <div class="btnrow" id="treeTabs" role="group" aria-label="アルドース・ケトースの切り替え"></div>
+  <div id="treeTiers"></div>
+  <div class="key nodedetail" id="treeDetail" hidden></div>
+</section>
+
+<!-- ============ 4. RING ============ -->
+<section class="card" id="sceneRing">
+  <div class="eyebrow">RING · フィッシャー→ハース(D-グルコース)</div>
+  <h2>鎖状から環状ヘミアセタールへ</h2>
+  <div class="stepbar" id="ringSteps" role="group" aria-label="環化の5段階"></div>
+  <div class="schemewrap"><div id="ringScheme"></div></div>
+  <p class="note" id="ringDesc"></p>
+  <div class="eq" id="hemiGeneral"></div>
+  <p class="note" id="hemiGlucose"></p>
+
+  <h3>ハース投影式: α ⇄ β</h3>
+  <div class="ringbar" id="anomerToggle" role="group" aria-label="αとβの切り替え"></div>
+  <div class="schemewrap"><div id="haworthScheme"></div></div>
+  <div class="ratiobar" id="ratioBar"></div>
+  <p class="note" id="anomerRuleNote"></p>
+
+  <h3>フィッシャー→ハース変換規則</h3>
+  <div class="scroll"><table class="compact" id="conversionTable"></table></div>
+</section>
+
+<!-- ============ 5. CHAIR ============ -->
+<section class="card" id="sceneChairA">
+  <div class="eyebrow">CHAIR · いす形と舟形</div>
+  <h2>シクロヘキサンのいす形 ⇄ 舟形</h2>
+  <div class="ringbar" id="chairFormToggle" role="group" aria-label="いす形・舟形の切り替え"></div>
+  <div class="schemewrap"><div id="chairFormScheme"></div></div>
+  <p class="note" id="chairFormNote"></p>
+  <div class="btnrow"><button type="button" class="btn" id="toggleDiaxial" aria-pressed="false">1,3-ジアキシアル相互作用を表示</button></div>
+  <p class="note" id="diaxialNote" hidden></p>
+</section>
+
+<section class="card" id="sceneChairB">
+  <h2>D-グルコピラノースのいす形(4C1)</h2>
+  <div class="ringbar" id="glucoseAnomerToggle" role="group" aria-label="D-グルコピラノースのαβ切り替え"></div>
+  <div class="schemewrap"><div id="glucoseChairScheme"></div></div>
+  <p class="note">置換基をタップするとアキシアル/エクアトリアルを表示する。</p>
+  <div class="key" id="chairSubDetail" hidden></div>
+</section>
+
+<section class="card" id="sceneChairC">
+  <h2>8種のD-アルドヘキソースのアキシアル置換基数(β体・4C1)</h2>
+  <div class="scroll"><table class="compact" id="axialTable"></table></div>
+  <p class="note">アキシアル置換基0個はD-グルコースだけ。βのC1-OHもエクアトリアルになるため、C2・C3・C4・CH2OHがすべてエクアトリアルにそろう唯一のアルドヘキソースになる。</p>
+</section>
+
+<section class="card" id="notes">
+  <div class="eyebrow">NOTES</div>
+  <ol id="notesList" style="padding-left:18px;margin:8px 0"></ol>
+</section>
+
+</div><!-- /wrap -->
+
+<script>
+/* ---------- データ(JSONをそのまま埋め込み。fetch は使わない) ---------- */
+const DATA = {"meta":{"atomicWeights":{"H":1,"C":12,"O":16},"note":"分子量は原子量H=1.0,C=12.0,O=16.0からの計算値。単糖C6(H2O)6=C6H12O6=180、二糖C12(H2O)11=C12H22O11=342(180×2−18)、多糖(繰り返し単位[C6(H2O)5]x、両端にHとOHを持つH-[C6(H2O)5]x-OH)は162x+18で、x=2で342・x=1で180になり単糖・二糖の値と矛盾しないことを確認済み。"},"sugarClasses":[{"id":"mono","nameJa":"単糖類","defJa":"それ以上加水分解されない糖","generalFormula":"Cn(H2O)n","exampleFormula":"C6(H2O)6 = C6H12O6","molecularWeight":180,"molecularWeightNoteJa":"C=12.0×6+H=1.0×12+O=16.0×6=180"},{"id":"di","nameJa":"二糖類","defJa":"2つの単糖類が縮合(脱水縮合)したもの","generalFormula":"C2n(H2O)2n-1","exampleFormula":"C12(H2O)11 = C12H22O11","molecularWeight":342,"molecularWeightNoteJa":"180×2−18=342(単糖2分子から水1分子がとれる)"},{"id":"poly","nameJa":"多糖類","defJa":"多数の単糖類が縮合重合したもの","generalFormula":"繰り返し単位 [Cn(H2O)n-1]、六炭糖なら H-[C6(H2O)5]x-OH","exampleFormula":"(C6H10O5)x","molecularWeightFormulaJa":"162x+18(両端のHとOHを含む)","molecularWeightCheckpoints":[{"x":1,"molecularWeight":180,"matchesJa":"単糖(x=1)の180と一致"},{"x":2,"molecularWeight":342,"matchesJa":"二糖(x=2)の342と一致"}]}],"commonProperties":{"monoDi":{"nameJa":"単糖・二糖","items":["白色結晶","水によく溶ける","甘味がある","エタノールに少し溶ける(その他の有機溶媒には溶けない)"],"reasonJa":"OH基が多く水と水素結合するため"},"poly":{"nameJa":"多糖","items":["冷水に溶けにくい","ほとんど甘味を示さない"]}},"classificationMatrix":{"introJa":"列は「ケトース ← 酸化 ← 糖アルコール → 酸化 → アルドース」。糖アルコール(多価アルコール)の末端CH2OHを酸化するとアルドース(-CHO)、内部のCH(OH)を酸化するとケトースになる(C=O)。アルドースの光学異性体数は2^(n-2)、ケトースは2^(n-3)。","rows":[{"carbon":2,"rowNameJa":"二炭糖(diose)","aldose":{"count":1,"formula":"2^(2-2)=1","exampleJa":"グリコールアルデヒド","chiral":false},"ketose":{"count":0,"formula":null,"exampleJa":null,"noteJa":"3炭素未満ではケトースは存在しない"},"sugarAlcoholJa":"エチレングリコール"},{"carbon":3,"rowNameJa":"triose","aldose":{"count":2,"formula":"2^(3-2)=2","exampleJa":"グリセルアルデヒド(光学異性体2種)","chiral":true},"ketose":{"count":1,"formula":"2^(3-3)=1","exampleJa":"ジヒドロキシアセトン","chiral":false},"sugarAlcoholJa":"グリセリン"},{"carbon":4,"rowNameJa":"tetrose","aldose":{"count":4,"formula":"2^(4-2)=4","exampleJa":"エリトロースなど4種","chiral":true},"ketose":{"count":2,"formula":"2^(4-3)=2","exampleJa":"エリトルロース(D/L)","chiral":true},"sugarAlcoholJa":"テトリトール(例: エリトリトール)"},{"carbon":5,"rowNameJa":"pentose","aldose":{"count":8,"formula":"2^(5-2)=8","exampleJa":"リボースなど8種","chiral":true},"ketose":{"count":4,"formula":"2^(5-3)=4","exampleJa":"リブロースなど4種","chiral":true},"sugarAlcoholJa":"ペンチトール(例: キシリトール)"},{"carbon":6,"rowNameJa":"hexose","aldose":{"count":16,"formula":"2^(6-2)=16","exampleJa":"グルコースなど16種","chiral":true},"ketose":{"count":8,"formula":"2^(6-3)=8","exampleJa":"フルクトースなど8種","chiral":true},"sugarAlcoholJa":"ヘキシトール(例: ソルビトール)"}]},"aldoseTree":[{"id":"glyceraldehyde","nameJa":"グリセルアルデヒド","nameEn":"glyceraldehyde","carbon":3,"parentId":null,"branch":"R"},{"id":"erythrose","nameJa":"エリトロース","nameEn":"erythrose","carbon":4,"parentId":"glyceraldehyde","branch":"R"},{"id":"threose","nameJa":"トレオース","nameEn":"threose","carbon":4,"parentId":"glyceraldehyde","branch":"L"},{"id":"ribose","nameJa":"リボース","nameEn":"ribose","carbon":5,"parentId":"erythrose","branch":"R","highlight":true,"highlightNoteJa":"RNAの糖"},{"id":"arabinose","nameJa":"アラビノース","nameEn":"arabinose","carbon":5,"parentId":"erythrose","branch":"L"},{"id":"xylose","nameJa":"キシロース","nameEn":"xylose","carbon":5,"parentId":"threose","branch":"R"},{"id":"lyxose","nameJa":"リキソース","nameEn":"lyxose","carbon":5,"parentId":"threose","branch":"L"},{"id":"allose","nameJa":"アロース","nameEn":"allose","carbon":6,"parentId":"ribose","branch":"R"},{"id":"altrose","nameJa":"アルトロース","nameEn":"altrose","carbon":6,"parentId":"ribose","branch":"L"},{"id":"glucose","nameJa":"グルコース","nameEn":"glucose","carbon":6,"parentId":"arabinose","branch":"R","highlight":true,"highlightNoteJa":"血糖"},{"id":"mannose","nameJa":"マンノース","nameEn":"mannose","carbon":6,"parentId":"arabinose","branch":"L"},{"id":"gulose","nameJa":"グロース","nameEn":"gulose","carbon":6,"parentId":"xylose","branch":"R"},{"id":"idose","nameJa":"イドース","nameEn":"idose","carbon":6,"parentId":"xylose","branch":"L"},{"id":"galactose","nameJa":"ガラクトース","nameEn":"galactose","carbon":6,"parentId":"lyxose","branch":"R","highlight":true,"highlightNoteJa":"乳糖の構成糖"},{"id":"talose","nameJa":"タロース","nameEn":"talose","carbon":6,"parentId":"lyxose","branch":"L"}],"ketoseTree":[{"id":"dihydroxyacetone","nameJa":"ジヒドロキシアセトン","nameEn":"dihydroxyacetone","carbon":3,"parentId":null,"branch":null,"chiral":false},{"id":"erythrulose","nameJa":"エリトルロース","nameEn":"erythrulose","carbon":4,"parentId":"dihydroxyacetone","branch":"R"},{"id":"ribulose","nameJa":"リブロース","nameEn":"ribulose","carbon":5,"parentId":"erythrulose","branch":"R"},{"id":"xylulose","nameJa":"キシルロース","nameEn":"xylulose","carbon":5,"parentId":"erythrulose","branch":"L"},{"id":"psicose","nameJa":"プシコース","nameEn":"psicose","carbon":6,"parentId":"ribulose","branch":"R"},{"id":"fructose","nameJa":"フルクトース","nameEn":"fructose","carbon":6,"parentId":"ribulose","branch":"L","highlight":true,"highlightNoteJa":"果糖"},{"id":"sorbose","nameJa":"ソルボース","nameEn":"sorbose","carbon":6,"parentId":"xylulose","branch":"R"},{"id":"tagatose","nameJa":"タガトース","nameEn":"tagatose","carbon":6,"parentId":"xylulose","branch":"L"}],"fischerRules":{"steps":["炭素鎖を縦に描き、酸化数の高い端(アルデヒド基・ケトン基に近い端)を上にする","縦の結合は紙の奥へ、横の結合は手前へ突き出ていると約束する(実際の四面体構造を平面に投影したもの)","D/Lは、カルボニル基から最も遠い不斉炭素についたOHの向きで判定する。右にあればD、左にあればL","判定の基準になる化合物はD-グリセルアルデヒド(不斉炭素は1個だけで、そのOHが右)"],"baseReferenceId":"glyceraldehyde","determinantCarbonNoteJa":"D-グルコース(炭素数6)では、カルボニル基(C1)から最も遠い不斉炭素はC5。C5のOHが右向きなのでD"},"flipDemo":{"baseId":"glucose","positions":[{"id":"all","labelJa":"全部"},{"id":"C2","labelJa":"C2","index":0},{"id":"C3","labelJa":"C3","index":1},{"id":"C4","labelJa":"C4","index":2},{"id":"C5","labelJa":"C5","index":3}],"ruleNoteJa":"反転後の配置を求め、最後の文字(D/L判定の文字)がLならその鏡像配置(全文字反転)の名称にL-を付ける","meaningJa":{"all":"全部反転は鏡像(エナンチオマー)になる","single":"1か所だけの反転は鏡像ではなく別の糖(エピマー)になる"}},"ringConversion":{"steps":[{"id":1,"labelJa":"鎖状","descJa":"D-グルコースは鎖状ではC1がアルデヒド基(CHO)、C5にOHをもつ"},{"id":2,"labelJa":"C5まわりを回す","descJa":"C5-C6結合を軸に回転させ、C5のOHをC1(CHO)側に近づける"},{"id":3,"labelJa":"右に90°倒す","descJa":"炭素鎖を右に90°倒し、奥へ曲げてC1とC5のOHが向き合う形にする"},{"id":4,"labelJa":"ヘミアセタール形成","descJa":"C5のOがC1のC=Oに付加し、酸素1個・炭素5個からなる六員環(ピラノース)ができる。C1がヘミアセタール炭素になる"},{"id":5,"labelJa":"アノマー生成","descJa":"付加によりC1が新しい不斉炭素(アノマー炭素)になり、OHの向きでα・βの2通りが生じる"}]},"haworthRule":{"conversionTableJa":[{"fischerJa":"右のOH","haworthJa":"環の下"},{"fischerJa":"左のOH","haworthJa":"環の上"},{"fischerJa":"D系列のC6(CH2OH)","haworthJa":"上"}],"glucoseRingPositionsJa":[{"carbon":"C2","haworthJa":"下"},{"carbon":"C3","haworthJa":"上"},{"carbon":"C4","haworthJa":"下"},{"carbon":"C5(CH2OH)","haworthJa":"上"}],"anomerRuleJa":"C1のOHは、C6(CH2OH)と反対側ならα(下)、同じ側ならβ(上)"},"anomer":{"alphaPercent":36,"betaPercent":64,"openChainNoteJa":"鎖状は0.1%以下のごく微量","equilibriumNoteJa":"α ⇌ 鎖状 ⇌ β の平衡"},"hemiacetal":{"generalSchemeJa":"RCHO + R'OH ⇌ R-CH(OH)(OR')(ヘミアセタール、H+触媒)","glucoseSpecificJa":"D-グルコースではC1のC=O(アルデヒド基)とC5のOHが分子内で反応し、環状ヘミアセタールになる"},"chairGeometry":{"ringRadiusAngstrom":1.45,"zAmplitudeAngstrom":0.25,"axialTiltDeg":19.5,"noteJa":"環炭素k=0〜5を角度60°×k・半径1.45Åに置き、z=+0.25Å(kが偶数)/−0.25Å(kが奇数)で上下させるといす形になる(隣接C-C間≈1.53Å)。アキシアルは±z方向、エクアトリアルは外向き(cos19.5°)で逆符号のz成分(sin19.5°)"},"boatGeometry":{"ringRadiusAngstrom":1.53,"zAmplitudeAngstrom":0.25,"flagpoleIndices":[0,3],"noteJa":"環炭素6個を半径1.53Åの正六角形に置き、1,4位(k=0,3)だけをz=+0.25Å持ち上げて他4炭素と同一平面にしない。旗竿位のH同士(k=0,3)が近づき、側面(k=1-2,4-5)の結合が重なり形になって不安定になる"},"chairAxialRule":{"conditionsJa":[{"carbon":"C2","axialIfConfig":"L","positionIndex":0},{"carbon":"C3","axialIfConfig":"R","positionIndex":1},{"carbon":"C4","axialIfConfig":"L","positionIndex":2}],"c5NoteJa":"C5のCH2OH(D系列)は常にエクアトリアル","c1NoteJa":"β-C1のOHはエクアトリアル、α-C1のOHはアキシアル","diaxialNoteJa":"アキシアル位は、同じ側の1つおきの炭素(C1・C3・C5)のアキシアル置換基どうしが空間的に近づいて込み合う(1,3-ジアキシアル相互作用)","expectedAxialCounts":[{"id":"allose","axialCarbonsJa":["C3"]},{"id":"altrose","axialCarbonsJa":["C2","C3"]},{"id":"glucose","axialCarbonsJa":[]},{"id":"mannose","axialCarbonsJa":["C2"]},{"id":"gulose","axialCarbonsJa":["C3","C4"]},{"id":"idose","axialCarbonsJa":["C2","C3","C4"]},{"id":"galactose","axialCarbonsJa":["C4"]},{"id":"talose","axialCarbonsJa":["C2","C4"]}]},"isomersCrossRefNoteJa":"不斉炭素・鏡像異性体の一般論はchem-isomersで扱っている。ここでは繰り返さない。","notes":["D/Lは配置の表記で、旋光の向き(+/−、d/l)ではない。D-グルコースは右旋性(+)、D-フルクトースは左旋性(−)","天然の糖はほとんどD体。タンパク質を作るα-アミノ酸はL体で、どちらもD/Lの基準はグリセルアルデヒド","ハース式は環を平面で描いた略図で、実際の環はいす形をとる。ハースの上/下とアキシアル/エクアトリアルは別の概念"]};
+
+/* ---------- 起動時チェック ---------- */
+(function checkData(){
+  const msg=[];
+  if(DATA.aldoseTree.length!==15) msg.push('aldoseTree が15件ではない('+DATA.aldoseTree.length+'件)');
+  if(DATA.ketoseTree.length!==8) msg.push('ketoseTree が8件ではない('+DATA.ketoseTree.length+'件)');
+  if(DATA.classificationMatrix.rows.length!==5) msg.push('classificationMatrix.rows が5件ではない');
+  if(msg.length) console.warn('[DATA] 不整合\n'+msg.join('\n'));
+  else console.info('[DATA] aldoseTree '+DATA.aldoseTree.length+'件・ketoseTree '+DATA.ketoseTree.length+'件を読み込んだ');
+})();
+
+const esc = s => String(s).replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+const D2R = Math.PI/180;
+
+/* ---------- フィッシャー配置(親子則)ヘルパー ---------- */
+function deriveConfig(tree, id){
+  const byId = {}; tree.forEach(n=>{ byId[n.id]=n; });
+  function go(nid){
+    const n = byId[nid];
+    if(n.branch===null || n.branch===undefined) return '';
+    const parentConfig = n.parentId ? go(n.parentId) : '';
+    return n.branch + parentConfig;
+  }
+  return go(id);
+}
+const flipChar = c => c==='R' ? 'L' : 'R';
+const flipAll = s => s.split('').map(flipChar).join('');
+const ALDOSE_CONFIG_TO_ID = {};
+DATA.aldoseTree.forEach(n=>{ ALDOSE_CONFIG_TO_ID[deriveConfig(DATA.aldoseTree, n.id)] = n.id; });
+const ALDOSE_BY_ID = {}; DATA.aldoseTree.forEach(n=>{ ALDOSE_BY_ID[n.id]=n; });
+const KETOSE_BY_ID = {}; DATA.ketoseTree.forEach(n=>{ KETOSE_BY_ID[n.id]=n; });
+
+// 与えられたconfig文字列(D/Lどちらでもよい)から接頭辞つきの名前を決める
+function nameFromConfig(configStr){
+  if(configStr.length===0) return null;
+  if(configStr[configStr.length-1]==='R'){
+    return { prefix:'D', id: ALDOSE_CONFIG_TO_ID[configStr] };
+  }
+  const mirror = flipAll(configStr);
+  return { prefix:'L', id: ALDOSE_CONFIG_TO_ID[mirror] };
+}
+
+/* ---------- 状態 ---------- */
+const st = {
+  dSeries: true,
+  flipTarget: 'all',
+  treeTab: 'aldose',
+  treeSelected: null,
+  matrixSelected: null,
+  ringStep: 1,
+  anomer: 'beta',
+  chairForm: 'chair',
+  diaxial: false,
+  glucoseAnomer: 'beta',
+  chairSub: null
+};
+let NARROW = false;
+
+/* ================= 1. CLASSIFICATION ================= */
+function renderSugarClassTable(){
+  const rows = DATA.sugarClasses.map(c=>{
+    const mw = c.id==='poly' ? c.molecularWeightFormulaJa : c.molecularWeight;
+    return '<tr><td><b>'+esc(c.nameJa)+'</b></td><td>'+esc(c.defJa)+'</td><td class="mono">'+esc(c.generalFormula)+'</td>'+
+      '<td class="mono">'+esc(c.exampleFormula)+'</td><td class="num mono">'+esc(String(mw))+'</td></tr>';
+  }).join('');
+  document.getElementById('sugarClassTable').innerHTML =
+    '<thead><tr><th>分類</th><th>定義</th><th>一般式</th><th>例</th><th class="num">分子量</th></tr></thead><tbody>'+rows+'</tbody>';
+}
+function renderCommonProps(){
+  const mp = DATA.commonProperties.monoDi, pp = DATA.commonProperties.poly;
+  document.getElementById('commonProps').innerHTML =
+    '<div class="classbox" style="background:rgba(36,87,166,.06);border:2px solid '+'#2457A6">' +
+      '<div class="clabel" style="color:#1B4380">'+esc(mp.nameJa)+'</div>' +
+      '<div class="cbody"><p>'+mp.items.map(esc).join('・')+'</p><p class="note" style="margin-top:4px">理由: '+esc(mp.reasonJa)+'</p></div></div>' +
+    '<div class="classbox" style="background:rgba(94,110,118,.06);border:2px solid var(--muted)">' +
+      '<div class="clabel" style="color:var(--muted)">'+esc(pp.nameJa)+'</div>' +
+      '<div class="cbody"><p>'+pp.items.map(esc).join('・')+'</p></div></div>';
+}
+
+// 分類スケルトングリフ(骨格+不斉炭素に*)
+function skeletonGlyph(n, kind){
+  const rowH=13, topPad=6, cx=15;
+  const totalH = topPad*2 + rowH*(n-1);
+  const w = 46;
+  let o = '<line x1="'+cx+'" y1="'+topPad+'" x2="'+cx+'" y2="'+(topPad+rowH*(n-1))+'" stroke="var(--rule)" stroke-width="1.3"/>';
+  let color = kind==='aldose' ? '#1B4380' : (kind==='ketose' ? '#0D6A53' : '#8A5A0C');
+  for(let i=0;i<n;i++){
+    const y = topPad + rowH*i;
+    let isCarbonyl=false, isChiral=false;
+    if(kind==='aldose'){ isCarbonyl = (i===0); isChiral = (i>0 && i<n-1); }
+    else if(kind==='ketose'){ isCarbonyl = (i===1); isChiral = (i>1 && i<n-1); }
+    o += '<circle cx="'+cx+'" cy="'+y+'" r="'+(isCarbonyl?2.6:1.8)+'" fill="'+(isCarbonyl?color:'var(--ink)')+'"/>';
+    if(isChiral) o += '<text x="'+(cx+7)+'" y="'+(y+3)+'" font-family="IBM Plex Mono,monospace" font-size="9.5" fill="'+color+'">*</text>';
+  }
+  return '<svg class="skel" viewBox="0 0 '+w+' '+totalH+'" width="'+w+'" height="'+totalH+'" aria-hidden="true">'+o+'</svg>';
+}
+
+function renderClassMatrix(){
+  const host = document.getElementById('classMatrix');
+  host.innerHTML = DATA.classificationMatrix.rows.map(row=>{
+    const ketoseCell = row.ketose.count>0
+      ? mcellHtml('ketose', row.carbon, row.ketose.count, row.ketose.exampleJa, '#158A6D', skeletonGlyph(row.carbon,'ketose'))
+      : '<div class="mdash">ケトースなし('+esc(row.ketose.noteJa||'')+')</div>';
+    const alcoholCell = '<button type="button" class="mcell" style="border-color:#B87A16;background:rgba(184,122,22,.05)" data-mcell="'+row.carbon+':alcohol">' +
+      skeletonGlyph(row.carbon,'alcohol') +
+      '<div class="mtext"><p class="mname">'+esc(row.sugarAlcoholJa)+'</p><p class="mmeta">糖アルコール(多価アルコール)</p></div></button>';
+    const aldoseCell = mcellHtml('aldose', row.carbon, row.aldose.count, row.aldose.exampleJa, '#2457A6', skeletonGlyph(row.carbon,'aldose'));
+    return '<div><div class="mrowlabel">C'+row.carbon+' · '+esc(row.rowNameJa)+'</div><div class="mrow">'+ketoseCell+alcoholCell+aldoseCell+'</div></div>';
+  }).join('');
+}
+function mcellHtml(kind, carbon, count, exampleJa, color, glyph){
+  const label = kind==='ketose' ? 'ケトース' : 'アルドース';
+  return '<button type="button" class="mcell" style="border-color:'+color+';background:'+color+'0F" data-mcell="'+carbon+':'+kind+'">' +
+    glyph +
+    '<div class="mtext"><p class="mname">'+label+' '+count+'種</p><p class="mmeta">'+esc(exampleJa||'')+'</p></div></button>';
+}
+function renderMatrixDetail(){
+  const host = document.getElementById('matrixDetail');
+  if(!st.matrixSelected){ host.hidden = true; return; }
+  const [carbonStr, kind] = st.matrixSelected.split(':');
+  const carbon = +carbonStr;
+  const row = DATA.classificationMatrix.rows.find(r=>r.carbon===carbon);
+  let html = '';
+  if(kind==='alcohol'){
+    html = '<b>C'+carbon+' 糖アルコール</b>: '+esc(row.sugarAlcoholJa)+'。アルドース・ケトースの両方の還元(酸化の逆)から得られる、鎖の両端がともにCH2OHの多価アルコール。';
+  } else {
+    const cell = row[kind];
+    html = '<b>C'+carbon+' '+(kind==='aldose'?'アルドース':'ケトース')+'</b>: 光学異性体数 = '+esc(cell.formula||String(cell.count))+' = '+cell.count+'種。代表例: '+esc(cell.exampleJa||'なし')+'。'+
+      (cell.chiral ? '不斉炭素あり(D/L系列に分かれる)' : '不斉炭素なし(D/L系列の区別がない)');
+  }
+  host.innerHTML = html;
+  host.hidden = false;
+}
+
+/* ================= 2. FISCHER ================= */
+function renderFischerSteps(){
+  document.getElementById('fischerSteps').innerHTML = DATA.fischerRules.steps.map(s=>'<li style="margin-bottom:4px">'+esc(s)+'</li>').join('');
+}
+
+// D-グルコースの完全なフィッシャー投影式(configStr: 4文字, idx0=C2..idx3=C5)
+function fischerDetailSVG(configStr, seriesLabel){
+  const rowH=38, barHalf=30, topPad=16;
+  const cx = 112;
+  const n = configStr.length+2;
+  const totalH = topPad*2 + rowH*(n-1);
+  const totalW = 260;
+  let o = '<line x1="'+cx+'" y1="'+topPad+'" x2="'+cx+'" y2="'+(topPad+rowH*(n-1))+'" stroke="#5E6E76" stroke-width="1.4"/>';
+  for(let i=0;i<n;i++){
+    const y = topPad + rowH*i;
+    const carbonNum = i+1;
+    let rowSvg = '';
+    if(i===0){
+      rowSvg += '<text x="'+(cx-6)+'" y="'+(y-8)+'" text-anchor="end" font-family="IBM Plex Mono,monospace" font-size="11.5" fill="#16232B">CHO</text>';
+    } else if(i===n-1){
+      rowSvg += '<text x="'+(cx+6)+'" y="'+(y+4)+'" font-family="IBM Plex Mono,monospace" font-size="11.5" fill="#16232B">CH2OH</text>';
+    } else {
+      const cfg = configStr[i-1];
+      const ohRight = cfg==='R';
+      const x1=cx-barHalf, x2=cx+barHalf;
+      rowSvg += '<line x1="'+x1+'" y1="'+y+'" x2="'+x2+'" y2="'+y+'" stroke="#5E6E76" stroke-width="1.4"/>';
+      const ohX = ohRight? x2+6 : x1-6, hX = ohRight? x1-6 : x2+6;
+      const ohAnchor = ohRight? 'start':'end', hAnchor = ohRight? 'end':'start';
+      rowSvg += '<text x="'+ohX+'" y="'+(y+4)+'" text-anchor="'+ohAnchor+'" font-family="IBM Plex Mono,monospace" font-size="11.5" fill="#2457A6" font-weight="500">OH</text>';
+      rowSvg += '<text x="'+hX+'" y="'+(y+4)+'" text-anchor="'+hAnchor+'" font-family="IBM Plex Mono,monospace" font-size="11.5" fill="#5E6E76">H</text>';
+    }
+    o += '<g>'+rowSvg+'<circle cx="'+cx+'" cy="'+y+'" r="2.4" fill="#16232B"/>'+
+      '<text x="'+(cx-barHalf-36)+'" y="'+(y+4)+'" text-anchor="end" font-family="IBM Plex Mono,monospace" font-size="10" fill="#5E6E76">C'+carbonNum+'</text></g>';
+    if(i===n-2){
+      o += '<rect x="'+(cx-barHalf-4)+'" y="'+(y-14)+'" width="'+(barHalf*2+56)+'" height="28" rx="3" fill="none" stroke="#A82A6A" stroke-width="1.8"/>';
+      o += '<text x="'+(cx+barHalf+56)+'" y="'+(y+4)+'" font-family="IBM Plex Mono,monospace" font-size="9.5" fill="#831F52">D/L判定</text>';
+    }
+  }
+  return '<svg viewBox="0 0 '+totalW+' '+totalH+'" width="100%" height="'+totalH+'" role="img" aria-label="'+esc(seriesLabel)+'のフィッシャー投影式">'+o+'</svg>';
+}
+function renderFischerMain(){
+  const glucoseD = deriveConfig(DATA.aldoseTree, 'glucose'); // RLRR
+  const configStr = st.dSeries ? glucoseD : flipAll(glucoseD);
+  const prefix = st.dSeries ? 'D' : 'L';
+  document.getElementById('fischerHeading').textContent = prefix+'-グルコース のフィッシャー投影式';
+  document.getElementById('fischerMain').innerHTML = fischerDetailSVG(configStr, prefix+'-グルコース');
+  document.getElementById('fischerDLNote').textContent =
+    (st.dSeries ? DATA.fischerRules.determinantCarbonNoteJa : 'L-グルコースは全ての不斉炭素のOHの向きがD-グルコースと逆になる(C5のOHが左なのでL)。');
+}
+function fischerWedgeSVG(){
+  const cx=70, cy=55;
+  return '<svg viewBox="0 0 140 110" width="220" height="'+ (NARROW?90:110) +'" role="img" aria-label="C2の立体的な見え方(縦=破線・横=くさび)">' +
+    '<line x1="'+cx+'" y1="'+cy+'" x2="'+cx+'" y2="'+(cy-38)+'" stroke="#5E6E76" stroke-width="1.6" stroke-dasharray="3 3"/>' +
+    '<line x1="'+cx+'" y1="'+cy+'" x2="'+cx+'" y2="'+(cy+38)+'" stroke="#5E6E76" stroke-width="1.6" stroke-dasharray="3 3"/>' +
+    '<polygon points="'+cx+','+cy+' '+(cx+42)+','+(cy-9)+' '+(cx+42)+','+(cy+9)+'" fill="#2457A6"/>' +
+    '<polygon points="'+cx+','+cy+' '+(cx-42)+','+(cy-9)+' '+(cx-42)+','+(cy+9)+'" fill="#5E6E76"/>' +
+    '<circle cx="'+cx+'" cy="'+cy+'" r="3" fill="#16232B"/>' +
+    '<text x="'+cx+'" y="'+(cy-44)+'" text-anchor="middle" font-family="IBM Plex Mono,monospace" font-size="10" fill="#5E6E76">C1側(奥)</text>' +
+    '<text x="'+cx+'" y="'+(cy+52)+'" text-anchor="middle" font-family="IBM Plex Mono,monospace" font-size="10" fill="#5E6E76">C3側(奥)</text>' +
+    '<text x="'+(cx+48)+'" y="'+(cy+4)+'" font-family="IBM Plex Mono,monospace" font-size="11" fill="#2457A6" font-weight="500">OH(手前)</text>' +
+    '<text x="'+(cx-48)+'" y="'+(cy+4)+'" text-anchor="end" font-family="IBM Plex Mono,monospace" font-size="11" fill="#5E6E76">H(手前)</text>' +
+    '</svg>';
+}
+function renderFischerWedge(){
+  document.getElementById('fischerWedge').innerHTML = fischerWedgeSVG();
+}
+function renderFlipChips(){
+  const host = document.getElementById('flipChips');
+  host.innerHTML = DATA.flipDemo.positions.map(p=>{
+    return '<button type="button" class="btn" data-flip="'+p.id+'" aria-pressed="'+(p.id===st.flipTarget)+'">'+esc(p.labelJa)+'</button>';
+  }).join('');
+}
+function renderFlipResult(){
+  const glucoseD = deriveConfig(DATA.aldoseTree, 'glucose'); // RLRR
+  const chars = glucoseD.split('');
+  let flipped, meaning;
+  if(st.flipTarget==='all'){
+    flipped = flipAll(glucoseD);
+    meaning = DATA.flipDemo.meaningJa.all;
+  } else {
+    const pos = DATA.flipDemo.positions.find(p=>p.id===st.flipTarget);
+    chars[pos.index] = flipChar(chars[pos.index]);
+    flipped = chars.join('');
+    meaning = DATA.flipDemo.meaningJa.single;
+  }
+  const result = nameFromConfig(flipped);
+  const resultName = ALDOSE_BY_ID[result.id];
+  document.getElementById('flipResult').innerHTML =
+    'D-グルコース <span class="mono">'+glucoseD+'</span> の'+esc(DATA.flipDemo.positions.find(p=>p.id===st.flipTarget).labelJa)+'を反転 → ' +
+    '<span class="mono">'+flipped+'</span> → <b>'+result.prefix+'-'+esc(resultName.nameJa)+'</b>(<span class="mono">'+esc(resultName.nameEn)+'</span>)<br>' +
+    '<span class="note" style="margin-top:4px;display:block">'+esc(meaning)+'</span>';
+}
+
+/* ================= 3. TREE ================= */
+function fischerMiniSVG(configStr, kind){
+  const rowH=9, barHalf=8, topPad=5;
+  const n = kind==='aldose' ? configStr.length+2 : configStr.length+3;
+  const totalH = topPad*2 + rowH*(n-1);
+  const cx = 15;
+  let o = '<line x1="'+cx+'" y1="'+topPad+'" x2="'+cx+'" y2="'+(topPad+rowH*(n-1))+'" stroke="var(--rule)" stroke-width="1.1"/>';
+  let chiralIdx=0;
+  for(let i=0;i<n;i++){
+    const y = topPad + rowH*i;
+    let isCarbonyl=false, chiralChar=null;
+    if(kind==='aldose'){
+      isCarbonyl = (i===0);
+      if(i>0 && i<n-1){ chiralChar = configStr[chiralIdx]; chiralIdx++; }
+    } else {
+      isCarbonyl = (i===1);
+      if(i>1 && i<n-1){ chiralChar = configStr[chiralIdx]; chiralIdx++; }
+    }
+    if(chiralChar){
+      const right = chiralChar==='R';
+      o += '<line x1="'+(right?cx:cx-barHalf)+'" y1="'+y+'" x2="'+(right?cx+barHalf:cx)+'" y2="'+y+'" stroke="#2457A6" stroke-width="2"/>';
+    }
+    o += '<circle cx="'+cx+'" cy="'+y+'" r="'+(isCarbonyl?2.4:1.6)+'" fill="'+(isCarbonyl?'#831F52':'#16232B')+'"/>';
+  }
+  return '<svg viewBox="0 0 '+(cx+barHalf+4)+' '+totalH+'" width="'+(cx+barHalf+4)+'" height="'+totalH+'" aria-hidden="true">'+o+'</svg>';
+}
+function renderTreeTabs(){
+  document.getElementById('treeTabs').innerHTML =
+    '<button type="button" class="btn" data-treetab="aldose" aria-pressed="'+(st.treeTab==='aldose')+'">アルドース(15種)</button>' +
+    '<button type="button" class="btn" data-treetab="ketose" aria-pressed="'+(st.treeTab==='ketose')+'">ケトース(8種)</button>';
+}
+function renderTreeTiers(){
+  const tree = st.treeTab==='aldose' ? DATA.aldoseTree : DATA.ketoseTree;
+  const byCarbon = {};
+  tree.forEach(n=>{ (byCarbon[n.carbon] = byCarbon[n.carbon]||[]).push(n); });
+  const carbons = Object.keys(byCarbon).map(Number).sort((a,b)=>a-b);
+  const host = document.getElementById('treeTiers');
+  host.innerHTML = carbons.map(c=>{
+    const nodes = byCarbon[c].map(n=>{
+      const cfg = deriveConfig(tree, n.id);
+      const displayCfg = st.dSeries ? cfg : (cfg.length ? flipAll(cfg) : cfg);
+      const displayPrefix = st.dSeries ? (cfg.length?'D-':'') : (cfg.length?'L-':'');
+      const glyph = fischerMiniSVG(displayCfg, st.treeTab);
+      const hl = n.highlight ? ' hl' : '';
+      return '<button type="button" class="node'+hl+'" data-node="'+n.id+'" aria-pressed="'+(st.treeSelected===n.id)+'">' +
+        glyph + '<div class="nname">'+displayPrefix+esc(n.nameJa)+'</div><div class="nen">'+esc(n.nameEn)+'</div></button>';
+    }).join('');
+    return '<div class="tier"><h3>C'+c+'</h3><div class="scroll"><div class="tierscroll">'+nodes+'</div></div></div>';
+  }).join('');
+}
+function renderTreeDetail(){
+  const host = document.getElementById('treeDetail');
+  if(!st.treeSelected){ host.hidden = true; return; }
+  const tree = st.treeTab==='aldose' ? DATA.aldoseTree : DATA.ketoseTree;
+  const byId = {}; tree.forEach(n=>{ byId[n.id]=n; });
+  const n = byId[st.treeSelected];
+  if(!n){ host.hidden = true; return; }
+  const cfg = deriveConfig(tree, n.id);
+  const displayCfg = st.dSeries ? cfg : (cfg.length ? flipAll(cfg) : cfg);
+  const prefix = cfg.length ? (st.dSeries?'D-':'L-') : '';
+  const parent = n.parentId ? byId[n.parentId] : null;
+  const children = tree.filter(x=>x.parentId===n.id);
+  let html = '<b>'+prefix+esc(n.nameJa)+'</b>(<span class="mono">'+esc(n.nameEn)+'</span>) · 炭素数'+n.carbon;
+  if(cfg.length) html += ' · 配置 <span class="mono">'+esc(displayCfg)+'</span>';
+  html += '<br>親: '+(parent?esc((cfg.length?(st.dSeries?'D-':'L-'):'')+parent.nameJa):'(基準物質)');
+  html += ' / 子: '+(children.length ? children.map(c=>esc(c.nameJa)).join('・') : 'なし(C6が最下段)');
+  if(n.highlightNoteJa) html += '<br><span style="color:#831F52">強調: '+esc(n.highlightNoteJa)+'</span>';
+  host.innerHTML = html;
+  host.hidden = false;
+}
+
+/* ================= 4. RING ================= */
+function ringSVG(step){
+  const W = NARROW ? 320 : 560, H = NARROW ? 150 : 170;
+  const cy = H/2;
+  let o = '';
+  if(step<=3){
+    // 鎖状のジグザグ(簡略化)
+    const n=6, dx=(step===3? 22 : 34), startX = step===3 ? W*0.3 : W*0.12;
+    let pts=[];
+    for(let i=0;i<n;i++){
+      const x = startX + i*dx;
+      const y = cy + (i%2===0? -14:14) + (step===3 ? i*4 : 0);
+      pts.push([x,y]);
+    }
+    for(let i=0;i<n-1;i++){
+      o += '<line x1="'+pts[i][0]+'" y1="'+pts[i][1]+'" x2="'+pts[i+1][0]+'" y2="'+pts[i+1][1]+'" stroke="#5E6E76" stroke-width="1.6"/>';
+    }
+    pts.forEach((p,i)=>{
+      o += '<circle cx="'+p[0]+'" cy="'+p[1]+'" r="3" fill="#16232B"/>';
+      o += '<text x="'+p[0]+'" y="'+(p[1]-8)+'" text-anchor="middle" font-family="IBM Plex Mono,monospace" font-size="9.5" fill="#5E6E76">C'+(i+1)+'</text>';
+    });
+    o += '<text x="'+pts[0][0]+'" y="'+(pts[0][1]+18)+'" text-anchor="middle" font-family="IBM Plex Mono,monospace" font-size="9.5" fill="#1B4380">CHO</text>';
+    if(step>=2){
+      o += '<text x="'+pts[4][0]+'" y="'+(pts[4][1]-16)+'" text-anchor="middle" font-family="IBM Plex Mono,monospace" font-size="9.5" fill="#0D6A53">C5-OH→C1へ</text>';
+    }
+    if(step===3){
+      o += '<path d="M '+pts[4][0]+' '+pts[4][1]+' Q '+((pts[4][0]+pts[0][0])/2)+' '+(cy-46)+' '+pts[0][0]+' '+pts[0][1]+'" fill="none" stroke="#A82A6A" stroke-width="1.4" stroke-dasharray="3 3"/>';
+    }
+  } else {
+    // 六員環(概念図)
+    const r = NARROW? 46:56, cx=W/2;
+    let ring=[];
+    for(let i=0;i<6;i++){
+      const ang = (90 - i*60) * D2R;
+      ring.push([cx + r*Math.cos(ang), cy - r*Math.sin(ang)*0.62]);
+    }
+    for(let i=0;i<6;i++){
+      const a=ring[i], b=ring[(i+1)%6];
+      o += '<line x1="'+a[0]+'" y1="'+a[1]+'" x2="'+b[0]+'" y2="'+b[1]+'" stroke="#5E6E76" stroke-width="1.6"/>';
+    }
+    o += '<text x="'+ring[0][0]+'" y="'+(ring[0][1]-9)+'" text-anchor="middle" font-family="IBM Plex Mono,monospace" font-size="10" fill="#5E6E76">O</text>';
+    for(let i=1;i<6;i++){
+      o += '<circle cx="'+ring[i][0]+'" cy="'+ring[i][1]+'" r="2.6" fill="#16232B"/>';
+      o += '<text x="'+ring[i][0]+'" y="'+(ring[i][1]+ (i<3?-8:14))+'" text-anchor="middle" font-family="IBM Plex Mono,monospace" font-size="9" fill="#5E6E76">C'+i+'</text>';
+    }
+    if(step===5){
+      o += '<circle cx="'+ring[1][0]+'" cy="'+ring[1][1]+'" r="8" fill="none" stroke="#A82A6A" stroke-width="1.6"/>';
+      o += '<text x="'+ring[1][0]+'" y="'+(ring[1][1]+22)+'" text-anchor="middle" font-family="IBM Plex Mono,monospace" font-size="9.5" fill="#831F52">α/β(C1)</text>';
+    }
+  }
+  return '<svg class="scheme" viewBox="0 0 '+W+' '+H+'" width="100%" height="'+H+'" role="img" aria-label="環化ステップ'+step+'の模式図">'+o+'</svg>';
+}
+function renderRingSteps(){
+  const host = document.getElementById('ringSteps');
+  host.innerHTML = DATA.ringConversion.steps.map(s=>{
+    return '<button type="button" class="stepbtn" data-step="'+s.id+'" aria-current="'+(s.id===st.ringStep)+'"><b>STEP '+s.id+'</b>'+esc(s.labelJa)+'</button>';
+  }).join('');
+}
+function renderRing(){
+  document.getElementById('ringScheme').innerHTML = ringSVG(st.ringStep);
+  const s = DATA.ringConversion.steps.find(x=>x.id===st.ringStep);
+  document.getElementById('ringDesc').textContent = s ? s.descJa : '';
+}
+function renderHemi(){
+  document.getElementById('hemiGeneral').textContent = DATA.hemiacetal.generalSchemeJa;
+  document.getElementById('hemiGlucose').textContent = DATA.hemiacetal.glucoseSpecificJa;
+}
+function renderAnomerToggle(){
+  document.getElementById('anomerToggle').innerHTML =
+    '<button type="button" class="ringbtn" data-anomer="alpha" aria-pressed="'+(st.anomer==='alpha')+'">α</button>' +
+    '<button type="button" class="ringbtn" data-anomer="beta" aria-pressed="'+(st.anomer==='beta')+'">β</button>';
+}
+function haworthSVG(anomer){
+  const W = NARROW ? 300:380, H = NARROW ? 190:210;
+  const cx=W/2, cy=H/2-6, r= NARROW?70:82;
+  let ring=[];
+  for(let i=0;i<6;i++){
+    const ang = (90 - i*60) * D2R;
+    ring.push([cx + r*Math.cos(ang), cy - r*Math.sin(ang)*0.55]);
+  }
+  // ring[0]=O(top), 1=C1(右上),2=C2(右下),3=C3(下),4=C4(左下),5=C5(左上)
+  let o = '';
+  const frontEdges = [[1,2],[2,3],[3,4]];
+  const backEdges = [[0,1],[4,5],[5,0]];
+  backEdges.forEach(([a,b])=>{
+    o += '<line x1="'+ring[a][0]+'" y1="'+ring[a][1]+'" x2="'+ring[b][0]+'" y2="'+ring[b][1]+'" stroke="#5E6E76" stroke-width="1.3" stroke-dasharray="4 3"/>';
+  });
+  frontEdges.forEach(([a,b])=>{
+    o += '<line x1="'+ring[a][0]+'" y1="'+ring[a][1]+'" x2="'+ring[b][0]+'" y2="'+ring[b][1]+'" stroke="#16232B" stroke-width="2.2"/>';
+  });
+  o += '<text x="'+ring[0][0]+'" y="'+(ring[0][1]-8)+'" text-anchor="middle" font-family="IBM Plex Mono,monospace" font-size="10.5" fill="#5E6E76">O</text>';
+
+  function sub(idx, dirUp, label, color, extraDown){
+    const p = ring[idx];
+    const y2 = dirUp ? p[1]-22 : p[1]+22+(extraDown||0);
+    o += '<line x1="'+p[0]+'" y1="'+p[1]+'" x2="'+p[0]+'" y2="'+y2+'" stroke="'+color+'" stroke-width="1.8"/>';
+    o += '<text x="'+p[0]+'" y="'+(dirUp? y2-4 : y2+11)+'" text-anchor="middle" font-family="IBM Plex Mono,monospace" font-size="10.5" fill="'+color+'" font-weight="500">'+esc(label)+'</text>';
+  }
+  // C2:下 C3:上 C4:下 C5:CH2OH上
+  sub(2, false, 'OH', '#2457A6');
+  sub(3, true, 'OH', '#2457A6');
+  sub(4, false, 'OH', '#2457A6');
+  sub(5, true, 'CH2OH', '#0D6A53');
+  // C1: alpha=下(ax) beta=上(eq)
+  sub(1, anomer==='beta', 'OH', '#A82A6A');
+  ring.forEach((p,i)=>{ o += '<circle cx="'+p[0]+'" cy="'+p[1]+'" r="2.4" fill="#16232B"/>'; });
+  o += '<text x="'+ring[1][0]+'" y="'+(ring[1][1]+16)+'" text-anchor="start" font-family="IBM Plex Mono,monospace" font-size="9" fill="#5E6E76">C1</text>';
+  return '<svg class="scheme" viewBox="0 0 '+W+' '+H+'" width="100%" height="'+H+'" role="img" aria-label="'+(anomer==='alpha'?'α':'β')+'-D-グルコピラノースのハース投影式">'+o+'</svg>';
+}
+function renderHaworth(){
+  document.getElementById('haworthScheme').innerHTML = haworthSVG(st.anomer);
+  const a = DATA.anomer.alphaPercent, b = DATA.anomer.betaPercent;
+  document.getElementById('ratioBar').innerHTML =
+    '<div style="width:'+a+'%;background:#A82A6A">α '+a+'%</div><div style="width:'+b+'%;background:#2457A6">β '+b+'%</div>';
+  document.getElementById('anomerRuleNote').textContent =
+    DATA.haworthRule.anomerRuleJa + '(' + DATA.anomer.equilibriumNoteJa + '、' + DATA.anomer.openChainNoteJa + ')';
+}
+function renderConversionTable(){
+  const rows = DATA.haworthRule.conversionTableJa.map(r=>'<tr><td>'+esc(r.fischerJa)+'</td><td>→</td><td>'+esc(r.haworthJa)+'</td></tr>').join('');
+  const glucoseRows = DATA.haworthRule.glucoseRingPositionsJa.map(r=>'<tr><td>'+esc(r.carbon)+'</td><td>→</td><td>'+esc(r.haworthJa)+'</td></tr>').join('');
+  document.getElementById('conversionTable').innerHTML =
+    '<thead><tr><th>フィッシャー</th><th></th><th>ハース</th></tr></thead><tbody>'+rows+
+    '<tr><td colspan="3" style="padding-top:10px;color:var(--muted);font-size:11px">D-グルコースへの適用</td></tr>'+glucoseRows+'</tbody>';
+}
+
+/* ================= 5. CHAIR ================= */
+// 描画専用の回転オフセット(見た目の重なりを避けるため)。角度の基準をずらすだけで、
+// 環の形・結合長・アキシアル/エクアトリアルの向き(±z、外向き)はDATA.chairGeometry/boatGeometryの
+// 定義どおりで変わらない(check-monosaccharide-structure.mjsはこの回転を使わずdata.json通りに検算する)。
+const RING_ROT = 24*D2R;
+function chairAtom(k){
+  const g = DATA.chairGeometry;
+  const ang = k*60*D2R + RING_ROT;
+  return { x: g.ringRadiusAngstrom*Math.cos(ang), y: g.ringRadiusAngstrom*Math.sin(ang), z: (k%2===0? g.zAmplitudeAngstrom : -g.zAmplitudeAngstrom), ang };
+}
+function boatAtom(k){
+  const g = DATA.boatGeometry;
+  const ang = k*60*D2R + RING_ROT;
+  return { x: g.ringRadiusAngstrom*Math.cos(ang), y: g.ringRadiusAngstrom*Math.sin(ang), z: (g.flagpoleIndices.indexOf(k)!==-1 ? g.zAmplitudeAngstrom : 0), ang };
+}
+function project(p){
+  const scale = NARROW? 46:58;
+  return { x: p.x*scale, y: -(p.y*0.60*scale) - p.z*1.3*scale };
+}
+function substituentPoint(atom, kind, bondLen){
+  bondLen = bondLen || 1.35;
+  const sign = atom.z>=0 ? 1 : -1;
+  if(kind==='axial'){
+    return { x: atom.x, y: atom.y, z: atom.z + sign*bondLen };
+  }
+  const tilt = DATA.chairGeometry.axialTiltDeg * D2R;
+  return {
+    x: atom.x + Math.cos(atom.ang)*Math.cos(tilt)*bondLen,
+    y: atom.y + Math.sin(atom.ang)*Math.cos(tilt)*bondLen,
+    z: atom.z - sign*Math.sin(tilt)*bondLen
+  };
+}
+function ringPathSVG(atoms, cx, cy){
+  let pts = atoms.map(a=>{ const p=project(a); return [cx+p.x, cy+p.y]; });
+  let o = '';
+  for(let i=0;i<atoms.length;i++){
+    const a=pts[i], b=pts[(i+1)%atoms.length];
+    o += '<line x1="'+a[0]+'" y1="'+a[1]+'" x2="'+b[0]+'" y2="'+b[1]+'" stroke="#16232B" stroke-width="2"/>';
+  }
+  pts.forEach(p=>{ o += '<circle cx="'+p[0]+'" cy="'+p[1]+'" r="3" fill="#16232B"/>'; });
+  return { svg:o, pts };
+}
+function subSVG(atom, cx, cy, kind, label, color){
+  const a = project(atom);
+  const sp = substituentPoint(atom, kind);
+  const b = project(sp);
+  const ax1=cx+a.x, ay1=cy+a.y, ax2=cx+b.x, ay2=cy+b.y;
+  const lx = ax2 + (ax2-ax1)*0.28, ly = ay2 + (ay2-ay1)*0.28;
+  return '<line x1="'+ax1+'" y1="'+ay1+'" x2="'+ax2+'" y2="'+ay2+'" stroke="'+color+'" stroke-width="1.8"/>' +
+    '<text x="'+lx+'" y="'+ly+'" text-anchor="middle" font-family="IBM Plex Mono,monospace" font-size="9.5" fill="'+color+'">'+esc(label)+'</text>';
+}
+function renderChairFormToggle(){
+  document.getElementById('chairFormToggle').innerHTML =
+    '<button type="button" class="ringbtn" data-chairform="chair" aria-pressed="'+(st.chairForm==='chair')+'">いす形</button>' +
+    '<button type="button" class="ringbtn" data-chairform="boat" aria-pressed="'+(st.chairForm==='boat')+'">舟形</button>';
+}
+function chairFormSVG(){
+  const W = NARROW?320:420, H = NARROW?320:360, cx=W/2, cy=H/2;
+  const atomFn = st.chairForm==='chair' ? chairAtom : boatAtom;
+  const atoms = [0,1,2,3,4,5].map(atomFn);
+  const ring = ringPathSVG(atoms, cx, cy);
+  let o = ring.svg;
+  atoms.forEach((a,i)=>{
+    const axColor = '#A82A6A', eqColor='#158A6D';
+    o += subSVG(a, cx, cy, 'axial', 'H', axColor);
+    o += subSVG(a, cx, cy, 'equatorial', 'H', eqColor);
+  });
+  // 1,3-ジアキシアル強調(C1・C3・C5 = k0,2,4)
+  if(st.diaxial){
+    const idxs = [0,2,4];
+    const tips = idxs.map(i=>{ const sp = substituentPoint(atoms[i],'axial'); const p = project(sp); return [cx+p.x, cy+p.y]; });
+    o += '<path d="M '+tips[0][0]+' '+tips[0][1]+' Q '+cx+' '+(cy - (st.chairForm==='chair'?60:70))+' '+tips[1][0]+' '+tips[1][1]+'" fill="none" stroke="#A82A6A" stroke-width="1.6" stroke-dasharray="3 3"/>';
+    o += '<path d="M '+tips[1][0]+' '+tips[1][1]+' Q '+cx+' '+(cy - (st.chairForm==='chair'?90:100))+' '+tips[2][0]+' '+tips[2][1]+'" fill="none" stroke="#A82A6A" stroke-width="1.6" stroke-dasharray="3 3"/>';
+  }
+  o += '<text x="8" y="16" font-family="IBM Plex Mono,monospace" font-size="10" fill="#5E6E76">'+(st.chairForm==='chair'?'いす形(すべてねじれ形、安定)':'舟形(旗竿位のH同士が接近、不安定)')+'</text>';
+  return '<svg class="scheme" viewBox="0 0 '+W+' '+H+'" width="100%" height="'+H+'" role="img" aria-label="シクロヘキサンの'+(st.chairForm==='chair'?'いす形':'舟形')+'">'+o+'</svg>';
+}
+function renderChairForm(){
+  document.getElementById('chairFormScheme').innerHTML = chairFormSVG();
+  document.getElementById('chairFormNote').textContent = st.chairForm==='chair'
+    ? '各炭素の置換基はアキシアル(上下に交互、'+'#A82A6A'.length?'':''+'空間が狭い)とエクアトリアル(外側、空間が広い)に分かれる。'
+    : '先端(1,4位)のH同士が旗竿位で近づき、側面の結合が重なり形になるため、いす形より不安定になる。';
+  document.getElementById('diaxialNote').hidden = !st.diaxial;
+  if(st.diaxial) document.getElementById('diaxialNote').textContent = DATA.chairAxialRule.diaxialNoteJa;
+}
+
+const GLUCOSE_CONFIG = 'RLRR'; // C2,C3,C4,C5
+function isAxial(carbonLetter){
+  const idxMap = { C2:0, C3:1, C4:2 };
+  const rule = DATA.chairAxialRule.conditionsJa.find(r=>r.carbon===carbonLetter);
+  if(!rule) return false;
+  return GLUCOSE_CONFIG[idxMap[carbonLetter]] === rule.axialIfConfig;
+}
+function renderGlucoseAnomerToggle(){
+  document.getElementById('glucoseAnomerToggle').innerHTML =
+    '<button type="button" class="ringbtn" data-glucoseanomer="alpha" aria-pressed="'+(st.glucoseAnomer==='alpha')+'">α</button>' +
+    '<button type="button" class="ringbtn" data-glucoseanomer="beta" aria-pressed="'+(st.glucoseAnomer==='beta')+'">β</button>';
+}
+function glucoseChairSVG(){
+  const W = NARROW?320:440, H = NARROW?320:360, cx=W/2, cy=H/2;
+  const atoms = [0,1,2,3,4,5].map(chairAtom); // k0..5 = C1,C2,C3,C4,C5,O(ring)
+  const ring = ringPathSVG(atoms, cx, cy);
+  let o = ring.svg;
+  const subs = [
+    { k:0, id:'C1', kind: st.glucoseAnomer==='alpha' ? 'axial':'equatorial', label:'OH', color:'#A82A6A' },
+    { k:1, id:'C2', kind: isAxial('C2')?'axial':'equatorial', label:'OH', color:'#2457A6' },
+    { k:2, id:'C3', kind: isAxial('C3')?'axial':'equatorial', label:'OH', color:'#2457A6' },
+    { k:3, id:'C4', kind: isAxial('C4')?'axial':'equatorial', label:'OH', color:'#2457A6' },
+    { k:4, id:'C5', kind: 'equatorial', label:'CH2OH', color:'#0D6A53' }
+  ];
+  subs.forEach(s=>{ o += subSVG(atoms[s.k], cx, cy, s.kind, s.label, s.color); });
+  // タップ用の透明ヒットエリア
+  subs.forEach(s=>{
+    const a=atoms[s.k]; const sp=substituentPoint(a,s.kind); const p=project(sp);
+    const x=cx+p.x, y=cy+p.y;
+    o += '<circle class="subtag" data-sub="'+s.id+'" cx="'+x+'" cy="'+y+'" r="13" fill="rgba(0,0,0,0)" tabindex="0" role="button" aria-label="'+s.id+'のアキシアル/エクアトリアルを表示"/>';
+  });
+  o += '<text x="8" y="16" font-family="IBM Plex Mono,monospace" font-size="10" fill="#5E6E76">'+(st.glucoseAnomer==='alpha'?'α-D-グルコピラノース':'β-D-グルコピラノース')+'</text>';
+  return '<svg class="scheme" viewBox="0 0 '+W+' '+H+'" width="100%" height="'+H+'" role="img" aria-label="D-グルコピラノースのいす形('+(st.glucoseAnomer==='alpha'?'α':'β')+')">'+o+'</svg>';
+}
+function renderGlucoseChair(){
+  document.getElementById('glucoseChairScheme').innerHTML = glucoseChairSVG();
+}
+function renderChairSubDetail(){
+  const host = document.getElementById('chairSubDetail');
+  if(!st.chairSub){ host.hidden=true; return; }
+  const map = {
+    C1: { kind: st.glucoseAnomer==='alpha'?'アキシアル':'エクアトリアル', textJa: DATA.chairAxialRule.c1NoteJa },
+    C2: { kind: isAxial('C2')?'アキシアル':'エクアトリアル' },
+    C3: { kind: isAxial('C3')?'アキシアル':'エクアトリアル' },
+    C4: { kind: isAxial('C4')?'アキシアル':'エクアトリアル' },
+    C5: { kind: 'エクアトリアル', textJa: DATA.chairAxialRule.c5NoteJa }
+  };
+  const m = map[st.chairSub];
+  host.innerHTML = '<b>'+st.chairSub+'</b>: '+m.kind + (m.textJa? '。'+esc(m.textJa):'');
+  host.hidden = false;
+}
+
+function renderAxialTable(){
+  const glucoseD = deriveConfig(DATA.aldoseTree,'glucose');
+  const hexoses = DATA.aldoseTree.filter(n=>n.carbon===6);
+  const rule = DATA.chairAxialRule.conditionsJa;
+  const rows = hexoses.map(n=>{
+    const cfg = deriveConfig(DATA.aldoseTree, n.id);
+    const axial = rule.filter(r=>cfg[r.positionIndex]===r.axialIfConfig).map(r=>r.carbon);
+    const isGlucose = n.id==='glucose';
+    return '<tr class="'+(isGlucose?'on':'')+'"><td>'+(isGlucose?'<b>':'')+esc(n.nameJa)+(isGlucose?'</b>':'')+'</td>' +
+      '<td class="mono">'+esc(cfg)+'</td>' +
+      '<td class="num">'+axial.length+'</td>' +
+      '<td>'+(axial.length? axial.join('・') : '―')+'</td></tr>';
+  }).join('');
+  document.getElementById('axialTable').innerHTML =
+    '<thead><tr><th>名称</th><th>配置</th><th class="num">アキシアル数</th><th>アキシアル位置</th></tr></thead><tbody>'+rows+'</tbody>';
+}
+
+/* ================= 共通: D/L トグル・NOTES ================= */
+function renderDLToggle(){
+  document.getElementById('dlToggle').innerHTML =
+    '<button type="button" class="btn" data-dl="D" aria-pressed="'+(st.dSeries===true)+'">D体</button>' +
+    '<button type="button" class="btn" data-dl="L" aria-pressed="'+(st.dSeries===false)+'">L体</button>';
+}
+function renderNotes(){
+  document.getElementById('notesList').innerHTML = DATA.notes.map(n=>'<li style="margin-bottom:4px">'+esc(n)+'</li>').join('');
+}
+
+/* ================= イベント ================= */
+function onDL(v){ st.dSeries = (v==='D'); renderDLToggle(); renderFischerMain(); renderTreeTiers(); renderTreeDetail(); }
+function onFlip(id){ st.flipTarget=id; renderFlipChips(); renderFlipResult(); }
+function onMatrixCell(key){ st.matrixSelected = (st.matrixSelected===key) ? null : key; renderMatrixDetail(); }
+function onTreeTab(tab){ st.treeTab=tab; st.treeSelected=null; renderTreeTabs(); renderTreeTiers(); renderTreeDetail(); }
+function onTreeNode(id){ st.treeSelected = (st.treeSelected===id) ? null : id; renderTreeTiers(); renderTreeDetail(); }
+function onRingStep(step){ st.ringStep=step; renderRingSteps(); renderRing(); }
+function onAnomer(v){ st.anomer=v; renderAnomerToggle(); renderHaworth(); }
+function onChairForm(v){ st.chairForm=v; renderChairFormToggle(); renderChairForm(); }
+function onDiaxial(){ st.diaxial=!st.diaxial; document.getElementById('toggleDiaxial').setAttribute('aria-pressed', String(st.diaxial)); renderChairForm(); }
+function onGlucoseAnomer(v){ st.glucoseAnomer=v; st.chairSub=null; renderGlucoseAnomerToggle(); renderGlucoseChair(); renderChairSubDetail(); }
+function onChairSub(id){ st.chairSub = (st.chairSub===id) ? null : id; renderGlucoseChair(); renderChairSubDetail(); }
+
+function boot(){
+  NARROW = window.matchMedia('(max-width:430px)').matches;
+
+  renderSugarClassTable();
+  renderCommonProps();
+  renderClassMatrix();
+  renderMatrixDetail();
+
+  renderDLToggle();
+  renderFischerSteps();
+  renderFischerMain();
+  renderFischerWedge();
+  renderFlipChips();
+  renderFlipResult();
+
+  renderTreeTabs();
+  renderTreeTiers();
+  renderTreeDetail();
+
+  renderRingSteps();
+  renderRing();
+  renderHemi();
+  renderAnomerToggle();
+  renderHaworth();
+  renderConversionTable();
+
+  renderChairFormToggle();
+  renderChairForm();
+  renderGlucoseAnomerToggle();
+  renderGlucoseChair();
+  renderChairSubDetail();
+  renderAxialTable();
+
+  renderNotes();
+
+  document.addEventListener('click', e=>{
+    const t = e.target;
+    const dl = t.closest ? t.closest('button[data-dl]') : null;
+    if(dl){ onDL(dl.dataset.dl); return; }
+    const flip = t.closest ? t.closest('button[data-flip]') : null;
+    if(flip){ onFlip(flip.dataset.flip); return; }
+    const mcell = t.closest ? t.closest('[data-mcell]') : null;
+    if(mcell){ onMatrixCell(mcell.dataset.mcell); return; }
+    const ttab = t.closest ? t.closest('button[data-treetab]') : null;
+    if(ttab){ onTreeTab(ttab.dataset.treetab); return; }
+    const node = t.closest ? t.closest('button[data-node]') : null;
+    if(node){ onTreeNode(node.dataset.node); return; }
+    const step = t.closest ? t.closest('button[data-step]') : null;
+    if(step){ onRingStep(+step.dataset.step); return; }
+    const anomer = t.closest ? t.closest('button[data-anomer]') : null;
+    if(anomer){ onAnomer(anomer.dataset.anomer); return; }
+    const cf = t.closest ? t.closest('button[data-chairform]') : null;
+    if(cf){ onChairForm(cf.dataset.chairform); return; }
+    if(t.id==='toggleDiaxial'){ onDiaxial(); return; }
+    const ga = t.closest ? t.closest('button[data-glucoseanomer]') : null;
+    if(ga){ onGlucoseAnomer(ga.dataset.glucoseanomer); return; }
+    const sub = t.closest ? t.closest('[data-sub]') : null;
+    if(sub){ onChairSub(sub.dataset.sub); return; }
+  });
+
+  document.addEventListener('keydown', e=>{
+    if(e.key !== 'Enter' && e.key !== ' ') return;
+    const sub = e.target.closest ? e.target.closest('[data-sub]') : null;
+    if(sub){ e.preventDefault(); onChairSub(sub.dataset.sub); }
+  });
+
+  let tm=null;
+  window.addEventListener('resize', ()=>{
+    clearTimeout(tm);
+    tm = setTimeout(()=>{
+      const nw = window.matchMedia('(max-width:430px)').matches;
+      if(nw!==NARROW){
+        NARROW=nw;
+        renderFischerWedge();
+        renderRing();
+        renderHaworth();
+        renderChairForm();
+        renderGlucoseChair();
+      }
+    }, 180);
+  });
+}
+if(typeof document !== 'undefined') boot();
+</script>
+</body>
+</html>
