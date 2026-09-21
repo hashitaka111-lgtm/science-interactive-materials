@@ -239,6 +239,31 @@ for (const row of [DATA.map.plant, DATA.map.animal]) {
   }
 }
 
+/* ---------- (7) スクロースのフルクトフラノースの回転描画(hflip)の前提 ----------
+   html/disaccharides.htmlのringSVGは、フラノースが自分のアノマー炭素でグリコシド結合に
+   使われているとき(ring.kind==='furanose' && bondCarbon===ring.anomericCarbon)、ノートの図と
+   同じ向き(縦軸まわりに180°回転・C2をグルコース側へ)に描くため、上下方向はflip(既存の
+   縦ミラー)ではなくhflip(左右ミラー)で反転させる。描画側は
+   upFlips = (flip !== hflip) ? !s.up : s.up を使うため、flip=false・hflip=trueであれば
+   見た目の上下(effUp)は必ずデータのup(ハース式の上下データ、変更していない)を反転した
+   ものになる。ここではその前提(flipSecondRingがfalse・hflipが有効)をデータ側から検算する。 */
+{
+  const sucrose = byId.get("sucrose");
+  const fru = sucrose.units.find((u) => u.role === "fructoseUnit");
+  const ring = rings[fru.ring];
+  const hflipActive = ring.kind === "furanose" && fru.bondCarbon === ring.anomericCarbon;
+  check("スクロースのフルクトースでhflip(縦軸回転)の条件が成立", hflipActive, `kind=${ring.kind} bondCarbon=${fru.bondCarbon} anomericCarbon=${ring.anomericCarbon}`);
+  check(
+    "スクロースのbond.flipSecondRingがfalse(回転後の上下反転upFlipsの前提)",
+    sucrose.bond.flipSecondRing === false,
+    `flipSecondRing=${sucrose.bond.flipSecondRing}`
+  );
+  // upFlips = (flip !== hflip) = (false !== true) = true なので、回転後の見た目の上下は
+  // 必ずデータの上下を反転したものに一致する(この2条件が成り立つ限り)
+  const upFlips = false !== hflipActive;
+  check("回転後の見た目の上下がデータの上下を反転したものに一致(upFlips)", upFlips === true, `upFlips=${upFlips}`);
+}
+
 /* ---------- 結果出力 ---------- */
 if (failures.length) {
   console.error(`[check-disaccharides] ${failures.length}件の不一致\n` + failures.join("\n"));

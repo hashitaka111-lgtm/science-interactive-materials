@@ -170,12 +170,12 @@
       "labelJa": "植物(同化)",
       "nodes": [
         { "id": "p_co2h2o", "labelJa": "CO₂+H₂O", "column": null },
-        { "id": "p_glucose", "labelJa": "グルコース", "column": "mono" },
         { "id": "p_fructose", "labelJa": "フルクトース", "column": "mono" },
+        { "id": "p_glucose", "labelJa": "グルコース", "column": "mono" },
         { "id": "p_sucrose", "labelJa": "スクロース", "column": "di", "nonReducing": true },
         { "id": "p_maltose", "labelJa": "マルトース", "column": "di" },
-        { "id": "p_starch", "labelJa": "デンプン", "column": "poly", "nonReducing": true },
-        { "id": "p_inulin", "labelJa": "イヌリン", "column": "poly", "nonReducing": true }
+        { "id": "p_inulin", "labelJa": "イヌリン", "column": "poly", "nonReducing": true },
+        { "id": "p_starch", "labelJa": "デンプン", "column": "poly", "nonReducing": true }
       ],
       "edges": [
         { "from": "p_co2h2o", "to": "p_glucose", "labelJa": "光合成" },
