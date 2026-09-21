@@ -163,6 +163,82 @@ const methylMw = (methylCount) => monoMw + 14 * methylCount;
 check("テトラ-O-メチルヘキソース236", methylMw(4) === 236, `計算値=${methylMw(4)}`);
 check("トリ-O-メチルヘキソース222", methylMw(3) === 222, `計算値=${methylMw(3)}`);
 
+/* ---------- (5) メチル化生成物のIUPAC風名称を置換基データから自動生成し、確定値と一致するか ---------- */
+const METHYL_COUNT_JA = { 1: "モノ", 2: "ジ", 3: "トリ", 4: "テトラ", 5: "ペンタ" };
+const SUGAR_DNAME_JA = { グルコース: "D-グルコース", フルクトース: "D-フルクトース", ガラクトース: "D-ガラクトース" };
+function methylatedName(unit) {
+  const ring = rings[unit.ring];
+  const m = methylationFor(unit);
+  const freeOH = ring.positions.filter((p) => !m.post.includes(p));
+  const locants = m.post.map((p) => p.replace("C", "")).join(",");
+  const count = METHYL_COUNT_JA[m.post.length];
+  const sugar = SUGAR_DNAME_JA[unit.sugarJa];
+  return `${locants}-${count}-O-メチル-${sugar}(${freeOH.join("・")}が遊離OH)`;
+}
+const EXPECTED_METHYL_NAMES = {
+  "maltose:0": "2,3,4,6-テトラ-O-メチル-D-グルコース(C1が遊離OH)",
+  "maltose:1": "2,3,6-トリ-O-メチル-D-グルコース(C1・C4が遊離OH)",
+  "sucrose:0": "2,3,4,6-テトラ-O-メチル-D-グルコース(C1が遊離OH)",
+  "sucrose:1": "1,3,4,6-テトラ-O-メチル-D-フルクトース(C2が遊離OH)",
+};
+for (const [key, expected] of Object.entries(EXPECTED_METHYL_NAMES)) {
+  const [dsId, idx] = key.split(":");
+  const unit = byId.get(dsId).units[Number(idx)];
+  const derived = methylatedName(unit);
+  check(`メチル化生成物名称[${key}]`, derived === expected, `導出="${derived}" 期待="${expected}"`);
+}
+
+/* ---------- (6) MAP: ノード・エッジの整合性 ---------- */
+function checkMapEdgesExist(rowKey, row) {
+  const nodeIds = new Set(row.nodes.map((n) => n.id));
+  for (const e of row.edges) {
+    check(
+      `MAPエッジ端点実在[${rowKey}:${e.from}->${e.to}]`,
+      nodeIds.has(e.from) && nodeIds.has(e.to),
+      `from存在=${nodeIds.has(e.from)} to存在=${nodeIds.has(e.to)}`
+    );
+  }
+}
+checkMapEdgesExist("plant", DATA.map.plant);
+checkMapEdgesExist("animal", DATA.map.animal);
+
+const sucroseInEdges = DATA.map.plant.edges.filter((e) => e.to === "p_sucrose");
+check("スクロースの入力エッジが2本", sucroseInEdges.length === 2, `件数=${sucroseInEdges.length}`);
+check(
+  "スクロースの入力=グルコース・フルクトース",
+  JSON.stringify(sucroseInEdges.map((e) => e.from).sort()) === JSON.stringify(["p_fructose", "p_glucose"]),
+  JSON.stringify(sucroseInEdges.map((e) => e.from))
+);
+
+const glycogenInEdges = DATA.map.animal.edges.filter((e) => e.to === "a_glycogen");
+check("グリコーゲンの入力エッジが1本", glycogenInEdges.length === 1, `件数=${glycogenInEdges.length}`);
+check("グリコーゲンの入力=グルコースのみ", glycogenInEdges[0]?.from === "a_glucose", glycogenInEdges[0]?.from);
+const co2h2oIds = new Set(["p_co2h2o", "a_co2h2o"]);
+const co2h2oOutEdges = [...DATA.map.plant.edges, ...DATA.map.animal.edges].filter((e) => co2h2oIds.has(e.from));
+check(
+  "CO2+H2Oから出るエッジがグリコーゲンに向かわない",
+  !co2h2oOutEdges.some((e) => e.to === "a_glycogen"),
+  JSON.stringify(co2h2oOutEdges)
+);
+
+const MAP_COLUMN_EXPECT = {
+  グルコース: "mono",
+  フルクトース: "mono",
+  スクロース: "di",
+  マルトース: "di",
+  デンプン: "poly",
+  イヌリン: "poly",
+  グリコーゲン: "poly",
+};
+for (const row of [DATA.map.plant, DATA.map.animal]) {
+  for (const n of row.nodes) {
+    const expected = MAP_COLUMN_EXPECT[n.labelJa];
+    if (expected !== undefined) {
+      check(`MAPノードの列分類[${n.id}]`, n.column === expected, `column=${n.column} 期待=${expected}`);
+    }
+  }
+}
+
 /* ---------- 結果出力 ---------- */
 if (failures.length) {
   console.error(`[check-disaccharides] ${failures.length}件の不一致\n` + failures.join("\n"));

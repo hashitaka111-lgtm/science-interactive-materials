@@ -88,7 +88,7 @@
       "sourceJa": "サトウキビ・テンサイ",
       "digestionSiteJa": "腸液(小腸)",
       "molecularWeightNoteJa": "この教材では整数原子量による342を使う(chem-dilute-solutionsでは342.30を使用)。",
-      "kineticsLinkNoteJa": "スクロースの加水分解の速度論(擬1次反応)はchem-reaction-kineticsで扱っている。"
+      "kineticsLinkNoteJa": "スクロースの加水分解の速度論は、"
     },
     {
       "id": "lactose",
@@ -162,19 +162,29 @@
   },
   "map": {
     "columns": [
-      { "id": "mono", "labelJa": "単糖類", "formula": "C6(H2O)6" },
-      { "id": "di", "labelJa": "二糖類", "formula": "C12(H2O)11" },
-      { "id": "poly", "labelJa": "多糖類", "formula": "[C6(H2O)5]n" }
+      { "id": "mono", "labelJa": "単糖類", "formula": "C₆(H₂O)₆" },
+      { "id": "di", "labelJa": "二糖類", "formula": "C₁₂(H₂O)₁₁" },
+      { "id": "poly", "labelJa": "多糖類", "formula": "[C₆(H₂O)₅]ₙ" }
     ],
     "plant": {
       "labelJa": "植物(同化)",
-      "stepsJa": [
-        "6CO2+6H2O →(光合成)→ グルコース",
-        "グルコース →(異性化)→ フルクトース",
-        "グルコース+フルクトース →(縮合)→ スクロース",
-        "グルコース →(縮合)→ マルトース",
-        "グルコース →(縮合重合)→ デンプン(アミロース・アミロペクチン)",
-        "フルクトース →(縮合重合)→ イヌリン"
+      "nodes": [
+        { "id": "p_co2h2o", "labelJa": "CO₂+H₂O", "column": null },
+        { "id": "p_glucose", "labelJa": "グルコース", "column": "mono" },
+        { "id": "p_fructose", "labelJa": "フルクトース", "column": "mono" },
+        { "id": "p_sucrose", "labelJa": "スクロース", "column": "di", "nonReducing": true },
+        { "id": "p_maltose", "labelJa": "マルトース", "column": "di" },
+        { "id": "p_starch", "labelJa": "デンプン", "column": "poly", "nonReducing": true },
+        { "id": "p_inulin", "labelJa": "イヌリン", "column": "poly", "nonReducing": true }
+      ],
+      "edges": [
+        { "from": "p_co2h2o", "to": "p_glucose", "labelJa": "光合成" },
+        { "from": "p_glucose", "to": "p_fructose", "labelJa": "異性化" },
+        { "from": "p_glucose", "to": "p_sucrose", "labelJa": "縮合" },
+        { "from": "p_fructose", "to": "p_sucrose", "labelJa": "縮合" },
+        { "from": "p_glucose", "to": "p_maltose", "labelJa": "縮合" },
+        { "from": "p_glucose", "to": "p_starch", "labelJa": "縮合重合" },
+        { "from": "p_fructose", "to": "p_inulin", "labelJa": "縮合重合" }
       ],
       "nonReducingJa": ["スクロース", "デンプン", "イヌリン"],
       "starchDetailNoteJa": "アミロース(α-1,4のらせん)・アミロペクチン(α-1,6の枝分かれ)の違いはchem-starch-helixで確認済み。",
@@ -182,11 +192,18 @@
     },
     "animal": {
       "labelJa": "動物(異化)",
-      "stepsJa": [
-        "デンプン →(アミラーゼ:だ液・すい液)→ マルトース",
-        "マルトース →(マルターゼ:腸液)→ グルコース",
-        "グルコース →(呼吸)→ CO2+H2O",
-        "グリコーゲン(肝臓)⇄グルコース(縮合重合/加水分解)"
+      "nodes": [
+        { "id": "a_starch", "labelJa": "デンプン", "column": "poly", "nonReducing": true },
+        { "id": "a_glycogen", "labelJa": "グリコーゲン", "column": "poly", "nonReducing": true },
+        { "id": "a_maltose", "labelJa": "マルトース", "column": "di" },
+        { "id": "a_glucose", "labelJa": "グルコース", "column": "mono" },
+        { "id": "a_co2h2o", "labelJa": "CO₂+H₂O", "column": null }
+      ],
+      "edges": [
+        { "from": "a_starch", "to": "a_maltose", "labelJa": "アミラーゼ(だ液・すい液)" },
+        { "from": "a_maltose", "to": "a_glucose", "labelJa": "マルターゼ(腸液)" },
+        { "from": "a_glucose", "to": "a_co2h2o", "labelJa": "呼吸" },
+        { "from": "a_glucose", "to": "a_glycogen", "labelJa": "縮合重合", "bidirectional": true, "labelBackJa": "加水分解" }
       ],
       "nonReducingJa": ["グリコーゲン"],
       "glycogenNoteJa": "グリコーゲンはらせんが短く枝分かれがさらに多い(アミロペクチンより短い)。",
