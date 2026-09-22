@@ -413,14 +413,18 @@ function pushAnomericSubst(list, ring, up, mode){
 // 絶対的な高さ(例: cy-r)を直接の目標にして逆算すると、アンカーがたまたま中心に
 // 近い場合に制御点が極端になり、隣接する辺やラベルをかすめることがあったため、
 // 常にアンカー間の中点からの相対量として指定する(呼び出し側はbridgeBow()で計算)
-function bridgeSVG(anchorA, anchorB, bow){
+function bridgeSVG(anchorA, anchorB, bow, ctrlT){
   // 直線だと、アノマー炭素どうしを結ぶ橋かけ線が環の下部(C2・C3・C4のOHなど)の
   // ラベルの密集地帯を横切ってしまうことがあるため、2つの環のあいだの空いた上側を
   // 通るよう上向きに弧を曲げる(2次ベジェ曲線)
   const p1 = anchorA.p, p2 = anchorB.p;
   const avgY = (p1[1]+p2[1])/2;
   const ctrlY = avgY - (bow!=null ? bow : 34);
-  const ctrlX = (p1[0]+p2[0])/2;
+  // ctrlT: 制御点のx位置をp1→p2の何%地点に置くか(既定0.5=中点)。鎖状表示では終点側
+  // (谷のC4から出した置換基の先端)に寄せることで、終点での接線をより急な角度にし、
+  // 隣接するジグザグの結合線と平行に近づかないようにする(bridgeBow呼び出し側で指定)
+  const t = ctrlT!=null ? ctrlT : 0.5;
+  const ctrlX = p1[0] + (p2[0]-p1[0])*t;
   let o = '<path d="M '+p1[0].toFixed(1)+' '+p1[1].toFixed(1)+' Q '+ctrlX.toFixed(1)+' '+ctrlY.toFixed(1)+' '+p2[0].toFixed(1)+' '+p2[1].toFixed(1)+'" fill="none" stroke="#B87A16" stroke-width="2.2"/>';
   // 曲線上のt=0.5の点(中点)にO原子のマーカーとラベルを置く。
   // フルネーム表記(O(グリコシド結合))は幅が広く、環のC5のCH2OHラベルなどに
@@ -522,6 +526,20 @@ function drawMapArrows(grid, row, rowKey, hi){
     const r = el.getBoundingClientRect();
     return { x:r.left-gr.left, y:r.top-gr.top, w:r.width, h:r.height, cx:r.left-gr.left+r.width/2, cy:r.top-gr.top+r.height/2 };
   }
+  // ノード(HTMLのbutton)・列見出し(.mapColHeader)は矢印(SVG)とは別の検査対象に
+  // なってしまうため、ラベルの候補地点を選ぶときに明示的にそれらの矩形
+  // (外側に4pxの余白)を避けさせる(見出しを避けないと、ノードは避けても列見出しの
+  // 上に逃げたラベルが見出し自体に重なってしまう)
+  const NODE_PAD = 4;
+  const nodeRects = row.nodes.map(n=>rectOf(n.id)).filter(Boolean)
+    .concat(Array.from(grid.querySelectorAll('.mapColHeader')).map(el=>{
+      const r = el.getBoundingClientRect();
+      return { x:r.left-gr.left, y:r.top-gr.top, w:r.width, h:r.height };
+    }))
+    .map(r=>({ x:r.x-NODE_PAD, y:r.y-NODE_PAD, w:r.w+NODE_PAD*2, h:r.h+NODE_PAD*2 }));
+  function overlapsNode(box){
+    return nodeRects.some(nr=> box.x<nr.x+nr.w && box.x+box.w>nr.x && box.y<nr.y+nr.h && box.y+box.h>nr.y);
+  }
   const markerId = 'mapArrowHead_'+grid.id;
   // 同じ列どうし(例: 単糖→二糖)を結ぶエッジが複数あると曲線・ラベルが重なるため、
   // 「出発列→到着列」ごとにグループ化して弧の膨らみ量を1本ずつずらす
@@ -596,6 +614,26 @@ function drawMapArrows(grid, row, rowKey, hi){
   function minDistToPts(cx,cy,pts){ let m=Infinity; for(const p of pts){ const d=Math.hypot(cx-p[0],cy-p[1]); if(d<m) m=d; } return m; }
   const FONT = 10; // 幅375pxでも実効10px以上にするため固定(拡大縮小なしのviewBoxなので、これがそのまま実効サイズになる)
   const MAXPUSH = 14; // ラベル中心から自分のエッジの曲線までの距離の上限
+  // 候補群(lx・ly・box)から1つ選ぶ。まず「ほかのラベル」「ノードの矩形(4px余白)」の
+  // どちらとも重ならない候補のうち、全エッジの線分から最も離れているものを選ぶ。
+  // それが1つもなければノードとだけは重ならない候補を優先し(ほかのラベルとの重なりは
+  // 妥協する)、それも尽きたときだけ最初の候補をそのまま使う
+  function pickLabelPos(candidates){
+    let best=null, bestScore=-Infinity;
+    for(const c of candidates){
+      if(placedLabelBoxes.some(pb=>boxesOverlap(c.box,pb))) continue;
+      if(overlapsNode(c.box)) continue;
+      const score = minDistToPts(c.lx,c.ly,allSamplePts);
+      if(score>bestScore){ bestScore=score; best=c; }
+    }
+    if(best) return best;
+    for(const c of candidates){
+      if(overlapsNode(c.box)) continue;
+      const score = minDistToPts(c.lx,c.ly,allSamplePts);
+      if(score>bestScore){ bestScore=score; best=c; }
+    }
+    return best || candidates[0];
+  }
   let o = '<defs><marker id="'+markerId+'" viewBox="0 0 8 8" refX="7" refY="4" markerWidth="6" markerHeight="6" orient="auto-start-reverse"><path d="M0,0 L8,4 L0,8 z" fill="#B87A16"/></marker></defs>';
   edgeGeoms.forEach(g=>{
     const {x1,y1,x2,y2,cx_,cy_,bow,label,key} = g;
@@ -605,36 +643,40 @@ function drawMapArrows(grid, row, rowKey, hi){
     const op = dim ? 0.28 : 1;
     if(bow===0){
       o += '<path d="M '+x1.toFixed(1)+' '+y1.toFixed(1)+' L '+x2.toFixed(1)+' '+y2.toFixed(1)+'" stroke="#B87A16" stroke-width="'+sw+'" fill="none" opacity="'+op+'" marker-end="url(#'+markerId+')"'+(g.e.bidirectional?' marker-start="url(#'+markerId+')"':'')+'/>';
-      // 同じ列内の短い矢印は、根元側に確保した余白(sameColLabel)の中央にそのまま置く。
-      // 矢印の線自体がそこまで届いていない(insetで短くしている)ので、押し出し量の探索は不要
-      const lx = g.sameColLabel.x, ly = g.sameColLabel.y;
-      const box = labelBox(lx, ly, label, FONT);
-      placedLabelBoxes.push(box);
-      o += mapLabelChip(lx, ly, label, FONT, rowKey, g.e.from, g.e.to, dim);
+      // 同じ列内の短い矢印は、根元側に確保した余白(sameColLabel)を中心に、
+      // 上下・左右に少しだけ動かした候補からノード・ほかのラベルを避けて選ぶ
+      const {x:bx,y:by} = g.sameColLabel;
+      const candidates = [];
+      for(const dy of [0,-4,4,-8,8]) for(const dx of [0,-10,10,-16,16]){
+        const lx=bx+dx, ly=by+dy;
+        candidates.push({lx,ly,box:labelBox(lx,ly,label,FONT)});
+      }
+      const best = pickLabelPos(candidates);
+      placedLabelBoxes.push(best.box);
+      o += mapLabelChip(best.lx, best.ly, label, FONT, rowKey, g.e.from, g.e.to, dim);
       return;
     }
     o += '<path d="M '+x1.toFixed(1)+' '+y1.toFixed(1)+' Q '+cx_.toFixed(1)+' '+cy_.toFixed(1)+' '+x2.toFixed(1)+' '+y2.toFixed(1)+'" stroke="#B87A16" stroke-width="'+sw+'" fill="none" opacity="'+op+'" marker-end="url(#'+markerId+')"'+(g.e.bidirectional?' marker-start="url(#'+markerId+')"':'')+'/>';
     // 候補: 曲線上のいくつかのtから、接線に垂直な方向へMAXPUSH以内で押し出した位置。
-    // 他ラベル・全エッジの線からの最短距離が最大(=一番空いている)候補を選ぶ
-    let best = null, bestScore = -Infinity;
+    // 他ラベル・ノードの矩形と重ならず、全エッジの線分から最も離れている候補を選ぶ
+    const candidates = [];
     for(const t of [0.5,0.4,0.6,0.32,0.68,0.2,0.8]){
       const curveX = bez(t,x1,cx_,x2), curveY = bez(t,y1,cy_,y2);
       const chordX = x1+(x2-x1)*t, chordY = y1+(y2-y1)*t;
       let outX = curveX-chordX, outY = curveY-chordY;
       const outLen = Math.hypot(outX,outY) || 1;
       outX/=outLen; outY/=outLen;
-      for(const push of [10,12,14,-10,-12,-14,8,-8]){
+      // 短い列間(隣接ノードの隙間)にラベル自体より狭い区間しかない組み合わせ
+      // (例: 「アミラーゼ(だ液・すい液)」)もあるため、押し出し量はノードの矩形を
+      // 避けられる位置(格子の余白側)まで探せるよう広めに用意する
+      for(const push of [10,12,14,18,22,26,32,38,44,52,60,70,-10,-12,-14,-18,-22,-26,-32,-38,-44,-52,-60,-70,8,-8]){
         const lx = curveX+outX*push, ly = curveY+outY*push;
-        const box = labelBox(lx, ly, label, FONT);
-        if(placedLabelBoxes.some(pb=>boxesOverlap(box,pb))) continue;
-        const score = minDistToPts(lx, ly, allSamplePts);
-        if(score > bestScore){ bestScore = score; best = {lx,ly,box}; }
+        candidates.push({lx,ly,box:labelBox(lx,ly,label,FONT)});
       }
     }
-    if(!best){
-      const t=0.5, curveX=bez(t,x1,cx_,x2), curveY=bez(t,y1,cy_,y2);
-      best = {lx:curveX+MAXPUSH, ly:curveY, box: labelBox(curveX+MAXPUSH, curveY, label, FONT)};
-    }
+    const t0=0.5, curveX0=bez(t0,x1,cx_,x2), curveY0=bez(t0,y1,cy_,y2);
+    candidates.push({lx:curveX0+MAXPUSH, ly:curveY0, box: labelBox(curveX0+MAXPUSH, curveY0, label, FONT)});
+    const best = pickLabelPos(candidates);
     placedLabelBoxes.push(best.box);
     o += mapLabelChip(best.lx, best.ly, label, FONT, rowKey, g.e.from, g.e.to, dim);
   });
@@ -697,8 +739,15 @@ function openChainSVG(cx, cy, k, opts){
       return;
     }
     if(c===opts.bondCarbon){
-      bondAnchors[c] = { p, up: peak };
-      o += svgText(p[0], peak? p[1]-Math.max(11,10*k) : p[1]+Math.max(18,16*k), 'O(結合)', Math.max(7,8*k), '#8A5A0C', 'middle', '600');
+      // 結合炭素(C4など)は鎖の山・谷の頂点そのものなので、橋かけの弧をそこへ直接
+      // つなぐと、着地直前で隣接する2本のジグザグの結合線(C5-C4・C4-C3)に沿って
+      // 重なってしまう。OH・CH2OHの置換基と同じように、山・谷の向きへ短い置換基
+      // (縦の線)として突き出し、橋かけはその先端につなぐことで、ジグザグの結合線
+      // (斜め)とは向きが大きく異なる(縦)着地点にする
+      const stubLen = Math.max(11,10*k), y2 = peak? p[1]-stubLen : p[1]+stubLen;
+      o += svgLine(p[0],p[1],p[0],y2,'#8A5A0C',1.4);
+      bondAnchors[c] = { p:[p[0],y2], up: peak };
+      o += svgText(p[0], peak? y2-Math.max(9,8*k) : y2+Math.max(9,8*k), 'O(結合)', Math.max(7,8*k), '#8A5A0C', 'middle', '600');
       return;
     }
     if(c==='C6'){
@@ -798,8 +847,12 @@ function hemiPairSVG(){
   // 鎖状表示のときはCHOラベルの高さ(頂点からampY+len+ラベル分、おおよそ33*k)を
   // 基準にした専用の弧の高さを使う(リング半径基準のbridgeBowだと環がない分
   // 弧が不足し、曲線が始点付近の別のラベルをかすめることがあった)
-  const chainBow = 40*k + 26;
-  o += bridgeSVG(A.bondAnchors[u0.bondCarbon], B.bondAnchors[u1.bondCarbon], showChain ? chainBow : bridgeBow(r, ring0.kind, ring1.kind, hflip1));
+  const chainBow = 100*k + 40;
+  // 鎖状表示では、終点(谷のC4から真下に出した置換基の先端)での接線が、隣接する
+  // ジグザグの結合線(斜め)とほぼ平行にならないよう、制御点を終点側に寄せて
+  // 接線を急な角度にする(bridgeSVGのctrlT)
+  const chainCtrlT = 0.74;
+  o += bridgeSVG(A.bondAnchors[u0.bondCarbon], B.bondAnchors[u1.bondCarbon], showChain ? chainBow : bridgeBow(r, ring0.kind, ring1.kind, hflip1), showChain ? chainCtrlT : null);
   if(d.id==='sucrose'){
     o += svgText(cx, H-10, 'ヘミアセタール構造なし(両方の環がグリコシド結合に使われている)', NARROW?8.5:9.5, '#0E8FA3','middle','600');
   } else if(showChain) {
