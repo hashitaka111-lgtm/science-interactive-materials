@@ -1,0 +1,53 @@
+{
+  "meta": {
+    "atomicWeights": { "H": 1, "C": 12, "O": 16, "S": 32, "Cl": 35.5, "Na": 23 },
+    "note": "分子量・式量はすべて上記atomicWeightsでの計算値。"
+  },
+  "synthesis": {
+    "monomers": [
+      { "name": "スチレン", "formula": "C6H5-CH=CH2", "weight": 104, "confidence": "high", "source": "原子量C=12,H=1からの計算値。C8H8 = 8×12+8 = 104。" },
+      { "name": "ジビニルベンゼン(架橋剤)", "formula": "C6H4(CH=CH2)2", "weight": 130, "confidence": "high", "source": "原子量C=12,H=1からの計算値。C10H10 = 10×12+10 = 130。少量をスチレンに加えて用いる。" }
+    ],
+    "reactionType": "共重合(付加重合)",
+    "product": "網目状の土台となる高分子構造",
+    "substitutionNote": "立体障害のためベンゼン環のオルト位・メタ位には置換基を導入できず、パラ位のみで置換反応が起こる。"
+  },
+  "cationExchangeResin": {
+    "baseStructure": "土台の高分子に濃硫酸を反応させスルホ基(-SO3H)を導入する(スルホン化)。",
+    "functionalGroup": "-SO3H",
+    "equilibrium": "R-SO3H + Na+ ⇌ R-SO3Na + H+",
+    "massChange": {
+      "group": "SO3",
+      "formulaWeight": 80,
+      "confidence": "high",
+      "source": "原子量S=32,O=16からの計算値。SO3 = 32+3×16 = 80。-SO3基の分だけ質量が重くなる。"
+    },
+    "regeneration": "HClを加えると元のR-SO3Hに戻る。"
+  },
+  "anionExchangeResin": {
+    "baseStructure": "土台の高分子に塩基性の基(トリメチルアンモニウム型)を導入する。",
+    "functionalGroup": "-CH2-N+(CH3)3・OH-",
+    "equilibrium": "R-CH2-N+(CH3)3OH- + Cl- ⇌ R-CH2-N+(CH3)3Cl- + OH-",
+    "regeneration": "NaOH水溶液を加えると元のOH形に戻る。"
+  },
+  "uses": [
+    {
+      "id": "ion_exchange_water",
+      "name": "イオン交換水の生成",
+      "description": "陽イオン交換樹脂と陰イオン交換樹脂の混合層に水を通すと、Na+はH+に、Cl-はOH-に置き換わり、生じたH+とOH-が中和してH2O(純水)になる。"
+    },
+    {
+      "id": "salt_from_seawater",
+      "name": "海水から食塩の合成",
+      "description": "陽イオン交換膜(陽イオンのみ通す)と陰イオン交換膜(陰イオンのみ通す)を交互に並べた電気透析槽に電圧をかけると、Na+とCl-がそれぞれ選択的に膜を通過し、濃縮海水と淡水に分離される。",
+      "note": "日本の実際の製塩方法。"
+    },
+    {
+      "id": "ion_separation",
+      "name": "イオンの分離",
+      "description": "樹脂は異なるイオンを異なる強さで吸着するため、イオン分析・イオン分離に用いられる。",
+      "relatedMaterial": "chem-acid-base-distribution",
+      "relatedNote": "chem-acid-base-distributionのヒスチジンの記述(陽イオン交換樹脂に強く吸着する)は、アミノ酸の等電点の応用例であってイオン交換樹脂そのものの説明ではないため、内容としては重複しない。本文リンクとして接続する。"
+    }
+  ]
+}

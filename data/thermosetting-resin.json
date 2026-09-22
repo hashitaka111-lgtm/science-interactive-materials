@@ -1,0 +1,83 @@
+{
+  "meta": {
+    "atomicWeights": { "H": 1, "C": 12, "N": 14, "O": 16, "Cl": 35.5 },
+    "note": "モノマーの分子量は、CEOの手書きノートに記された構造式から原子量で新規に検算したもの。網目状高分子全体の平均分子量(重合度に依存し確定できない)は計算していない。",
+    "commonStructure": "熱硬化性樹脂は、熱を加えると重合反応が進みさらに硬くなり、三次元網目構造になる。線状の熱可塑性樹脂とは対照的。",
+    "whyThreeDimensional": "炭素の4本の手が正四面体状に伸び、球体関節のように結合するため、架橋していく環の向きが不規則になり、平面的でなく立体的な網目構造が形成される。"
+  },
+  "resins": [
+    {
+      "id": "phenol",
+      "name": "フェノール樹脂",
+      "abbreviation": "PF",
+      "aliasName": "ベークライト",
+      "inventor": "ベークランド博士",
+      "monomers": [
+        { "name": "フェノール", "formula": "C6H5OH" },
+        { "name": "ホルムアルデヒド", "formula": "HCHO", "weight": 30, "confidence": "high", "source": "原子量H=1,C=12,O=16からの計算値。CH2O = 12+2+16 = 30。" }
+      ],
+      "reactionType": "付加縮合",
+      "catalystPaths": [
+        { "catalyst": "酸触媒(希硫酸 dil. H2SO4)", "intermediate": "ノボラック", "intermediateNote": "線状の中間体" },
+        { "catalyst": "塩基触媒(NaOH)", "intermediate": "レゾール", "intermediateNote": "高分子量の油状中間体" }
+      ],
+      "curing": "ノボラック・レゾールのどちらも硬化剤を加えて加熱すると、フェノール環同士がメチレン基(-CH2-)で架橋された三次元網目構造になる。",
+      "properties": ["耐水性", "耐薬品性", "電気絶縁性大"],
+      "uses": ["車両部品", "電気機器", "電子基板"]
+    },
+    {
+      "id": "urea",
+      "name": "尿素樹脂",
+      "abbreviation": "UF",
+      "aliasName": "ユリア樹脂",
+      "monomers": [
+        { "name": "尿素", "formula": "H2N-CO-NH2", "weight": 60, "confidence": "high", "source": "原子量H=1,C=12,N=14,O=16からの計算値。CH4N2O = 12+4+28+16 = 60。" },
+        { "name": "ホルムアルデヒド", "formula": "HCHO", "weight": 30 }
+      ],
+      "reactionType": "付加縮合",
+      "structure": "網目状構造",
+      "properties": ["安価で着色性大", "耐水性・耐老化性に劣る"],
+      "uses": ["合板の接着剤"]
+    },
+    {
+      "id": "melamine",
+      "name": "メラミン樹脂",
+      "abbreviation": "MF",
+      "monomers": [
+        { "name": "メラミン(トリアジン環)", "formula": "C3H6N6", "weight": 126, "confidence": "high", "source": "原子量C=12,H=1,N=14からの計算値。C3H6N6 = 3×12+6+6×14 = 126。" },
+        { "name": "ホルムアルデヒド", "formula": "HCHO", "weight": 30 }
+      ],
+      "reactionType": "付加縮合",
+      "reactionConditions": "弱アルカリ・80℃で反応",
+      "structure": "トリアジン環同士がメチレン基で架橋された網目構造",
+      "properties": ["硬化しやすい"],
+      "uses": []
+    },
+    {
+      "id": "alkyd",
+      "name": "アルキド樹脂",
+      "abbreviation": null,
+      "monomers": [
+        { "name": "無水フタル酸", "formula": "C6H4(CO)2O", "weight": 148, "confidence": "high", "source": "原子量C=12,H=1,O=16からの計算値。C8H4O3 = 8×12+4+3×16 = 148。" },
+        { "name": "グリセリン", "formula": "C3H5(OH)3", "weight": 92, "confidence": "high", "source": "原子量C=12,H=1,O=16からの計算値。C3H8O3 = 3×12+8+3×16 = 92。" }
+      ],
+      "reactionType": "縮合重合",
+      "structure": "エステル結合による網目状ポリエステル構造",
+      "properties": ["成形品には適さない"],
+      "uses": ["塗料用"]
+    },
+    {
+      "id": "epoxy",
+      "name": "エポキシ樹脂",
+      "abbreviation": "ED",
+      "monomers": [
+        { "name": "ビスフェノールA", "formula": "HO-C6H4-C(CH3)2-C6H4-OH", "weight": 228, "confidence": "high", "source": "原子量C=12,H=1,O=16からの計算値。C15H16O2 = 15×12+16+2×16 = 228。" },
+        { "name": "エピクロロヒドリン(エポキシ環をもつ)", "formula": "C3H5ClO", "weight": 92.5, "confidence": "high", "source": "原子量C=12,H=1,O=16,Cl=35.5からの計算値。C3H5ClO = 3×12+5+35.5+16 = 92.5。" }
+      ],
+      "reactionType": "縮合重合(硬化時は開環・架橋)",
+      "process": "NaOH存在下でビスフェノールAとエピクロロヒドリンからジグリシジルエーテル中間体を経て縮合重合し、さらに硬化剤(アミン系)を加えるとエポキシ環が開環・架橋して三次元網目構造になる。",
+      "properties": ["寸法安定性大", "耐熱耐薬品耐摩耗性大", "金属への接着性大"],
+      "uses": ["塗料", "接着剤", "自動車", "電気部品"]
+    }
+  ]
+}

@@ -1,0 +1,78 @@
+{
+  "meta": {
+    "atomicWeights": { "H": 1, "C": 12, "N": 14 },
+    "note": "モノマーの分子量はすべてH=1,C=12,N=14での計算値。共重合体(NBR・SBR)は組成比が一定でないため、繰り返し単位の分子量は式(54n+53mなど)の形で表し、単一の数値には確定しない。"
+  },
+  "rubbers": [
+    {
+      "id": "br",
+      "name": "ポリブタジエン",
+      "abbreviation": "BR",
+      "commonName": "ブタジエンゴム",
+      "aliasName": "Buna",
+      "monomers": [
+        { "name": "1,3-ブタジエン", "formula": "CH2=CH-CH=CH2", "weight": 54, "confidence": "high", "source": "原子量C=12,H=1からの計算値。C4H6 = 4×12+6 = 54。共役二重結合をもつ。" }
+      ],
+      "polymerizationType": "addition",
+      "additionModes": [
+        { "mode": "1,4-付加", "share": "主", "repeatUnitFormula": "-[CH2-CH=CH-CH2]-n", "note": "cis形・trans形がある" },
+        { "mode": "1,2-付加", "share": "約30%", "repeatUnitFormula": "-[CH2-CH(CH=CH2)]-m", "note": "側鎖にビニル基が残る" }
+      ],
+      "repeatUnitWeight": 54,
+      "repeatUnitWeightNote": "1,4-付加・1,2-付加のどちらも元のモノマーの原子がすべて繰り返し単位に組み込まれるため、分子量はn・mいずれも54。",
+      "properties": ["耐摩耗性", "耐寒性大"],
+      "uses": ["タイヤ", "ベルト", "フィルム"]
+    },
+    {
+      "id": "ir",
+      "name": "ポリイソプレン(合成ゴム)",
+      "abbreviation": "IR",
+      "monomers": [
+        { "name": "イソプレン", "formula": "CH2=C(CH3)-CH=CH2", "weight": 68, "confidence": "high", "source": "原子量C=12,H=1からの計算値。C5H8 = 5×12+8 = 68。" }
+      ],
+      "polymerizationType": "addition",
+      "additionModes": [
+        { "mode": "1,4-付加", "share": "主", "note": "cis形・trans形ができる" }
+      ],
+      "repeatUnitWeight": 68,
+      "cisTransNote": {
+        "cis": "天然ゴムの主成分はcis形。",
+        "trans": "立体規則性を制御せずに合成するとtrans形が主になりやすく、これは「グッタペルカ」と呼ばれる硬い樹脂状の物質になる。",
+        "confidence": "high",
+        "source": "高校教科書の慣例的な整理: cis形=天然ゴムに近い弾性、trans形=硬い樹脂状、という対比。厳密な有機化学ではグッタペルカは天然物由来とされる場合もあるが、この対比は教科書の記述に忠実に踏襲した教科書的な簡略化である。"
+      },
+      "properties": [],
+      "uses": ["ゴルフボール"]
+    },
+    {
+      "id": "nbr",
+      "name": "NBR",
+      "fullName": "アクリロニトリルブタジエンゴム",
+      "commonName": "ニトリルゴム",
+      "aliasName": "Buna N",
+      "monomers": [
+        { "name": "アクリロニトリル", "formula": "CH2=CH-CN", "weight": 53, "additionMode": "1,2-付加" },
+        { "name": "1,3-ブタジエン", "formula": "CH2=CH-CH=CH2", "weight": 54, "additionMode": "1,4-付加" }
+      ],
+      "polymerizationType": "addition_copolymerization",
+      "repeatUnitWeightFormula": "54n + 53m",
+      "properties": ["耐油性大", "耐熱性・耐老化性は低い"],
+      "uses": ["パッキン", "ホース", "ガスケット"]
+    },
+    {
+      "id": "sbr",
+      "name": "SBR",
+      "fullName": "スチレンブタジエンゴム",
+      "aliasName": "Buna S",
+      "monomers": [
+        { "name": "1,3-ブタジエン", "formula": "CH2=CH-CH=CH2", "weight": 54, "additionMode": "1,4-付加" },
+        { "name": "スチレン", "formula": "C6H5-CH=CH2", "weight": 104, "additionMode": "1,2-付加", "confidence": "high", "source": "原子量C=12,H=1からの計算値。C8H8 = 8×12+8 = 104。" }
+      ],
+      "polymerizationType": "addition_copolymerization",
+      "repeatUnitWeightFormula": "54n + 104m",
+      "note": "現在最も多量に生産されている合成ゴム。",
+      "properties": [],
+      "uses": ["タイヤ(スチレン25%配合)", "ゴムベルト"]
+    }
+  ]
+}
