@@ -438,3 +438,19 @@
 - 教材数: 化学42件・物理16件、合計58件
 - 保留: 核酸シリーズは①chem-nucleotide-structure・②chem-dna-double-helix・③chem-genetic-codeの3本で完結とした。転写・翻訳の分子機構(RNAポリメラーゼ・リボソーム・tRNA・アミノアシルtRNA合成酵素・スプライシング)と、挿入・欠失によるフレームシフトは生物の範囲として扱っていない。②の`data/dna-double-helix.json`のnotesに「遺伝暗号・コドン表・転写・翻訳は、扱うかどうかを含めて次の教材で検討する」という文が残っている。今回は②のファイルを書き換えない指示だったので触っていない。本教材へのリンクに差し替えるかは別途判断が必要。`coverage-map.md`のセクション2(集計)は、以前の「糖類」の「済」化も反映されておらず、今回の「核酸」の「済」化も反映していない。集計を更新するかは別途判断が必要
 - 次: 特になし(核酸シリーズ完結。coverage-mapセクション3の未の単元から次の対象を選ぶ)
+
+## 2026-09-23 — coverage-map.mdの再監査(化学教材17本→42本に合わせて更新)
+
+- 変更: `coverage-map.md`のみ。化学の教材HTML・data・scriptsは変更していない
+- 背景: coverage-map.mdは化学教材17本の時点で作られ、その後42本まで増えた教材数に内容が追いついていなかった。セクション1は一部(糖類・核酸)だけ「済」化が反映済みだったが、セクション2の集計はそれより前の数値のまま止まっていた(前回2026-09-23のコドン表教材エントリで既知の保留事項として記録済み)
+- 手順: manifest.jsonのsubject:chemistryの42本(order 1〜42、chem-crystal-lattice〜chem-genetic-code)をid・unit・section・orderで一覧化。HTMLから日本語テキスト(見出し・本文・選択肢・JS内の文字列リテラル)を抽出するスクリプトを作り、既に読んだ17本を除く25本(chem-organic-reaction-map〜chem-genetic-code)全件を読んで、56行それぞれの主/従/状態を判定し直した
+- 済・部分に変わった行(未→): 周期表と周期律(主=chem-periodic-trends)／気体の溶解とヘンリーの法則(主=chem-henry-law)／溶解度と溶解度曲線(主=chem-solubility-curve)／元素分析と分子式決定(主=chem-elemental-analysis)／異性体(主=chem-isomers)／構造決定の手順(主=chem-structure-determination)／炭化水素(主=chem-hydrocarbon-nomenclature)／アルコールとエーテル(主=chem-alcohol-ether-nomenclature)／アルデヒド・ケトン(主=chem-aldehyde-ketone-nomenclature)／ベンゼンと置換反応(主=chem-organic-reaction-map)／合成樹脂・合成繊維・ゴム(未→部分、従=chem-polymer-degree。天然ゴム・加硫・熱可塑性/熱硬化性樹脂の分類は教材の範囲外と明記されているため主にはしなかった)
+- 部分→済に変わった行: カルボン酸とエステル(主=chem-carboxylic-acid-nomenclature, chem-ester-nomenclature)／フェノール類(主=chem-organic-reaction-map)／芳香族カルボン酸とアミン(主=chem-organic-reaction-map, chem-substituted-carboxylic-acid-nomenclature)／アミノ酸とタンパク質(主をchem-acid-base-distribution/chem-titrationからchem-amino-acids-matrix/chem-peptide-sequencing/chem-protein-structureの3本に差し替え、旧2本は従に格下げ)
+- 既存の済・部分行への従の追加: ルシャトリエの原理(chem-henry-law, chem-solubility-curveがともにルシャトリエの原理で温度依存性を説明)、塩の加水分解と溶解度積と沈殿平衡(chem-soap-surfactants)、水素・希ガス・ハロゲンとアルカリ金属・アルカリ土類金属(chem-periodic-trends)、窒素・リンとその化合物(chem-ester-nomenclature、硝酸・リン酸エステル)、工業的製法(chem-organic-reaction-mapのクメン法・ワッカー法、chem-fats-oils-saponificationの硬化油)、分子間力と水素結合(chem-hydrocarbon-nomenclature、chem-alcohol-ether-nomenclature)、物質量と化学反応式(chem-elemental-analysis、chem-fats-oils-saponification)、酸と塩基の定義(chem-soap-surfactants)、異性体(chem-hydrocarbon-nomenclature、chem-carboxylic-acid-nomenclature、chem-substituted-carboxylic-acid-nomenclature)
+- 主として割り当てられなかった教材が4本になった(前回1本): chem-enzyme-kinetics(既知)に加え、chem-polymer-degree(重合度計算に絞り単元全体はカバーしない)、chem-fats-oils-saponification・chem-soap-surfactants(どちらも既存の主教材の応用例で、専用の単元行が56行に存在しない)
+- セクション2(集計)を再計算: 全体は済31・部分22・未3(前回の済15・部分25・未16から更新。以前は「糖類」「核酸」の済み化さえ反映されていなかった二重の古さだった)。大分類別は理論17済/11部分/2未(30)、無機0済/10部分/1未(11)、有機11済/0部分/0未(11、全行済)、高分子3済/1部分/0未(4)。中分類別の未は物質の構成1・物質の状態1・実験と工業1のみに減った
+- セクション3(未の単元)を、済・部分になった行を除いた残り3行(気体の製法と性質／コロイド／原子の構造と電子配置)だけで作り直した。優先度順位は前回の考え方(変数のある単元を優先。3行とも変数なし)を踏襲して振り直したが、更新は必須ではなく次回セッションでの再検討を前提とする
+- セクション4に今回の判定根拠(特にchem-organic-reaction-mapがどの行で主/従になるかの切り分け方、複数教材が同じ行に主として並ぶ理由)を追記し、前回時点の記録は見出しを分けて残した
+- 検証: 更新後のセクション1の状態別行数(済31+部分22+未3=56)がセクション2の全体表と一致することをスクリプトで確認。大分類別・中分類別の集計も同じスクリプトでセクション1から再計算し、手で書いた表と一致することを確認。単元名56行が更新前後で1文字も変わっていないこと(diff)、doc内で使われているchem-*のIDがすべてmanifest.jsonのchemistry 42件に実在すること、42件全部が最低1回はdocに登場することをスクリプトで確認した
+- 保留: 特になし
+- 次: セクション3に残った3行(気体の製法と性質／コロイド／原子の構造と電子配置)が次の新規教材候補
