@@ -1,0 +1,480 @@
+{
+  "meta": {
+    "tableJa": "標準遺伝暗号(NCBI translation table 1と同じ対応)。aminoAcidIdはdata/amino-acids.jsonのamino_acids[].idを指し、アミノ酸の名称・略号・分類はこの教材では再定義しない。終止コドンはaminoAcidIdをnullにし、stopをtrueにする。",
+    "baseOrder": [
+      "U",
+      "C",
+      "A",
+      "G"
+    ]
+  },
+  "codons": [
+    {
+      "codon": "UUU",
+      "aminoAcidId": "phenylalanine",
+      "start": false,
+      "stop": false
+    },
+    {
+      "codon": "UUC",
+      "aminoAcidId": "phenylalanine",
+      "start": false,
+      "stop": false
+    },
+    {
+      "codon": "UUA",
+      "aminoAcidId": "leucine",
+      "start": false,
+      "stop": false
+    },
+    {
+      "codon": "UUG",
+      "aminoAcidId": "leucine",
+      "start": false,
+      "stop": false
+    },
+    {
+      "codon": "UCU",
+      "aminoAcidId": "serine",
+      "start": false,
+      "stop": false
+    },
+    {
+      "codon": "UCC",
+      "aminoAcidId": "serine",
+      "start": false,
+      "stop": false
+    },
+    {
+      "codon": "UCA",
+      "aminoAcidId": "serine",
+      "start": false,
+      "stop": false
+    },
+    {
+      "codon": "UCG",
+      "aminoAcidId": "serine",
+      "start": false,
+      "stop": false
+    },
+    {
+      "codon": "UAU",
+      "aminoAcidId": "tyrosine",
+      "start": false,
+      "stop": false
+    },
+    {
+      "codon": "UAC",
+      "aminoAcidId": "tyrosine",
+      "start": false,
+      "stop": false
+    },
+    {
+      "codon": "UAA",
+      "aminoAcidId": null,
+      "start": false,
+      "stop": true
+    },
+    {
+      "codon": "UAG",
+      "aminoAcidId": null,
+      "start": false,
+      "stop": true
+    },
+    {
+      "codon": "UGU",
+      "aminoAcidId": "cysteine",
+      "start": false,
+      "stop": false
+    },
+    {
+      "codon": "UGC",
+      "aminoAcidId": "cysteine",
+      "start": false,
+      "stop": false
+    },
+    {
+      "codon": "UGA",
+      "aminoAcidId": null,
+      "start": false,
+      "stop": true
+    },
+    {
+      "codon": "UGG",
+      "aminoAcidId": "tryptophan",
+      "start": false,
+      "stop": false
+    },
+    {
+      "codon": "CUU",
+      "aminoAcidId": "leucine",
+      "start": false,
+      "stop": false
+    },
+    {
+      "codon": "CUC",
+      "aminoAcidId": "leucine",
+      "start": false,
+      "stop": false
+    },
+    {
+      "codon": "CUA",
+      "aminoAcidId": "leucine",
+      "start": false,
+      "stop": false
+    },
+    {
+      "codon": "CUG",
+      "aminoAcidId": "leucine",
+      "start": false,
+      "stop": false
+    },
+    {
+      "codon": "CCU",
+      "aminoAcidId": "proline",
+      "start": false,
+      "stop": false
+    },
+    {
+      "codon": "CCC",
+      "aminoAcidId": "proline",
+      "start": false,
+      "stop": false
+    },
+    {
+      "codon": "CCA",
+      "aminoAcidId": "proline",
+      "start": false,
+      "stop": false
+    },
+    {
+      "codon": "CCG",
+      "aminoAcidId": "proline",
+      "start": false,
+      "stop": false
+    },
+    {
+      "codon": "CAU",
+      "aminoAcidId": "histidine",
+      "start": false,
+      "stop": false
+    },
+    {
+      "codon": "CAC",
+      "aminoAcidId": "histidine",
+      "start": false,
+      "stop": false
+    },
+    {
+      "codon": "CAA",
+      "aminoAcidId": "glutamine",
+      "start": false,
+      "stop": false
+    },
+    {
+      "codon": "CAG",
+      "aminoAcidId": "glutamine",
+      "start": false,
+      "stop": false
+    },
+    {
+      "codon": "CGU",
+      "aminoAcidId": "arginine",
+      "start": false,
+      "stop": false
+    },
+    {
+      "codon": "CGC",
+      "aminoAcidId": "arginine",
+      "start": false,
+      "stop": false
+    },
+    {
+      "codon": "CGA",
+      "aminoAcidId": "arginine",
+      "start": false,
+      "stop": false
+    },
+    {
+      "codon": "CGG",
+      "aminoAcidId": "arginine",
+      "start": false,
+      "stop": false
+    },
+    {
+      "codon": "AUU",
+      "aminoAcidId": "isoleucine",
+      "start": false,
+      "stop": false
+    },
+    {
+      "codon": "AUC",
+      "aminoAcidId": "isoleucine",
+      "start": false,
+      "stop": false
+    },
+    {
+      "codon": "AUA",
+      "aminoAcidId": "isoleucine",
+      "start": false,
+      "stop": false
+    },
+    {
+      "codon": "AUG",
+      "aminoAcidId": "methionine",
+      "start": true,
+      "stop": false
+    },
+    {
+      "codon": "ACU",
+      "aminoAcidId": "threonine",
+      "start": false,
+      "stop": false
+    },
+    {
+      "codon": "ACC",
+      "aminoAcidId": "threonine",
+      "start": false,
+      "stop": false
+    },
+    {
+      "codon": "ACA",
+      "aminoAcidId": "threonine",
+      "start": false,
+      "stop": false
+    },
+    {
+      "codon": "ACG",
+      "aminoAcidId": "threonine",
+      "start": false,
+      "stop": false
+    },
+    {
+      "codon": "AAU",
+      "aminoAcidId": "asparagine",
+      "start": false,
+      "stop": false
+    },
+    {
+      "codon": "AAC",
+      "aminoAcidId": "asparagine",
+      "start": false,
+      "stop": false
+    },
+    {
+      "codon": "AAA",
+      "aminoAcidId": "lysine",
+      "start": false,
+      "stop": false
+    },
+    {
+      "codon": "AAG",
+      "aminoAcidId": "lysine",
+      "start": false,
+      "stop": false
+    },
+    {
+      "codon": "AGU",
+      "aminoAcidId": "serine",
+      "start": false,
+      "stop": false
+    },
+    {
+      "codon": "AGC",
+      "aminoAcidId": "serine",
+      "start": false,
+      "stop": false
+    },
+    {
+      "codon": "AGA",
+      "aminoAcidId": "arginine",
+      "start": false,
+      "stop": false
+    },
+    {
+      "codon": "AGG",
+      "aminoAcidId": "arginine",
+      "start": false,
+      "stop": false
+    },
+    {
+      "codon": "GUU",
+      "aminoAcidId": "valine",
+      "start": false,
+      "stop": false
+    },
+    {
+      "codon": "GUC",
+      "aminoAcidId": "valine",
+      "start": false,
+      "stop": false
+    },
+    {
+      "codon": "GUA",
+      "aminoAcidId": "valine",
+      "start": false,
+      "stop": false
+    },
+    {
+      "codon": "GUG",
+      "aminoAcidId": "valine",
+      "start": false,
+      "stop": false
+    },
+    {
+      "codon": "GCU",
+      "aminoAcidId": "alanine",
+      "start": false,
+      "stop": false
+    },
+    {
+      "codon": "GCC",
+      "aminoAcidId": "alanine",
+      "start": false,
+      "stop": false
+    },
+    {
+      "codon": "GCA",
+      "aminoAcidId": "alanine",
+      "start": false,
+      "stop": false
+    },
+    {
+      "codon": "GCG",
+      "aminoAcidId": "alanine",
+      "start": false,
+      "stop": false
+    },
+    {
+      "codon": "GAU",
+      "aminoAcidId": "aspartic_acid",
+      "start": false,
+      "stop": false
+    },
+    {
+      "codon": "GAC",
+      "aminoAcidId": "aspartic_acid",
+      "start": false,
+      "stop": false
+    },
+    {
+      "codon": "GAA",
+      "aminoAcidId": "glutamic_acid",
+      "start": false,
+      "stop": false
+    },
+    {
+      "codon": "GAG",
+      "aminoAcidId": "glutamic_acid",
+      "start": false,
+      "stop": false
+    },
+    {
+      "codon": "GGU",
+      "aminoAcidId": "glycine",
+      "start": false,
+      "stop": false
+    },
+    {
+      "codon": "GGC",
+      "aminoAcidId": "glycine",
+      "start": false,
+      "stop": false
+    },
+    {
+      "codon": "GGA",
+      "aminoAcidId": "glycine",
+      "start": false,
+      "stop": false
+    },
+    {
+      "codon": "GGG",
+      "aminoAcidId": "glycine",
+      "start": false,
+      "stop": false
+    }
+  ],
+  "termsJa": {
+    "codonJa": "コドンは、mRNAの塩基配列(A・U・G・C)を5'側から3つずつ区切った3つ組。4種の塩基が3つ並ぶので、4×4×4=64通りある。",
+    "mappingJa": "64通りのコドンのうち61通りが20種のアミノ酸のどれかを、残りの3通り(UAA・UAG・UGA)が「ここで止まる」という終止の合図を指定する。",
+    "startJa": "AUGはメチオニン(Met)を指定すると同時に、翻訳を始める位置の目印(開始コドン)にもなる。",
+    "stopJa": "UAA・UAG・UGAはどのアミノ酸も指定しない終止コドン。ここで翻訳が止まる。",
+    "degeneracyJa": "1種のアミノ酸に複数のコドンが対応することを、コドンの縮重という。",
+    "wobbleJa": "縮重は主に3文字目(コドンの3'側の塩基)に集中している。コドンの3文字目は、tRNAのアンチコドンの1文字目と対合するとき、ふつうの塩基対の規則よりゆるい組み合わせでも対になれる。この現象をゆらぎ(wobble)という。",
+    "wobbleScopeJa": "どの塩基どうしがゆらぎで対になれるか(イノシンなど)の詳細は、この教材では扱わない。"
+  },
+  "strands": {
+    "senseJa": "mRNAは、DNAのセンス鎖(非鋳型鎖)と同じ配列で、TがUに置き換わっただけのもの。",
+    "templateJa": "鋳型鎖はmRNAと相補的で、向きは逆(逆平行)。鋳型鎖を3'→5'の向きに読み、1文字ずつ相補的な塩基(A→U、T→A、G→C、C→G)に置き換えると、mRNAが5'→3'の向きに得られる。",
+    "complementSourceJa": "相補の対応は、DNAの二重らせん(dna-double-helix)の相補鎖生成と同じ表(data/dna-double-helix.jsonのcomplement)を使う。違いは、mRNA側ではAの相手がTではなくUになることだけ。",
+    "tableToggleJa": "鋳型鎖の表示では、各コドンに対応する鋳型鎖の3文字を3'→5'の向きで示す。表の行・列の並びはmRNAのときと同じにしてある。"
+  },
+  "translate": {
+    "maxLength": 30,
+    "presets": [
+      "AUGGCUUUUUAA",
+      "GCAUGAAACGCUGGUAGCA",
+      "AUGUCUAGCCGUAGGUUAUGA",
+      "AUGGGAGGCGGG"
+    ],
+    "stepsJa": [
+      "mRNAを用意する",
+      "開始コドンAUGを探す",
+      "3文字ずつ区切って表を引く"
+    ],
+    "frameJa": "5'側から見て最初に現れるAUGが開始コドンになり、そこから3文字ずつの区切り方(読み枠)が決まる。AUGより前の塩基は翻訳されない。",
+    "stopJa": "終止コドンが現れたところで翻訳が止まる。終止コドンはアミノ酸を指定しない。",
+    "noStartJa": "開始コドンAUGが見つからないため、翻訳は始まらない。",
+    "noStopJa": "終止コドンが現れないまま配列が終わった。ここに示したのは入力した範囲だけの結果である。",
+    "leftoverJa": "最後の3文字に満たない塩基はコドンにならない。"
+  },
+  "mutation": {
+    "original": "AUGGCUUUUUGGCAAUAA",
+    "examples": [
+      {
+        "id": "silent",
+        "labelJa": "3文字目を変える",
+        "index": 5,
+        "to": "C"
+      },
+      {
+        "id": "missense",
+        "labelJa": "2文字目を変える",
+        "index": 7,
+        "to": "C"
+      },
+      {
+        "id": "nonsense",
+        "labelJa": "終止コドンになる",
+        "index": 10,
+        "to": "A"
+      },
+      {
+        "id": "missense1",
+        "labelJa": "1文字目を変える",
+        "index": 12,
+        "to": "G"
+      }
+    ],
+    "typesJa": {
+      "silent": {
+        "nameJa": "サイレント変異(同義置換)",
+        "descJa": "コドンは変わったが、指定するアミノ酸は変わらない。縮重のため、アミノ酸配列には影響が出ない。"
+      },
+      "missense": {
+        "nameJa": "ミスセンス変異",
+        "descJa": "コドンが別のアミノ酸を指定するようになり、アミノ酸が1つ置き換わる。"
+      },
+      "nonsense": {
+        "nameJa": "ナンセンス変異",
+        "descJa": "コドンが終止コドンに変わり、そこで翻訳が止まる。それより後ろのアミノ酸はつながらず、ペプチドが短くなる。"
+      }
+    },
+    "scopeJa": "置き換えられるのは、開始コドンと終止コドンの間にあるコドンの塩基だけ。開始コドン・終止コドンそのものの置換と、塩基の挿入・欠失(フレームシフト)は、この教材では扱わない。"
+  },
+  "notes": [
+    "縮重は主に3文字目に集中している。これはコドンの3文字目とtRNAのアンチコドンの1文字目の対合がゆるいこと(ゆらぎ)と関係する。この教材では現象名の紹介にとどめ、どの塩基どうしが対になれるかの規則には立ち入らない。",
+    "転写(RNAポリメラーゼの働き)、翻訳(リボソーム・tRNA・アミノアシルtRNA合成酵素の働き)の分子機構、塩基の挿入・欠失によるフレームシフトは、生物の範囲として扱っていない。ここで扱ったのは、塩基配列とアミノ酸配列の対応関係だけである。",
+    "この教材で核酸シリーズ(①ヌクレオチドの構造、②DNAの二重らせん、③コドン表と遺伝暗号)は完結する。"
+  ]
+}

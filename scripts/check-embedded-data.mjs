@@ -240,6 +240,21 @@ const EMBED_CHECKS = [
       { varName: "NUC", dataFile: "data/nucleotide-structure.json" },
     ],
   },
+  {
+    materialId: "genetic-code",
+    html: "html/genetic-code.html",
+    checks: [
+      { varName: "DATA", dataFile: "data/genetic-code.json" },
+      // アミノ酸の名称・略号・分類はamino-acids.jsonを再定義せず、必要なフィールドだけを抜き出して埋め込む
+      {
+        varName: "AMINO",
+        dataFile: "data/amino-acids.json",
+        compareKeys: ["amino_acids[].id", "amino_acids[].name", "amino_acids[].abbr3", "amino_acids[].one_letter", "amino_acids[].class"],
+      },
+      // 鋳型鎖⇔mRNAの変換は、dna-double-helixの相補鎖生成と同じ対応表を使う
+      { varName: "DNA", dataFile: "data/dna-double-helix.json", compareKeys: ["complement"] },
+    ],
+  },
 ];
 
 // HTML本文から `const VAR = {...};` の1行を取り出してJSON.parseする。

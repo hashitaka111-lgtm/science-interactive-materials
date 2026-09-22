@@ -968,7 +968,8 @@
     "related": [
       "chem-amino-acids-matrix",
       "chem-protein-structure",
-      "chem-polymer-degree"
+      "chem-polymer-degree",
+      "chem-genetic-code"
     ]
   },
   {
@@ -1695,7 +1696,8 @@
     "type": "diagram",
     "related": [
       "chem-protein-structure",
-      "chem-dna-double-helix"
+      "chem-dna-double-helix",
+      "chem-genetic-code"
     ]
   },
   {
@@ -1724,7 +1726,41 @@
     "confidence": "high",
     "type": "diagram",
     "related": [
-      "chem-nucleotide-structure"
+      "chem-nucleotide-structure",
+      "chem-genetic-code"
+    ]
+  },
+  {
+    "id": "chem-genetic-code",
+    "file": "html/genetic-code.html",
+    "subject": "chemistry",
+    "unit": "有機化学 / コドン表と遺伝暗号(塩基配列とアミノ酸の対応)",
+    "course": "化学",
+    "section": "有機化合物の性質",
+    "order": 42,
+    "title": "コドン表と遺伝暗号 — 塩基配列とアミノ酸の対応関係",
+    "heading": "コドン表と遺伝暗号 — 塩基配列とアミノ酸の対応関係",
+    "summary": "mRNAの64通りのコドンと20種のアミノ酸・終止の対応をコドン表で確かめ、配列の翻訳(開始コドンからの読み枠・終止コドン)と1塩基の置換によるサイレント/ミスセンス/ナンセンス変異の判定までをつなげる",
+    "topics": [
+      "コドン表(64通り、4×4×4)と開始コドンAUG・終止コドンUAA・UAG・UGA",
+      "コドンの縮重(1〜6通り)と3文字目への集中、ゆらぎという現象名",
+      "DNA鋳型鎖(3'→5')・センス鎖とmRNA(5'→3')の対応",
+      "mRNA配列からアミノ酸配列への変換(読み枠・終止)",
+      "点変異の効果(サイレント・ミスセンス・ナンセンス)"
+    ],
+    "interactions": [
+      "構造トグル",
+      "色分け表示",
+      "ホバー/タップ",
+      "ステップ表示",
+      "チップ切り替え"
+    ],
+    "confidence": "high",
+    "type": "matrix",
+    "related": [
+      "chem-dna-double-helix",
+      "chem-nucleotide-structure",
+      "chem-peptide-sequencing"
     ]
   }
 ]

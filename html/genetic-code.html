@@ -1,0 +1,661 @@
+<!doctype html>
+<html lang="ja">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>コドン表と遺伝暗号 — 塩基配列とアミノ酸の対応関係</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500&family=IBM+Plex+Sans+JP:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+*{box-sizing:border-box}
+:root{
+  --ink:#16232B; --muted:#5E6E76; --paper:#EDF1EF; --surface:#FFFFFF;
+  --rule:#D6DDDA; --rule-soft:#E8EDEB; --scheme-bg:#FBFCFB;
+  --neutral:#158A6D; --neutral-t:#0D6A53; --neutral-bg:rgba(21,138,109,.08);
+  --acidic:#A82A6A; --acidic-t:#831F52; --acidic-bg:rgba(168,42,106,.09);
+  --basic:#2457A6; --basic-t:#1B4380; --basic-bg:rgba(36,87,166,.09);
+  --stop:#B87A16; --stop-t:#8A5A0C; --stop-bg:rgba(184,122,22,.12);
+  --mut:#6E3AA7; --mut-t:#572D85; --mut-bg:rgba(110,58,167,.10);
+  --sans:"IBM Plex Sans JP","Hiragino Sans","Yu Gothic UI",system-ui,sans-serif;
+  --mono:"IBM Plex Mono",ui-monospace,SFMono-Regular,Menlo,monospace;
+}
+html,body{margin:0;padding:0}
+body{background:var(--paper);color:var(--ink);font-family:var(--sans);font-size:13.5px;line-height:1.75;-webkit-text-size-adjust:100%}
+.mono{font-family:var(--mono);font-variant-numeric:tabular-nums}
+.wrap{max-width:860px;margin:0 auto;padding:20px 14px 60px}
+.card{background:var(--surface);border:1px solid var(--rule);border-radius:3px;padding:14px;margin-bottom:14px;min-width:0}
+.eyebrow{display:flex;align-items:center;gap:10px;font-family:var(--mono);font-size:11.5px;letter-spacing:.14em;color:var(--muted);text-transform:uppercase}
+.eyebrow::after{content:"";flex:1;height:1px;background:var(--rule)}
+h1{font-size:21px;font-weight:600;letter-spacing:.01em;margin:8px 0 2px}
+h2{font-size:14.5px;font-weight:600;margin:10px 0 4px}
+h3{font-size:12.5px;font-weight:600;margin:14px 0 4px}
+p{margin:0 0 8px} p:last-child{margin-bottom:0}
+.lede{color:var(--muted);font-size:13px;margin:4px 0 0}
+.note{color:var(--muted);font-size:12px;line-height:1.75;margin-top:8px}
+a{color:var(--basic-t)}
+a:hover{text-decoration-thickness:1.5px}
+
+.chipbar{display:flex;flex-wrap:wrap;gap:6px;margin:8px 0}
+.chip{font:inherit;font-size:12px;border:1.5px solid var(--rule);background:#fff;color:var(--ink);padding:6px 11px;border-radius:20px;cursor:pointer}
+.chip:hover{border-color:#B4C0BC}
+.chip[aria-pressed="true"]{background:var(--ink);color:#fff;border-color:var(--ink)}
+.chip:focus-visible{outline:2px solid var(--ink);outline-offset:1px}
+.chip:disabled{color:var(--rule);cursor:not-allowed;border-color:var(--rule-soft)}
+.chip.mono{letter-spacing:.04em}
+
+.ringbar{display:flex;gap:0;margin:8px 0;border:1px solid var(--rule);border-radius:2px;overflow:hidden;width:fit-content;max-width:100%}
+.ringbtn{font:inherit;font-size:12px;border:none;background:#fff;color:var(--ink);padding:6px 12px;cursor:pointer;border-right:1px solid var(--rule)}
+.ringbtn:last-child{border-right:none}
+.ringbtn[aria-pressed="true"]{background:var(--ink);color:#fff}
+.ringbtn:focus-visible{outline:2px solid var(--ink);outline-offset:-2px}
+
+.scroll{overflow-x:auto;-webkit-overflow-scrolling:touch}
+.schemewrap{border:1px solid var(--rule-soft);border-radius:3px;background:var(--scheme-bg);margin-top:8px;padding:4px}
+.schemewrap svg{display:block}
+svg text{paint-order:stroke;stroke:var(--scheme-bg);stroke-width:3px;stroke-linejoin:round}
+.baseHit{cursor:pointer}
+.baseHit:focus{outline:none}
+.baseHit:focus-visible rect.hitbox{stroke:var(--ink);stroke-width:1.6}
+
+/* ---- コドン表 ---- */
+table.codon{border-collapse:separate;border-spacing:3px;min-width:560px;width:100%;font-size:12px}
+table.codon th{font-family:var(--sans);font-weight:500;color:var(--muted);font-size:11px;padding:2px 4px;text-align:center;white-space:nowrap}
+table.codon th.fb{font-family:var(--mono);font-size:18px;color:var(--ink);font-weight:500;background:var(--rule-soft);border-radius:3px;width:44px}
+table.codon th.tb{font-family:var(--mono);font-size:13px;color:var(--ink);width:34px}
+table.codon th.sb{font-family:var(--mono);font-size:15px;color:var(--ink);background:var(--rule-soft);border-radius:3px}
+table.codon td{padding:0}
+tr.blockEnd td{padding-bottom:5px}
+.cell{font:inherit;display:flex;align-items:baseline;gap:6px;width:100%;text-align:left;border:1.5px solid var(--rule);border-left-width:4px;border-radius:3px;background:#fff;padding:4px 6px;cursor:pointer;color:var(--ink);min-height:30px}
+.cell .cd{font-family:var(--mono);font-size:12.5px;letter-spacing:.04em}
+.cell .aa{font-family:var(--mono);font-size:12px;font-weight:500}
+.cell .ol{font-family:var(--mono);font-size:10.5px;color:var(--muted)}
+.cell .badge{margin-left:auto;font-size:9.5px;line-height:1.3;border-radius:2px;padding:0 4px;white-space:nowrap}
+.cell.neutral{border-color:var(--neutral);background:var(--neutral-bg)} .cell.neutral .aa{color:var(--neutral-t)}
+.cell.acidic{border-color:var(--acidic);background:var(--acidic-bg)} .cell.acidic .aa{color:var(--acidic-t)}
+.cell.basic{border-color:var(--basic);background:var(--basic-bg)} .cell.basic .aa{color:var(--basic-t)}
+.cell.stop{border-color:var(--stop);background:var(--stop-bg)} .cell.stop .aa{color:var(--stop-t)}
+.cell .badge.start{background:var(--ink);color:#fff}
+.cell.dim{opacity:.35}
+.cell.syn{box-shadow:0 0 0 2px var(--ink) inset}
+.cell[aria-pressed="true"]{box-shadow:0 0 0 2px var(--ink) inset;outline:2px solid var(--ink);outline-offset:1px}
+.cell:focus-visible{outline:2px solid var(--ink);outline-offset:1px}
+
+.legend{display:flex;flex-wrap:wrap;gap:6px 14px;font-size:11.5px;color:var(--muted);margin:6px 0}
+.legend span{display:inline-flex;align-items:center;gap:5px}
+.sw{display:inline-block;width:11px;height:11px;border-radius:2px;border:2px solid}
+.sw.neutral{border-color:var(--neutral);background:var(--neutral-bg)}
+.sw.acidic{border-color:var(--acidic);background:var(--acidic-bg)}
+.sw.basic{border-color:var(--basic);background:var(--basic-bg)}
+.sw.stop{border-color:var(--stop);background:var(--stop-bg)}
+.legend .badge.start{background:var(--ink);color:#fff;font-size:9.5px;border-radius:2px;padding:0 4px}
+
+.infobox{margin-top:8px;border:1px solid var(--rule);background:#fff;border-radius:3px;padding:8px 10px;font-size:12px;min-height:20px}
+.infobox .mono{font-size:12.5px;white-space:nowrap}
+
+table.info{width:100%;border-collapse:collapse;font-size:12px;margin:8px 0}
+table.info th,table.info td{border:1px solid var(--rule);padding:6px 8px;text-align:left;vertical-align:top}
+table.info th{background:var(--rule-soft);font-weight:600;width:120px}
+table.info td.num{text-align:right;font-family:var(--mono);font-variant-numeric:tabular-nums;width:64px}
+.aachip{font:inherit;font-family:var(--mono);font-size:11.5px;border:1.5px solid var(--rule);border-radius:2px;background:#fff;padding:1px 6px;margin:1px 2px;cursor:pointer;color:var(--ink)}
+.aachip.neutral{border-color:var(--neutral);color:var(--neutral-t)}
+.aachip.acidic{border-color:var(--acidic);color:var(--acidic-t)}
+.aachip.basic{border-color:var(--basic);color:var(--basic-t)}
+.aachip.stop{border-color:var(--stop);color:var(--stop-t)}
+.aachip[aria-pressed="true"]{background:var(--ink);color:#fff;border-color:var(--ink)}
+.aachip:focus-visible{outline:2px solid var(--ink);outline-offset:1px}
+
+.seqrow{display:flex;flex-wrap:wrap;align-items:center;gap:8px;margin:8px 0}
+.seqinput{font:inherit;font-family:var(--mono);font-size:13px;letter-spacing:.06em;border:1px solid var(--rule);border-radius:2px;padding:6px 8px;width:270px;max-width:100%;text-transform:uppercase}
+.seqinput:focus-visible{outline:2px solid var(--ink);outline-offset:1px}
+.seqlabel{font-family:var(--mono);font-size:11px;color:var(--muted)}
+.seqerr{color:var(--acidic-t);font-size:11.5px;margin-top:2px;min-height:14px}
+.typebadge{display:inline-block;font-weight:600;border-radius:2px;padding:1px 8px;margin-right:6px;color:#fff}
+.typebadge.silent{background:var(--neutral)}
+.typebadge.missense{background:var(--basic)}
+.typebadge.nonsense{background:var(--stop)}
+
+@media (prefers-reduced-motion:no-preference){ .chip,.ringbtn,.cell,.aachip{transition:border-color 120ms linear,background-color 120ms linear,opacity 120ms linear} }
+
+@media (max-width:430px){
+  body{font-size:13px}
+  .wrap{padding:14px 10px 50px}
+  .card{padding:11px}
+  h1{font-size:18px}
+  .seqinput{width:100%}
+}
+</style>
+</head>
+<body>
+<div class="wrap">
+
+<header class="card">
+  <div class="eyebrow">GENETIC CODE</div>
+  <h1>コドン表と遺伝暗号 — 塩基配列とアミノ酸の対応関係</h1>
+  <p class="lede">核酸シリーズ3本目(完結)。<a href="nucleotide-structure.html">①ヌクレオチドの構造</a>、<a href="dna-double-helix.html">②DNAの二重らせん</a>に続き、mRNAの塩基配列(3つ組のコドン)と<a href="amino-acids-matrix.html">アミノ酸</a>の対応を、コドン表・配列の翻訳・点変異の3つで確かめる。転写・翻訳の分子機構は生物の範囲として扱わない。</p>
+</header>
+
+<!-- ============ 1. CODON-TABLE ============ -->
+<section class="card" id="sceneTableSection">
+  <div class="eyebrow">CODON-TABLE · コドン表</div>
+  <h2>64通りのコドンが20種のアミノ酸と終止に対応する</h2>
+  <p class="note" id="codonIntroNote"></p>
+
+  <div class="ringbar" id="tableModeToggle" role="group" aria-label="表示する配列の切り替え"></div>
+  <div class="legend" id="tableLegend"></div>
+  <div class="scroll" id="codonTableScroll"><table class="codon" id="codonTable"></table></div>
+  <div class="infobox" id="codonInfo" aria-live="polite"></div>
+  <p class="note" id="strandNote"></p>
+
+  <h3>縮重の度合い(1種のアミノ酸を指定するコドンの数)</h3>
+  <table class="info" id="degeneracyTable"></table>
+  <p class="note" id="degeneracyNote"></p>
+
+  <h3>縮重はどの文字に集中しているか</h3>
+  <table class="info" id="positionTable"></table>
+  <p class="note" id="wobbleNote"></p>
+</section>
+
+<!-- ============ 2. TRANSLATE ============ -->
+<section class="card" id="sceneTranslateSection">
+  <div class="eyebrow">TRANSLATE · 配列を翻訳する</div>
+  <h2>3文字ずつ区切ってコドン表を引く</h2>
+
+  <div class="ringbar" id="trModeToggle" role="group" aria-label="入力する鎖の切り替え"></div>
+  <div class="seqrow">
+    <label class="seqlabel" for="trInput" id="trInputLabel"></label>
+    <input class="seqinput mono" id="trInput" autocomplete="off" spellcheck="false">
+  </div>
+  <div class="seqerr" id="trErr"></div>
+  <div class="chipbar" id="trPresets" role="group" aria-label="配列プリセット"></div>
+  <div class="chipbar" id="trSteps" role="group" aria-label="手順の表示"></div>
+
+  <div class="schemewrap"><div class="scroll" id="trScheme"></div></div>
+  <table class="info" id="trResult"></table>
+  <p class="note" id="trNote"></p>
+</section>
+
+<!-- ============ 3. MUTATION ============ -->
+<section class="card" id="sceneMutationSection">
+  <div class="eyebrow">MUTATION · 点変異の効果</div>
+  <h2>1塩基の置換で、アミノ酸はどう変わるか</h2>
+  <p class="note" id="mutScopeNote"></p>
+
+  <div class="chipbar" id="mutExamples" role="group" aria-label="変異の例"></div>
+  <div class="chipbar" id="mutBases" role="group" aria-label="置き換える塩基"></div>
+  <div class="schemewrap"><div class="scroll" id="mutScheme"></div></div>
+  <div class="infobox" id="mutInfo" aria-live="polite"></div>
+  <table class="info" id="mutTable"></table>
+  <p class="note">アミノ酸配列はタンパク質の一次構造にあたる。一次構造と立体構造の関係は<a href="protein-structure.html">タンパク質の構造と変性</a>で扱っている。</p>
+</section>
+
+<section class="card" id="notes">
+  <div class="eyebrow">NOTES</div>
+  <ol id="notesList" style="padding-left:18px;margin:8px 0"></ol>
+</section>
+
+</div><!-- /wrap -->
+
+<script>
+/* ---------- データ(JSONをそのまま埋め込み。fetch は使わない) ---------- */
+/* DATA: data/genetic-code.json */
+const DATA = {"meta":{"tableJa":"標準遺伝暗号(NCBI translation table 1と同じ対応)。aminoAcidIdはdata/amino-acids.jsonのamino_acids[].idを指し、アミノ酸の名称・略号・分類はこの教材では再定義しない。終止コドンはaminoAcidIdをnullにし、stopをtrueにする。","baseOrder":["U","C","A","G"]},"codons":[{"codon":"UUU","aminoAcidId":"phenylalanine","start":false,"stop":false},{"codon":"UUC","aminoAcidId":"phenylalanine","start":false,"stop":false},{"codon":"UUA","aminoAcidId":"leucine","start":false,"stop":false},{"codon":"UUG","aminoAcidId":"leucine","start":false,"stop":false},{"codon":"UCU","aminoAcidId":"serine","start":false,"stop":false},{"codon":"UCC","aminoAcidId":"serine","start":false,"stop":false},{"codon":"UCA","aminoAcidId":"serine","start":false,"stop":false},{"codon":"UCG","aminoAcidId":"serine","start":false,"stop":false},{"codon":"UAU","aminoAcidId":"tyrosine","start":false,"stop":false},{"codon":"UAC","aminoAcidId":"tyrosine","start":false,"stop":false},{"codon":"UAA","aminoAcidId":null,"start":false,"stop":true},{"codon":"UAG","aminoAcidId":null,"start":false,"stop":true},{"codon":"UGU","aminoAcidId":"cysteine","start":false,"stop":false},{"codon":"UGC","aminoAcidId":"cysteine","start":false,"stop":false},{"codon":"UGA","aminoAcidId":null,"start":false,"stop":true},{"codon":"UGG","aminoAcidId":"tryptophan","start":false,"stop":false},{"codon":"CUU","aminoAcidId":"leucine","start":false,"stop":false},{"codon":"CUC","aminoAcidId":"leucine","start":false,"stop":false},{"codon":"CUA","aminoAcidId":"leucine","start":false,"stop":false},{"codon":"CUG","aminoAcidId":"leucine","start":false,"stop":false},{"codon":"CCU","aminoAcidId":"proline","start":false,"stop":false},{"codon":"CCC","aminoAcidId":"proline","start":false,"stop":false},{"codon":"CCA","aminoAcidId":"proline","start":false,"stop":false},{"codon":"CCG","aminoAcidId":"proline","start":false,"stop":false},{"codon":"CAU","aminoAcidId":"histidine","start":false,"stop":false},{"codon":"CAC","aminoAcidId":"histidine","start":false,"stop":false},{"codon":"CAA","aminoAcidId":"glutamine","start":false,"stop":false},{"codon":"CAG","aminoAcidId":"glutamine","start":false,"stop":false},{"codon":"CGU","aminoAcidId":"arginine","start":false,"stop":false},{"codon":"CGC","aminoAcidId":"arginine","start":false,"stop":false},{"codon":"CGA","aminoAcidId":"arginine","start":false,"stop":false},{"codon":"CGG","aminoAcidId":"arginine","start":false,"stop":false},{"codon":"AUU","aminoAcidId":"isoleucine","start":false,"stop":false},{"codon":"AUC","aminoAcidId":"isoleucine","start":false,"stop":false},{"codon":"AUA","aminoAcidId":"isoleucine","start":false,"stop":false},{"codon":"AUG","aminoAcidId":"methionine","start":true,"stop":false},{"codon":"ACU","aminoAcidId":"threonine","start":false,"stop":false},{"codon":"ACC","aminoAcidId":"threonine","start":false,"stop":false},{"codon":"ACA","aminoAcidId":"threonine","start":false,"stop":false},{"codon":"ACG","aminoAcidId":"threonine","start":false,"stop":false},{"codon":"AAU","aminoAcidId":"asparagine","start":false,"stop":false},{"codon":"AAC","aminoAcidId":"asparagine","start":false,"stop":false},{"codon":"AAA","aminoAcidId":"lysine","start":false,"stop":false},{"codon":"AAG","aminoAcidId":"lysine","start":false,"stop":false},{"codon":"AGU","aminoAcidId":"serine","start":false,"stop":false},{"codon":"AGC","aminoAcidId":"serine","start":false,"stop":false},{"codon":"AGA","aminoAcidId":"arginine","start":false,"stop":false},{"codon":"AGG","aminoAcidId":"arginine","start":false,"stop":false},{"codon":"GUU","aminoAcidId":"valine","start":false,"stop":false},{"codon":"GUC","aminoAcidId":"valine","start":false,"stop":false},{"codon":"GUA","aminoAcidId":"valine","start":false,"stop":false},{"codon":"GUG","aminoAcidId":"valine","start":false,"stop":false},{"codon":"GCU","aminoAcidId":"alanine","start":false,"stop":false},{"codon":"GCC","aminoAcidId":"alanine","start":false,"stop":false},{"codon":"GCA","aminoAcidId":"alanine","start":false,"stop":false},{"codon":"GCG","aminoAcidId":"alanine","start":false,"stop":false},{"codon":"GAU","aminoAcidId":"aspartic_acid","start":false,"stop":false},{"codon":"GAC","aminoAcidId":"aspartic_acid","start":false,"stop":false},{"codon":"GAA","aminoAcidId":"glutamic_acid","start":false,"stop":false},{"codon":"GAG","aminoAcidId":"glutamic_acid","start":false,"stop":false},{"codon":"GGU","aminoAcidId":"glycine","start":false,"stop":false},{"codon":"GGC","aminoAcidId":"glycine","start":false,"stop":false},{"codon":"GGA","aminoAcidId":"glycine","start":false,"stop":false},{"codon":"GGG","aminoAcidId":"glycine","start":false,"stop":false}],"termsJa":{"codonJa":"コドンは、mRNAの塩基配列(A・U・G・C)を5'側から3つずつ区切った3つ組。4種の塩基が3つ並ぶので、4×4×4=64通りある。","mappingJa":"64通りのコドンのうち61通りが20種のアミノ酸のどれかを、残りの3通り(UAA・UAG・UGA)が「ここで止まる」という終止の合図を指定する。","startJa":"AUGはメチオニン(Met)を指定すると同時に、翻訳を始める位置の目印(開始コドン)にもなる。","stopJa":"UAA・UAG・UGAはどのアミノ酸も指定しない終止コドン。ここで翻訳が止まる。","degeneracyJa":"1種のアミノ酸に複数のコドンが対応することを、コドンの縮重という。","wobbleJa":"縮重は主に3文字目(コドンの3'側の塩基)に集中している。コドンの3文字目は、tRNAのアンチコドンの1文字目と対合するとき、ふつうの塩基対の規則よりゆるい組み合わせでも対になれる。この現象をゆらぎ(wobble)という。","wobbleScopeJa":"どの塩基どうしがゆらぎで対になれるか(イノシンなど)の詳細は、この教材では扱わない。"},"strands":{"senseJa":"mRNAは、DNAのセンス鎖(非鋳型鎖)と同じ配列で、TがUに置き換わっただけのもの。","templateJa":"鋳型鎖はmRNAと相補的で、向きは逆(逆平行)。鋳型鎖を3'→5'の向きに読み、1文字ずつ相補的な塩基(A→U、T→A、G→C、C→G)に置き換えると、mRNAが5'→3'の向きに得られる。","complementSourceJa":"相補の対応は、DNAの二重らせん(dna-double-helix)の相補鎖生成と同じ表(data/dna-double-helix.jsonのcomplement)を使う。違いは、mRNA側ではAの相手がTではなくUになることだけ。","tableToggleJa":"鋳型鎖の表示では、各コドンに対応する鋳型鎖の3文字を3'→5'の向きで示す。表の行・列の並びはmRNAのときと同じにしてある。"},"translate":{"maxLength":30,"presets":["AUGGCUUUUUAA","GCAUGAAACGCUGGUAGCA","AUGUCUAGCCGUAGGUUAUGA","AUGGGAGGCGGG"],"stepsJa":["mRNAを用意する","開始コドンAUGを探す","3文字ずつ区切って表を引く"],"frameJa":"5'側から見て最初に現れるAUGが開始コドンになり、そこから3文字ずつの区切り方(読み枠)が決まる。AUGより前の塩基は翻訳されない。","stopJa":"終止コドンが現れたところで翻訳が止まる。終止コドンはアミノ酸を指定しない。","noStartJa":"開始コドンAUGが見つからないため、翻訳は始まらない。","noStopJa":"終止コドンが現れないまま配列が終わった。ここに示したのは入力した範囲だけの結果である。","leftoverJa":"最後の3文字に満たない塩基はコドンにならない。"},"mutation":{"original":"AUGGCUUUUUGGCAAUAA","examples":[{"id":"silent","labelJa":"3文字目を変える","index":5,"to":"C"},{"id":"missense","labelJa":"2文字目を変える","index":7,"to":"C"},{"id":"nonsense","labelJa":"終止コドンになる","index":10,"to":"A"},{"id":"missense1","labelJa":"1文字目を変える","index":12,"to":"G"}],"typesJa":{"silent":{"nameJa":"サイレント変異(同義置換)","descJa":"コドンは変わったが、指定するアミノ酸は変わらない。縮重のため、アミノ酸配列には影響が出ない。"},"missense":{"nameJa":"ミスセンス変異","descJa":"コドンが別のアミノ酸を指定するようになり、アミノ酸が1つ置き換わる。"},"nonsense":{"nameJa":"ナンセンス変異","descJa":"コドンが終止コドンに変わり、そこで翻訳が止まる。それより後ろのアミノ酸はつながらず、ペプチドが短くなる。"}},"scopeJa":"置き換えられるのは、開始コドンと終止コドンの間にあるコドンの塩基だけ。開始コドン・終止コドンそのものの置換と、塩基の挿入・欠失(フレームシフト)は、この教材では扱わない。"},"notes":["縮重は主に3文字目に集中している。これはコドンの3文字目とtRNAのアンチコドンの1文字目の対合がゆるいこと(ゆらぎ)と関係する。この教材では現象名の紹介にとどめ、どの塩基どうしが対になれるかの規則には立ち入らない。","転写(RNAポリメラーゼの働き)、翻訳(リボソーム・tRNA・アミノアシルtRNA合成酵素の働き)の分子機構、塩基の挿入・欠失によるフレームシフトは、生物の範囲として扱っていない。ここで扱ったのは、塩基配列とアミノ酸配列の対応関係だけである。","この教材で核酸シリーズ(①ヌクレオチドの構造、②DNAの二重らせん、③コドン表と遺伝暗号)は完結する。"]};
+/* AMINO: data/amino-acids.json の amino_acids[] から id・name・abbr3・one_letter・class だけを抜き出したもの(再定義しない) */
+const AMINO = {"amino_acids":[{"id":"glycine","name":"グリシン","abbr3":"Gly","one_letter":{"value":"G","confidence":"high","note":""},"class":"neutral"},{"id":"alanine","name":"アラニン","abbr3":"Ala","one_letter":{"value":"A","confidence":"high","note":""},"class":"neutral"},{"id":"valine","name":"バリン","abbr3":"Val","one_letter":{"value":"V","confidence":"high","note":""},"class":"neutral"},{"id":"leucine","name":"ロイシン","abbr3":"Leu","one_letter":{"value":"L","confidence":"high","note":""},"class":"neutral"},{"id":"isoleucine","name":"イソロイシン","abbr3":"Ile","one_letter":{"value":"I","confidence":"high","note":""},"class":"neutral"},{"id":"serine","name":"セリン","abbr3":"Ser","one_letter":{"value":"S","confidence":"high","note":""},"class":"neutral"},{"id":"threonine","name":"トレオニン","abbr3":"Thr","one_letter":{"value":"T","confidence":"high","note":""},"class":"neutral"},{"id":"cysteine","name":"システイン","abbr3":"Cys","one_letter":{"value":"C","confidence":"high","note":""},"class":"neutral"},{"id":"methionine","name":"メチオニン","abbr3":"Met","one_letter":{"value":"M","confidence":"high","note":""},"class":"neutral"},{"id":"asparagine","name":"アスパラギン","abbr3":"Asn","one_letter":{"value":"N","confidence":"high","note":""},"class":"neutral"},{"id":"glutamine","name":"グルタミン","abbr3":"Gln","one_letter":{"value":"Q","confidence":"high","note":""},"class":"neutral"},{"id":"aspartic_acid","name":"アスパラギン酸","abbr3":"Asp","one_letter":{"value":"D","confidence":"high","note":""},"class":"acidic"},{"id":"glutamic_acid","name":"グルタミン酸","abbr3":"Glu","one_letter":{"value":"E","confidence":"high","note":""},"class":"acidic"},{"id":"lysine","name":"リシン","abbr3":"Lys","one_letter":{"value":"K","confidence":"high","note":""},"class":"basic"},{"id":"arginine","name":"アルギニン","abbr3":"Arg","one_letter":{"value":"R","confidence":"high","note":""},"class":"basic"},{"id":"histidine","name":"ヒスチジン","abbr3":"His","one_letter":{"value":"H","confidence":"high","note":""},"class":"basic"},{"id":"phenylalanine","name":"フェニルアラニン","abbr3":"Phe","one_letter":{"value":"F","confidence":"high","note":""},"class":"neutral"},{"id":"tyrosine","name":"チロシン","abbr3":"Tyr","one_letter":{"value":"Y","confidence":"high","note":""},"class":"neutral"},{"id":"tryptophan","name":"トリプトファン","abbr3":"Trp","one_letter":{"value":"W","confidence":"high","note":""},"class":"neutral"},{"id":"proline","name":"プロリン","abbr3":"Pro","one_letter":{"value":"P","confidence":"high","note":""},"class":"neutral"}]};
+/* DNA: data/dna-double-helix.json の complement(相補の対応表)だけを抜き出したもの */
+const DNA = {"complement":{"A":"T","T":"A","G":"C","C":"G","U":"A"}};
+
+/* === CORE-LOGIC BEGIN (scripts/check-genetic-code.mjs がこの区間をそのまま実行して検算する) === */
+const BASES = DATA.meta.baseOrder;
+const CODON = {}; DATA.codons.forEach(c=>{ CODON[c.codon]=c; });
+const AA = {}; AMINO.amino_acids.forEach(a=>{ AA[a.id]=a; });
+function codonsOf(aaId){ return DATA.codons.filter(c=>c.aminoAcidId===aaId).map(c=>c.codon); }
+function stopCodons(){ return DATA.codons.filter(c=>c.stop).map(c=>c.codon); }
+function degeneracySummary(){
+  const byDeg = {};
+  AMINO.amino_acids.forEach(a=>{
+    const n = codonsOf(a.id).length;
+    (byDeg[n] = byDeg[n] || []).push(a.id);
+  });
+  return byDeg;
+}
+function positionSynonymPairs(){
+  const sense = DATA.codons.filter(c=>!c.stop);
+  const cnt = [0,0,0];
+  for(let i=0;i<sense.length;i++) for(let j=i+1;j<sense.length;j++){
+    const a=sense[i].codon, b=sense[j].codon;
+    const diff=[0,1,2].filter(k=>a[k]!==b[k]);
+    if(diff.length===1 && sense[i].aminoAcidId===sense[j].aminoAcidId) cnt[diff[0]]++;
+  }
+  return cnt;
+}
+function fourfoldBoxes(){
+  const boxes=[];
+  for(const f of BASES) for(const s of BASES){
+    const ids = new Set(BASES.map(t=>CODON[f+s+t].aminoAcidId));
+    if(ids.size===1 && !ids.has(null)) boxes.push(f+s);
+  }
+  return boxes;
+}
+function mrnaToTemplate(mrna){ return mrna.split('').map(b=>DNA.complement[b]).join(''); }
+function templateToMrna(tmpl){ return tmpl.split('').map(b=> b==='A' ? 'U' : DNA.complement[b]).join(''); }
+function mrnaToSense(mrna){ return mrna.replace(/U/g,'T'); }
+function translate(mrna){
+  const start = mrna.indexOf('AUG');
+  const res = {start, codons:[], stopped:false, stopIndex:-1, leftover:''};
+  if(start<0) return res;
+  let i = start;
+  for(; i+3<=mrna.length; i+=3){
+    const cd = mrna.slice(i,i+3);
+    const e = CODON[cd];
+    res.codons.push({index:i, codon:cd, aminoAcidId:e.aminoAcidId, stop:e.stop});
+    if(e.stop){ res.stopped=true; res.stopIndex=i; i+=3; break; }
+  }
+  if(!res.stopped) res.leftover = mrna.slice(i);
+  return res;
+}
+function peptide(tr, key){
+  return tr.codons.filter(c=>!c.stop).map(c=> key==='one' ? AA[c.aminoAcidId].one_letter.value : AA[c.aminoAcidId].abbr3);
+}
+function classifyMutation(mrna, index, to){
+  const mutant = mrna.slice(0,index)+to+mrna.slice(index+1);
+  const tr = translate(mrna);
+  const cStart = tr.start + Math.floor((index-tr.start)/3)*3;
+  const before = CODON[mrna.slice(cStart,cStart+3)];
+  const after = CODON[mutant.slice(cStart,cStart+3)];
+  let type;
+  if(after.stop) type='nonsense';
+  else if(after.aminoAcidId===before.aminoAcidId) type='silent';
+  else type='missense';
+  return {type, mutant, codonStart:cStart, before, after};
+}
+/* === CORE-LOGIC END === */
+
+(function checkData(){
+  const msg=[];
+  if(DATA.codons.length!==64) msg.push('codons が64件ではない');
+  DATA.codons.forEach(c=>{ if(!c.stop && !AA[c.aminoAcidId]) msg.push(c.codon+' のアミノ酸IDがAMINOにない'); });
+  if(stopCodons().length!==3) msg.push('終止コドンが3つではない');
+  if(msg.length) console.warn('[DATA] 不整合\n'+msg.join('\n'));
+  else console.info('[DATA] genetic-code: codons '+DATA.codons.length+'件を読み込んだ');
+})();
+
+const esc = s => String(s).replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+const MONO = 'IBM Plex Mono,monospace';
+const CLASS_JA = {neutral:'中性アミノ酸', acidic:'酸性アミノ酸', basic:'塩基性アミノ酸'};
+const COL = {
+  neutral:{fill:'#158A6D',text:'#0D6A53',bg:'rgba(21,138,109,.10)'},
+  acidic:{fill:'#A82A6A',text:'#831F52',bg:'rgba(168,42,106,.10)'},
+  basic:{fill:'#2457A6',text:'#1B4380',bg:'rgba(36,87,166,.10)'},
+  stop:{fill:'#B87A16',text:'#8A5A0C',bg:'rgba(184,122,22,.14)'}
+};
+function clsOf(entry){ return entry.stop ? 'stop' : AA[entry.aminoAcidId].class; }
+function aaLabel(id){ const a=AA[id]; return a.name+'('+a.abbr3+'・'+a.one_letter.value+')'; }
+
+function svgText(x,y,label,size,color,anchor,weight){
+  return '<text x="'+x.toFixed(1)+'" y="'+y.toFixed(1)+'" text-anchor="'+(anchor||'middle')+'" font-family="'+MONO+'" font-size="'+size+'" fill="'+color+'"'+(weight?' font-weight="'+weight+'"':'')+'>'+esc(label)+'</text>';
+}
+function svgLine(x1,y1,x2,y2,color,w){
+  return '<line x1="'+x1.toFixed(1)+'" y1="'+y1.toFixed(1)+'" x2="'+x2.toFixed(1)+'" y2="'+y2.toFixed(1)+'" stroke="'+color+'" stroke-width="'+w+'"/>';
+}
+function svgRect(x,y,w,h,fill,stroke,sw,extra){
+  return '<rect x="'+x.toFixed(1)+'" y="'+y.toFixed(1)+'" width="'+w.toFixed(1)+'" height="'+h.toFixed(1)+'" rx="3" fill="'+fill+'"'+(stroke?' stroke="'+stroke+'" stroke-width="'+(sw||1)+'"':'')+(extra||'')+'/>';
+}
+function svgPath(d,color,w,fill){
+  return '<path d="'+d+'" fill="'+(fill||'none')+'" stroke="'+color+'" stroke-width="'+w+'"/>';
+}
+
+/* ================= 共有ステート ================= */
+const st = {
+  tableMode: 'mrna',     // 'mrna' | 'template'
+  selCodon: null,        // 表で選んだコドン
+  selAa: null,           // 縮重表で選んだアミノ酸ID('stop'は終止)
+  hoverCodon: null,
+  trMode: 'mrna',        // 'mrna' | 'template'
+  trSeq: DATA.translate.presets[0], // 常にmRNAで保持する
+  trStep: 3,
+  mutIndex: DATA.mutation.examples[0].index,
+  mutTo: DATA.mutation.examples[0].to,
+};
+
+/* ================= 1. CODON-TABLE ================= */
+function renderTableModeToggle(){
+  document.getElementById('tableModeToggle').innerHTML =
+    [['mrna','mRNA(5\'→3\')'],['template','DNA鋳型鎖(3\'→5\')']].map(([m,l])=>
+      '<button class="ringbtn" data-tablemode="'+m+'" aria-pressed="'+(st.tableMode===m)+'">'+l+'</button>').join('');
+}
+function renderLegend(){
+  document.getElementById('tableLegend').innerHTML =
+    '<span><i class="sw neutral"></i>中性</span><span><i class="sw acidic"></i>酸性</span><span><i class="sw basic"></i>塩基性</span><span><i class="sw stop"></i>終止コドン</span><span><b class="badge start">開始</b>開始コドン</span>';
+}
+function shownTriplet(codon){
+  return st.tableMode==='mrna' ? codon : mrnaToTemplate(codon);
+}
+function shownBase(b){ return st.tableMode==='mrna' ? b : DNA.complement[b]; }
+function highlightSet(){
+  if(st.selAa) return new Set(st.selAa==='stop' ? stopCodons() : codonsOf(st.selAa));
+  const c = st.selCodon || st.hoverCodon;
+  if(!c) return null;
+  const e = CODON[c];
+  return new Set(e.stop ? stopCodons() : codonsOf(e.aminoAcidId));
+}
+function renderCodonTable(){
+  const tm = st.tableMode==='template';
+  const hl = highlightSet();
+  let h = '<thead><tr><th>1文字目</th><th colspan="4">2文字目</th><th>3文字目</th></tr>';
+  h += '<tr><th></th>'+BASES.map(s=>'<th class="sb">'+shownBase(s)+'</th>').join('')+'<th></th></tr></thead><tbody>';
+  BASES.forEach(f=>{
+    BASES.forEach((t,ti)=>{
+      h += '<tr'+(ti===3?' class="blockEnd"':'')+'>';
+      if(ti===0) h += '<th class="fb" rowspan="4">'+shownBase(f)+'</th>';
+      BASES.forEach(s=>{
+        const cd = f+s+t, e = CODON[cd], cls = clsOf(e);
+        const aa = e.stop ? '終止' : AA[e.aminoAcidId].abbr3;
+        const ol = e.stop ? '' : AA[e.aminoAcidId].one_letter.value;
+        const badge = e.start ? '<span class="badge start">開始</span>' : '';
+        const dim = hl && !hl.has(cd) ? ' dim' : '';
+        const syn = hl && hl.has(cd) && cd!==st.selCodon ? ' syn' : '';
+        const label = (tm ? "3'-"+shownTriplet(cd)+"-5'" : cd);
+        h += '<td><button class="cell '+cls+dim+syn+'" data-codon="'+cd+'" aria-pressed="'+(st.selCodon===cd)+'" aria-label="'+label+' '+(e.stop?'終止コドン':AA[e.aminoAcidId].name)+'">'
+          +'<span class="cd">'+shownTriplet(cd)+'</span><span class="aa">'+aa+'</span>'+(ol?'<span class="ol">'+ol+'</span>':'')+badge+'</button></td>';
+      });
+      h += '<th class="tb">'+shownBase(t)+'</th></tr>';
+    });
+  });
+  h += '</tbody>';
+  document.getElementById('codonTable').innerHTML = h;
+}
+function codonInfoHtml(cd){
+  const e = CODON[cd];
+  const strands = 'mRNA <span class="mono">5\'-'+cd+'-3\'</span>、センス鎖 <span class="mono">5\'-'+mrnaToSense(cd)+'-3\'</span>、鋳型鎖 <span class="mono">3\'-'+mrnaToTemplate(cd)+'-5\'</span>。';
+  if(e.stop){
+    const all = stopCodons();
+    return '<b>終止コドン</b>。'+strands+'どのアミノ酸も指定しない。終止コドンは<span class="mono">'+all.join('・')+'</span>の'+all.length+'通り。';
+  }
+  const a = AA[e.aminoAcidId];
+  const syn = codonsOf(a.id);
+  return '<b>'+esc(aaLabel(a.id))+'</b>、'+CLASS_JA[a.class]+'。'+strands
+    +'このアミノ酸を指定するコドンは<span class="mono">'+syn.join('・')+'</span>の'+syn.length+'通り(縮重度'+syn.length+')。'
+    +(e.start ? 'AUGは開始コドンも兼ねる。' : '');
+}
+function renderCodonInfo(){
+  const el = document.getElementById('codonInfo');
+  const cd = st.selCodon || st.hoverCodon;
+  if(cd){ el.innerHTML = codonInfoHtml(cd); return; }
+  if(st.selAa==='stop'){ el.innerHTML = '<b>終止コドン</b>は<span class="mono">'+stopCodons().join('・')+'</span>の3通り。'; return; }
+  if(st.selAa){ const syn=codonsOf(st.selAa); el.innerHTML = '<b>'+esc(aaLabel(st.selAa))+'</b>を指定するコドンは<span class="mono">'+syn.join('・')+'</span>の'+syn.length+'通り。'; return; }
+  el.textContent = 'コドンのマスをタップすると、アミノ酸名・略号・縮重度が表示される。同じアミノ酸を指定するコドンが枠で強調される。';
+}
+function renderDegeneracy(){
+  const byDeg = degeneracySummary();
+  const degs = Object.keys(byDeg).map(Number).sort((a,b)=>a-b);
+  let h = '<tr><th>コドンの数</th><th>アミノ酸</th><td class="num" style="background:var(--rule-soft);font-family:var(--sans);font-weight:600;text-align:right">種類</td></tr>';
+  degs.forEach(n=>{
+    h += '<tr><th>'+n+'通り</th><td>'+byDeg[n].map(id=>{
+      const a=AA[id];
+      return '<button class="aachip '+a.class+'" data-aa="'+id+'" aria-pressed="'+(st.selAa===id)+'" title="'+esc(a.name)+'">'+a.abbr3+'</button>';
+    }).join('')+'</td><td class="num">'+byDeg[n].length+'</td></tr>';
+  });
+  h += '<tr><th>終止コドン</th><td><button class="aachip stop" data-aa="stop" aria-pressed="'+(st.selAa==='stop')+'">終止</button></td><td class="num">'+stopCodons().length+'</td></tr>';
+  document.getElementById('degeneracyTable').innerHTML = h;
+  const total = degs.reduce((s,n)=>s+n*byDeg[n].length,0);
+  document.getElementById('degeneracyNote').textContent = DATA.termsJa.degeneracyJa+'アミノ酸を指定するコドンは合計'+total+'通り、終止コドンと合わせて'+(total+stopCodons().length)+'通りになる。略号をタップすると、そのアミノ酸のコドンが表で強調される。';
+}
+function renderPositionTable(){
+  const cnt = positionSynonymPairs();
+  const four = fourfoldBoxes();
+  let h = '<tr><th>違う文字の位置</th><td>1か所だけ違うコドンの組のうち、同じアミノ酸を指定する組の数</td></tr>';
+  ['1文字目','2文字目','3文字目'].forEach((l,i)=>{ h += '<tr><th>'+l+'</th><td class="mono">'+cnt[i]+'組</td></tr>'; });
+  document.getElementById('positionTable').innerHTML = h;
+  document.getElementById('wobbleNote').textContent =
+    '1・2文字目が同じ4つのコドン(表の1つの枠)16組のうち、3文字目が何であっても同じアミノ酸になる枠が'+four.length+'組ある('+four.map(b=>b+'N').join('・')+')。'
+    +DATA.termsJa.wobbleJa+DATA.termsJa.wobbleScopeJa;
+}
+function renderTableScene(){
+  renderTableModeToggle();
+  renderCodonTable();
+  renderCodonInfo();
+  renderDegeneracy();
+  document.getElementById('strandNote').textContent = DATA.strands.senseJa+DATA.strands.templateJa+(st.tableMode==='template' ? DATA.strands.tableToggleJa : '');
+}
+
+/* ================= 2. TRANSLATE ================= */
+function trAllowed(){ return st.trMode==='mrna' ? 'AUGC' : 'ATGC'; }
+function trShownSeq(){ return st.trMode==='mrna' ? st.trSeq : mrnaToTemplate(st.trSeq); }
+function renderTrControls(){
+  document.getElementById('trModeToggle').innerHTML =
+    [['mrna','mRNAを入力'],['template','DNA鋳型鎖を入力']].map(([m,l])=>
+      '<button class="ringbtn" data-trmode="'+m+'" aria-pressed="'+(st.trMode===m)+'">'+l+'</button>').join('');
+  document.getElementById('trInputLabel').textContent = st.trMode==='mrna' ? "mRNA(5'→3')" : "鋳型鎖(3'→5')";
+  document.getElementById('trInput').maxLength = DATA.translate.maxLength;
+  document.getElementById('trPresets').innerHTML = DATA.translate.presets.map((p,i)=>{
+    const shown = st.trMode==='mrna' ? p : mrnaToTemplate(p);
+    return '<button class="chip mono" data-trpreset="'+i+'" aria-pressed="'+(st.trSeq===p)+'">'+shown+'</button>';
+  }).join('');
+  document.getElementById('trSteps').innerHTML = DATA.translate.stepsJa.map((s,i)=>
+    '<button class="chip" data-trstep="'+(i+1)+'" aria-pressed="'+(st.trStep===i+1)+'">'+(i+1)+'. '+s+'</button>').join('');
+}
+function renderTrScheme(){
+  const el = document.getElementById('trScheme');
+  const m = st.trSeq, n = m.length;
+  if(!n){ el.innerHTML = '<p class="note" style="margin:8px">配列を入力する。</p>'; return; }
+  const tmpl = mrnaToTemplate(m);
+  const tr = translate(m);
+  const dx = 22, x0 = 114, yT = 34, yM = 78;
+  const W = x0 + (n-1)*dx + 44, H = st.trStep>=3 ? 150 : 100;
+  const xs = i => x0 + i*dx;
+  const inFrame = i => tr.start>=0 && i>=tr.start && (!tr.stopped || i<tr.stopIndex+3) && (tr.stopped || i < tr.start + tr.codons.length*3);
+  let s = '';
+  s += svgText(8, yT+1, st.trMode==='template' ? '鋳型鎖(入力)' : '鋳型鎖', 11, '#5E6E76', 'start');
+  s += svgText(8, yM+1, st.trMode==='mrna' ? 'mRNA(入力)' : 'mRNA', 11, '#5E6E76', 'start');
+  s += svgText(x0-18, yT, "3'", 10.5, '#5E6E76', 'middle', '600');
+  s += svgText(xs(n-1)+20, yT, "5'", 10.5, '#5E6E76', 'middle', '600');
+  s += svgText(x0-18, yM, "5'", 10.5, '#5E6E76', 'middle', '600');
+  s += svgText(xs(n-1)+20, yM, "3'", 10.5, '#5E6E76', 'middle', '600');
+  // 開始コドンの枠(文字より先に描く)
+  if(st.trStep>=2 && tr.start>=0){
+    s += svgRect(xs(tr.start)-10, yM-16, dx*2+20, 22, 'rgba(22,35,43,.06)', '#16232B', 1.4);
+  }
+  for(let i=0;i<n;i++){
+    const x = xs(i);
+    s += svgText(x, yT, tmpl[i], 13, '#16232B', 'middle', '500');
+    s += svgLine(x, yT+8, x, yM-20, '#B4C0BC', 1.2);
+    const faded = st.trStep>=2 && !inFrame(i);
+    s += svgText(x, yM, m[i], 13, faded ? '#9AA7AD' : '#16232B', 'middle', '500');
+  }
+  if(st.trStep>=3){
+    tr.codons.forEach(c=>{
+      const x1 = xs(c.index)-8, x2 = xs(c.index+2)+8, cx = xs(c.index+1);
+      const cls = c.stop ? 'stop' : AA[c.aminoAcidId].class;
+      const col = COL[cls];
+      s += svgPath('M '+x1.toFixed(1)+' '+(yM+10)+' L '+x1.toFixed(1)+' '+(yM+16)+' L '+x2.toFixed(1)+' '+(yM+16)+' L '+x2.toFixed(1)+' '+(yM+10), col.fill, 1.5);
+      s += svgRect(cx-24, yM+24, 48, 22, col.bg, col.fill, 1.4);
+      s += svgText(cx, yM+39, c.stop ? '終止' : AA[c.aminoAcidId].abbr3, 12, col.text, 'middle', '600');
+      if(!c.stop) s += svgText(cx, yM+62, AA[c.aminoAcidId].one_letter.value, 11, col.text, 'middle');
+    });
+  }
+  el.innerHTML = '<svg viewBox="0 0 '+W+' '+H+'" width="'+W+'" height="'+H+'" role="img" aria-label="鋳型鎖・mRNA・コドンとアミノ酸の対応">'+s+'</svg>';
+}
+function renderTrResult(){
+  const m = st.trSeq, tr = translate(m);
+  let h = '<tr><th>鋳型鎖(3\'→5\')</th><td class="mono">'+(mrnaToTemplate(m)||'—')+'</td></tr>'
+    +'<tr><th>mRNA(5\'→3\')</th><td class="mono">'+(m||'—')+'</td></tr>'
+    +'<tr><th>センス鎖(5\'→3\')</th><td class="mono">'+(mrnaToSense(m)||'—')+'</td></tr>';
+  if(st.trStep>=3 && tr.start>=0){
+    const p3 = peptide(tr,'three'), p1 = peptide(tr,'one');
+    h += '<tr><th>アミノ酸配列</th><td class="mono">'+(p3.length? p3.join('-') : '—')+'</td></tr>'
+      +'<tr><th>1文字表記</th><td class="mono">'+(p1.join('')||'—')+'</td></tr>';
+  }
+  document.getElementById('trResult').innerHTML = h;
+  const notes = [];
+  if(st.trStep===1) notes.push(DATA.strands.templateJa);
+  if(st.trStep>=2){
+    if(tr.start<0) notes.push(DATA.translate.noStartJa);
+    else notes.push(DATA.translate.frameJa+'この配列の開始コドンは、5\'末端から数えて'+(tr.start+1)+'〜'+(tr.start+3)+'文字目。');
+  }
+  if(st.trStep>=3 && tr.start>=0){
+    if(tr.stopped) notes.push(DATA.translate.stopJa);
+    else{
+      notes.push(DATA.translate.noStopJa);
+      if(tr.leftover) notes.push(DATA.translate.leftoverJa);
+    }
+  }
+  document.getElementById('trNote').textContent = notes.join('');
+}
+function renderTranslate(){
+  renderTrControls();
+  const inp = document.getElementById('trInput');
+  if(document.activeElement!==inp) inp.value = trShownSeq();
+  renderTrScheme();
+  renderTrResult();
+}
+
+/* ================= 3. MUTATION ================= */
+function mutRange(){
+  const tr = translate(DATA.mutation.original);
+  return {lo: tr.start+3, hi: tr.stopIndex-1};
+}
+function renderMutControls(){
+  const orig = DATA.mutation.original;
+  document.getElementById('mutExamples').innerHTML = DATA.mutation.examples.map(ex=>
+    '<button class="chip" data-mutex="'+ex.id+'" aria-pressed="'+(st.mutIndex===ex.index && st.mutTo===ex.to)+'">'+ex.labelJa+'</button>').join('');
+  const cur = orig[st.mutIndex];
+  document.getElementById('mutBases').innerHTML = '<span class="seqlabel" style="align-self:center">'+(st.mutIndex+1)+'文字目('+cur+')を</span>'
+    + ['A','U','G','C'].map(b=>
+      '<button class="chip mono" data-mutto="'+b+'" aria-pressed="'+(st.mutTo===b)+'"'+(b===cur?' disabled':'')+' aria-label="'+b+'に置き換える">'+b+'</button>').join('')
+    + '<span class="seqlabel" style="align-self:center">に置き換える</span>';
+}
+function mutRowSvg(seq, y, label, opts){
+  const tr = translate(seq);
+  const dx = 22, x0 = 114;
+  const xs = i => x0 + i*dx;
+  let s = svgText(8, y+1, label, 11, '#5E6E76', 'start');
+  const stopAt = tr.stopped ? tr.stopIndex+3 : seq.length;
+  tr.codons.forEach((c,k)=>{
+    const x1 = xs(c.index)-9, w = dx*2+18;
+    const cls = c.stop ? 'stop' : AA[c.aminoAcidId].class;
+    const col = COL[cls];
+    const changed = opts.changedStart===c.index;
+    s += svgRect(x1, y-16, w, 23, changed ? 'rgba(110,58,167,.08)' : '#fff', changed ? '#6E3AA7' : col.fill, changed ? 1.8 : 1.1);
+    s += svgText(xs(c.index+1), y+28, c.stop ? '終止' : AA[c.aminoAcidId].abbr3, 11.5, col.text, 'middle', '600');
+  });
+  for(let i=0;i<seq.length;i++){
+    const x = xs(i);
+    const faded = i>=stopAt;
+    const isMut = i===opts.mutIndex;
+    const color = isMut ? '#572D85' : (faded ? '#9AA7AD' : '#16232B');
+    if(opts.tappable && i>=opts.lo && i<=opts.hi){
+      s += '<g class="baseHit" tabindex="0" role="button" data-mutpos="'+i+'" aria-label="'+(i+1)+'文字目('+seq[i]+')を選ぶ" aria-pressed="'+isMut+'">'
+        + svgRect(x-9, y-14, 18, 19, isMut ? 'rgba(110,58,167,.16)' : 'rgba(0,0,0,0)', isMut ? '#6E3AA7' : null, 1.2, ' class="hitbox"')
+        + svgText(x, y, seq[i], 13, color, 'middle', isMut ? '600' : '500') + '</g>';
+    }else{
+      if(isMut) s += svgRect(x-9, y-14, 18, 19, 'rgba(110,58,167,.16)', '#6E3AA7', 1.2);
+      s += svgText(x, y, seq[i], 13, color, 'middle', isMut ? '600' : '500');
+    }
+  }
+  s += svgText(x0-18, y, "5'", 10.5, '#5E6E76', 'middle', '600');
+  s += svgText(xs(seq.length-1)+20, y, "3'", 10.5, '#5E6E76', 'middle', '600');
+  return s;
+}
+function renderMutation(){
+  renderMutControls();
+  const orig = DATA.mutation.original, r = mutRange();
+  const res = classifyMutation(orig, st.mutIndex, st.mutTo);
+  const n = orig.length, dx = 22, x0 = 114;
+  const W = x0 + (n-1)*dx + 44, H = 176, y1 = 34, y2 = 126;
+  let s = mutRowSvg(orig, y1, '元の配列', {tappable:true, lo:r.lo, hi:r.hi, mutIndex:st.mutIndex, changedStart:res.codonStart});
+  s += mutRowSvg(res.mutant, y2, '置換後', {tappable:false, mutIndex:st.mutIndex, changedStart:res.codonStart});
+  const cx = x0 + (res.codonStart+1)*dx;
+  s += svgLine(cx, y1+38, cx, y2-31, '#6E3AA7', 1.6);
+  s += svgPath('M '+(cx-5)+' '+(y2-31)+' L '+cx+' '+(y2-24)+' L '+(cx+5)+' '+(y2-31)+' Z', '#6E3AA7', 1, '#6E3AA7');
+  document.getElementById('mutScheme').innerHTML = '<svg viewBox="0 0 '+W+' '+H+'" width="'+W+'" height="'+H+'" role="group" aria-label="元の配列と置換後の配列">'+s+'</svg>';
+
+  const t = DATA.mutation.typesJa[res.type];
+  const bLab = res.before.stop ? '終止' : aaLabel(res.before.aminoAcidId);
+  const aLab = res.after.stop ? '終止コドン' : aaLabel(res.after.aminoAcidId);
+  document.getElementById('mutInfo').innerHTML = '<span class="typebadge '+res.type+'">'+t.nameJa+'</span>'
+    +'<span class="mono">'+res.before.codon+'</span> → <span class="mono">'+res.after.codon+'</span>。'+esc(bLab)+' → '+esc(aLab)+'。'+t.descJa;
+  const p0 = peptide(translate(orig),'three'), p1 = peptide(translate(res.mutant),'three');
+  document.getElementById('mutTable').innerHTML =
+    '<tr><th>元のアミノ酸配列</th><td class="mono">'+p0.join('-')+'('+p0.length+'個)</td></tr>'
+    +'<tr><th>置換後</th><td class="mono">'+p1.join('-')+'('+p1.length+'個)</td></tr>';
+}
+
+/* ================= NOTES ================= */
+function renderNotes(){
+  document.getElementById('notesList').innerHTML = DATA.notes.map(n=>'<li>'+esc(n)+'</li>').join('');
+}
+
+/* ================= 入力 ================= */
+function onTrInput(raw){
+  const allowed = new Set(trAllowed().split(''));
+  const up = raw.toUpperCase().replace(/\s/g,'');
+  const clean = up.split('').filter(c=>allowed.has(c)).join('').slice(0, DATA.translate.maxLength);
+  st.trSeq = st.trMode==='mrna' ? clean : templateToMrna(clean);
+  document.getElementById('trErr').textContent = up!==clean ? ('使える文字は '+trAllowed().split('').join('/')+' のみ。') : '';
+  if(up!==clean) document.getElementById('trInput').value = clean;
+  renderTranslate();
+}
+
+/* ================= イベント委譲 ================= */
+document.addEventListener('click', (e)=>{
+  const t = e.target.closest('button, .baseHit');
+  if(!t) return;
+  const key = [...t.attributes].find(a=>a.name.startsWith('data-'));
+  handleClick(t);
+  // 再描画でボタンが作り直されるため、キーボード操作のフォーカスを同じ役割の要素に戻す
+  if(key && !document.body.contains(document.activeElement===document.body ? null : document.activeElement)){
+    const again = document.querySelector('['+key.name+'="'+key.value+'"]');
+    if(again) again.focus({preventScroll:true});
+  }
+});
+function handleClick(t){
+  if(t.dataset.tablemode){ st.tableMode=t.dataset.tablemode; renderTableScene(); return; }
+  if(t.dataset.codon){ st.selCodon = st.selCodon===t.dataset.codon ? null : t.dataset.codon; st.selAa=null; renderTableScene(); return; }
+  if(t.dataset.aa){ st.selAa = st.selAa===t.dataset.aa ? null : t.dataset.aa; st.selCodon=null; renderTableScene(); return; }
+  if(t.dataset.trmode){ st.trMode=t.dataset.trmode; document.getElementById('trErr').textContent=''; document.getElementById('trInput').value=trShownSeq(); renderTranslate(); return; }
+  if(t.dataset.trpreset){ st.trSeq=DATA.translate.presets[Number(t.dataset.trpreset)]; document.getElementById('trErr').textContent=''; document.getElementById('trInput').value=trShownSeq(); renderTranslate(); return; }
+  if(t.dataset.trstep){ st.trStep=Number(t.dataset.trstep); renderTranslate(); return; }
+  if(t.dataset.mutex){ const ex=DATA.mutation.examples.find(x=>x.id===t.dataset.mutex); st.mutIndex=ex.index; st.mutTo=ex.to; renderMutation(); return; }
+  if(t.dataset.mutto){ st.mutTo=t.dataset.mutto; renderMutation(); return; }
+  if(t.dataset.mutpos){ selectMutPos(Number(t.dataset.mutpos)); return; }
+}
+function selectMutPos(i){
+  st.mutIndex = i;
+  const cur = DATA.mutation.original[i];
+  if(st.mutTo===cur) st.mutTo = ['A','U','G','C'].find(b=>b!==cur);
+  renderMutation();
+  const g = document.querySelector('#mutScheme [data-mutpos="'+i+'"]');
+  if(g) g.focus();
+}
+document.addEventListener('keydown', (e)=>{
+  if(e.key!=='Enter' && e.key!==' ') return;
+  const g = e.target.closest && e.target.closest('.baseHit');
+  if(g){ e.preventDefault(); selectMutPos(Number(g.dataset.mutpos)); }
+});
+const tableEl = document.getElementById('codonTable');
+tableEl.addEventListener('mouseover', (e)=>{
+  if(!window.matchMedia('(hover: hover)').matches) return;
+  const b = e.target.closest('[data-codon]');
+  const c = b ? b.dataset.codon : null;
+  if(c===st.hoverCodon || st.selCodon || st.selAa) return;
+  st.hoverCodon = c; renderCodonTable(); renderCodonInfo();
+});
+tableEl.addEventListener('mouseleave', ()=>{
+  if(!st.hoverCodon) return;
+  st.hoverCodon = null; renderCodonTable(); renderCodonInfo();
+});
+document.getElementById('trInput').addEventListener('input', (e)=>{ onTrInput(e.target.value); });
+
+/* ================= 初期化 ================= */
+document.getElementById('codonIntroNote').textContent = DATA.termsJa.codonJa+DATA.termsJa.mappingJa+DATA.termsJa.startJa+DATA.termsJa.stopJa;
+document.getElementById('mutScopeNote').textContent = '元の配列 '+DATA.mutation.original+' の1塩基を別の塩基に置き換え、影響を受けるコドンとアミノ酸の変化を比べる。元の配列の塩基をタップすると位置を選べる。'+DATA.mutation.scopeJa;
+renderLegend();
+renderPositionTable();
+renderTableScene();
+renderTranslate();
+renderMutation();
+renderNotes();
+</script>
+</body>
+</html>

@@ -64,7 +64,7 @@
 | 有機 | 構造決定 | 構造決定の手順 | | | 未 |
 | 高分子 | 天然高分子 | 糖類 | chem-monosaccharide-structure, chem-starch-helix, chem-disaccharides | | 済 |
 | 高分子 | 天然高分子 | アミノ酸とタンパク質 | | chem-acid-base-distribution, chem-titration | 部分 |
-| 高分子 | 天然高分子 | 核酸 | chem-nucleotide-structure, chem-dna-double-helix | | 部分 |
+| 高分子 | 天然高分子 | 核酸 | chem-nucleotide-structure, chem-dna-double-helix, chem-genetic-code | | 済 |
 | 高分子 | 合成高分子 | 合成樹脂・合成繊維・ゴム | | | 未 |
 
 ---
