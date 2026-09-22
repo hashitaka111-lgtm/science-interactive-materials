@@ -996,7 +996,8 @@
     "related": [
       "chem-amino-acids-matrix",
       "chem-peptide-sequencing",
-      "chem-starch-helix"
+      "chem-starch-helix",
+      "chem-nucleotide-structure"
     ]
   },
   {
@@ -1665,6 +1666,35 @@
       "chem-starch-helix",
       "chem-structure-determination",
       "chem-enzyme-kinetics"
+    ]
+  },
+  {
+    "id": "chem-nucleotide-structure",
+    "file": "html/nucleotide-structure.html",
+    "subject": "chemistry",
+    "unit": "有機化学 / ヌクレオチドの構造(塩基・五炭糖・リン酸)",
+    "course": "化学",
+    "section": "有機化合物の性質",
+    "order": 40,
+    "title": "ヌクレオチドの構造 — 塩基・五炭糖・リン酸とDNA/RNAの違い",
+    "heading": "ヌクレオチドの構造 — 塩基・五炭糖・リン酸とDNA/RNAの違い",
+    "summary": "塩基5種・五炭糖2種・リン酸から、N-グリコシド結合とリン酸エステル結合でヌクレオシド→ヌクレオチドへ組み立て、プリン/ピリミジンの構造とDNA/RNAの違い・ATPの構造までをつなげる",
+    "topics": [
+      "塩基5種(アデニン・グアニン・シトシン・チミン・ウラシル)の構造と水素結合の供与体/受容体",
+      "N-グリコシド結合(ヌクレオシド)とリン酸エステル結合(ヌクレオチド)による組み立てと分子量",
+      "デオキシリボース/リボースの違いとDNA/RNAの糖・塩基・鎖・働き・安定性の比較",
+      "ATP・ADP・AMPの構造とリン酸エステル結合/リン酸無水物結合の区別"
+    ],
+    "interactions": [
+      "チップ切り替え",
+      "構造トグル",
+      "ホバー/タップ",
+      "ステップ表示"
+    ],
+    "confidence": "high",
+    "type": "diagram",
+    "related": [
+      "chem-protein-structure"
     ]
   }
 ]

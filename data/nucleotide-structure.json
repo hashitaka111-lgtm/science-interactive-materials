@@ -1,0 +1,265 @@
+{
+  "meta": {
+    "atomicWeights": { "H": 1, "C": 12, "N": 14, "O": 16, "P": 31 },
+    "noteJa": "分子量は整数原子量(H=1,C=12,N=14,O=16,P=31)による計算値。原子・結合データ(価数C=4,N=3,O=2,P=5,Hは暗黙)から分子式・分子量を算出し、下記の確定値と一致することをscripts/check-nucleotide-structure.mjsで検算する。"
+  },
+  "bases": [
+    {
+      "id": "adenine",
+      "nameJa": "アデニン",
+      "nameEn": "adenine",
+      "kind": "purine",
+      "formula": "C5H5N5",
+      "molecularWeight": 135,
+      "sixRing": ["N1", "C2", "N3", "C4", "C5", "C6"],
+      "fiveRing": ["C4", "N9", "C8", "N7", "C5"],
+      "ringBonds": [
+        { "a": "N1", "b": "C2", "order": 1 },
+        { "a": "C2", "b": "N3", "order": 2 },
+        { "a": "N3", "b": "C4", "order": 1 },
+        { "a": "C4", "b": "C5", "order": 2 },
+        { "a": "C5", "b": "C6", "order": 1 },
+        { "a": "C6", "b": "N1", "order": 2 },
+        { "a": "C4", "b": "N9", "order": 1 },
+        { "a": "N9", "b": "C8", "order": 1 },
+        { "a": "C8", "b": "N7", "order": 2 },
+        { "a": "N7", "b": "C5", "order": 1 }
+      ],
+      "substituents": [
+        { "atom": "C6", "id": "N6", "group": "NH2" }
+      ],
+      "glycosidicAtom": "N9",
+      "explicitHAtoms": ["C2", "C8", "N9"],
+      "hbond": [
+        { "atom": "N6", "role": "donor", "labelJa": "N6-H" },
+        { "atom": "N1", "role": "acceptor" },
+        { "atom": "N3", "role": "acceptor" },
+        { "atom": "N7", "role": "acceptor" }
+      ]
+    },
+    {
+      "id": "guanine",
+      "nameJa": "グアニン",
+      "nameEn": "guanine",
+      "kind": "purine",
+      "formula": "C5H5N5O",
+      "molecularWeight": 151,
+      "sixRing": ["N1", "C2", "N3", "C4", "C5", "C6"],
+      "fiveRing": ["C4", "N9", "C8", "N7", "C5"],
+      "ringBonds": [
+        { "a": "N1", "b": "C2", "order": 1 },
+        { "a": "C2", "b": "N3", "order": 2 },
+        { "a": "N3", "b": "C4", "order": 1 },
+        { "a": "C4", "b": "C5", "order": 2 },
+        { "a": "C5", "b": "C6", "order": 1 },
+        { "a": "C6", "b": "N1", "order": 1 },
+        { "a": "C4", "b": "N9", "order": 1 },
+        { "a": "N9", "b": "C8", "order": 1 },
+        { "a": "C8", "b": "N7", "order": 2 },
+        { "a": "N7", "b": "C5", "order": 1 }
+      ],
+      "substituents": [
+        { "atom": "C2", "id": "N2", "group": "NH2" },
+        { "atom": "C6", "id": "O6", "group": "O", "order": 2 }
+      ],
+      "glycosidicAtom": "N9",
+      "explicitHAtoms": ["N1", "C8", "N9"],
+      "hbond": [
+        { "atom": "N1", "role": "donor", "labelJa": "N1-H" },
+        { "atom": "N2", "role": "donor", "labelJa": "N2-H" },
+        { "atom": "O6", "role": "acceptor" },
+        { "atom": "N3", "role": "acceptor" },
+        { "atom": "N7", "role": "acceptor" }
+      ]
+    },
+    {
+      "id": "cytosine",
+      "nameJa": "シトシン",
+      "nameEn": "cytosine",
+      "kind": "pyrimidine",
+      "formula": "C4H5N3O",
+      "molecularWeight": 111,
+      "sixRing": ["N1", "C2", "N3", "C4", "C5", "C6"],
+      "ringBonds": [
+        { "a": "N1", "b": "C2", "order": 1 },
+        { "a": "C2", "b": "N3", "order": 1 },
+        { "a": "N3", "b": "C4", "order": 2 },
+        { "a": "C4", "b": "C5", "order": 1 },
+        { "a": "C5", "b": "C6", "order": 2 },
+        { "a": "C6", "b": "N1", "order": 1 }
+      ],
+      "substituents": [
+        { "atom": "C2", "id": "O2", "group": "O", "order": 2 },
+        { "atom": "C4", "id": "N4", "group": "NH2" }
+      ],
+      "glycosidicAtom": "N1",
+      "explicitHAtoms": ["N1", "C5", "C6"],
+      "hbond": [
+        { "atom": "N4", "role": "donor", "labelJa": "N4-H" },
+        { "atom": "N3", "role": "acceptor" },
+        { "atom": "O2", "role": "acceptor" }
+      ]
+    },
+    {
+      "id": "thymine",
+      "nameJa": "チミン",
+      "nameEn": "thymine",
+      "kind": "pyrimidine",
+      "formula": "C5H6N2O2",
+      "molecularWeight": 126,
+      "sixRing": ["N1", "C2", "N3", "C4", "C5", "C6"],
+      "ringBonds": [
+        { "a": "N1", "b": "C2", "order": 1 },
+        { "a": "C2", "b": "N3", "order": 1 },
+        { "a": "N3", "b": "C4", "order": 1 },
+        { "a": "C4", "b": "C5", "order": 1 },
+        { "a": "C5", "b": "C6", "order": 2 },
+        { "a": "C6", "b": "N1", "order": 1 }
+      ],
+      "substituents": [
+        { "atom": "C2", "id": "O2", "group": "O", "order": 2 },
+        { "atom": "C4", "id": "O4", "group": "O", "order": 2 },
+        { "atom": "C5", "id": "C5M", "group": "CH3" }
+      ],
+      "glycosidicAtom": "N1",
+      "explicitHAtoms": ["N1", "N3", "C6"],
+      "hbond": [
+        { "atom": "N3", "role": "donor", "labelJa": "N3-H" },
+        { "atom": "O4", "role": "acceptor" },
+        { "atom": "O2", "role": "acceptor" }
+      ],
+      "uracilRelationJa": "5-メチルウラシルにあたる(ウラシルのC5にCH3が付いた構造)。"
+    },
+    {
+      "id": "uracil",
+      "nameJa": "ウラシル",
+      "nameEn": "uracil",
+      "kind": "pyrimidine",
+      "formula": "C4H4N2O2",
+      "molecularWeight": 112,
+      "sixRing": ["N1", "C2", "N3", "C4", "C5", "C6"],
+      "ringBonds": [
+        { "a": "N1", "b": "C2", "order": 1 },
+        { "a": "C2", "b": "N3", "order": 1 },
+        { "a": "N3", "b": "C4", "order": 1 },
+        { "a": "C4", "b": "C5", "order": 1 },
+        { "a": "C5", "b": "C6", "order": 2 },
+        { "a": "C6", "b": "N1", "order": 1 }
+      ],
+      "substituents": [
+        { "atom": "C2", "id": "O2", "group": "O", "order": 2 },
+        { "atom": "C4", "id": "O4", "group": "O", "order": 2 }
+      ],
+      "glycosidicAtom": "N1",
+      "explicitHAtoms": ["N1", "N3", "C5", "C6"],
+      "hbond": [
+        { "atom": "N3", "role": "donor", "labelJa": "N3-H" },
+        { "atom": "O4", "role": "acceptor" },
+        { "atom": "O2", "role": "acceptor" }
+      ]
+    }
+  ],
+  "purineNoteJa": "プリン(縮合環)はアデニン・グアニン、ピリミジン(六員環のみ)はシトシン・チミン・ウラシル。DNAの塩基はA・G・C・T、RNAはA・G・C・U。",
+  "sugarSkeleton": {
+    "ringAtoms": ["O4'", "C1'", "C2'", "C3'", "C4'"],
+    "ringBonds": [
+      ["O4'", "C1'"],
+      ["C1'", "C2'"],
+      ["C2'", "C3'"],
+      ["C3'", "C4'"],
+      ["C4'", "O4'"]
+    ],
+    "exocyclicAtom": "C5'",
+    "exocyclicAttach": "C4'",
+    "haworthJa": { "C2'": "down", "C3'": "down", "C5'": "up" },
+    "ruleNoteJa": "単糖類の構造(chem-monosaccharide-structure)と同じハース則(右のOH=環の下、左のOH=環の上、D系列の末端CH2OH=上)で導出。リボースのフィッシャー配置(C2'・C3'・C4')はaldoseTreeの枝(glyceraldehyde→erythrose→ribose)をたどるとR・R・Rになり、右=環の下の規則からC2'のOH・C3'のOHはともに下、末端CH2OH(C5')は上になる。"
+  },
+  "sugars": [
+    {
+      "id": "ribose",
+      "nameJa": "D-リボース",
+      "nameEn": "D-ribose",
+      "formula": "C5H10O5",
+      "molecularWeight": 150,
+      "usedInJa": "RNA",
+      "c2GroupJa": "OH",
+      "substituents": [
+        { "atom": "C1'", "group": "OH" },
+        { "atom": "C2'", "group": "OH" },
+        { "atom": "C3'", "group": "OH" },
+        { "atom": "C5'", "group": "OH" }
+      ]
+    },
+    {
+      "id": "deoxyribose",
+      "nameJa": "2-デオキシ-D-リボース",
+      "nameEn": "2-deoxy-D-ribose",
+      "formula": "C5H10O4",
+      "molecularWeight": 134,
+      "usedInJa": "DNA",
+      "c2GroupJa": "H",
+      "substituents": [
+        { "atom": "C1'", "group": "OH" },
+        { "atom": "C3'", "group": "OH" },
+        { "atom": "C5'", "group": "OH" }
+      ]
+    }
+  ],
+  "assembly": {
+    "step1Ja": "塩基5種・糖2種・リン酸から部品を選ぶ。",
+    "step2Ja": "糖のC1'のヘミアセタール性OHと塩基のN-H(プリンはN9、ピリミジンはN1)が脱水縮合し、N-グリコシド結合でヌクレオシドになる。",
+    "step3Ja": "ヌクレオシドの糖の5'位のOHとリン酸(H3PO4)が脱水縮合し、リン酸エステル結合でヌクレオチド(5'-モノリン酸)になる。",
+    "glycosidicBondJa": "N-グリコシド結合",
+    "esterBondJa": "リン酸エステル結合",
+    "waterLoss": 18,
+    "phosphoricAcidMass": 98,
+    "phosphateNetGain": 80,
+    "glycosideNoteJa": "N-グリコシド結合はO-グリコシド結合(disaccharides.htmlのグリコシド結合)と同じく、アノマー炭素のヘミアセタール性OHの脱水縮合。"
+  },
+  "nucleosides": [
+    { "id": "deoxyadenosine", "baseId": "adenine", "sugarId": "deoxyribose", "nameJa": "デオキシアデノシン", "molecularWeight": 251 },
+    { "id": "deoxyguanosine", "baseId": "guanine", "sugarId": "deoxyribose", "nameJa": "デオキシグアノシン", "molecularWeight": 267 },
+    { "id": "deoxycytidine", "baseId": "cytosine", "sugarId": "deoxyribose", "nameJa": "デオキシシチジン", "molecularWeight": 227 },
+    { "id": "thymidine", "baseId": "thymine", "sugarId": "deoxyribose", "nameJa": "チミジン", "molecularWeight": 242 },
+    { "id": "adenosine", "baseId": "adenine", "sugarId": "ribose", "nameJa": "アデノシン", "molecularWeight": 267 },
+    { "id": "guanosine", "baseId": "guanine", "sugarId": "ribose", "nameJa": "グアノシン", "molecularWeight": 283 },
+    { "id": "cytidine", "baseId": "cytosine", "sugarId": "ribose", "nameJa": "シチジン", "molecularWeight": 243 },
+    { "id": "uridine", "baseId": "uracil", "sugarId": "ribose", "nameJa": "ウリジン", "molecularWeight": 244 }
+  ],
+  "nucleotides": [
+    { "id": "dAMP", "nucleosideId": "deoxyadenosine", "nameJa": "dAMP", "molecularWeight": 331 },
+    { "id": "dGMP", "nucleosideId": "deoxyguanosine", "nameJa": "dGMP", "molecularWeight": 347 },
+    { "id": "dCMP", "nucleosideId": "deoxycytidine", "nameJa": "dCMP", "molecularWeight": 307 },
+    { "id": "dTMP", "nucleosideId": "thymidine", "nameJa": "dTMP", "molecularWeight": 322 },
+    { "id": "AMP", "nucleosideId": "adenosine", "nameJa": "AMP", "molecularWeight": 347 },
+    { "id": "GMP", "nucleosideId": "guanosine", "nameJa": "GMP", "molecularWeight": 363 },
+    { "id": "CMP", "nucleosideId": "cytidine", "nameJa": "CMP", "molecularWeight": 323 },
+    { "id": "UMP", "nucleosideId": "uridine", "nameJa": "UMP", "molecularWeight": 324 }
+  ],
+  "atp": {
+    "amp": { "labelJa": "AMP(アデノシン一リン酸)", "phosphateCount": 1, "molecularWeight": 347, "formula": "C10H14N5O7P" },
+    "adp": { "labelJa": "ADP(アデノシン二リン酸)", "phosphateCount": 2, "molecularWeight": 427, "formula": "C10H15N5O10P2" },
+    "atpEntry": { "labelJa": "ATP(アデノシン三リン酸)", "phosphateCount": 3, "molecularWeight": 507, "formula": "C10H16N5O13P3" },
+    "esterBondNoteJa": "アデノシンと第1リン酸の結合はリン酸エステル結合。",
+    "anhydrideBondNoteJa": "リン酸どうしの結合(第1-第2、第2-第3の2か所)はリン酸無水物結合。",
+    "hydrolysisJa": "ATP→ADP+リン酸の加水分解でエネルギーを放出し、生体のエネルギー通貨として使われる。",
+    "rnaFamilyJa": "RNAの材料になるヌクレオシド三リン酸には、ATPのほかGTP・CTP・UTPがある。"
+  },
+  "dnaRna": {
+    "rows": [
+      { "aspectJa": "糖", "dnaJa": "デオキシリボース(2'位はH)", "rnaJa": "リボース(2'位はOH)" },
+      { "aspectJa": "塩基", "dnaJa": "A・G・C・T", "rnaJa": "A・G・C・U" },
+      { "aspectJa": "鎖", "dnaJa": "通常二本鎖", "rnaJa": "通常一本鎖" },
+      { "aspectJa": "働き", "dnaJa": "遺伝情報の保存", "rnaJa": "mRNA・tRNA・rRNAとして情報の伝達と翻訳に働く" },
+      { "aspectJa": "安定性", "dnaJa": "2'位にOHがなく安定", "rnaJa": "2'位のOHがあるため、アルカリ条件下でリン酸ジエステル結合が加水分解されやすい" }
+    ],
+    "stabilityTapNoteJa": "2'-OHの酸素が分子内で隣のリン酸ジエステル結合を攻撃し、結合が切れやすくなる。",
+    "baseDiffNoteJa": "チミン(DNA)はウラシル(RNA)のC5にCH3が付いた構造。",
+    "detailScopeNoteJa": "反応機構の図はここでは描かない。"
+  },
+  "isomersCrossRefNoteJa": "本文リンクのみで扱い、chem-monosaccharide-structure・chem-disaccharidesのrelatedには入れていない(いずれも4件で満杯のため)。",
+  "notes": [
+    "N-グリコシド結合はO-グリコシド結合(disaccharides.htmlのグリコシド結合)と同じく、アノマー炭素のヘミアセタール性OHの脱水縮合。",
+    "ヌクレオチドの鎖のつながり(3',5'-ホスホジエステル結合、5'→3'の向き)と塩基対は次の教材で扱う。"
+  ]
+}

@@ -1,0 +1,846 @@
+<!doctype html>
+<html lang="ja">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>ヌクレオチドの構造 — 塩基・五炭糖・リン酸とDNA/RNAの違い</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500&family=IBM+Plex+Sans+JP:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+*{box-sizing:border-box}
+:root{
+  --ink:#16232B; --muted:#5E6E76; --paper:#EDF1EF; --surface:#FFFFFF;
+  --rule:#D6DDDA; --rule-soft:#E8EDEB; --scheme-bg:#FBFCFB;
+  --purine:#2457A6; --purine-t:#1B4380; --purine-bg:rgba(36,87,166,.08);
+  --pyrimidine:#158A6D; --pyrimidine-t:#0D6A53; --pyrimidine-bg:rgba(21,138,109,.08);
+  --nh2:#6E3AA7; --nh2-t:#572D85;
+  --carbonyl:#A82A6A; --carbonyl-t:#831F52;
+  --ch3:#B87A16; --ch3-t:#8A5A0C;
+  --oh:#2457A6; --oh-t:#1B4380;
+  --donor:#1B6E3C; --acceptor:#8A2F2F;
+  --dna:#B87A16; --dna-t:#8A5A0C; --dna-bg:rgba(184,122,22,.08);
+  --rna:#3B6E1E; --rna-t:#2A5215; --rna-bg:rgba(59,110,30,.08);
+  --pos:#1B6E3C; --neg:#8A2F2F;
+  --sans:"IBM Plex Sans JP","Hiragino Sans","Yu Gothic UI",system-ui,sans-serif;
+  --mono:"IBM Plex Mono",ui-monospace,SFMono-Regular,Menlo,monospace;
+}
+html,body{margin:0;padding:0}
+body{background:var(--paper);color:var(--ink);font-family:var(--sans);font-size:13.5px;line-height:1.75;-webkit-text-size-adjust:100%}
+.mono{font-family:var(--mono);font-variant-numeric:tabular-nums}
+.wrap{max-width:860px;margin:0 auto;padding:20px 14px 60px}
+.card{background:var(--surface);border:1px solid var(--rule);border-radius:3px;padding:14px;margin-bottom:14px}
+.eyebrow{display:flex;align-items:center;gap:10px;font-family:var(--mono);font-size:11.5px;letter-spacing:.14em;color:var(--muted);text-transform:uppercase}
+.eyebrow::after{content:"";flex:1;height:1px;background:var(--rule)}
+h1{font-size:21px;font-weight:600;letter-spacing:.01em;margin:8px 0 2px}
+h2{font-size:14.5px;font-weight:600;margin:10px 0 4px}
+h3{font-size:12.5px;font-weight:600;margin:14px 0 4px}
+p{margin:0 0 8px} p:last-child{margin-bottom:0}
+.lede{color:var(--muted);font-size:13px;margin:4px 0 0}
+.note{color:var(--muted);font-size:12px;line-height:1.75;margin-top:8px}
+a{color:var(--oh-t)}
+a:hover{text-decoration-thickness:1.5px}
+
+.btn{font:inherit;font-size:12.5px;line-height:1.4;border:1px solid var(--rule);background:#fff;color:var(--ink);border-radius:2px;padding:6px 10px;cursor:pointer}
+.btn:hover{border-color:#B4C0BC}
+.btn:focus-visible{outline:2px solid var(--ink);outline-offset:1px}
+
+.chipbar{display:flex;flex-wrap:wrap;gap:6px;margin:8px 0}
+.chip{font:inherit;font-size:12px;border:1.5px solid var(--rule);background:#fff;color:var(--ink);padding:6px 11px;border-radius:20px;cursor:pointer}
+.chip:hover{border-color:#B4C0BC}
+.chip[aria-pressed="true"]{background:var(--ink);color:#fff;border-color:var(--ink)}
+.chip:focus-visible{outline:2px solid var(--ink);outline-offset:1px}
+.chip:disabled{color:var(--rule);cursor:not-allowed;border-color:var(--rule-soft)}
+.chip.purine[aria-pressed="true"]{background:var(--purine);border-color:var(--purine)}
+.chip.pyrimidine[aria-pressed="true"]{background:var(--pyrimidine);border-color:var(--pyrimidine)}
+
+.ringbar{display:flex;gap:0;margin:8px 0;border:1px solid var(--rule);border-radius:2px;overflow:hidden;width:fit-content}
+.ringbtn{font:inherit;font-size:12px;border:none;background:#fff;color:var(--ink);padding:6px 12px;cursor:pointer;border-right:1px solid var(--rule)}
+.ringbtn:last-child{border-right:none}
+.ringbtn[aria-pressed="true"]{background:var(--ink);color:#fff}
+.ringbtn:focus-visible{outline:2px solid var(--ink);outline-offset:1px}
+.ringbtn:disabled{color:var(--rule);cursor:not-allowed}
+
+.schemewrap{border:1px solid var(--rule-soft);border-radius:3px;background:var(--scheme-bg);overflow:hidden;margin-top:8px;padding:4px}
+.scheme{max-width:100%;margin:0 auto;display:block}
+svg text{paint-order:stroke;stroke:var(--scheme-bg);stroke-width:3px;stroke-linejoin:round}
+.atomHit:focus-visible{outline:none}
+.atomHit:focus-visible circle:first-child{stroke:var(--ink);stroke-width:1.6;fill:rgba(22,35,43,.06)}
+
+.classframe{border:2px solid var(--rule);border-radius:3px;padding:8px;background:#fff;position:relative}
+.classframe.purine{border-color:var(--purine);background:var(--purine-bg)}
+.classframe.pyrimidine{border-color:var(--pyrimidine);background:var(--pyrimidine-bg)}
+.classlabel{font-family:var(--mono);font-size:11.5px;letter-spacing:.14em;text-transform:uppercase}
+.classlabel.purine{color:var(--purine-t)}
+.classlabel.pyrimidine{color:var(--pyrimidine-t)}
+
+table.info{width:100%;border-collapse:collapse;font-size:12px;margin:8px 0}
+table.info th,table.info td{border:1px solid var(--rule);padding:6px 8px;text-align:left;vertical-align:top}
+table.info th{background:var(--rule-soft);font-weight:600;width:96px;white-space:nowrap}
+table.matrix{width:100%;border-collapse:collapse;font-size:12px;margin:8px 0;table-layout:fixed}
+table.matrix th,table.matrix td{border:1px solid var(--rule);padding:6px 8px;text-align:left;vertical-align:top}
+table.matrix th{background:var(--rule-soft);font-weight:600}
+table.matrix th.dna{background:var(--dna-bg);color:var(--dna-t)}
+table.matrix th.rna{background:var(--rna-bg);color:var(--rna-t)}
+table.matrix td.aspect{font-weight:600;background:var(--rule-soft);width:64px}
+.tapnote{font-family:var(--mono);font-size:10.5px;letter-spacing:.04em;color:var(--rna-t);border-bottom:1px dashed var(--rna-t);cursor:pointer;background:none;border-top:none;border-left:none;border-right:none;padding:0}
+.tapnote:focus-visible{outline:2px solid var(--ink);outline-offset:1px}
+.stabilitynote{margin-top:6px;border:1px solid var(--rna);background:var(--rna-bg);border-radius:3px;padding:7px 9px;font-size:12px}
+
+.stepcards{display:flex;flex-direction:column;gap:6px;margin:8px 0}
+.stepcard{display:flex;gap:8px;border:1px solid var(--rule);border-radius:3px;padding:8px 10px;background:#fff}
+.stepcard.active{border-color:var(--ink)}
+.stepcard b{font-family:var(--mono);font-size:11px;color:var(--muted);flex:0 0 auto}
+.stepcard span{font-size:12.5px;line-height:1.6}
+.formulaline{font-family:var(--mono);font-size:12.5px;margin-top:3px;color:var(--ink)}
+
+.infobox{margin-top:8px;border:1px solid var(--rule);background:#fff;border-radius:3px;padding:8px 10px;font-size:12px;min-height:20px}
+.infobox b{color:var(--ink)}
+
+.twocol{display:flex;flex-wrap:wrap;gap:10px}
+.twocol>div{flex:1 1 260px;min-width:0}
+
+@media (prefers-reduced-motion:no-preference){ .btn,.chip,.ringbtn{transition:border-color 120ms linear,background-color 120ms linear} }
+
+@media (max-width:430px){
+  body{font-size:13px}
+  .wrap{padding:14px 10px 50px}
+  .card{padding:11px}
+  h1{font-size:18px}
+  .btn{padding:6px 8px;font-size:12px}
+  table.matrix{font-size:11px}
+  table.matrix td.aspect{width:48px}
+}
+</style>
+</head>
+<body>
+<div class="wrap">
+
+<header class="card">
+  <div class="eyebrow">NUCLEOTIDE STRUCTURE</div>
+  <h1>ヌクレオチドの構造 — 塩基・五炭糖・リン酸とDNA/RNAの違い</h1>
+  <p class="lede">核酸シリーズ1本目。塩基5種・五炭糖2種・リン酸から、ヌクレオシド→ヌクレオチドへの組み立てと、DNA/RNAの違いを確認する。二重らせん・塩基対・遺伝暗号は次の教材で扱う。</p>
+</header>
+
+<!-- ============ 1. PARTS ============ -->
+<section class="card" id="scenePartsSection">
+  <div class="eyebrow">PARTS · 部品と組み立て</div>
+  <h2>塩基・糖・リン酸からヌクレオチドを組み立てる</h2>
+
+  <div class="ringbar" id="modeToggle" role="group" aria-label="DNA/RNAの切り替え"></div>
+  <div class="chipbar" id="partsBaseChips" role="group" aria-label="塩基の切り替え"></div>
+  <div class="ringbar" id="stepToggle" role="group" aria-label="組み立て段階の切り替え"></div>
+
+  <div class="stepcards" id="partsSteps"></div>
+
+  <div class="schemewrap"><div id="partsScheme"></div></div>
+  <p class="note" id="partsGlycosideNote"></p>
+</section>
+
+<!-- ============ 2. BASES ============ -->
+<section class="card" id="sceneBasesSection">
+  <div class="eyebrow">BASES · 塩基5種の構造</div>
+  <h2>プリン(縮合環)とピリミジン(六員環)</h2>
+  <p class="note" id="purineNote"></p>
+
+  <div class="chipbar" id="basesChips" role="group" aria-label="塩基5種の切り替え"></div>
+
+  <div class="classframe" id="basesFrame">
+    <div class="classlabel" id="basesClassLabel"></div>
+    <div class="schemewrap"><div id="basesScheme"></div></div>
+  </div>
+  <div class="infobox" id="basesTapInfo">原子をタップすると、水素結合の役割や糖との結合位置が表示される。</div>
+
+  <table class="info" id="basesTable"></table>
+  <p class="note" id="basesUracilNote"></p>
+</section>
+
+<!-- ============ 3. DNA-RNA ============ -->
+<section class="card" id="sceneDnaRnaSection">
+  <div class="eyebrow">DNA-RNA · DNAとRNAの違い</div>
+  <h2>糖・塩基・鎖・働き・安定性の比較</h2>
+
+  <div class="twocol">
+    <div>
+      <div class="classlabel dna" style="color:var(--dna-t)">DNA — デオキシリボース</div>
+      <div class="schemewrap"><div id="dnaSugarScheme"></div></div>
+    </div>
+    <div>
+      <div class="classlabel" style="color:var(--rna-t)">RNA — リボース</div>
+      <div class="schemewrap"><div id="rnaSugarScheme"></div></div>
+    </div>
+  </div>
+  <div class="twocol" style="margin-top:8px">
+    <div>
+      <div class="classlabel" style="color:var(--dna-t)">DNA — チミン(T)</div>
+      <div class="schemewrap"><div id="dnaBaseScheme"></div></div>
+    </div>
+    <div>
+      <div class="classlabel" style="color:var(--rna-t)">RNA — ウラシル(U)</div>
+      <div class="schemewrap"><div id="rnaBaseScheme"></div></div>
+    </div>
+  </div>
+
+  <table class="matrix" id="dnaRnaTable"></table>
+  <div id="stabilityNote" class="stabilitynote" hidden></div>
+</section>
+
+<!-- ============ 4. ATP ============ -->
+<section class="card" id="sceneAtpSection">
+  <div class="eyebrow">ATP · ヌクレオチドの仲間</div>
+  <h2>AMP → ADP → ATP</h2>
+
+  <div class="ringbar" id="atpToggle" role="group" aria-label="AMP・ADP・ATPの切り替え"></div>
+
+  <div class="schemewrap"><div id="atpScheme"></div></div>
+  <table class="info" id="atpTable"></table>
+  <p class="note" id="atpBondNote"></p>
+  <p class="note" id="atpHydrolysisNote"></p>
+</section>
+
+<section class="card" id="notes">
+  <div class="eyebrow">NOTES</div>
+  <ol id="notesList" style="padding-left:18px;margin:8px 0"></ol>
+</section>
+
+</div><!-- /wrap -->
+
+<script>
+/* ---------- データ(JSONをそのまま埋め込み。fetch は使わない) ---------- */
+const DATA = {"meta":{"atomicWeights":{"H":1,"C":12,"N":14,"O":16,"P":31},"noteJa":"分子量は整数原子量(H=1,C=12,N=14,O=16,P=31)による計算値。原子・結合データ(価数C=4,N=3,O=2,P=5,Hは暗黙)から分子式・分子量を算出し、下記の確定値と一致することをscripts/check-nucleotide-structure.mjsで検算する。"},"bases":[{"id":"adenine","nameJa":"アデニン","nameEn":"adenine","kind":"purine","formula":"C5H5N5","molecularWeight":135,"sixRing":["N1","C2","N3","C4","C5","C6"],"fiveRing":["C4","N9","C8","N7","C5"],"ringBonds":[{"a":"N1","b":"C2","order":1},{"a":"C2","b":"N3","order":2},{"a":"N3","b":"C4","order":1},{"a":"C4","b":"C5","order":2},{"a":"C5","b":"C6","order":1},{"a":"C6","b":"N1","order":2},{"a":"C4","b":"N9","order":1},{"a":"N9","b":"C8","order":1},{"a":"C8","b":"N7","order":2},{"a":"N7","b":"C5","order":1}],"substituents":[{"atom":"C6","id":"N6","group":"NH2"}],"glycosidicAtom":"N9","explicitHAtoms":["C2","C8","N9"],"hbond":[{"atom":"N6","role":"donor","labelJa":"N6-H"},{"atom":"N1","role":"acceptor"},{"atom":"N3","role":"acceptor"},{"atom":"N7","role":"acceptor"}]},{"id":"guanine","nameJa":"グアニン","nameEn":"guanine","kind":"purine","formula":"C5H5N5O","molecularWeight":151,"sixRing":["N1","C2","N3","C4","C5","C6"],"fiveRing":["C4","N9","C8","N7","C5"],"ringBonds":[{"a":"N1","b":"C2","order":1},{"a":"C2","b":"N3","order":2},{"a":"N3","b":"C4","order":1},{"a":"C4","b":"C5","order":2},{"a":"C5","b":"C6","order":1},{"a":"C6","b":"N1","order":1},{"a":"C4","b":"N9","order":1},{"a":"N9","b":"C8","order":1},{"a":"C8","b":"N7","order":2},{"a":"N7","b":"C5","order":1}],"substituents":[{"atom":"C2","id":"N2","group":"NH2"},{"atom":"C6","id":"O6","group":"O","order":2}],"glycosidicAtom":"N9","explicitHAtoms":["N1","C8","N9"],"hbond":[{"atom":"N1","role":"donor","labelJa":"N1-H"},{"atom":"N2","role":"donor","labelJa":"N2-H"},{"atom":"O6","role":"acceptor"},{"atom":"N3","role":"acceptor"},{"atom":"N7","role":"acceptor"}]},{"id":"cytosine","nameJa":"シトシン","nameEn":"cytosine","kind":"pyrimidine","formula":"C4H5N3O","molecularWeight":111,"sixRing":["N1","C2","N3","C4","C5","C6"],"ringBonds":[{"a":"N1","b":"C2","order":1},{"a":"C2","b":"N3","order":1},{"a":"N3","b":"C4","order":2},{"a":"C4","b":"C5","order":1},{"a":"C5","b":"C6","order":2},{"a":"C6","b":"N1","order":1}],"substituents":[{"atom":"C2","id":"O2","group":"O","order":2},{"atom":"C4","id":"N4","group":"NH2"}],"glycosidicAtom":"N1","explicitHAtoms":["N1","C5","C6"],"hbond":[{"atom":"N4","role":"donor","labelJa":"N4-H"},{"atom":"N3","role":"acceptor"},{"atom":"O2","role":"acceptor"}]},{"id":"thymine","nameJa":"チミン","nameEn":"thymine","kind":"pyrimidine","formula":"C5H6N2O2","molecularWeight":126,"sixRing":["N1","C2","N3","C4","C5","C6"],"ringBonds":[{"a":"N1","b":"C2","order":1},{"a":"C2","b":"N3","order":1},{"a":"N3","b":"C4","order":1},{"a":"C4","b":"C5","order":1},{"a":"C5","b":"C6","order":2},{"a":"C6","b":"N1","order":1}],"substituents":[{"atom":"C2","id":"O2","group":"O","order":2},{"atom":"C4","id":"O4","group":"O","order":2},{"atom":"C5","id":"C5M","group":"CH3"}],"glycosidicAtom":"N1","explicitHAtoms":["N1","N3","C6"],"hbond":[{"atom":"N3","role":"donor","labelJa":"N3-H"},{"atom":"O4","role":"acceptor"},{"atom":"O2","role":"acceptor"}],"uracilRelationJa":"5-メチルウラシルにあたる(ウラシルのC5にCH3が付いた構造)。"},{"id":"uracil","nameJa":"ウラシル","nameEn":"uracil","kind":"pyrimidine","formula":"C4H4N2O2","molecularWeight":112,"sixRing":["N1","C2","N3","C4","C5","C6"],"ringBonds":[{"a":"N1","b":"C2","order":1},{"a":"C2","b":"N3","order":1},{"a":"N3","b":"C4","order":1},{"a":"C4","b":"C5","order":1},{"a":"C5","b":"C6","order":2},{"a":"C6","b":"N1","order":1}],"substituents":[{"atom":"C2","id":"O2","group":"O","order":2},{"atom":"C4","id":"O4","group":"O","order":2}],"glycosidicAtom":"N1","explicitHAtoms":["N1","N3","C5","C6"],"hbond":[{"atom":"N3","role":"donor","labelJa":"N3-H"},{"atom":"O4","role":"acceptor"},{"atom":"O2","role":"acceptor"}]}],"purineNoteJa":"プリン(縮合環)はアデニン・グアニン、ピリミジン(六員環のみ)はシトシン・チミン・ウラシル。DNAの塩基はA・G・C・T、RNAはA・G・C・U。","sugarSkeleton":{"ringAtoms":["O4'","C1'","C2'","C3'","C4'"],"ringBonds":[["O4'","C1'"],["C1'","C2'"],["C2'","C3'"],["C3'","C4'"],["C4'","O4'"]],"exocyclicAtom":"C5'","exocyclicAttach":"C4'","haworthJa":{"C2'":"down","C3'":"down","C5'":"up"},"ruleNoteJa":"単糖類の構造(chem-monosaccharide-structure)と同じハース則(右のOH=環の下、左のOH=環の上、D系列の末端CH2OH=上)で導出。リボースのフィッシャー配置(C2'・C3'・C4')はaldoseTreeの枝(glyceraldehyde→erythrose→ribose)をたどるとR・R・Rになり、右=環の下の規則からC2'のOH・C3'のOHはともに下、末端CH2OH(C5')は上になる。"},"sugars":[{"id":"ribose","nameJa":"D-リボース","nameEn":"D-ribose","formula":"C5H10O5","molecularWeight":150,"usedInJa":"RNA","c2GroupJa":"OH","substituents":[{"atom":"C1'","group":"OH"},{"atom":"C2'","group":"OH"},{"atom":"C3'","group":"OH"},{"atom":"C5'","group":"OH"}]},{"id":"deoxyribose","nameJa":"2-デオキシ-D-リボース","nameEn":"2-deoxy-D-ribose","formula":"C5H10O4","molecularWeight":134,"usedInJa":"DNA","c2GroupJa":"H","substituents":[{"atom":"C1'","group":"OH"},{"atom":"C3'","group":"OH"},{"atom":"C5'","group":"OH"}]}],"assembly":{"step1Ja":"塩基5種・糖2種・リン酸から部品を選ぶ。","step2Ja":"糖のC1'のヘミアセタール性OHと塩基のN-H(プリンはN9、ピリミジンはN1)が脱水縮合し、N-グリコシド結合でヌクレオシドになる。","step3Ja":"ヌクレオシドの糖の5'位のOHとリン酸(H3PO4)が脱水縮合し、リン酸エステル結合でヌクレオチド(5'-モノリン酸)になる。","glycosidicBondJa":"N-グリコシド結合","esterBondJa":"リン酸エステル結合","waterLoss":18,"phosphoricAcidMass":98,"phosphateNetGain":80,"glycosideNoteJa":"N-グリコシド結合はO-グリコシド結合(disaccharides.htmlのグリコシド結合)と同じく、アノマー炭素のヘミアセタール性OHの脱水縮合。"},"nucleosides":[{"id":"deoxyadenosine","baseId":"adenine","sugarId":"deoxyribose","nameJa":"デオキシアデノシン","molecularWeight":251},{"id":"deoxyguanosine","baseId":"guanine","sugarId":"deoxyribose","nameJa":"デオキシグアノシン","molecularWeight":267},{"id":"deoxycytidine","baseId":"cytosine","sugarId":"deoxyribose","nameJa":"デオキシシチジン","molecularWeight":227},{"id":"thymidine","baseId":"thymine","sugarId":"deoxyribose","nameJa":"チミジン","molecularWeight":242},{"id":"adenosine","baseId":"adenine","sugarId":"ribose","nameJa":"アデノシン","molecularWeight":267},{"id":"guanosine","baseId":"guanine","sugarId":"ribose","nameJa":"グアノシン","molecularWeight":283},{"id":"cytidine","baseId":"cytosine","sugarId":"ribose","nameJa":"シチジン","molecularWeight":243},{"id":"uridine","baseId":"uracil","sugarId":"ribose","nameJa":"ウリジン","molecularWeight":244}],"nucleotides":[{"id":"dAMP","nucleosideId":"deoxyadenosine","nameJa":"dAMP","molecularWeight":331},{"id":"dGMP","nucleosideId":"deoxyguanosine","nameJa":"dGMP","molecularWeight":347},{"id":"dCMP","nucleosideId":"deoxycytidine","nameJa":"dCMP","molecularWeight":307},{"id":"dTMP","nucleosideId":"thymidine","nameJa":"dTMP","molecularWeight":322},{"id":"AMP","nucleosideId":"adenosine","nameJa":"AMP","molecularWeight":347},{"id":"GMP","nucleosideId":"guanosine","nameJa":"GMP","molecularWeight":363},{"id":"CMP","nucleosideId":"cytidine","nameJa":"CMP","molecularWeight":323},{"id":"UMP","nucleosideId":"uridine","nameJa":"UMP","molecularWeight":324}],"atp":{"amp":{"labelJa":"AMP(アデノシン一リン酸)","phosphateCount":1,"molecularWeight":347,"formula":"C10H14N5O7P"},"adp":{"labelJa":"ADP(アデノシン二リン酸)","phosphateCount":2,"molecularWeight":427,"formula":"C10H15N5O10P2"},"atpEntry":{"labelJa":"ATP(アデノシン三リン酸)","phosphateCount":3,"molecularWeight":507,"formula":"C10H16N5O13P3"},"esterBondNoteJa":"アデノシンと第1リン酸の結合はリン酸エステル結合。","anhydrideBondNoteJa":"リン酸どうしの結合(第1-第2、第2-第3の2か所)はリン酸無水物結合。","hydrolysisJa":"ATP→ADP+リン酸の加水分解でエネルギーを放出し、生体のエネルギー通貨として使われる。","rnaFamilyJa":"RNAの材料になるヌクレオシド三リン酸には、ATPのほかGTP・CTP・UTPがある。"},"dnaRna":{"rows":[{"aspectJa":"糖","dnaJa":"デオキシリボース(2'位はH)","rnaJa":"リボース(2'位はOH)"},{"aspectJa":"塩基","dnaJa":"A・G・C・T","rnaJa":"A・G・C・U"},{"aspectJa":"鎖","dnaJa":"通常二本鎖","rnaJa":"通常一本鎖"},{"aspectJa":"働き","dnaJa":"遺伝情報の保存","rnaJa":"mRNA・tRNA・rRNAとして情報の伝達と翻訳に働く"},{"aspectJa":"安定性","dnaJa":"2'位にOHがなく安定","rnaJa":"2'位のOHがあるため、アルカリ条件下でリン酸ジエステル結合が加水分解されやすい"}],"stabilityTapNoteJa":"2'-OHの酸素が分子内で隣のリン酸ジエステル結合を攻撃し、結合が切れやすくなる。","baseDiffNoteJa":"チミン(DNA)はウラシル(RNA)のC5にCH3が付いた構造。","detailScopeNoteJa":"反応機構の図はここでは描かない。"},"isomersCrossRefNoteJa":"本文リンクのみで扱い、chem-monosaccharide-structure・chem-disaccharidesのrelatedには入れていない(いずれも4件で満杯のため)。","notes":["N-グリコシド結合はO-グリコシド結合(disaccharides.htmlのグリコシド結合)と同じく、アノマー炭素のヘミアセタール性OHの脱水縮合。","ヌクレオチドの鎖のつながり(3',5'-ホスホジエステル結合、5'→3'の向き)と塩基対は次の教材で扱う。"]};
+
+/* ---------- 起動時チェック ---------- */
+(function checkData(){
+  const msg=[];
+  if(DATA.bases.length!==5) msg.push('bases が5件ではない');
+  if(DATA.sugars.length!==2) msg.push('sugars が2件ではない');
+  if(DATA.nucleosides.length!==8) msg.push('nucleosides が8件ではない');
+  if(DATA.nucleotides.length!==8) msg.push('nucleotides が8件ではない');
+  if(msg.length) console.warn('[DATA] 不整合\n'+msg.join('\n'));
+  else console.info('[DATA] nucleotide-structure: bases '+DATA.bases.length+'件・sugars '+DATA.sugars.length+'件を読み込んだ');
+})();
+
+const esc = s => String(s).replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+const MONO = 'IBM Plex Mono,monospace';
+const BASE_BY_ID = {}; DATA.bases.forEach(b=>{ BASE_BY_ID[b.id]=b; });
+const SUGAR_BY_ID = {}; DATA.sugars.forEach(s=>{ SUGAR_BY_ID[s.id]=s; });
+const NUCLEOSIDE_BY_ID = {}; DATA.nucleosides.forEach(n=>{ NUCLEOSIDE_BY_ID[n.id]=n; });
+
+/* ================= SVG組み立て用の小さいヘルパー(disaccharides.html等と同じ流儀) ================= */
+function svgLine(x1,y1,x2,y2,color,w,dash){
+  return '<line x1="'+x1.toFixed(1)+'" y1="'+y1.toFixed(1)+'" x2="'+x2.toFixed(1)+'" y2="'+y2.toFixed(1)+'" stroke="'+color+'" stroke-width="'+w+'"'+(dash?' stroke-dasharray="'+dash+'"':'')+'/>';
+}
+function svgCircle(x,y,r,fill,stroke,sw){
+  return '<circle cx="'+x.toFixed(1)+'" cy="'+y.toFixed(1)+'" r="'+r+'" fill="'+fill+'"'+(stroke?' stroke="'+stroke+'" stroke-width="'+(sw||1)+'"':'')+'/>';
+}
+function svgText(x,y,label,size,color,anchor,weight){
+  return '<text x="'+x.toFixed(1)+'" y="'+y.toFixed(1)+'" text-anchor="'+(anchor||'middle')+'" font-family="'+MONO+'" font-size="'+size+'" fill="'+color+'"'+(weight?' font-weight="'+weight+'"':'')+'>'+esc(label)+'</text>';
+}
+function svgPath(d,color,w,dash){
+  return '<path d="'+d+'" fill="none" stroke="'+color+'" stroke-width="'+w+'"'+(dash?' stroke-dasharray="'+dash+'"':'')+'/>';
+}
+function bestLabelDir(vectors){
+  const N = 32;
+  let best = {x:1,y:0}, bestScore = Infinity;
+  for(let i=0;i<N;i++){
+    const ang = i*2*Math.PI/N;
+    const cx_ = Math.cos(ang), cy_ = Math.sin(ang);
+    let maxDot = -Infinity;
+    for(const v of vectors){ const d = cx_*v.x+cy_*v.y; if(d>maxDot) maxDot=d; }
+    if(maxDot < bestScore){ bestScore = maxDot; best = {x:cx_,y:cy_}; }
+  }
+  return best;
+}
+
+/* ================= 環のテンプレート幾何(正六角形・正五角形。プリンは辺共有で融合) =================
+   scripts/check-nucleotide-structure.mjs に独立実装した同じアルゴリズムで結合長を検算済み。 */
+function regularPolygon(n, R, startDeg, mirror){
+  const pts=[];
+  for(let i=0;i<n;i++){
+    const ang = (startDeg - (360/n)*i) * Math.PI/180;
+    const x = R*Math.cos(ang) * (mirror?-1:1);
+    pts.push([x, R*Math.sin(ang)]);
+  }
+  return pts;
+}
+function dist(p,q){ return Math.hypot(p[0]-q[0], p[1]-q[1]); }
+function normAngle(deg){ let a=deg%360; if(a>180) a-=360; if(a<=-180) a+=360; return a; }
+function fusePentagonOnEdge(p4, p5, center){
+  const L = dist(p4,p5);
+  const mid = [(p4[0]+p5[0])/2, (p4[1]+p5[1])/2];
+  let out = [mid[0]-center[0], mid[1]-center[1]];
+  const outLen = Math.hypot(out[0],out[1]) || 1;
+  out = [out[0]/outLen, out[1]/outLen];
+  const apothem = (L/2)/Math.tan(Math.PI/5);
+  const R5 = (L/2)/Math.sin(Math.PI/5);
+  const pc = [mid[0]+apothem*out[0], mid[1]+apothem*out[1]];
+  const angOf = p => Math.atan2(p[1]-pc[1], p[0]-pc[0]) * 180/Math.PI;
+  const angC4 = angOf(p4), angC5 = angOf(p5);
+  const step = normAngle(angC4-angC5); // ±72°
+  const pts = [p4];
+  for(let k=1;k<=3;k++){
+    const a = (angC4 + step*k) * Math.PI/180;
+    pts.push([pc[0]+R5*Math.cos(a), pc[1]+R5*Math.sin(a)]);
+  }
+  pts.push(p5);
+  return { pts, center: pc };
+}
+function ringBondLine(p, q, order, color, w, center){
+  let o = svgLine(p[0],p[1],q[0],q[1],color,w);
+  if(order===2){
+    const dx=q[0]-p[0], dy=q[1]-p[1], len=Math.hypot(dx,dy)||1;
+    const ux=dx/len, uy=dy/len;
+    let nx=-uy, ny=ux;
+    const mid=[(p[0]+q[0])/2,(p[1]+q[1])/2];
+    const toC=[center[0]-mid[0], center[1]-mid[1]];
+    if(nx*toC[0]+ny*toC[1] < 0){ nx=-nx; ny=-ny; }
+    const inset = len*0.16;
+    const p2=[p[0]+ux*inset+nx*3.6, p[1]+uy*inset+ny*3.6];
+    const q2=[q[0]-ux*inset+nx*3.6, q[1]-uy*inset+ny*3.6];
+    o += svgLine(p2[0],p2[1],q2[0],q2[1],color,w*0.85);
+  }
+  return o;
+}
+function doubleLineSide(p,q,color,w,side){
+  let o = svgLine(p[0],p[1],q[0],q[1],color,w);
+  const dx=q[0]-p[0], dy=q[1]-p[1], len=Math.hypot(dx,dy)||1;
+  const nx=-dy/len*side, ny=dx/len*side;
+  const inset=0.18;
+  const p2=[p[0]+dx*inset+nx*3.4, p[1]+dy*inset+ny*3.4];
+  const q2=[q[0]-dx*inset+nx*3.4, q[1]-dy*inset+ny*3.4];
+  o += svgLine(p2[0],p2[1],q2[0],q2[1],color,w*0.85);
+  return o;
+}
+function bridgeSVG(a,b,bow,label,color){
+  const mx=(a[0]+b[0])/2, my=(a[1]+b[1])/2;
+  const dx=b[0]-a[0], dy=b[1]-a[1], len=Math.hypot(dx,dy)||1;
+  const nx=-dy/len, ny=dx/len;
+  const cx=mx+nx*bow, cy=my+ny*bow;
+  let o = svgPath('M '+a[0].toFixed(1)+' '+a[1].toFixed(1)+' Q '+cx.toFixed(1)+' '+cy.toFixed(1)+' '+b[0].toFixed(1)+' '+b[1].toFixed(1), color, 1.8);
+  if(label){
+    // ラベルは曲線の頂点(制御点寄りの膨らみ)よりさらに外側(bowと同じ向き)へ離して置く
+    const sign = bow>=0 ? 1 : -1;
+    const lx = mx + nx*(bow + sign*17);
+    const ly = my + ny*(bow + sign*17);
+    o += svgText(lx, ly+3, label, 9, color, 'middle', '500');
+  }
+  return o;
+}
+function tapWrap(atomId, opts, point, innerSvg){
+  if(!opts || !opts.tapEnabled) return innerSvg;
+  const hi = (opts.highlightAtom===atomId) ? svgCircle(point[0],point[1],14,'none','#0E8FA3',2) : '';
+  return '<g class="atomHit" tabindex="0" role="button" aria-label="'+esc(atomId)+'" data-atom="'+esc(atomId)+'">'
+    + svgCircle(point[0],point[1],13,'rgba(0,0,0,0.001)') + hi + innerSvg + '</g>';
+}
+
+/* ================= 塩基(プリン・ピリミジン)の描画 =================
+   六員環はテンプレート角度210-60iで生成(C4-C5の辺が常に+x方向を向く)。
+   プリンはmirror=trueでx反転し、縮合五員環(N9側)が糖を置く側(左)に来るようにする。 */
+function baseSVG(base, cx, cy, R, opts){
+  opts = opts || {};
+  const mirror = base.kind === 'purine';
+  const hexLocal = regularPolygon(6, R, 210, mirror);
+  const hex = hexLocal.map(p=>[p[0]+cx, p[1]+cy]);
+  const hexIdx = {}; base.sixRing.forEach((a,i)=>{ hexIdx[a]=i; });
+  const hexCenter = [cx,cy];
+  const pointOf = {};
+  base.sixRing.forEach((a,i)=>{ pointOf[a]=hex[i]; });
+
+  let pentaCenter = null;
+  if(base.kind==='purine'){
+    const p4 = hex[hexIdx['C4']], p5 = hex[hexIdx['C5']];
+    const fused = fusePentagonOnEdge(p4, p5, hexCenter);
+    base.fiveRing.forEach((a,i)=>{ pointOf[a]=fused.pts[i]; });
+    pentaCenter = fused.center;
+  }
+
+  let svg='';
+  for(const b of base.ringBonds){
+    const inSix = hexIdx[b.a]!==undefined && hexIdx[b.b]!==undefined;
+    const center = inSix ? hexCenter : pentaCenter;
+    svg += ringBondLine(pointOf[b.a], pointOf[b.b], b.order, '#5E6E76', 1.7, center);
+  }
+
+  const allRingAtoms = [...base.sixRing, ...(base.fiveRing? base.fiveRing.filter(a=>a!=='C4'&&a!=='C5'):[])];
+  function centerFor(atomId){
+    return (hexIdx[atomId]!==undefined) ? hexCenter : pentaCenter;
+  }
+  function outward(atomId){
+    const p = pointOf[atomId], c = centerFor(atomId);
+    const dx=p[0]-c[0], dy=p[1]-c[1], l=Math.hypot(dx,dy)||1;
+    return {x:dx/l, y:dy/l};
+  }
+  // 置換基(NH2/O/CH3)または明示的なH(explicitHAtoms)を持つ原子は、その線とほぼ同じ
+  // 向きに環番号ラベルが出ると線と重なるため、その向きも「避けるべき方向」としてbestLabelDirに渡す
+  const extraDirFor = {};
+  for(const s of base.substituents||[]) extraDirFor[s.atom] = outward(s.atom);
+  for(const atomId of base.explicitHAtoms||[]){
+    if(opts.showGlycosidicBond && atomId===base.glycosidicAtom) continue;
+    if(!extraDirFor[atomId]) extraDirFor[atomId] = outward(atomId);
+  }
+  function neighborDirsFor(atomId, extra){
+    const dirs=[];
+    for(const b of base.ringBonds){
+      let other=null;
+      if(b.a===atomId) other=b.b; else if(b.b===atomId) other=b.a;
+      if(other){
+        const p=pointOf[atomId], q=pointOf[other];
+        const dx=q[0]-p[0], dy=q[1]-p[1], l=Math.hypot(dx,dy)||1;
+        dirs.push({x:dx/l,y:dy/l});
+      }
+    }
+    if(extra) dirs.push(extra);
+    return dirs;
+  }
+  const k = Math.max(R/60, 0.6);
+  for(const atomId of allRingAtoms){
+    const p = pointOf[atomId];
+    const dir = bestLabelDir(neighborDirsFor(atomId, extraDirFor[atomId]));
+    const lx = p[0]+dir.x*(10+7*k), ly = p[1]+dir.y*(10+7*k)+3*k;
+    const lab = svgText(lx, ly, atomId, Math.max(7.5,8*k), '#16232B');
+    svg += tapWrap(atomId, opts, [lx,ly], lab);
+  }
+  const subColor = { NH2:'#6E3AA7', O:'#A82A6A', CH3:'#B87A16' };
+  for(const s of base.substituents||[]){
+    const subId = s.id || (s.group[0]+'@'+s.atom);
+    const p = pointOf[s.atom];
+    const dir = outward(s.atom);
+    const len = (14+10*k);
+    const end = [p[0]+dir.x*len, p[1]+dir.y*len];
+    const color = subColor[s.group] || '#5E6E76';
+    if(s.order===2){
+      svg += doubleLineSide(p, end, color, 1.6, 1);
+    } else {
+      svg += svgLine(p[0],p[1],end[0],end[1],color,1.6);
+    }
+    const labelText = s.group==='O' ? 'O' : s.group;
+    const lend = [end[0]+dir.x*10, end[1]+dir.y*10];
+    const lab = svgText(lend[0], lend[1]+3, labelText, Math.max(8,8.5*k), color, 'middle', '500');
+    svg += tapWrap(subId, opts, lend, lab);
+    pointOf[subId] = end;
+  }
+  for(const atomId of base.explicitHAtoms||[]){
+    if(opts.showGlycosidicBond && atomId===base.glycosidicAtom) continue;
+    const p = pointOf[atomId];
+    const dir = outward(atomId);
+    const len = (12+8*k);
+    const end = [p[0]+dir.x*len, p[1]+dir.y*len];
+    svg += svgLine(p[0],p[1],end[0],end[1],'#5E6E76',1.3);
+    const lend=[end[0]+dir.x*8, end[1]+dir.y*8];
+    const lab = svgText(lend[0], lend[1]+3, 'H', Math.max(7.5,8*k), '#5E6E76');
+    svg += tapWrap(atomId+'-H', opts, lend, lab);
+  }
+
+  return { svg, pointOf, glyPoint: pointOf[base.glycosidicAtom], hexCenter, pentaCenter };
+}
+
+/* ================= 糖(フラノース)の描画 ================= */
+function sugarSVG(sugar, cx, cy, R, opts){
+  opts = opts || {};
+  const skel = DATA.sugarSkeleton;
+  const ringAtoms = skel.ringAtoms; // ["O4'","C1'","C2'","C3'","C4'"]
+  const local = regularPolygon(5, R, 90, false);
+  const pts = local.map(p=>[p[0]+cx, p[1]+cy]);
+  const byAtom = {}; ringAtoms.forEach((a,i)=>{ byAtom[a]=pts[i]; });
+  let svg='';
+  for(let i=0;i<5;i++){ svg += svgLine(pts[i][0],pts[i][1],pts[(i+1)%5][0],pts[(i+1)%5][1],'#5E6E76',1.5); }
+
+  const k = Math.max(R/55, 0.6);
+  function neighborDirsFor(i){
+    const p=pts[i], dirs=[];
+    const add=(q)=>{ const dx=q[0]-p[0], dy=q[1]-p[1], l=Math.hypot(dx,dy)||1; dirs.push({x:dx/l,y:dy/l}); };
+    add(pts[(i+4)%5]); add(pts[(i+1)%5]);
+    return dirs;
+  }
+  // O4'ラベル
+  const oIdx = ringAtoms.indexOf("O4'");
+  const oDir = bestLabelDir(neighborDirsFor(oIdx));
+  svg += svgText(pts[oIdx][0]+oDir.x*(9+6*k), pts[oIdx][1]+oDir.y*(9+6*k)+3*k, "O", Math.max(8,8.5*k), '#5E6E76');
+  // 環炭素の番号(1'〜4')
+  ringAtoms.forEach((a,i)=>{
+    if(a==="O4'") return;
+    const dir = bestLabelDir(neighborDirsFor(i));
+    const num = a.replace("C","").replace("'","'");
+    svg += svgText(pts[i][0]+dir.x*(9+6*k), pts[i][1]+dir.y*(9+6*k)+3*k, num, Math.max(7.5,8*k), '#5E6E76');
+  });
+
+  function subLine(idx, up, label, color, len, xShift, labelGap){
+    const p = pts[idx]; const ln=(len||18)*k; const xs=(xShift||0)*k;
+    const x2=p[0]+xs, y2=up? p[1]-ln : p[1]+ln;
+    svg += svgLine(p[0],p[1],x2,y2,color,1.6);
+    const gap = labelGap!=null? labelGap : Math.max(9,8*k);
+    const ly = up? y2-gap : y2+gap;
+    svg += svgText(x2, ly, label, Math.max(7.5,8.5*k), color, 'middle', '500');
+    return [x2,y2];
+  }
+
+  const c1Idx = ringAtoms.indexOf("C1'");
+  let c1BridgePoint = pts[c1Idx];
+  if(opts.showGlycosidicBond){
+    // 結合に使われた側は自由なOHを描かず、頂点自体を橋かけの起点にする
+  } else {
+    subLine(c1Idx, true, 'OH', '#2457A6', 16, 14);
+  }
+
+  const c2Idx = ringAtoms.indexOf("C2'");
+  const c2up = skel.haworthJa["C2'"]==='up';
+  const c2Group = opts.c2GroupJa || 'OH';
+  subLine(c2Idx, c2up, c2Group, c2Group==='H' ? '#5E6E76' : '#2457A6', 18, -12);
+
+  const c3Idx = ringAtoms.indexOf("C3'");
+  const c3up = skel.haworthJa["C3'"]==='up';
+  subLine(c3Idx, c3up, 'OH', '#2457A6', 18, 12);
+
+  // C4'から外側に伸びるC5'(常に上、末端CH2OH)
+  const c4Idx = ringAtoms.indexOf("C4'");
+  const p4 = pts[c4Idx];
+  const c5len = 22*k;
+  const c5Point = [p4[0]-4*k, p4[1]-c5len];
+  svg += svgLine(p4[0],p4[1],c5Point[0],c5Point[1],'#0D6A53',1.6);
+  let c5BridgePoint = c5Point;
+  if(!opts.showEsterBond){
+    const c5Label=[c5Point[0]-30*k, c5Point[1]-Math.max(4,3*k)];
+    svg += svgText(c5Label[0], c5Label[1], "5'-CH2OH", Math.max(7.5,8*k), '#0D6A53', 'middle', '500');
+  } else {
+    // エステル結合の橋かけ線がC5'から左上へ伸びるため、ラベルは逆側(右下)に置いて線から離す
+    svg += svgText(c5Point[0]-22*k, c5Point[1]+1, "5'", Math.max(7.5,8*k), '#0D6A53', 'middle', '500');
+  }
+
+  return { svg, byAtom, c1Point: c1BridgePoint, c5Point: c5BridgePoint };
+}
+
+/* ================= リン酸基の描画 ================= */
+// bridge: {up, down} それぞれtrueなら、そのスポークは他の原子団と橋かけで結合済み(自由なOHではない)。
+// カルボニル(C=O相当、Hを持たないP=O)は常に左のスポークに固定し、上下のどちらを橋かけに
+// 使っても、橋かけ線が「そのリン酸自身のPラベルを通り抜けて反対側へ回り込む」ことがないようにする
+// (上から来た橋かけは上のOで、下から来た橋かけは下のOで受けるため、Pをまたがずに済む)。
+// ATPの中央のリン酸(第2リン酸)は上下どちらも橋かけになり、残りは右のOHだけになる。
+function phosphateSVG(cx, cy, r, bridge){
+  bridge = bridge || {};
+  const P=[cx,cy];
+  const pr = 11; // Pの背景円の半径。スポーク線はこの円の縁から始め、ラベル中心(P)を通らないようにする
+  const oUp=[cx, cy-r];
+  const oDown=[cx, cy+r*0.95];
+  const oLeft=[cx-r*0.95, cy+r*0.3];
+  const oRight=[cx+r*0.95, cy+r*0.3];
+  function fromEdge(target){
+    const dx=target[0]-P[0], dy=target[1]-P[1], l=Math.hypot(dx,dy)||1;
+    return [P[0]+dx/l*pr, P[1]+dy/l*pr];
+  }
+  let svg='';
+  svg += svgLine(fromEdge(oUp)[0],fromEdge(oUp)[1],oUp[0],oUp[1],'#5E6E76',1.7);
+  svg += svgLine(fromEdge(oDown)[0],fromEdge(oDown)[1],oDown[0],oDown[1],'#5E6E76',1.7);
+  svg += doubleLineSide(fromEdge(oLeft), oLeft, '#5E6E76', 1.7, -1);
+  svg += svgLine(fromEdge(oRight)[0],fromEdge(oRight)[1],oRight[0],oRight[1],'#5E6E76',1.7);
+  svg += svgCircle(P[0],P[1],pr,'#FBFCFB','#5E6E76',1);
+  svg += svgText(P[0],P[1]+3.6,'P',11,'#16232B','middle','600');
+  svg += svgText(oLeft[0]-11, oLeft[1]+3, 'O', 9.5, '#5E6E76');
+  svg += svgText(oRight[0]+11, oRight[1]+3, 'OH', 9.5, '#2457A6');
+  // 橋かけになる側は、橋かけ線が真上/真下から伸びてくるため、ラベルを縦に並べず横へずらす
+  if(bridge.up) svg += svgText(oUp[0]-13, oUp[1]-2, 'O', 9.5, '#5E6E76');
+  else svg += svgText(oUp[0], oUp[1]-9, 'OH', 9.5, '#2457A6');
+  if(bridge.down) svg += svgText(oDown[0]-13, oDown[1]+5, 'O', 9.5, '#5E6E76');
+  else svg += svgText(oDown[0], oDown[1]+13, 'OH', 9.5, '#2457A6');
+  return { svg, topPoint: oUp, bottomPoint: oDown };
+}
+
+/* ================= NOTES ================= */
+function renderNotes(){
+  document.getElementById('notesList').innerHTML = DATA.notes.map(n=>'<li>'+esc(n)+'</li>').join('');
+}
+
+/* ================= 1. PARTS ================= */
+const BASE_CHIPS = [
+  {id:'adenine', label:'A'},
+  {id:'guanine', label:'G'},
+  {id:'cytosine', label:'C'},
+  {id:'thymine', label:'T'},
+  {id:'uracil', label:'U'},
+];
+const st = {
+  mode: 'dna',
+  baseId: 'adenine',
+  step: 1,
+  basesId: 'adenine',
+  basesTapAtom: null,
+  atpId: 'amp',
+};
+
+function sugarIdForMode(mode){ return mode==='dna' ? 'deoxyribose' : 'ribose'; }
+
+function renderModeToggle(){
+  const el = document.getElementById('modeToggle');
+  el.innerHTML = ['dna','rna'].map(m=>
+    '<button class="ringbtn" data-mode="'+m+'" aria-pressed="'+(st.mode===m)+'">'+m.toUpperCase()+'</button>'
+  ).join('');
+}
+function renderPartsBaseChips(){
+  const el = document.getElementById('partsBaseChips');
+  el.innerHTML = BASE_CHIPS.map(c=>{
+    const disabled = (st.mode==='dna' && c.id==='uracil') || (st.mode==='rna' && c.id==='thymine');
+    const cls = BASE_BY_ID[c.id].kind;
+    return '<button class="chip '+cls+'" data-base="'+c.id+'" aria-pressed="'+(st.baseId===c.id)+'"'+(disabled?' disabled':'')+'>'+c.label+'</button>';
+  }).join('');
+}
+function renderStepToggle(){
+  const el = document.getElementById('stepToggle');
+  const labels=['① 部品','② ヌクレオシド','③ ヌクレオチド'];
+  el.innerHTML = labels.map((l,i)=>
+    '<button class="ringbtn" data-step="'+(i+1)+'" aria-pressed="'+(st.step===i+1)+'">'+l+'</button>'
+  ).join('');
+}
+function renderPartsSteps(){
+  const base = BASE_BY_ID[st.baseId];
+  const sugar = SUGAR_BY_ID[sugarIdForMode(st.mode)];
+  const ns = Object.values(NUCLEOSIDE_BY_ID).find(n=>n.baseId===st.baseId && n.sugarId===sugar.id);
+  const nt = DATA.nucleotides.find(n=>n.nucleosideId===ns.id);
+  const A = DATA.assembly;
+  const steps = [
+    { n:'①', text: A.step1Ja, formula: base.nameJa+' '+base.molecularWeight+' / '+sugar.nameJa+' '+sugar.molecularWeight+' / リン酸 '+A.phosphoricAcidMass },
+    { n:'②', text: A.step2Ja, formula: base.molecularWeight+' + '+sugar.molecularWeight+' − '+A.waterLoss+' = '+ns.molecularWeight+'('+ns.nameJa+')' },
+    { n:'③', text: A.step3Ja, formula: ns.molecularWeight+' + '+A.phosphoricAcidMass+' − '+A.waterLoss+' = '+nt.molecularWeight+'('+nt.nameJa+')' },
+  ];
+  document.getElementById('partsSteps').innerHTML = steps.map((s,i)=>
+    '<div class="stepcard'+(st.step===i+1?' active':'')+'"><b>'+s.n+'</b><span>'+esc(s.text)+'<div class="formulaline">'+esc(s.formula)+'</div></span></div>'
+  ).join('');
+}
+function renderPartsScheme(){
+  const base = BASE_BY_ID[st.baseId];
+  const sugar = SUGAR_BY_ID[sugarIdForMode(st.mode)];
+  const purine = base.kind==='purine';
+  const step2plus = st.step>=2, step3 = st.step>=3;
+  // 段階②(ヌクレオシドのみ)はリン酸を表示しないため上部の余白が不要。段階①・③はリン酸の
+  // 場所を確保するため縦に長いレイアウトのままにする
+  const tall = !step2plus || step3;
+  const W = purine? 460: 400, H = tall? 340: 250;
+  const sugarCx = 120, sugarCy = tall? 250: 165, sugarR = 40;
+  const baseCx = purine? 340 : 290, baseCy = tall? 175: 90, baseR = 44;
+
+  const sres = sugarSVG(sugar, sugarCx, sugarCy, sugarR, { c2GroupJa: sugar.c2GroupJa, showGlycosidicBond: step2plus, showEsterBond: step3 });
+  const bres = baseSVG(base, baseCx, baseCy, baseR, { showGlycosidicBond: step2plus });
+
+  let svg = sres.svg + bres.svg;
+  if(step2plus){
+    svg += bridgeSVG(sres.c1Point, bres.glyPoint, -28, DATA.assembly.glycosidicBondJa.replace('N-グリコシド結合','N-グリコシド'), '#831F52');
+  }
+  if(!step2plus){
+    // 段階①: リン酸を離れた場所に部品として表示(結合しない)
+    const pres = phosphateSVG(56, 70, 20, null);
+    svg += pres.svg;
+    svg += svgText(56, 24, 'リン酸(H3PO4)', 9.5, '#5E6E76');
+  }
+  if(step3){
+    // 糖の左側の空間へ大きく迂回させ、環番号ラベル(3'・2'等)の帯を避ける。
+    // リン酸は糖の上にあるので、下向きのO(bottomPoint)で受ける(Pをまたがずに済む)
+    const pres = phosphateSVG(56, 70, 20, {down:true});
+    svg += bridgeSVG(sres.c5Point, pres.bottomPoint, -18, 'エステル', '#1B4380');
+    svg += pres.svg;
+  }
+  document.getElementById('partsScheme').innerHTML =
+    '<svg class="scheme" viewBox="0 0 '+W+' '+H+'" width="100%">'+svg+'</svg>';
+  document.getElementById('partsGlycosideNote').textContent = DATA.assembly.glycosideNoteJa;
+}
+function renderParts(){
+  renderModeToggle();
+  renderPartsBaseChips();
+  renderStepToggle();
+  renderPartsSteps();
+  renderPartsScheme();
+}
+function onModeClick(m){
+  st.mode = m;
+  if(m==='dna' && st.baseId==='uracil') st.baseId='thymine';
+  if(m==='rna' && st.baseId==='thymine') st.baseId='uracil';
+  renderParts();
+}
+function onPartsBaseClick(id){ st.baseId=id; renderParts(); }
+function onStepClick(n){ st.step=n; renderParts(); }
+
+/* ================= 2. BASES ================= */
+function atomInfo(base, atomId){
+  if(atomId===base.glycosidicAtom){
+    return '<b>'+atomId+'</b>: 糖と結合する位置(N-グリコシド結合)。遊離の塩基では'+atomId+'-Hだが、ヌクレオシドでは糖のC1’と結合する。';
+  }
+  const hb = (base.hbond||[]).find(h=>h.atom===atomId);
+  if(hb){
+    return hb.role==='donor'
+      ? '<b>'+(hb.labelJa||atomId)+'</b>: 水素結合の供与体。'
+      : '<b>'+atomId+'</b>: 水素結合の受容体。';
+  }
+  const sub = (base.substituents||[]).find(s=>(s.id||(s.group[0]+'@'+s.atom))===atomId);
+  if(sub){
+    if(sub.group==='CH3') return '<b>'+atomId+'</b>: メチル基(CH3)。水素結合には関与しない。';
+    if(sub.group==='O') return '<b>'+atomId+'</b>: カルボニル酸素(C=O)。';
+    if(sub.group==='NH2') return '<b>'+atomId+'</b>: アミノ基の窒素。';
+  }
+  if(atomId.endsWith('-H')){
+    const base2 = atomId.replace('-H','');
+    return '<b>'+base2+'-H</b>: 水素結合には関与しない。';
+  }
+  return '<b>'+atomId+'</b>: 環の骨格原子。';
+}
+function renderBasesChips(){
+  const el = document.getElementById('basesChips');
+  el.innerHTML = BASE_CHIPS.map(c=>{
+    const cls = BASE_BY_ID[c.id].kind;
+    return '<button class="chip '+cls+'" data-basesid="'+c.id+'" aria-pressed="'+(st.basesId===c.id)+'">'+c.label+' '+BASE_BY_ID[c.id].nameJa+'</button>';
+  }).join('');
+}
+function renderBasesScheme(){
+  const base = BASE_BY_ID[st.basesId];
+  const frame = document.getElementById('basesFrame');
+  frame.className = 'classframe '+base.kind;
+  document.getElementById('basesClassLabel').className = 'classlabel '+base.kind;
+  document.getElementById('basesClassLabel').textContent = base.kind==='purine' ? 'PURINE(縮合環)' : 'PYRIMIDINE(六員環)';
+
+  const W = base.kind==='purine' ? 340 : 260, H = 220;
+  const cx = base.kind==='purine' ? 190 : 130, cy = 120, R = 62;
+  const res = baseSVG(base, cx, cy, R, { tapEnabled:true, highlightAtom: st.basesTapAtom });
+  document.getElementById('basesScheme').innerHTML =
+    '<svg class="scheme" viewBox="0 0 '+W+' '+H+'" width="100%">'+res.svg+'</svg>';
+
+  const info = st.basesTapAtom ? atomInfo(base, st.basesTapAtom) : '原子をタップすると、水素結合の役割や糖との結合位置が表示される。';
+  document.getElementById('basesTapInfo').innerHTML = info;
+
+  document.getElementById('basesTable').innerHTML =
+    '<tr><th>分類</th><td>'+(base.kind==='purine'?'プリン':'ピリミジン')+'</td></tr>'+
+    '<tr><th>分子式</th><td>'+base.formula+'</td></tr>'+
+    '<tr><th>分子量</th><td>'+base.molecularWeight+'</td></tr>'+
+    '<tr><th>糖との結合位置</th><td>'+base.glycosidicAtom+'</td></tr>'+
+    '<tr><th>DNA/RNA</th><td>'+(base.id==='thymine'?'DNAのみ':base.id==='uracil'?'RNAのみ':'DNA・RNA共通')+'</td></tr>';
+
+  document.getElementById('basesUracilNote').textContent = base.uracilRelationJa || '';
+}
+function renderBases(){ renderBasesChips(); renderBasesScheme(); }
+function onBasesChipClick(id){ st.basesId=id; st.basesTapAtom=null; renderBases(); }
+function onBasesAtomClick(atomId){ st.basesTapAtom = (st.basesTapAtom===atomId)? null: atomId; renderBasesScheme(); }
+
+/* ================= 3. DNA-RNA ================= */
+function renderDnaRnaSchemes(){
+  const dRibose = SUGAR_BY_ID['deoxyribose'], rRibose = SUGAR_BY_ID['ribose'];
+  const s1 = sugarSVG(dRibose, 90, 90, 46, { c2GroupJa:'H' });
+  document.getElementById('dnaSugarScheme').innerHTML = '<svg class="scheme" viewBox="0 0 180 170" width="100%">'+s1.svg+'</svg>';
+  const s2 = sugarSVG(rRibose, 90, 90, 46, { c2GroupJa:'OH' });
+  document.getElementById('rnaSugarScheme').innerHTML = '<svg class="scheme" viewBox="0 0 180 170" width="100%">'+s2.svg+'</svg>';
+
+  const thymine = BASE_BY_ID['thymine'], uracil = BASE_BY_ID['uracil'];
+  const b1 = baseSVG(thymine, 100, 95, 52, {});
+  document.getElementById('dnaBaseScheme').innerHTML = '<svg class="scheme" viewBox="0 0 200 190" width="100%">'+b1.svg+'</svg>';
+  const b2 = baseSVG(uracil, 100, 95, 52, {});
+  document.getElementById('rnaBaseScheme').innerHTML = '<svg class="scheme" viewBox="0 0 200 190" width="100%">'+b2.svg+'</svg>';
+}
+function renderDnaRnaTable(){
+  const rows = DATA.dnaRna.rows;
+  let html = '<tr><th></th><th class="dna">DNA</th><th class="rna">RNA</th></tr>';
+  rows.forEach(r=>{
+    const isStability = r.aspectJa==='安定性';
+    const rnaCell = isStability
+      ? esc(r.rnaJa)+' <button class="tapnote" data-stab="1">2’-OHをタップ</button>'
+      : esc(r.rnaJa);
+    html += '<tr><td class="aspect">'+esc(r.aspectJa)+'</td><td>'+esc(r.dnaJa)+'</td><td>'+rnaCell+'</td></tr>';
+  });
+  document.getElementById('dnaRnaTable').innerHTML = html;
+}
+function onStabilityTap(){
+  const box = document.getElementById('stabilityNote');
+  box.hidden = !box.hidden ? true : false;
+  box.textContent = DATA.dnaRna.stabilityTapNoteJa;
+  box.hidden = false;
+}
+function renderDnaRna(){ renderDnaRnaSchemes(); renderDnaRnaTable(); }
+
+/* ================= 4. ATP ================= */
+function renderAtpToggle(){
+  const el = document.getElementById('atpToggle');
+  const items = [{id:'amp',label:'AMP'},{id:'adp',label:'ADP'},{id:'atp',label:'ATP'}];
+  el.innerHTML = items.map(it=>
+    '<button class="ringbtn" data-atp="'+it.id+'" aria-pressed="'+(st.atpId===it.id)+'">'+it.label+'</button>'
+  ).join('');
+}
+function atpEntryFor(id){
+  return id==='amp' ? DATA.atp.amp : id==='adp' ? DATA.atp.adp : DATA.atp.atpEntry;
+}
+function renderAtpScheme(){
+  const entry = atpEntryFor(st.atpId);
+  const count = entry.phosphateCount;
+  const adenine = BASE_BY_ID['adenine'], ribose = SUGAR_BY_ID['ribose'];
+  const W = 430, H = 260 + count*100;
+  const sugarCx = 140, sugarCy = H-100, sugarR = 40;
+  const baseCx = 360, baseCy = H-165, baseR = 44;
+  const sres = sugarSVG(ribose, sugarCx, sugarCy, sugarR, { c2GroupJa:'OH', showGlycosidicBond:true, showEsterBond:true });
+  const bres = baseSVG(adenine, baseCx, baseCy, baseR, { showGlycosidicBond:true });
+  let svg = sres.svg + bres.svg;
+  svg += bridgeSVG(sres.c1Point, bres.glyPoint, -28, 'N-グリコシド', '#831F52');
+
+  // 糖の左側の空間へ大きく迂回させ、環番号ラベル(3'・2'等)の帯を避けたうえで、
+  // リン酸を上方向へ鎖状に積み上げる(各リン酸は同じx=phCxに並べる)。
+  // py0はc5Point(高さがsugarCy・Hに連動)からの相対オフセットにし、リン酸が2〜3個に
+  // 増えてHが伸びてもキャンバス上端からはみ出さないようにする。
+  const phCx = 42, phR = 18;
+  const py0 = sres.c5Point[1] - 190;
+  let prevAnchor = sres.c5Point; // 前段(糖またはリン酸)の「上向きの出口」の位置
+  for(let i=0;i<count;i++){
+    const py = py0 - i*90;
+    // 最上段以外は上のOも次のリン酸への橋かけに使う(第2リン酸は上下とも橋かけになる)
+    const bridge = { down: true, up: i < count-1 };
+    const pres = phosphateSVG(phCx, py, phR, bridge);
+    const bondColor = i===0 ? '#1B4380' : '#8A5A0C';
+    const bondLabel = i===0 ? 'エステル' : '無水物';
+    // 下から来た橋かけは、このリン酸の下向きのO(bottomPoint)で受ける(Pをまたがない)。
+    // 糖からの最初の橋かけだけ、環番号ラベルを避けるため大きく左へ迂回させる
+    svg += bridgeSVG(prevAnchor, pres.bottomPoint, i===0 ? -18 : 22, bondLabel, bondColor);
+    svg += pres.svg;
+    // 次のリン酸(さらに上)へは、このリン酸の上向きのO(topPoint)から出す
+    prevAnchor = pres.topPoint;
+  }
+  document.getElementById('atpScheme').innerHTML = '<svg class="scheme" viewBox="0 0 '+W+' '+H+'" width="100%">'+svg+'</svg>';
+}
+function renderAtpTable(){
+  const entry = atpEntryFor(st.atpId);
+  document.getElementById('atpTable').innerHTML =
+    '<tr><th>名称</th><td>'+entry.labelJa+'</td></tr>'+
+    '<tr><th>リン酸の数</th><td>'+entry.phosphateCount+'</td></tr>'+
+    '<tr><th>分子式</th><td>'+entry.formula+'</td></tr>'+
+    '<tr><th>分子量</th><td>'+entry.molecularWeight+'</td></tr>';
+}
+function renderAtp(){
+  renderAtpToggle();
+  renderAtpScheme();
+  renderAtpTable();
+  document.getElementById('atpBondNote').textContent = DATA.atp.esterBondNoteJa+DATA.atp.anhydrideBondNoteJa;
+  document.getElementById('atpHydrolysisNote').textContent = DATA.atp.hydrolysisJa+DATA.atp.rnaFamilyJa;
+}
+function onAtpClick(id){ st.atpId=id; renderAtp(); }
+
+/* ================= イベント委譲 ================= */
+document.addEventListener('click', (e)=>{
+  const modeBtn = e.target.closest('#modeToggle [data-mode]');
+  if(modeBtn){ onModeClick(modeBtn.dataset.mode); return; }
+  const baseBtn = e.target.closest('#partsBaseChips [data-base]');
+  if(baseBtn && !baseBtn.disabled){ onPartsBaseClick(baseBtn.dataset.base); return; }
+  const stepBtn = e.target.closest('#stepToggle [data-step]');
+  if(stepBtn){ onStepClick(Number(stepBtn.dataset.step)); return; }
+  const basesChip = e.target.closest('#basesChips [data-basesid]');
+  if(basesChip){ onBasesChipClick(basesChip.dataset.basesid); return; }
+  const atomHit = e.target.closest('#basesScheme .atomHit');
+  if(atomHit){ onBasesAtomClick(atomHit.dataset.atom); return; }
+  const stabBtn = e.target.closest('[data-stab]');
+  if(stabBtn){ onStabilityTap(); return; }
+  const atpBtn = e.target.closest('#atpToggle [data-atp]');
+  if(atpBtn){ onAtpClick(atpBtn.dataset.atp); return; }
+});
+document.addEventListener('keydown', (e)=>{
+  if(e.key!=='Enter' && e.key!==' ') return;
+  const atomHit = e.target.closest && e.target.closest('#basesScheme .atomHit');
+  if(atomHit){ e.preventDefault(); onBasesAtomClick(atomHit.dataset.atom); }
+});
+
+/* ================= 初期化 ================= */
+renderParts();
+renderBases();
+renderDnaRna();
+renderAtp();
+renderNotes();
+</script>
+</body>
+</html>
