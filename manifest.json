@@ -1694,7 +1694,37 @@
     "confidence": "high",
     "type": "diagram",
     "related": [
-      "chem-protein-structure"
+      "chem-protein-structure",
+      "chem-dna-double-helix"
+    ]
+  },
+  {
+    "id": "chem-dna-double-helix",
+    "file": "html/dna-double-helix.html",
+    "subject": "chemistry",
+    "unit": "有機化学 / DNAの二重らせん(塩基対・相補鎖・シャルガフの法則)",
+    "course": "化学",
+    "section": "有機化合物の性質",
+    "order": 41,
+    "title": "DNAの二重らせん — 塩基対・相補鎖・シャルガフの法則",
+    "heading": "DNAの二重らせん — 塩基対・相補鎖・シャルガフの法則",
+    "summary": "塩基対の水素結合(A-T・A-Uは2本、G-Cは3本)から出発し、配列からの相補鎖の機械的生成(逆平行・ホスホジエステル結合)・シャルガフの法則・らせんの外側(親水性)と内側(疎水性)の構造までをつなげる",
+    "topics": [
+      "塩基対の水素結合の本数(A-T・A-U=2本、G-C=3本)とプリン-ピリミジンの組み合わせだけが直径を保てる理由",
+      "配列(5'→3')からの相補鎖の機械的生成(逆平行、3',5'-ホスホジエステル結合)",
+      "シャルガフの法則(二本鎖DNAでの[A]=[T]・[G]=[C]、GC含量、一本鎖RNAでは成り立たないこと)",
+      "鎖・二本鎖の分子量の計算と、二重らせんの外側(リン酸・糖、親水性)/内側(塩基対、疎水性)の構造"
+    ],
+    "interactions": [
+      "チップ切り替え",
+      "構造トグル",
+      "ホバー/タップ",
+      "自動生成"
+    ],
+    "confidence": "high",
+    "type": "diagram",
+    "related": [
+      "chem-nucleotide-structure"
     ]
   }
 ]

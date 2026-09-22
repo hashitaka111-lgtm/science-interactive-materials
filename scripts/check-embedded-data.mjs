@@ -232,6 +232,14 @@ const EMBED_CHECKS = [
       { varName: "DATA", dataFile: "data/nucleotide-structure.json" },
     ],
   },
+  {
+    materialId: "dna-double-helix",
+    html: "html/dna-double-helix.html",
+    checks: [
+      { varName: "DATA", dataFile: "data/dna-double-helix.json" },
+      { varName: "NUC", dataFile: "data/nucleotide-structure.json" },
+    ],
+  },
 ];
 
 // HTML本文から `const VAR = {...};` の1行を取り出してJSON.parseする。
