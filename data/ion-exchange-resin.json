@@ -47,7 +47,7 @@
       "name": "イオンの分離",
       "description": "樹脂は異なるイオンを異なる強さで吸着するため、イオン分析・イオン分離に用いられる。",
       "relatedMaterial": "chem-acid-base-distribution",
-      "relatedNote": "chem-acid-base-distributionのヒスチジンの記述(陽イオン交換樹脂に強く吸着する)は、アミノ酸の等電点の応用例であってイオン交換樹脂そのものの説明ではないため、内容としては重複しない。本文リンクとして接続する。"
+      "relatedNote": "chem-acid-base-distributionのリシンの記述(陽イオン交換樹脂に強く吸着する)は、アミノ酸の等電点の応用例であってイオン交換樹脂そのものの説明ではないため、内容としては重複しない。本文リンクとして接続する。"
     }
   ]
 }

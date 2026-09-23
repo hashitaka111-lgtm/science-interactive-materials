@@ -1824,7 +1824,8 @@
     "related": [
       "chem-crystal-lattice",
       "chem-synthetic-fiber",
-      "chem-synthetic-rubber"
+      "chem-synthetic-rubber",
+      "chem-ion-exchange-resin"
     ]
   },
   {
@@ -1853,7 +1854,36 @@
     "type": "matrix",
     "related": [
       "chem-synthetic-fiber",
-      "chem-thermosetting-resin"
+      "chem-thermosetting-resin",
+      "chem-ion-exchange-resin"
+    ]
+  },
+  {
+    "id": "chem-ion-exchange-resin",
+    "file": "html/ion-exchange-resin.html",
+    "subject": "chemistry",
+    "unit": "高分子化合物 / イオン交換樹脂(合成・構造・機能)",
+    "course": "化学",
+    "section": "合成高分子化合物",
+    "order": 46,
+    "title": "イオン交換樹脂",
+    "heading": "イオン交換樹脂",
+    "summary": "スチレンとジビニルベンゼンの共重合体を土台に、官能基の導入から陽イオン交換樹脂・陰イオン交換樹脂の生成、3つの用途までを手順として追う",
+    "topics": [
+      "共重合(付加重合)による土台の網目状高分子の合成",
+      "スルホン化による陽イオン交換樹脂の生成、交換反応式・再生反応式",
+      "塩基性の基の導入による陰イオン交換樹脂の生成、交換反応式・再生反応式",
+      "3つの用途(イオン交換水の生成・海水からの食塩の合成・イオンの分離)"
+    ],
+    "interactions": [
+      "分子量セル(ホバー/タップ)",
+      "用途チップ切り替え"
+    ],
+    "confidence": "high",
+    "type": "procedure",
+    "related": [
+      "chem-thermosetting-resin",
+      "chem-synthetic-rubber"
     ]
   }
 ]

@@ -508,3 +508,13 @@
 - 検証結果はコミットメッセージ本文に記載
 - 保留: イオン交換樹脂の残り1教材のHTML実装は次回
 - 次: 残り1教材のレイアウト方針の提示から
+
+## 2026-09-23 — イオン交換樹脂(chem-ion-exchange-resin)のHTML実装(合成高分子シリーズ4本目・完結)
+
+- 変更: `html/ion-exchange-resin.html`(新規、procedure型)、`scripts/check-ion-exchange-resin.mjs`(新規)、`scripts/check-embedded-data.mjs`(EMBED_CHECKSに追加)、`data/ion-exchange-resin.json`(relatedNoteの誤記1箇所のみ修正)、`manifest.json`(chem-ion-exchange-resin追加・order46、chem-thermosetting-resin/chem-synthetic-rubberのrelatedに双方向追加)
+- 背景: `data/ion-exchange-resin.json`をもとに、レイアウト方針(procedure型・陽陰イオン交換樹脂の対カード・用途3種の図の役割分担)を先にCEOに提示し承認を得てから実装した。着手前の重複確認で、指示・データ双方が「ヒスチジンの記述」としていた本文リンク先の一文が、実際はリシンの記述だったことを発見(等電点の値からもリシンが妥当)。CEO承認のうえdata/ion-exchange-resin.jsonの当該1箇所をリシンに修正した
+- 陽イオン交換樹脂・陰イオン交換樹脂は左右の対カードで交換反応式・再生反応式を対応づけ、用途3種はチップ切替(縦一本のイオン交換水カラム図/横方向の電気透析槽3室図/リシンへの本文リンク)で役割を分けた。電気透析槽は電極に直接隣接する外側区画(高校範囲外)を描かず、検証済みの内側3室(淡水/濃縮/淡水)のみ描いた
+- ブラウザ確認中、`.pairflow`のflex-direction:columnとflex-wrap:wrapの組み合わせで375px幅の対カードが横に伸びて画面外にはみ出す不具合を発見し、モバイル用メディアクエリにflex-wrap:nowrapを追加して修正した
+- 375px・820pxとも横スクロール・はみ出しなし、コンソールエラーなし、実キー(Tab/Enter)によるツールチップ表示・用途チップ切替の動作を確認した。検証結果の詳細はコミットメッセージ本文に記載
+- 合成高分子シリーズ(合成繊維・熱硬化性樹脂・合成ゴム・イオン交換樹脂)はこれで4本完結
+- 次: 特になし

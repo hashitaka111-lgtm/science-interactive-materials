@@ -1,0 +1,373 @@
+<!doctype html>
+<html lang="ja">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>イオン交換樹脂</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500&family=IBM+Plex+Sans+JP:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+*{box-sizing:border-box}
+:root{
+  --ink:#16232B; --muted:#5E6E76; --paper:#EDF1EF; --surface:#FFFFFF;
+  --rule:#D6DDDA; --rule-soft:#E8EDEB;
+  --s0:#158A6D; --s0t:#0D6A53;
+  --s1:#6E3AA7; --s1t:#572D85;
+  --sans:"IBM Plex Sans JP","Hiragino Sans","Yu Gothic UI",system-ui,sans-serif;
+  --mono:"IBM Plex Mono",ui-monospace,SFMono-Regular,Menlo,monospace;
+}
+html,body{margin:0;padding:0}
+body{background:var(--paper);color:var(--ink);font-family:var(--sans);font-size:13.5px;line-height:1.75;-webkit-text-size-adjust:100%}
+.mono{font-family:var(--mono);font-variant-numeric:tabular-nums}
+.wrap{max-width:900px;margin:0 auto;padding:20px 14px 60px}
+.card{background:var(--surface);border:1px solid var(--rule);border-radius:3px;padding:14px;margin-bottom:14px}
+.card.text{max-width:900px}
+.eyebrow{display:flex;align-items:center;gap:10px;font-family:var(--mono);font-size:11.5px;letter-spacing:.14em;color:var(--muted);text-transform:uppercase}
+.eyebrow::after{content:"";flex:1;height:1px;background:var(--rule)}
+h1{font-size:22px;font-weight:600;letter-spacing:.01em;margin:8px 0 2px}
+h2{font-size:14.5px;font-weight:600;margin:10px 0 4px}
+p{margin:0 0 8px} p:last-child{margin-bottom:0}
+.lede{color:var(--muted);font-size:13px;margin:4px 0 0}
+.note{color:var(--muted);font-size:12px;line-height:1.7}
+a{color:var(--s1t)}
+a:hover{text-decoration-thickness:1.5px}
+a:focus-visible{outline:2px solid var(--ink);outline-offset:1px}
+
+.btn{font:inherit;font-size:12.5px;line-height:1.4;border:1px solid var(--rule);background:#fff;color:var(--ink);border-radius:2px;padding:6px 10px;cursor:pointer}
+.btn:hover{border-color:#B4C0BC}
+.btn[aria-pressed="true"]{background:var(--ink);color:#fff;border-color:var(--ink)}
+.btn:focus-visible{outline:2px solid var(--ink);outline-offset:1px}
+.btnrow{display:flex;flex-wrap:wrap;gap:6px;margin:8px 0}
+
+/* ---------- 分子量セル(クリック/ホバーで内訳ツールチップ) ---------- */
+.cellrow{display:flex;flex-wrap:wrap;gap:8px;margin:8px 0}
+.cell{font:inherit;display:flex;flex-direction:column;align-items:flex-start;gap:2px;border:1px solid var(--rule);
+  background:#fff;color:var(--ink);border-radius:2px;padding:6px 10px;cursor:pointer;appearance:none}
+.cell:hover{border-color:#B4C0BC}
+.cell:focus-visible{outline:2px solid var(--ink);outline-offset:1px}
+.mwval{font-size:12.5px;color:var(--muted)}
+
+/* ---------- ツールチップ(ホバー=プレビュー、クリック/タップ=ピン留め) ---------- */
+.tip{position:fixed;z-index:50;max-width:250px;background:var(--ink);color:#fff;border-radius:3px;
+  padding:8px 10px;font-size:11.5px;line-height:1.65;pointer-events:none}
+.tip[hidden]{display:none}
+.tip .tsym{font-weight:600;font-size:13px;margin-bottom:3px}
+.tip .trow{margin:1px 0}
+.tip .tconf{color:#AEC0C6;font-family:var(--mono);font-size:10.5px;margin-top:4px}
+.tip .tnote{color:#F0D28A;margin-top:5px;font-size:10.5px;line-height:1.6}
+@media (prefers-reduced-motion:no-preference){ .tip{transition:opacity 120ms linear} }
+
+/* ---------- 反応式ブロック ---------- */
+.eq{font-family:var(--mono);font-size:12.5px;line-height:1.7;background:var(--paper);
+  border:1px solid var(--rule-soft);border-radius:2px;padding:8px 10px;margin:6px 0;overflow-x:auto;white-space:nowrap}
+.eqlabel{font-family:var(--mono);font-size:10.5px;letter-spacing:.08em;color:var(--muted);margin:8px 0 2px}
+.eqlabel:first-child{margin-top:0}
+
+/* ---------- 陽イオン交換樹脂/陰イオン交換樹脂の対カード ---------- */
+.pairflow{display:flex;flex-wrap:wrap;gap:10px;margin:10px 0}
+.pairbox{flex:1 1 260px;min-width:0;border:2px solid var(--rule);border-radius:3px;padding:10px 12px;background:var(--surface)}
+.pairbox.cation{border-color:var(--s0)}
+.pairbox.anion{border-color:var(--s1)}
+.pairlabel{font-family:var(--mono);font-size:11.5px;letter-spacing:.1em;margin-bottom:6px}
+.pairbox.cation .pairlabel{color:var(--s0t)}
+.pairbox.anion .pairlabel{color:var(--s1t)}
+.pairbox .fg{font-family:var(--mono);font-size:13px;margin:2px 0 4px}
+
+/* ---------- 用途の図(縦カラム/電気透析槽) ---------- */
+.diagram{margin:10px 0;border:1px solid var(--rule);border-radius:3px;padding:10px;background:#FBFCFB}
+.diagram svg{display:block;width:100%;max-width:360px;height:auto;margin:0 auto}
+.diagram figcaption{font-size:11px;color:var(--muted);margin-top:6px;text-align:center;line-height:1.5}
+
+/* ---------- 橋渡しノート ---------- */
+.bridgebox{background:var(--rule-soft);border:1px solid var(--rule);border-radius:3px;padding:8px 10px;font-size:12px;color:var(--muted);line-height:1.7;margin-top:8px}
+.bridgebox b{color:var(--ink)}
+
+.section{display:none}
+.section.active{display:block}
+
+@media (prefers-reduced-motion:no-preference){ .btn,.cell{transition:border-color 120ms linear,background-color 120ms linear} }
+
+@media (max-width:430px){
+  body{font-size:13px}
+  .wrap{padding:14px 10px 50px}
+  .card{padding:11px}
+  h1{font-size:19px}
+  .btn{padding:6px 8px;font-size:12px}
+  .eq{font-size:11.5px}
+  .pairflow{flex-direction:column;flex-wrap:nowrap}
+}
+</style>
+</head>
+<body>
+<div class="wrap">
+
+<header class="card">
+  <div class="eyebrow">ION EXCHANGE RESIN</div>
+  <h1>イオン交換樹脂</h1>
+  <p class="lede">合成高分子シリーズの4本目、最後の1本です。スチレンとジビニルベンゼンの共重合体を土台に、官能基を導入して陽イオン交換樹脂・陰イオン交換樹脂を作り、3つの代表的な用途に使う手順を追います。<a href="synthetic-fiber.html">合成繊維</a>・<a href="thermosetting-resin.html">熱硬化性樹脂</a>・<a href="synthetic-rubber.html">合成ゴム</a>とは同じシリーズの姉妹教材。</p>
+</header>
+
+<div class="card text">
+  <div class="eyebrow">GENERAL</div>
+  <p class="note" style="margin-top:8px" id="atomicWeightsNote"></p>
+</div>
+
+<section class="card" id="stepSynthesis">
+  <div class="eyebrow">01 / SYNTHESIS — 土台となる共重合体</div>
+  <h2 id="synthesisHeading"></h2>
+  <div class="cellrow" id="synthesisMonomers"></div>
+  <p class="note" style="margin-top:6px" id="synthesisProductNote"></p>
+  <p class="note" id="synthesisSubstitutionNote"></p>
+</section>
+
+<section class="card" id="stepFunctionalize">
+  <div class="eyebrow">02 / FUNCTIONALIZATION — 官能基の導入</div>
+  <h2>陽イオン交換樹脂・陰イオン交換樹脂</h2>
+  <p class="note">同じ土台の高分子に異なる官能基を導入することで、正反対の性質を持つ2種の樹脂ができます。交換反応式・再生反応式を左右で対応づけて示します。</p>
+  <div class="pairflow" id="pairflowHost"></div>
+</section>
+
+<section class="card" id="stepUses">
+  <div class="eyebrow">03 / USES — 3つの用途</div>
+  <h2>用途を切り替える</h2>
+  <div class="btnrow" id="useChips" role="group" aria-label="用途の切り替え"></div>
+  <div id="usePanelHost"></div>
+</section>
+
+<div class="card text">
+  <div class="eyebrow">NOTES</div>
+  <p class="note" style="margin-top:8px" id="scopeNote"></p>
+  <p class="note" style="margin-top:8px" id="seriesNote"></p>
+</div>
+
+</div><!-- /wrap -->
+
+<div class="tip" id="tip" hidden></div>
+
+<script>
+/* ---------- データ(JSONをそのまま埋め込み。fetch は使わない) ---------- */
+const DATA = {"meta":{"atomicWeights":{"H":1,"C":12,"O":16,"S":32,"Cl":35.5,"Na":23},"note":"分子量・式量はすべて上記atomicWeightsでの計算値。"},"synthesis":{"monomers":[{"name":"スチレン","formula":"C6H5-CH=CH2","weight":104,"confidence":"high","source":"原子量C=12,H=1からの計算値。C8H8 = 8×12+8 = 104。"},{"name":"ジビニルベンゼン(架橋剤)","formula":"C6H4(CH=CH2)2","weight":130,"confidence":"high","source":"原子量C=12,H=1からの計算値。C10H10 = 10×12+10 = 130。少量をスチレンに加えて用いる。"}],"reactionType":"共重合(付加重合)","product":"網目状の土台となる高分子構造","substitutionNote":"立体障害のためベンゼン環のオルト位・メタ位には置換基を導入できず、パラ位のみで置換反応が起こる。"},"cationExchangeResin":{"baseStructure":"土台の高分子に濃硫酸を反応させスルホ基(-SO3H)を導入する(スルホン化)。","functionalGroup":"-SO3H","equilibrium":"R-SO3H + Na+ ⇌ R-SO3Na + H+","massChange":{"group":"SO3","formulaWeight":80,"confidence":"high","source":"原子量S=32,O=16からの計算値。SO3 = 32+3×16 = 80。-SO3基の分だけ質量が重くなる。"},"regeneration":"HClを加えると元のR-SO3Hに戻る。"},"anionExchangeResin":{"baseStructure":"土台の高分子に塩基性の基(トリメチルアンモニウム型)を導入する。","functionalGroup":"-CH2-N+(CH3)3・OH-","equilibrium":"R-CH2-N+(CH3)3OH- + Cl- ⇌ R-CH2-N+(CH3)3Cl- + OH-","regeneration":"NaOH水溶液を加えると元のOH形に戻る。"},"uses":[{"id":"ion_exchange_water","name":"イオン交換水の生成","description":"陽イオン交換樹脂と陰イオン交換樹脂の混合層に水を通すと、Na+はH+に、Cl-はOH-に置き換わり、生じたH+とOH-が中和してH2O(純水)になる。"},{"id":"salt_from_seawater","name":"海水から食塩の合成","description":"陽イオン交換膜(陽イオンのみ通す)と陰イオン交換膜(陰イオンのみ通す)を交互に並べた電気透析槽に電圧をかけると、Na+とCl-がそれぞれ選択的に膜を通過し、濃縮海水と淡水に分離される。","note":"日本の実際の製塩方法。"},{"id":"ion_separation","name":"イオンの分離","description":"樹脂は異なるイオンを異なる強さで吸着するため、イオン分析・イオン分離に用いられる。","relatedMaterial":"chem-acid-base-distribution","relatedNote":"chem-acid-base-distributionのリシンの記述(陽イオン交換樹脂に強く吸着する)は、アミノ酸の等電点の応用例であってイオン交換樹脂そのものの説明ではないため、内容としては重複しない。本文リンクとして接続する。"}]};
+
+const esc = s => String(s).replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+
+/* ---------- 起動時チェック ---------- */
+(function checkData(){
+  const msg=[];
+  if(DATA.synthesis.monomers.length!==2) msg.push('synthesis.monomers が2件ではない('+DATA.synthesis.monomers.length+'件)');
+  if(DATA.uses.length!==3) msg.push('uses が3件ではない('+DATA.uses.length+'件)');
+  if(msg.length) console.warn('[DATA] 不整合\n'+msg.join('\n'));
+  else console.info('[DATA] 土台2モノマー・用途3件を読み込んだ');
+})();
+
+/* ---------- 01 合成 ---------- */
+function renderSynthesis(){
+  const s = DATA.synthesis;
+  document.getElementById('synthesisHeading').textContent = s.reactionType + '(スチレン + ジビニルベンゼン)';
+  document.getElementById('synthesisMonomers').innerHTML = s.monomers.map((m,i)=>
+    '<button type="button" class="cell" data-tip="synth__'+i+'" aria-label="'+esc(m.name+'の分子量の内訳を見る')+'">'+
+      '<span>'+esc(m.name)+' <span class="mono">'+esc(m.formula)+'</span></span><span class="mwval mono">分子量 '+m.weight+'</span></button>'
+  ).join('');
+  document.getElementById('synthesisProductNote').textContent = '生成物: ' + s.product + '。この網目構造が陽イオン交換樹脂・陰イオン交換樹脂どちらの土台にもなる。';
+  document.getElementById('synthesisSubstitutionNote').textContent = s.substitutionNote;
+}
+
+/* ---------- 02 官能基の導入(陽イオン交換樹脂・陰イオン交換樹脂を対で表示) ---------- */
+function pairBoxHtml(kind, label, r){
+  const massCell = (kind==='cation')
+    ? '<div class="cellrow"><button type="button" class="cell" data-tip="mass__cation" aria-label="スルホ基(SO3)の式量の内訳を見る">'+
+        '<span>スルホ基 <span class="mono">-SO3H</span></span><span class="mwval mono">SO3の式量 '+r.massChange.formulaWeight+'</span></button></div>'
+    : '';
+  return '<div class="pairbox '+kind+'">'+
+    '<div class="pairlabel">'+esc(label)+'</div>'+
+    '<p class="note" style="margin-bottom:4px">'+esc(r.baseStructure)+'</p>'+
+    '<div class="fg mono">官能基: '+esc(r.functionalGroup)+'</div>'+
+    massCell+
+    '<div class="eqlabel">交換反応式</div><div class="eq">'+esc(r.equilibrium)+'</div>'+
+    '<div class="eqlabel">再生反応式</div><div class="eq">'+esc(r.regeneration)+'</div>'+
+  '</div>';
+}
+function renderFunctionalization(){
+  document.getElementById('pairflowHost').innerHTML =
+    pairBoxHtml('cation', '陽イオン交換樹脂', DATA.cationExchangeResin) +
+    pairBoxHtml('anion', '陰イオン交換樹脂', DATA.anionExchangeResin);
+}
+
+/* ---------- 03 用途(チップで切り替え) ---------- */
+const useSt = { id: DATA.uses[0].id };
+
+function svgIonExchangeWater(){
+  const beads = [];
+  for(let row=0; row<3; row++){
+    for(let col=0; col<4; col++){
+      const cx = 46 + col*40;
+      const cy = 70 + row*26;
+      const fill = ((row+col)%2===0) ? 'var(--s0)' : 'var(--s1)';
+      beads.push('<circle cx="'+cx+'" cy="'+cy+'" r="9" fill="'+fill+'"/>');
+    }
+  }
+  return '<svg viewBox="0 0 220 220" role="img" aria-label="縦一本のカラム図。上から海水が入り、陽イオン交換樹脂と陰イオン交換樹脂が交互に並ぶ混合層を通過し、下から純水が出る">'+
+    '<text x="110" y="16" text-anchor="middle" font-family="IBM Plex Mono, monospace" font-size="10.5" fill="var(--muted)">Na+, Cl- を含む水</text>'+
+    '<line x1="110" y1="20" x2="110" y2="44" stroke="var(--ink)" stroke-width="2"/>'+
+    '<polygon points="103,40 117,40 110,50" fill="var(--ink)"/>'+
+    '<rect x="20" y="54" width="180" height="104" rx="3" fill="#FBFCFB" stroke="var(--rule)" stroke-width="1.5"/>'+
+    beads.join('')+
+    '<text x="110" y="176" text-anchor="middle" font-family="IBM Plex Mono, monospace" font-size="9.5" fill="var(--muted)">Na+→H+ に、Cl-→OH- に置き換わる</text>'+
+    '<line x1="110" y1="182" x2="110" y2="204" stroke="var(--ink)" stroke-width="2"/>'+
+    '<polygon points="103,200 117,200 110,210" fill="var(--ink)"/>'+
+    '<text x="110" y="219" text-anchor="middle" font-family="IBM Plex Mono, monospace" font-size="10.5" fill="var(--ink)" font-weight="600">H2O(純水)</text>'+
+  '</svg>';
+}
+function svgElectrodialysis(){
+  // 膜3枚ではなく4枚(C,A,C,A)を使い、内側にできる3室(淡水/濃縮/淡水)だけを描く。
+  // 電極に直接隣接する外側の区画(電極洗浄室に相当)は高校の範囲を超えるため描かない。
+  const memX = [70, 110, 150, 190];
+  const memType = ['C','A','C','A'];
+  let mem = '';
+  memX.forEach((x,i)=>{
+    const fill = memType[i]==='C' ? 'var(--s0)' : 'var(--s1)';
+    mem += '<rect x="'+(x-3)+'" y="28" width="6" height="120" fill="'+fill+'"/>';
+    mem += '<text x="'+x+'" y="20" text-anchor="middle" font-family="IBM Plex Mono, monospace" font-size="10" fill="'+fill+'">'+memType[i]+'</text>';
+  });
+  const chamberLabel = [
+    {x:90, t:'淡水'}, {x:130, t:'濃縮'}, {x:170, t:'淡水'}
+  ];
+  let labels = '';
+  chamberLabel.forEach(c=>{ labels += '<text x="'+c.x+'" y="164" text-anchor="middle" font-family="IBM Plex Mono, monospace" font-size="10" fill="var(--muted)">'+c.t+'</text>'; });
+  return '<svg viewBox="0 0 260 180" role="img" aria-label="横方向の電気透析槽の断面図。陽イオン交換膜と陰イオン交換膜が交互に並び、左に陰極、右に陽極がある。中央の区画が濃縮、両隣が淡水になる">'+
+    '<rect x="70" y="28" width="120" height="120" fill="#FBFCFB" stroke="var(--rule)" stroke-width="1.5"/>'+
+    mem+
+    '<text x="20" y="88" text-anchor="middle" font-family="IBM Plex Mono, monospace" font-size="11" fill="var(--ink)">陰極(−)</text>'+
+    '<text x="240" y="88" text-anchor="middle" font-family="IBM Plex Mono, monospace" font-size="11" fill="var(--ink)">陽極(+)</text>'+
+    '<line x1="130" y1="70" x2="90" y2="70" stroke="var(--s0t)" stroke-width="1.5" marker-end="url(#arrNa)"/>'+
+    '<text x="110" y="64" text-anchor="middle" font-family="IBM Plex Mono, monospace" font-size="9" fill="var(--s0t)">Na+</text>'+
+    '<line x1="130" y1="70" x2="170" y2="70" stroke="var(--s1t)" stroke-width="1.5" marker-end="url(#arrCl)"/>'+
+    '<text x="150" y="64" text-anchor="middle" font-family="IBM Plex Mono, monospace" font-size="9" fill="var(--s1t)">Cl-</text>'+
+    labels+
+    '<defs>'+
+      '<marker id="arrNa" markerWidth="7" markerHeight="7" refX="5" refY="3.5" orient="auto"><path d="M0,0 L7,3.5 L0,7 z" fill="var(--s0t)"/></marker>'+
+      '<marker id="arrCl" markerWidth="7" markerHeight="7" refX="5" refY="3.5" orient="auto"><path d="M0,0 L7,3.5 L0,7 z" fill="var(--s1t)"/></marker>'+
+    '</defs>'+
+  '</svg>';
+}
+function usePanelHtml(u){
+  let extra = '';
+  if(u.id==='ion_exchange_water'){
+    extra = '<div class="diagram"><figure style="margin:0">'+svgIonExchangeWater()+
+      '<figcaption>混合層(陽イオン交換樹脂・陰イオン交換樹脂)を1回通す縦一本の流れ</figcaption></figure></div>';
+  } else if(u.id==='salt_from_seawater'){
+    extra = '<div class="diagram"><figure style="margin:0">'+svgElectrodialysis()+
+      '<figcaption>陽イオン交換膜(C)・陰イオン交換膜(A)を交互に配置。Na+は陰極側へ、Cl-は陽極側へ選択的に移動し、内側の区画が濃縮される</figcaption></figure>'+
+      (u.note ? '<p class="note" style="margin-top:8px">'+esc(u.note)+'</p>' : '')+
+      '</div>';
+  } else if(u.id==='ion_separation'){
+    extra = '<div class="bridgebox"><b>アミノ酸の分離という具体例</b>(<a href="acid-base-distribution.html">酸・塩基の分布</a>参照): '+esc(u.relatedNote)+'</div>';
+  }
+  return '<h2 style="margin-top:10px">'+esc(u.name)+'</h2><p>'+esc(u.description)+'</p>'+extra;
+}
+function renderUseChips(){
+  document.getElementById('useChips').innerHTML = DATA.uses.map((u,i)=>{
+    const label = String.fromCharCode(97+i) + '. ' + u.name;
+    return '<button type="button" class="btn" data-use="'+u.id+'" aria-pressed="'+(u.id===useSt.id)+'">'+esc(label)+'</button>';
+  }).join('');
+}
+function renderUsePanel(){
+  const u = DATA.uses.find(x=>x.id===useSt.id);
+  document.getElementById('usePanelHost').innerHTML = usePanelHtml(u);
+}
+function wireUseChips(){
+  document.getElementById('useChips').addEventListener('click', (e)=>{
+    const b = e.target.closest('button[data-use]');
+    if(!b) return;
+    useSt.id = b.dataset.use;
+    Array.prototype.forEach.call(document.querySelectorAll('#useChips button'), x=>{
+      x.setAttribute('aria-pressed', x.dataset.use===useSt.id);
+    });
+    renderUsePanel();
+  });
+}
+
+/* ---------- ツールチップ(合成モノマー・SO3式量。ホバー=プレビュー、クリック/タップ=ピン留め) ---------- */
+const tip = document.getElementById('tip');
+let pinnedKey = null;
+function tipHTML(key){
+  if(key.indexOf('synth__')===0){
+    const m = DATA.synthesis.monomers[Number(key.split('__')[1])];
+    return '<div class="tsym">'+esc(m.name)+'</div>'+
+      '<div class="trow">'+esc(m.formula)+'</div>'+
+      '<div class="trow">分子量 '+m.weight+'</div>'+
+      '<div class="tconf">('+esc(m.confidence)+')</div>'+
+      '<div class="tnote">'+esc(m.source)+'</div>';
+  }
+  if(key==='mass__cation'){
+    const mc = DATA.cationExchangeResin.massChange;
+    return '<div class="tsym">'+esc(mc.group)+'基</div>'+
+      '<div class="trow">式量 '+mc.formulaWeight+'</div>'+
+      '<div class="tconf">('+esc(mc.confidence)+')</div>'+
+      '<div class="tnote">'+esc(mc.source)+'</div>';
+  }
+  return '';
+}
+function positionTip(el){
+  const r = el.getBoundingClientRect();
+  tip.style.left = '0px'; tip.style.top = '0px';
+  const tw = tip.offsetWidth, th = tip.offsetHeight;
+  let x = r.left + r.width/2 - tw/2;
+  let y = r.top - th - 8;
+  if(y < 4) y = r.bottom + 8;
+  x = Math.max(6, Math.min(x, window.innerWidth - tw - 6));
+  y = Math.min(y, window.innerHeight - th - 6);
+  tip.style.left = x+'px';
+  tip.style.top = y+'px';
+}
+function showTip(el, key){
+  tip.innerHTML = tipHTML(key);
+  tip.hidden = false;
+  positionTip(el);
+}
+function hideTip(){ tip.hidden = true; }
+
+document.body.addEventListener('mouseenter', (e)=>{
+  const c = e.target.closest && e.target.closest('.cell');
+  if(c && !pinnedKey) showTip(c, c.dataset.tip);
+}, true);
+document.body.addEventListener('mouseleave', (e)=>{
+  const c = e.target.closest && e.target.closest('.cell');
+  if(c && !pinnedKey) hideTip();
+}, true);
+document.body.addEventListener('focusin', (e)=>{
+  const c = e.target.closest && e.target.closest('.cell');
+  if(c) showTip(c, c.dataset.tip);
+});
+document.body.addEventListener('focusout', (e)=>{
+  const c = e.target.closest && e.target.closest('.cell');
+  if(c && !pinnedKey) hideTip();
+});
+document.body.addEventListener('click', (e)=>{
+  const c = e.target.closest && e.target.closest('.cell');
+  if(c){
+    const key = c.dataset.tip;
+    if(pinnedKey===key){ pinnedKey = null; hideTip(); }
+    else { pinnedKey = key; showTip(c, key); }
+    return;
+  }
+  if(!e.target.closest('#tip')){ pinnedKey = null; hideTip(); }
+});
+
+/* ---------- テキストノート ---------- */
+function renderTextNotes(){
+  document.getElementById('atomicWeightsNote').textContent = DATA.meta.note;
+  document.getElementById('scopeNote').textContent = 'ここでは高校の教科書に載っている範囲(共重合による土台の合成・官能基導入による陽イオン交換樹脂/陰イオン交換樹脂・代表的な3つの用途)に絞る。合成繊維・熱硬化性樹脂・合成ゴムは別教材の範囲とする。';
+  document.getElementById('seriesNote').textContent = '合成高分子シリーズ(合成繊維・熱硬化性樹脂・合成ゴム・イオン交換樹脂)はこれで4本完結です。';
+}
+
+/* ---------- 初期化 ---------- */
+renderSynthesis();
+renderFunctionalization();
+renderUseChips();
+wireUseChips();
+renderUsePanel();
+renderTextNotes();
+</script>
+</body>
+</html>
