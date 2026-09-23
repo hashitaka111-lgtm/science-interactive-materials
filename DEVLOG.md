@@ -472,3 +472,15 @@
 - 検証結果はコミットメッセージ本文に記載(今回からDEVLOG.mdは要約のみとする運用に変更)
 - 保留: 4教材の正式名称・HTML実装(chem-*.html)・manifest.jsonへの追加は次回以降
 - 次: CEOとの正式名称の相談後、HTML実装(4本)
+
+## 2026-09-23 — 合成繊維(chem-synthetic-fiber)のHTML実装(合成高分子シリーズ1本目)
+
+- 変更: `html/synthetic-fiber.html`(新規、matrix型)、`scripts/check-synthetic-fiber.mjs`(新規)、`scripts/check-embedded-data.mjs`(EMBED_CHECKSに追加)、`manifest.json`(chem-synthetic-fiber追加・order43、chem-hydrocarbon-nomenclature/chem-ester-nomenclatureのrelatedに双方向追加)
+- 背景: `data/synthetic-fiber.json`(検算済み・今回変更なし)をもとに、レイアウト方針(型・カラム構成・本文リンク配置・色分け枠の適用)を先にCEOに提示し承認を得てから実装した
+- レイアウトはCEOの手書きノートの2カラム構成ではなく、375px対応を優先して既存2教材(carboxylic-acid-nomenclature・ester-nomenclature)と同じ縦積み+モード切替(3系統)を採用。分子量セルのホバー/タップ詳細はperiodic-trends.htmlのtipパターンを踏襲
+- 6,6-ナイロン・PETの行はchem-polymer-degree・chem-carboxylic-acid-nomenclatureへの本文リンクのみとし、独自の分子量展開はしていない
+- related追加は指示のchem-polymer-degree(4件で満杯のため不可)ではなく、4件未満だったchem-hydrocarbon-nomenclature・chem-ester-nomenclatureの2件を選び直した(build.mjsのrelated双方向必須チェックに抵触するため)。あわせて本文にも双方向の実リンクを入れた
+- `scripts/check-embedded-data.mjs`への追加先は、指示のEMBED_SCRIPT_CHECKS(mjsスクリプト全文embed用)ではなく、実際の埋め込み形式(JSON)に合うEMBED_CHECKSにした
+- 検証結果はコミットメッセージ本文に記載
+- 保留: 熱硬化性樹脂・合成ゴム・イオン交換樹脂の残り3教材のHTML実装は次回
+- 次: 残り3教材のレイアウト方針の提示から

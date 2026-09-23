@@ -1357,7 +1357,8 @@
     "related": [
       "chem-polymer-degree",
       "chem-isomers",
-      "chem-aldehyde-ketone-nomenclature"
+      "chem-aldehyde-ketone-nomenclature",
+      "chem-synthetic-fiber"
     ]
   },
   {
@@ -1504,7 +1505,8 @@
     "related": [
       "chem-substituted-carboxylic-acid-nomenclature",
       "chem-polymer-degree",
-      "chem-fats-oils-saponification"
+      "chem-fats-oils-saponification",
+      "chem-synthetic-fiber"
     ]
   },
   {
@@ -1761,6 +1763,35 @@
       "chem-dna-double-helix",
       "chem-nucleotide-structure",
       "chem-peptide-sequencing"
+    ]
+  },
+  {
+    "id": "chem-synthetic-fiber",
+    "file": "html/synthetic-fiber.html",
+    "subject": "chemistry",
+    "unit": "高分子化合物 / 合成繊維(ナイロン・アラミド・PET・ビニロン・アクリル)",
+    "course": "化学",
+    "section": "合成高分子化合物",
+    "order": 43,
+    "title": "合成繊維",
+    "heading": "合成繊維",
+    "summary": "6,6-ナイロン・6-ナイロン・アラミド繊維・PET・ビニロン・アクリル繊維の6種を、モノマー・重合形態・繰り返し単位の分子量で比較する",
+    "topics": [
+      "ポリアミド系(6,6-ナイロン・6-ナイロン・アラミド繊維)の縮合重合・開環重合",
+      "ポリエステル系(PET)の縮合重合",
+      "ビニル系(ビニロン・アクリル繊維)の付加重合、ビニロンの多段階変換(けん化・アセタール化)",
+      "繰り返し単位の分子量(原子量からの計算)"
+    ],
+    "interactions": [
+      "チップ切り替え",
+      "色分け表示",
+      "ホバー/タップ"
+    ],
+    "confidence": "high",
+    "type": "matrix",
+    "related": [
+      "chem-hydrocarbon-nomenclature",
+      "chem-ester-nomenclature"
     ]
   }
 ]

@@ -1,0 +1,455 @@
+<!doctype html>
+<html lang="ja">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>合成繊維</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500&family=IBM+Plex+Sans+JP:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+*{box-sizing:border-box}
+:root{
+  --ink:#16232B; --muted:#5E6E76; --paper:#EDF1EF; --surface:#FFFFFF;
+  --rule:#D6DDDA; --rule-soft:#E8EDEB;
+  --s0:#B87A16; --s0t:#8A5A0C;
+  --s1:#158A6D; --s1t:#0D6A53;
+  --s2:#2457A6; --s2t:#1B4380;
+  --s3:#6E3AA7; --s3t:#572D85;
+  --s4:#A82A6A; --s4t:#831F52;
+  --sans:"IBM Plex Sans JP","Hiragino Sans","Yu Gothic UI",system-ui,sans-serif;
+  --mono:"IBM Plex Mono",ui-monospace,SFMono-Regular,Menlo,monospace;
+}
+html,body{margin:0;padding:0}
+body{background:var(--paper);color:var(--ink);font-family:var(--sans);font-size:13.5px;line-height:1.75;-webkit-text-size-adjust:100%}
+.mono{font-family:var(--mono);font-variant-numeric:tabular-nums}
+.wrap{max-width:900px;margin:0 auto;padding:20px 14px 60px}
+.card{background:var(--surface);border:1px solid var(--rule);border-radius:3px;padding:14px;margin-bottom:14px}
+.card.text{max-width:900px}
+.eyebrow{display:flex;align-items:center;gap:10px;font-family:var(--mono);font-size:11.5px;letter-spacing:.14em;color:var(--muted);text-transform:uppercase}
+.eyebrow::after{content:"";flex:1;height:1px;background:var(--rule)}
+h1{font-size:22px;font-weight:600;letter-spacing:.01em;margin:8px 0 2px}
+h2{font-size:14.5px;font-weight:600;margin:10px 0 4px}
+h3{font-size:13px;font-weight:600;margin:0 0 6px}
+p{margin:0 0 8px} p:last-child{margin-bottom:0}
+.lede{color:var(--muted);font-size:13px;margin:4px 0 0}
+.note{color:var(--muted);font-size:12px;line-height:1.7}
+a{color:var(--s2t)}
+a:hover{text-decoration-thickness:1.5px}
+a:focus-visible{outline:2px solid var(--ink);outline-offset:1px}
+
+.btn{font:inherit;font-size:12.5px;line-height:1.4;border:1px solid var(--rule);background:#fff;color:var(--ink);border-radius:2px;padding:6px 10px;cursor:pointer}
+.btn:hover{border-color:#B4C0BC}
+.btn[aria-pressed="true"]{background:var(--ink);color:#fff;border-color:var(--ink)}
+.btn:focus-visible{outline:2px solid var(--ink);outline-offset:1px}
+.btnrow{display:flex;flex-wrap:wrap;gap:6px;margin:8px 0}
+
+/* ---------- 表共通 ---------- */
+.scroll{overflow-x:auto;-webkit-overflow-scrolling:touch;padding-bottom:2px}
+table{border-collapse:collapse;width:100%;font-size:12.5px}
+table.compact{min-width:660px}
+th,td{padding:6px 8px;text-align:left;white-space:nowrap;border-bottom:1px solid var(--rule-soft);vertical-align:top}
+th{font-family:var(--mono);font-size:10.5px;letter-spacing:.06em;color:var(--muted);font-weight:500}
+td.wraptext{white-space:normal;min-width:150px}
+tr:last-child td{border-bottom:none}
+
+/* ---------- 分類ごとの色分け枠(distribution-series-design-system.md 準拠) ---------- */
+.classbox{border:2px solid var(--rule);border-radius:3px;padding:10px 12px 4px;margin:10px 0}
+.classlabel{font-family:var(--mono);font-size:11.5px;letter-spacing:.14em;display:flex;align-items:center;gap:8px;margin-bottom:6px}
+.classlabel .cnt{font-weight:400;letter-spacing:0;text-transform:none;font-size:11px}
+
+/* ---------- 分子量セル(クリック/ホバーで内訳ツールチップ) ---------- */
+.cell{font:inherit;display:flex;flex-direction:column;align-items:flex-start;gap:2px;border:1px solid var(--rule);
+  background:#fff;color:var(--ink);border-radius:2px;padding:4px 8px;cursor:pointer;appearance:none}
+.cell:hover{border-color:#B4C0BC}
+.cell:focus-visible{outline:2px solid var(--ink);outline-offset:1px}
+.mwval{font-size:12.5px;color:var(--muted)}
+.jumplink{display:block;font-size:11px;margin-top:4px}
+
+/* ---------- ツールチップ(ホバー=プレビュー、クリック/タップ=ピン留め) ---------- */
+.tip{position:fixed;z-index:50;max-width:250px;background:var(--ink);color:#fff;border-radius:3px;
+  padding:8px 10px;font-size:11.5px;line-height:1.65;pointer-events:none}
+.tip[hidden]{display:none}
+.tip .tsym{font-weight:600;font-size:13px;margin-bottom:3px}
+.tip .trow{margin:1px 0}
+.tip .tconf{color:#AEC0C6;font-family:var(--mono);font-size:10.5px;margin-top:4px}
+.tip .tnote{color:#F0D28A;margin-top:5px;font-size:10.5px;line-height:1.6}
+@media (prefers-reduced-motion:no-preference){ .tip{transition:opacity 120ms linear} }
+
+/* ---------- 橋渡しノート(他教材への本文リンク) ---------- */
+.bridgebox{background:var(--rule-soft);border:1px solid var(--rule);border-radius:3px;padding:8px 10px;font-size:12px;color:var(--muted);line-height:1.7;margin-top:8px}
+.bridgebox b{color:var(--ink)}
+
+/* ---------- 反応式カード ---------- */
+.eqrow{margin:8px 0}
+.eqrow:first-child{margin-top:0}
+.eqname{font-family:var(--mono);font-size:11.5px;color:var(--muted);margin-bottom:2px}
+.eqform{font-size:12.5px;line-height:1.6;word-break:break-word}
+
+/* ---------- ビニロンの3段階プロセス ---------- */
+.stageflow{display:flex;flex-wrap:wrap;gap:8px;align-items:stretch;margin:8px 0}
+.stagebox{flex:1 1 170px;border:1px solid var(--rule);border-radius:3px;padding:8px 10px;background:#FBFCFB}
+.stagelabel{font-family:var(--mono);font-size:10.5px;letter-spacing:.08em;color:var(--muted);margin-bottom:4px}
+.stageform{font-size:12px;line-height:1.6}
+.stageproduct{margin-top:4px;font-size:12px}
+.stagearrow{flex:0 0 auto;align-self:center;font-family:var(--mono);font-size:18px;color:var(--muted)}
+
+/* ---------- モード切替セクション ---------- */
+.section{display:none}
+.section.active{display:block}
+
+@media (prefers-reduced-motion:no-preference){ .btn,.cell{transition:border-color 120ms linear,background-color 120ms linear} }
+
+@media (max-width:430px){
+  body{font-size:13px}
+  .wrap{padding:14px 10px 50px}
+  .card{padding:11px}
+  h1{font-size:19px}
+  .btn{padding:6px 8px;font-size:12px}
+  table.compact{min-width:600px}
+  .stageflow{flex-direction:column}
+  .stagearrow{transform:rotate(90deg);padding:2px 0}
+}
+</style>
+</head>
+<body>
+<div class="wrap">
+
+<header>
+  <div class="eyebrow">SYNTHETIC FIBER</div>
+  <h1>合成繊維</h1>
+  <p class="lede">高校化学で扱う代表的な合成繊維6種(ポリアミド系3・ポリエステル系1・ビニル系2)を、モノマー・重合形態・繰り返し単位の分子量でまとめる。6,6-ナイロン・PETの分子量計算は<a href="polymer-degree.html">重合度と平均分子量</a>で確定済みの値をそのまま引用し、本教材では再計算しない。</p>
+</header>
+
+<div class="card text">
+  <div class="eyebrow">GENERAL</div>
+  <p class="note" style="margin-top:8px" id="thermoplasticNote"></p>
+  <p class="note" id="polymerizationGeneralNote"></p>
+  <p class="note" id="atomicWeightsNote" style="margin-top:8px"></p>
+</div>
+
+<div class="card">
+  <div class="eyebrow">SWITCH</div>
+  <h2>系統を切り替える</h2>
+  <div class="btnrow" id="modeChips" role="group" aria-label="系統の切り替え"></div>
+</div>
+
+<!-- ========== ポリアミド系 ========== -->
+<section id="sectionAmide" class="section">
+  <div class="card" id="cardAmideClass">
+    <div class="eyebrow">POLYAMIDE &middot; CLASSIFICATION</div>
+    <h2>ポリアミド系(6,6-ナイロン・6-ナイロン・アラミド繊維)</h2>
+    <p class="note">いずれもアミド結合(-NH-CO-)で鎖がつながる。6,6-ナイロンは縮合重合、6-ナイロンは環状モノマーの開環重合、アラミド繊維は芳香環を含む縮合重合という違いがある。</p>
+    <div id="amideTableHost"></div>
+    <div id="amideBridgeHost"></div>
+  </div>
+  <div class="card" id="cardAmideEq">
+    <div class="eyebrow">POLYAMIDE &middot; SYNTHESIS</div>
+    <h2>合成経路(反応式)</h2>
+    <div id="amideEqHost"></div>
+  </div>
+</section>
+
+<!-- ========== ポリエステル系 ========== -->
+<section id="sectionEster" class="section">
+  <div class="card" id="cardEsterClass">
+    <div class="eyebrow">POLYESTER &middot; CLASSIFICATION</div>
+    <h2>ポリエステル系(PET)</h2>
+    <p class="note">エステル結合(-CO-O-)で鎖がつながる縮合重合。エステルの命名法そのものは<a href="ester-nomenclature.html">エステルの命名法</a>で扱っており、本教材では合成繊維としての性質・原料に絞る。</p>
+    <div id="esterTableHost"></div>
+    <div id="esterBridgeHost"></div>
+  </div>
+  <div class="card" id="cardEsterEq">
+    <div class="eyebrow">POLYESTER &middot; SYNTHESIS</div>
+    <h2>合成経路(反応式)</h2>
+    <div id="esterEqHost"></div>
+  </div>
+</section>
+
+<!-- ========== ビニル系 ========== -->
+<section id="sectionVinyl" class="section">
+  <div class="card" id="cardVinylClass">
+    <div class="eyebrow">VINYL-DERIVED &middot; CLASSIFICATION</div>
+    <h2>ビニル系(ビニロン・アクリル繊維)</h2>
+    <p class="note">どちらもC=C二重結合を持つモノマーの付加重合から出発する。アルケンの付加反応の一般論は<a href="hydrocarbon-nomenclature.html">炭化水素の命名法・製法・性質</a>を参照。ビニロンは付加重合の後にけん化・アセタール化という2段階の変換を経る点で、単純な付加重合のアクリル繊維と異なる。</p>
+    <div id="vinylTableHost"></div>
+  </div>
+  <div class="card" id="cardVinylEq">
+    <div class="eyebrow">VINYL-DERIVED &middot; SYNTHESIS</div>
+    <h2>合成経路(反応式・ビニロンは3段階)</h2>
+    <div id="vinylEqHost"></div>
+  </div>
+</section>
+
+<div class="card text">
+  <div class="eyebrow">NOTES</div>
+  <p class="note" style="margin-top:8px" id="scopeNote"></p>
+</div>
+
+</div><!-- /wrap -->
+
+<div class="tip" id="tip" hidden></div>
+
+<script>
+/* ---------- データ(JSONをそのまま埋め込み。fetch は使わない) ---------- */
+const DATA = {"meta":{"atomicWeights":{"H":1,"C":12,"N":14,"O":16},"note":"分子量はすべてH=1,C=12,N=14,O=16での計算値。6,6-ナイロン(226)・PET(192)はchem-polymer-degreeの確定値をそのまま引用し、本教材では独自に再計算しない(構造式・原料が同一であることのみ確認済み)。","thermoplastic":"合成繊維は熱可塑性(熱で軟化し、冷却すると再び固まる)をもち、一次元の鎖状構造をしている。","polymerizationGeneral":"付加重合はモノマーがそのまま次々につながる重合形式。縮合重合はモノマー同士がつながるたびにH2Oのような小さな分子が脱離を繰り返す重合形式。"},"fibers":[{"id":"nylon66","name":"6,6-ナイロン","originCountry":"アメリカ発","polymerFamily":"ポリアミド系","polymerizationType":"condensation","bondType":"アミド結合","monomers":[{"name":"アジピン酸","formula":"HOOC-(CH2)4-COOH","weight":146},{"name":"ヘキサメチレンジアミン","formula":"H2N-(CH2)6-NH2","weight":116}],"leavingMolecule":"水","leavingFormula":"H2O","leavingCountPerUnit":2,"repeatUnitFormula":"-[NH-(CH2)6-NH-CO-(CH2)4-CO]-n","repeatUnitWeight":226,"confidence":"high","source":"chem-polymer-degreeの確定値をそのまま引用(146+116-2×18=226)。本教材では独自に計算し直さず、リンクのみ貼る。","linkTo":"chem-polymer-degree","reactionEquation":"n H2N-(CH2)6-NH2 + n HOOC-(CH2)4-COOH → -[NH-(CH2)6-NH-CO-(CH2)4-CO]-n + 2n H2O","properties":["引っ張り強度大","耐摩耗性","耐久性","吸湿性は少ない"],"uses":["衣類","バッグ","釣り糸","ブラシ"]},{"id":"nylon6","name":"6-ナイロン","originCountry":"日本","polymerFamily":"ポリアミド系","polymerizationType":"ring_opening","polymerizationNote":"モノマーが1種類の環状アミドで、環を開いてそのまま鎖につながる開環重合。付加重合・縮合重合のどちらとも異なるが、脱離する小分子はない点は付加重合に近い。","bondType":"アミド結合","monomers":[{"name":"ε-カプロラクタム(環状アミド)","formula":"C6H11NO(環状)","weight":113}],"leavingMolecule":null,"leavingFormula":null,"leavingCountPerUnit":0,"repeatUnitFormula":"-[NH-(CH2)5-CO]-n","repeatUnitWeight":113,"confidence":"high","source":"原子量H=1,C=12,N=14,O=16からの計算値。ε-カプロラクタムC6H11NO(環状)がそのまま開環して繰り返し単位になり、脱離する小分子はない。6×12+11×1+14+16=113。","properties":["6,6-ナイロンと似た性質だが軟化点・融点がやや低い"],"uses":["歯ブラシの毛先"]},{"id":"aramid","name":"アラミド繊維","originCountry":null,"polymerFamily":"ポリアミド系(芳香族)","polymerizationType":"condensation","bondType":"アミド結合","monomers":[{"name":"p-フェニレンジアミン","formula":"H2N-C6H4-NH2","weight":108,"confidence":"high","source":"原子量H=1,C=12,N=14からの計算値。C6H8N2 = 6×12+8+2×14 = 108。"},{"name":"テレフタル酸ジクロリド","formula":"Cl-CO-C6H4-CO-Cl","weight":203,"confidence":"high","source":"原子量H=1,C=12,O=16,Cl=35.5からの計算値。C8H4Cl2O2 = 8×12+4+2×35.5+2×16 = 203。"}],"leavingMolecule":"塩化水素","leavingFormula":"HCl","leavingWeight":36.5,"leavingCountPerUnit":2,"repeatUnitFormula":"-[NH-C6H4-NH-CO-C6H4-CO]-n","repeatUnitWeight":238,"confidence":"high","source":"原子量H=1,C=12,N=14,O=16,Cl=35.5からの計算値。2通りで検算: (1) 繰り返し単位を原子から直接積算(C14H10N2O2 = 14×12+10+2×14+2×16 = 238)。(2) モノマー差引き: p-フェニレンジアミン(108)+テレフタル酸ジクロリド(203)が1組ずつ縮合し、そのたびにHClが2個脱離する(アミド結合が2か所できるため)。108+203-2×36.5=238。両者一致。","reactionEquation":"n H2N-C6H4-NH2 + n Cl-CO-C6H4-CO-Cl → -[NH-C6H4-NH-CO-C6H4-CO]-n + 2n HCl","meltingPoint":"580℃","properties":["超高強力(切れにくい)","高弾性率(伸びにくい)","高耐熱性"],"uses":["防弾チョッキ","防火服"]},{"id":"pet","name":"PET(ポリエチレンテレフタラート)","originCountry":null,"polymerFamily":"ポリエステル系","polymerizationType":"condensation","bondType":"エステル結合","monomers":[{"name":"テレフタル酸","formula":"HOOC-C6H4-COOH","weight":166},{"name":"エチレングリコール","formula":"HO-CH2CH2-OH","weight":62}],"leavingMolecule":"水","leavingFormula":"H2O","leavingCountPerUnit":2,"repeatUnitFormula":"-[O-(CH2)2-O-CO-C6H4-CO]-n","repeatUnitWeight":192,"confidence":"high","source":"chem-polymer-degreeの確定値をそのまま引用(166+62-2×18=192)。本教材では独自に計算し直さず、リンクのみ貼る。","linkTo":"chem-polymer-degree","properties":["引っ張り強度はナイロンに次ぐ","耐日光性に優れる","汚れが落ちにくい"],"uses":["シャツ","水着","下着","魚網"],"note":"ベンゼン環がUVを吸収するため、ペットボトル内の飲料を保護する効果がある"},{"id":"vinylon","name":"ビニロン","originCountry":"日本","polymerFamily":"ビニルアルコール系","polymerizationType":"addition_then_modification","polymerizationNote":"単純な付加重合・縮合重合1回では作れない多段階プロセス: (1)酢酸ビニルの付加重合でポリ酢酸ビニル (2)けん化でポリビニルアルコール(PVA) (3)ホルムアルデヒドで部分的にアセタール化(30〜40%)してビニロンになる。","stages":[{"step":1,"name":"付加重合","monomer":{"name":"酢酸ビニル","formula":"CH2=CH-O-CO-CH3","weight":86},"product":"ポリ酢酸ビニル","confidence":"high","source":"原子量H=1,C=12,O=16からの計算値。C4H6O2 = 4×12+6+2×16 = 86。"},{"step":2,"name":"けん化(NaOH等)","product":"ポリビニルアルコール(PVA)","repeatUnitFormula":"-[CH2-CH(OH)]-n","repeatUnitWeight":44,"confidence":"high","source":"原子量H=1,C=12,O=16からの計算値。C2H4O = 2×12+4+16 = 44。"},{"step":3,"name":"ホルムアルデヒドで部分アセタール化(30〜40%)","reagent":{"name":"ホルムアルデヒド","formula":"HCHO","weight":30},"leavingMolecule":"水","leavingFormula":"H2O","leavingWeight":18,"product":"ビニロン","acetalizedRepeatUnitWeight":100,"confidence":"high","source":"原子量H=1,C=12,O=16からの計算値。ビニルアルコール単位2個(44×2=88)の隣り合う2つのOHが1個のホルムアルデヒド(30)と縮合し、水(18)が1個脱離して環状アセタールになる。88+30-18=100。これはアセタール化された部分の繰り返し単位の分子量であり、ビニロン全体(未反応のOHを含む鎖)の平均分子量ではない。"}],"properties":["天然繊維より軽く吸水性をもつ","耐摩耗性に優れる(全てアセタール化しないことでOHを直鎖に残し吸湿性を保つ)"],"uses":["作業服","ロープ"]},{"id":"acrylic","name":"アクリル繊維","originCountry":null,"polymerFamily":"ポリアクリロニトリル系","polymerizationType":"addition","bondType":null,"monomers":[{"name":"アクリロニトリル","formula":"CH2=CH-CN","weight":53}],"leavingMolecule":null,"leavingFormula":null,"leavingCountPerUnit":0,"repeatUnitFormula":"-[CH2-CH(CN)]-n","repeatUnitWeight":53,"confidence":"high","source":"原子量H=1,C=12,N=14からの計算値。C3H3N = 3×12+3+14 = 53。","properties":["羊毛に似た感触","軽くて保温性に富む","虫やカビに強い"],"uses":["衣類","布団の綿","カーペット","毛布"]}]};
+
+const esc = s => String(s).replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+
+/* ---------- 系統(グループ)の分類 ---------- */
+const GROUP_META = {
+  amide: { bd:'#158A6D', tx:'#0D6A53', bg:'rgba(21,138,109,.10)', label:'ポリアミド系' },
+  ester: { bd:'#2457A6', tx:'#1B4380', bg:'rgba(36,87,166,.10)', label:'ポリエステル系' },
+  vinyl: { bd:'#6E3AA7', tx:'#572D85', bg:'rgba(110,58,167,.10)', label:'ビニル系' },
+};
+const GROUP_ORDER = ['amide','ester','vinyl'];
+const SECTION_ID = { amide:'sectionAmide', ester:'sectionEster', vinyl:'sectionVinyl' };
+function groupKeyOf(f){
+  if(f.polymerFamily.indexOf('ポリアミド系')===0) return 'amide';
+  if(f.polymerFamily==='ポリエステル系') return 'ester';
+  return 'vinyl';
+}
+
+/* ---------- 起動時チェック ---------- */
+(function checkData(){
+  const msg=[];
+  if(DATA.fibers.length!==6) msg.push('fibers が6件ではない('+DATA.fibers.length+'件)');
+  const counts = { amide:0, ester:0, vinyl:0 };
+  DATA.fibers.forEach(f=>{ counts[groupKeyOf(f)]++; });
+  if(counts.amide!==3) msg.push('ポリアミド系が3件ではない('+counts.amide+'件)');
+  if(counts.ester!==1) msg.push('ポリエステル系が1件ではない('+counts.ester+'件)');
+  if(counts.vinyl!==2) msg.push('ビニル系が2件ではない('+counts.vinyl+'件)');
+  if(msg.length) console.warn('[DATA] 不整合\n'+msg.join('\n'));
+  else console.info('[DATA] 全6件(ポリアミド系3・ポリエステル系1・ビニル系2)を読み込んだ');
+})();
+
+const FIBER_BY_ID = Object.fromEntries(DATA.fibers.map(f=>[f.id,f]));
+const POLY_LABEL = {
+  condensation: '縮合重合',
+  ring_opening: '開環重合',
+  addition: '付加重合',
+  addition_then_modification: '付加重合→けん化→アセタール化(多段階)',
+};
+
+/* ---------- 脱離分子の分子量(明示フィールドが無ければ原子量から導出) ---------- */
+function leavingWeightOf(f){
+  if(f.leavingWeight!=null) return f.leavingWeight;
+  if(f.leavingFormula==='H2O') return 2*DATA.meta.atomicWeights.H + DATA.meta.atomicWeights.O;
+  return null;
+}
+
+/* ---------- 反応式(データのreactionEquationがあればそのまま、無ければモノマー・脱離分子から組み立てる) ---------- */
+function buildEquation(f){
+  if(f.reactionEquation) return f.reactionEquation;
+  if(f.polymerizationType==='condensation'){
+    const [m1,m2] = f.monomers;
+    return 'n '+m1.formula+' + n '+m2.formula+' → '+f.repeatUnitFormula+' + '+f.leavingCountPerUnit+'n '+f.leavingFormula;
+  }
+  if(f.polymerizationType==='ring_opening' || f.polymerizationType==='addition'){
+    const m = f.monomers[0];
+    return 'n '+m.formula+' → '+f.repeatUnitFormula;
+  }
+  return null;
+}
+
+/* ---------- 分類表(共通) ---------- */
+function monomersCellHtml(f){
+  if(!f.monomers){
+    return '<div class="mono">'+esc(f.stages[0].monomer.formula)+' → … → '+esc(f.stages[f.stages.length-1].product)+'</div>';
+  }
+  return f.monomers.map(m=>'<div>'+esc(m.name)+' <span class="mono">'+esc(m.formula)+'</span></div>').join('');
+}
+function weightCellHtml(f){
+  if(f.id==='vinylon'){
+    const last = f.stages[f.stages.length-1];
+    return '<div class="mono">'+esc(last.acetalizedRepeatUnitWeight)+'(アセタール化部分)</div><a href="#vinylonStages" class="jumplink">↓3段階のプロセスを見る</a>';
+  }
+  return '<button type="button" class="cell" data-fiber="'+f.id+'" aria-label="'+esc(f.name+'の分子量の内訳を見る')+'">'+
+    '<span class="mono">'+esc(f.repeatUnitFormula)+'</span><span class="mwval mono">分子量 '+f.repeatUnitWeight+'</span></button>';
+}
+function fiberRowHtml(f){
+  const extra = [];
+  if(f.originCountry) extra.push(esc(f.originCountry));
+  if(f.meltingPoint) extra.push('融点'+esc(f.meltingPoint));
+  const polyLabel = POLY_LABEL[f.polymerizationType] + (f.bondType ? '・'+esc(f.bondType) : '');
+  return '<tr>'+
+    '<td><div>'+esc(f.name)+'</div>'+(extra.length ? '<div class="note" style="margin-top:2px">'+extra.join('・')+'</div>' : '')+'</td>'+
+    '<td class="wraptext">'+monomersCellHtml(f)+'</td>'+
+    '<td class="wraptext">'+polyLabel+'</td>'+
+    '<td>'+weightCellHtml(f)+'</td>'+
+    '<td class="wraptext">'+esc((f.properties||[]).join('・'))+'</td>'+
+    '<td class="wraptext">'+esc((f.uses||[]).join('・'))+'</td>'+
+    '</tr>';
+}
+function renderTable(hostId, key){
+  const meta = GROUP_META[key];
+  const items = DATA.fibers.filter(f=>groupKeyOf(f)===key);
+  let h = '<div class="classbox" style="background:'+meta.bg+';border-color:'+meta.bd+'">'+
+    '<div class="classlabel" style="color:'+meta.tx+'">'+esc(meta.label)+'<span class="cnt">('+items.length+'件)</span></div>'+
+    '<div class="scroll"><table class="compact"><thead><tr><th>名称</th><th>原料(モノマー)</th><th>重合形態・結合</th><th>繰り返し単位(クリックで内訳)</th><th>特徴</th><th>用途</th></tr></thead><tbody>'+
+    items.map(fiberRowHtml).join('')+
+    '</tbody></table></div></div>';
+  document.getElementById(hostId).innerHTML = h;
+}
+
+/* ---------- 橋渡しノート(chem-polymer-degree・chem-carboxylic-acid-nomenclatureへの本文リンク) ---------- */
+function bridgeNoteHtml(f){
+  const [m1,m2] = f.monomers;
+  const lw = leavingWeightOf(f);
+  return '<div class="bridgebox"><b>'+esc(f.name)+'</b>: 分子量'+f.repeatUnitWeight+'の計算過程('+m1.weight+'+'+m2.weight+'−'+f.leavingCountPerUnit+'×'+lw+'='+f.repeatUnitWeight+')は<a href="polymer-degree.html">重合度と平均分子量</a>を参照。モノマーの'+esc(m1.name)+'・'+esc(m2.name)+'の命名は<a href="carboxylic-acid-nomenclature.html">カルボン酸の命名法</a>で扱っている。'+esc(f.source)+'</div>';
+}
+function renderBridge(hostId, key){
+  const items = DATA.fibers.filter(f=>groupKeyOf(f)===key && f.linkTo);
+  document.getElementById(hostId).innerHTML = items.map(bridgeNoteHtml).join('');
+}
+
+/* ---------- 合成経路(反応式)カード ---------- */
+function stageFlowHtml(f){
+  const [s1,s2,s3] = f.stages;
+  let h = '<div class="stageflow" id="vinylonStages">';
+  h += '<div class="stagebox"><div class="stagelabel">STEP'+s1.step+' &middot; '+esc(s1.name)+'</div>'+
+    '<div class="stageform mono">n '+esc(s1.monomer.formula)+'('+s1.monomer.weight+')</div>'+
+    '<div class="stageproduct">→ '+esc(s1.product)+'</div></div>';
+  h += '<div class="stagearrow">→</div>';
+  h += '<div class="stagebox"><div class="stagelabel">STEP'+s2.step+' &middot; '+esc(s2.name)+'</div>'+
+    '<div class="stageform mono">'+esc(s2.repeatUnitFormula)+'(分子量'+s2.repeatUnitWeight+')</div>'+
+    '<div class="stageproduct">→ '+esc(s2.product)+'</div></div>';
+  h += '<div class="stagearrow">→</div>';
+  h += '<div class="stagebox"><div class="stagelabel">STEP'+s3.step+' &middot; '+esc(s3.name)+'</div>'+
+    '<div class="stageform mono">2×'+s2.repeatUnitWeight+' + '+esc(s3.reagent.formula)+'('+s3.reagent.weight+') − '+esc(s3.leavingFormula)+'('+s3.leavingWeight+')</div>'+
+    '<div class="stageproduct">→ '+esc(s3.product)+'(アセタール化部分 分子量'+s3.acetalizedRepeatUnitWeight+')</div></div>';
+  h += '</div>';
+  h += '<p class="note" style="margin-top:6px">'+esc(s3.source)+'</p>';
+  h += '<p class="note" style="margin-top:6px">'+esc(f.polymerizationNote)+'</p>';
+  return h;
+}
+function renderEquations(hostId, key){
+  const items = DATA.fibers.filter(f=>groupKeyOf(f)===key);
+  let h = '';
+  items.forEach(f=>{
+    if(f.id==='vinylon'){ h += stageFlowHtml(f); return; }
+    const eq = buildEquation(f);
+    h += '<div class="eqrow"><div class="eqname">'+esc(f.name)+'</div><div class="eqform mono">'+esc(eq)+'</div></div>';
+  });
+  document.getElementById(hostId).innerHTML = h;
+}
+
+/* ---------- ツールチップ(ホバー=プレビュー、クリック/タップ=ピン留め) ---------- */
+const tip = document.getElementById('tip');
+let pinnedFiberId = null;
+function tipHTML(f){
+  let h = '<div class="tsym">'+esc(f.name)+'</div>';
+  if(f.monomers.length===2){
+    const [m1,m2] = f.monomers;
+    const lw = leavingWeightOf(f);
+    h += '<div class="trow">'+esc(m1.name)+' '+m1.weight+'</div>';
+    h += '<div class="trow">+ '+esc(m2.name)+' '+m2.weight+'</div>';
+    if(f.leavingCountPerUnit>0){
+      h += '<div class="trow">− '+f.leavingCountPerUnit+'×'+esc(f.leavingFormula)+'('+lw+')</div>';
+    }
+    h += '<div class="trow">= '+f.repeatUnitWeight+'</div>';
+  } else {
+    const m = f.monomers[0];
+    h += '<div class="trow">'+esc(m.name)+' '+m.weight+' → '+f.repeatUnitWeight+'</div>';
+  }
+  h += '<div class="tconf">('+esc(f.confidence)+')</div>';
+  h += '<div class="tnote">'+esc(f.source)+'</div>';
+  return h;
+}
+function positionTip(el){
+  const r = el.getBoundingClientRect();
+  tip.style.left = '0px'; tip.style.top = '0px';
+  const tw = tip.offsetWidth, th = tip.offsetHeight;
+  let x = r.left + r.width/2 - tw/2;
+  let y = r.top - th - 8;
+  if(y < 4) y = r.bottom + 8;
+  x = Math.max(6, Math.min(x, window.innerWidth - tw - 6));
+  y = Math.min(y, window.innerHeight - th - 6);
+  tip.style.left = x+'px';
+  tip.style.top = y+'px';
+}
+function showTip(el, id){
+  const f = FIBER_BY_ID[id];
+  if(!f) return;
+  tip.innerHTML = tipHTML(f);
+  tip.hidden = false;
+  positionTip(el);
+}
+function hideTip(){ tip.hidden = true; }
+
+document.body.addEventListener('mouseenter', (e)=>{
+  const c = e.target.closest && e.target.closest('.cell');
+  if(c && !pinnedFiberId) showTip(c, c.dataset.fiber);
+}, true);
+document.body.addEventListener('mouseleave', (e)=>{
+  const c = e.target.closest && e.target.closest('.cell');
+  if(c && !pinnedFiberId) hideTip();
+}, true);
+document.body.addEventListener('focusin', (e)=>{
+  const c = e.target.closest && e.target.closest('.cell');
+  if(c) showTip(c, c.dataset.fiber);
+});
+document.body.addEventListener('focusout', (e)=>{
+  const c = e.target.closest && e.target.closest('.cell');
+  if(c && !pinnedFiberId) hideTip();
+});
+document.body.addEventListener('click', (e)=>{
+  const c = e.target.closest && e.target.closest('.cell');
+  if(c){
+    const id = c.dataset.fiber;
+    if(pinnedFiberId===id){ pinnedFiberId = null; hideTip(); }
+    else { pinnedFiberId = id; showTip(c, id); }
+    return;
+  }
+  if(!e.target.closest('#tip')){ pinnedFiberId = null; hideTip(); }
+});
+
+/* ---------- 状態: 選択中の系統 ---------- */
+const st = { mode: 'amide' };
+
+/* ---------- MODE chips ---------- */
+function renderModeChips(){
+  const host = document.getElementById('modeChips');
+  host.innerHTML = GROUP_ORDER.map(k=>{
+    const pressed = k===st.mode;
+    return '<button type="button" class="btn" data-mode="'+k+'" aria-pressed="'+pressed+'">'+esc(GROUP_META[k].label)+'</button>';
+  }).join('');
+  host.addEventListener('click', (e)=>{
+    const b = e.target.closest('button[data-mode]');
+    if(!b) return;
+    st.mode = b.dataset.mode;
+    syncSections();
+  });
+}
+function syncSections(){
+  GROUP_ORDER.forEach(k=>{
+    document.getElementById(SECTION_ID[k]).classList.toggle('active', st.mode===k);
+  });
+  Array.prototype.forEach.call(document.querySelectorAll('#modeChips button'), b=>{
+    b.setAttribute('aria-pressed', b.dataset.mode===st.mode);
+  });
+}
+
+/* ---------- テキストノート ---------- */
+function renderTextNotes(){
+  document.getElementById('thermoplasticNote').textContent = DATA.meta.thermoplastic;
+  document.getElementById('polymerizationGeneralNote').textContent = DATA.meta.polymerizationGeneral;
+  document.getElementById('atomicWeightsNote').textContent = DATA.meta.note;
+  document.getElementById('scopeNote').textContent = 'ここでは高校の教科書に載っている範囲(命名・原料・重合形態・繰り返し単位の分子量)に絞る。天然ゴム・加硫・熱硬化性樹脂・イオン交換樹脂は別教材の範囲とする。';
+}
+
+/* ---------- 初期化 ---------- */
+renderModeChips();
+renderTable('amideTableHost', 'amide');
+renderBridge('amideBridgeHost', 'amide');
+renderEquations('amideEqHost', 'amide');
+renderTable('esterTableHost', 'ester');
+renderBridge('esterBridgeHost', 'ester');
+renderEquations('esterEqHost', 'ester');
+renderTable('vinylTableHost', 'vinyl');
+renderEquations('vinylEqHost', 'vinyl');
+renderTextNotes();
+syncSections();
+</script>
+</body>
+</html>
