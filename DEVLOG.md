@@ -497,3 +497,14 @@
 - 検証結果はコミットメッセージ本文に記載
 - 保留: 合成ゴム・イオン交換樹脂の残り2教材のHTML実装は次回。上記のキーボード活性化はCEOによる実ブラウザでの目視確認を推奨
 - 次: 残り2教材のレイアウト方針の提示から
+
+## 2026-09-23 — 合成ゴム(chem-synthetic-rubber)のHTML実装(合成高分子シリーズ3本目)
+
+- 変更: `html/synthetic-rubber.html`(新規、matrix型)、`scripts/check-synthetic-rubber.mjs`(新規)、`scripts/check-embedded-data.mjs`(EMBED_CHECKSに追加)、`manifest.json`(chem-synthetic-rubber追加・order45、chem-synthetic-fiber/chem-thermosetting-resinのrelatedに双方向追加)
+- 背景: `data/synthetic-rubber.json`(検算済み・今回変更なし)をもとに、レイアウト方針(型・ポリブタジエンの付加様式の見せ方・cis/trans形の見せ方・共重合の差別化)を先にCEOに提示し承認を得てから実装した
+- BRの1,4-付加/1,2-付加はスライダーではなく2状態トグル(比率は固定値のまま構造の見た目だけ切替、分子量は両方とも54で不変)にした。IRのcis形/trans形はSVG模式図で常時対比表示し、「グッタペルカ=教科書的な簡略化」の注記は折りたたまず本文に常設した。NBR/SBRは共重合バッジ+式表示(54n+53m等)でBR単体の単一値表示と差別化した
+- NBRのアクリロニトリル(分子量53)がchem-synthetic-fiberのアクリル繊維と同一物質・同一値であることをスクリプトでクロスチェックした
+- ブラウザ確認中、Claude Browserペインのスクリーンショット座標→実座標の換算比が公称値とずれる環境固有の癖を確認したが、getBoundingClientRectで実座標を直接算出して再クリックしたところBRトグルはマウスクリックで正常に切り替わった。ネイティブ`<button>`要素にfocusしてEnterキーを送る方式ではキーボード操作も実際にトグルが切り替わることを確認できた(前回の詳細/summaryでの制約とは異なり、今回は機械的に確認できた)
+- 検証結果はコミットメッセージ本文に記載
+- 保留: イオン交換樹脂の残り1教材のHTML実装は次回
+- 次: 残り1教材のレイアウト方針の提示から

@@ -1,0 +1,428 @@
+<!doctype html>
+<html lang="ja">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>合成ゴム</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500&family=IBM+Plex+Sans+JP:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+*{box-sizing:border-box}
+:root{
+  --ink:#16232B; --muted:#5E6E76; --paper:#EDF1EF; --surface:#FFFFFF;
+  --rule:#D6DDDA; --rule-soft:#E8EDEB;
+  --s0:#158A6D; --s0t:#0D6A53;
+  --s1:#6E3AA7; --s1t:#572D85;
+  --sans:"IBM Plex Sans JP","Hiragino Sans","Yu Gothic UI",system-ui,sans-serif;
+  --mono:"IBM Plex Mono",ui-monospace,SFMono-Regular,Menlo,monospace;
+}
+html,body{margin:0;padding:0}
+body{background:var(--paper);color:var(--ink);font-family:var(--sans);font-size:13.5px;line-height:1.75;-webkit-text-size-adjust:100%}
+.mono{font-family:var(--mono);font-variant-numeric:tabular-nums}
+.wrap{max-width:900px;margin:0 auto;padding:20px 14px 60px}
+.card{background:var(--surface);border:1px solid var(--rule);border-radius:3px;padding:14px;margin-bottom:14px}
+.card.text{max-width:900px}
+.eyebrow{display:flex;align-items:center;gap:10px;font-family:var(--mono);font-size:11.5px;letter-spacing:.14em;color:var(--muted);text-transform:uppercase}
+.eyebrow::after{content:"";flex:1;height:1px;background:var(--rule)}
+h1{font-size:22px;font-weight:600;letter-spacing:.01em;margin:8px 0 2px}
+h2{font-size:14.5px;font-weight:600;margin:10px 0 4px}
+p{margin:0 0 8px} p:last-child{margin-bottom:0}
+.lede{color:var(--muted);font-size:13px;margin:4px 0 0}
+.note{color:var(--muted);font-size:12px;line-height:1.7}
+a{color:var(--s0t)}
+a:hover{text-decoration-thickness:1.5px}
+a:focus-visible{outline:2px solid var(--ink);outline-offset:1px}
+
+.btn{font:inherit;font-size:12.5px;line-height:1.4;border:1px solid var(--rule);background:#fff;color:var(--ink);border-radius:2px;padding:6px 10px;cursor:pointer}
+.btn:hover{border-color:#B4C0BC}
+.btn[aria-pressed="true"]{background:var(--ink);color:#fff;border-color:var(--ink)}
+.btn:focus-visible{outline:2px solid var(--ink);outline-offset:1px}
+.btnrow{display:flex;flex-wrap:wrap;gap:6px;margin:8px 0}
+
+/* ---------- 表共通 ---------- */
+.scroll{overflow-x:auto;-webkit-overflow-scrolling:touch;padding-bottom:2px}
+table{border-collapse:collapse;width:100%;font-size:12.5px}
+table.compact{min-width:640px}
+th,td{padding:6px 8px;text-align:left;white-space:nowrap;border-bottom:1px solid var(--rule-soft);vertical-align:top}
+th{font-family:var(--mono);font-size:10.5px;letter-spacing:.06em;color:var(--muted);font-weight:500}
+td.wraptext{white-space:normal;min-width:140px}
+tr:last-child td{border-bottom:none}
+
+/* ---------- 分類ごとの色分け枠 ---------- */
+.classbox{border:2px solid var(--rule);border-radius:3px;padding:10px 12px 4px;margin:10px 0}
+.classlabel{font-family:var(--mono);font-size:11.5px;letter-spacing:.14em;display:flex;align-items:center;gap:8px;margin-bottom:6px}
+.classlabel .cnt{font-weight:400;letter-spacing:0;text-transform:none;font-size:11px}
+
+/* ---------- 共重合バッジ・付加様式ラベル ---------- */
+.badge{display:inline-block;margin-left:6px;font-family:var(--mono);font-size:9.5px;letter-spacing:.06em;padding:1px 5px;border-radius:8px;background:var(--s1);color:#fff}
+.modetag{display:inline-block;margin-left:4px;font-size:10.5px;color:var(--muted);border:1px solid var(--rule);border-radius:8px;padding:0 5px}
+
+/* ---------- 分子量セル(クリック/ホバーで内訳ツールチップ) ---------- */
+.cell{font:inherit;display:flex;flex-direction:column;align-items:flex-start;gap:2px;border:1px solid var(--rule);
+  background:#fff;color:var(--ink);border-radius:2px;padding:4px 8px;cursor:pointer;appearance:none}
+.cell:hover{border-color:#B4C0BC}
+.cell:focus-visible{outline:2px solid var(--ink);outline-offset:1px}
+.mwval{font-size:12.5px;color:var(--muted)}
+.jumplink{display:block;font-size:11px;margin-top:4px}
+
+/* ---------- ツールチップ(ホバー=プレビュー、クリック/タップ=ピン留め) ---------- */
+.tip{position:fixed;z-index:50;max-width:250px;background:var(--ink);color:#fff;border-radius:3px;
+  padding:8px 10px;font-size:11.5px;line-height:1.65;pointer-events:none}
+.tip[hidden]{display:none}
+.tip .tsym{font-weight:600;font-size:13px;margin-bottom:3px}
+.tip .trow{margin:1px 0}
+.tip .tconf{color:#AEC0C6;font-family:var(--mono);font-size:10.5px;margin-top:4px}
+.tip .tnote{color:#F0D28A;margin-top:5px;font-size:10.5px;line-height:1.6}
+@media (prefers-reduced-motion:no-preference){ .tip{transition:opacity 120ms linear} }
+
+/* ---------- 橋渡し・補足ノート ---------- */
+.bridgebox{background:var(--rule-soft);border:1px solid var(--rule);border-radius:3px;padding:8px 10px;font-size:12px;color:var(--muted);line-height:1.7;margin-top:8px}
+.bridgebox b{color:var(--ink)}
+
+/* ---------- BRの付加様式トグル表示 ---------- */
+.modebox{border:1px solid var(--rule);border-radius:3px;padding:10px 12px;background:#FBFCFB;margin-top:8px}
+.modeform{font-size:13px;line-height:1.6}
+
+/* ---------- IRのcis形/trans形 比較図 ---------- */
+.diagram{display:flex;flex-wrap:wrap;gap:10px;margin:8px 0}
+.diagram figure{flex:1 1 220px;margin:0;border:1px solid var(--rule);border-radius:3px;padding:8px;background:#FBFCFB}
+.diagram svg{display:block;width:100%;height:auto}
+.diagram figcaption{font-size:11px;color:var(--muted);margin-top:6px;text-align:center;line-height:1.5}
+
+.section{display:none}
+.section.active{display:block}
+
+@media (prefers-reduced-motion:no-preference){ .btn,.cell{transition:border-color 120ms linear,background-color 120ms linear} }
+
+@media (max-width:430px){
+  body{font-size:13px}
+  .wrap{padding:14px 10px 50px}
+  .card{padding:11px}
+  h1{font-size:19px}
+  .btn{padding:6px 8px;font-size:12px}
+  table.compact{min-width:600px}
+  .diagram{flex-direction:column}
+}
+</style>
+</head>
+<body>
+<div class="wrap">
+
+<header>
+  <div class="eyebrow">SYNTHETIC RUBBER</div>
+  <h1>合成ゴム</h1>
+  <p class="lede">高校化学で扱う代表的な合成ゴム4種(BR・IR・NBR・SBR)を、モノマー・重合形態・付加様式・繰り返し単位の分子量でまとめる。NBRのアクリロニトリルは<a href="synthetic-fiber.html">合成繊維</a>のアクリル繊維と同じモノマー・同じ分子量を使う。フェノール樹脂などの<a href="thermosetting-resin.html">熱硬化性樹脂</a>とは同じ合成高分子シリーズの姉妹教材。</p>
+</header>
+
+<div class="card text">
+  <div class="eyebrow">GENERAL</div>
+  <p class="note" style="margin-top:8px" id="atomicWeightsNote"></p>
+</div>
+
+<div class="card">
+  <div class="eyebrow">SWITCH</div>
+  <h2>系統を切り替える</h2>
+  <div class="btnrow" id="modeChips" role="group" aria-label="系統の切り替え"></div>
+</div>
+
+<!-- ========== 単量体系(BR・IR) ========== -->
+<section id="sectionMonomer" class="section">
+  <div class="card" id="cardMonomerClass">
+    <div class="eyebrow">MONOMER-BASED &middot; CLASSIFICATION</div>
+    <h2>単量体系(BR・IR)</h2>
+    <p class="note">モノマー1種のみの付加重合。共役二重結合をもつジエン系モノマーが、1,4-付加と1,2-付加の2通りの様式でつながる(存在比は固定値)。</p>
+    <div id="monomerTableHost"></div>
+  </div>
+
+  <div class="card" id="cardBrToggle">
+    <div class="eyebrow">BR &middot; ADDITION MODE</div>
+    <h2 id="brAdditionModes">ポリブタジエンの付加様式(1,4-付加/1,2-付加)</h2>
+    <p class="note">存在比(主・約30%)は固定値であり、ここでは構造の見た目を切り替えているだけで、比率を操作しているわけではない。</p>
+    <div class="btnrow" id="brModeToggle" role="group" aria-label="付加様式の切り替え"></div>
+    <div id="brModeDisplay"></div>
+  </div>
+
+  <div class="card" id="cardIrCisTrans">
+    <div class="eyebrow">IR &middot; CIS/TRANS</div>
+    <h2 id="irCisTrans">ポリイソプレンのcis形/trans形</h2>
+    <div class="diagram" id="irDiagramHost"></div>
+    <p class="note" id="irNoteHost" style="margin-top:6px"></p>
+  </div>
+</section>
+
+<!-- ========== 共重合系(NBR・SBR) ========== -->
+<section id="sectionCopolymer" class="section">
+  <div class="card" id="cardCopolymerClass">
+    <div class="eyebrow">COPOLYMER &middot; CLASSIFICATION</div>
+    <h2>共重合系(NBR・SBR)</h2>
+    <p class="note">2種のモノマーがそれぞれ決まった付加様式(1,4-付加/1,2-付加)で共重合する。組成比(n:m)は一定に定まらないため、繰り返し単位の分子量は単一の数値ではなく式で表す。</p>
+    <div id="copolymerTableHost"></div>
+    <div id="copolymerBridgeHost"></div>
+  </div>
+</section>
+
+<div class="card text">
+  <div class="eyebrow">NOTES</div>
+  <p class="note" style="margin-top:8px" id="scopeNote"></p>
+</div>
+
+</div><!-- /wrap -->
+
+<div class="tip" id="tip" hidden></div>
+
+<script>
+/* ---------- データ(JSONをそのまま埋め込み。fetch は使わない) ---------- */
+const DATA = {"meta":{"atomicWeights":{"H":1,"C":12,"N":14},"note":"モノマーの分子量はすべてH=1,C=12,N=14での計算値。共重合体(NBR・SBR)は組成比が一定でないため、繰り返し単位の分子量は式(54n+53mなど)の形で表し、単一の数値には確定しない。"},"rubbers":[{"id":"br","name":"ポリブタジエン","abbreviation":"BR","commonName":"ブタジエンゴム","aliasName":"Buna","monomers":[{"name":"1,3-ブタジエン","formula":"CH2=CH-CH=CH2","weight":54,"confidence":"high","source":"原子量C=12,H=1からの計算値。C4H6 = 4×12+6 = 54。共役二重結合をもつ。"}],"polymerizationType":"addition","additionModes":[{"mode":"1,4-付加","share":"主","repeatUnitFormula":"-[CH2-CH=CH-CH2]-n","note":"cis形・trans形がある"},{"mode":"1,2-付加","share":"約30%","repeatUnitFormula":"-[CH2-CH(CH=CH2)]-m","note":"側鎖にビニル基が残る"}],"repeatUnitWeight":54,"repeatUnitWeightNote":"1,4-付加・1,2-付加のどちらも元のモノマーの原子がすべて繰り返し単位に組み込まれるため、分子量はn・mいずれも54。","properties":["耐摩耗性","耐寒性大"],"uses":["タイヤ","ベルト","フィルム"]},{"id":"ir","name":"ポリイソプレン(合成ゴム)","abbreviation":"IR","monomers":[{"name":"イソプレン","formula":"CH2=C(CH3)-CH=CH2","weight":68,"confidence":"high","source":"原子量C=12,H=1からの計算値。C5H8 = 5×12+8 = 68。"}],"polymerizationType":"addition","additionModes":[{"mode":"1,4-付加","share":"主","note":"cis形・trans形ができる"}],"repeatUnitWeight":68,"cisTransNote":{"cis":"天然ゴムの主成分はcis形。","trans":"立体規則性を制御せずに合成するとtrans形が主になりやすく、これは「グッタペルカ」と呼ばれる硬い樹脂状の物質になる。","confidence":"high","source":"高校教科書の慣例的な整理: cis形=天然ゴムに近い弾性、trans形=硬い樹脂状、という対比。厳密な有機化学ではグッタペルカは天然物由来とされる場合もあるが、この対比は教科書の記述に忠実に踏襲した教科書的な簡略化である。"},"properties":[],"uses":["ゴルフボール"]},{"id":"nbr","name":"NBR","fullName":"アクリロニトリルブタジエンゴム","commonName":"ニトリルゴム","aliasName":"Buna N","monomers":[{"name":"アクリロニトリル","formula":"CH2=CH-CN","weight":53,"additionMode":"1,2-付加"},{"name":"1,3-ブタジエン","formula":"CH2=CH-CH=CH2","weight":54,"additionMode":"1,4-付加"}],"polymerizationType":"addition_copolymerization","repeatUnitWeightFormula":"54n + 53m","properties":["耐油性大","耐熱性・耐老化性は低い"],"uses":["パッキン","ホース","ガスケット"]},{"id":"sbr","name":"SBR","fullName":"スチレンブタジエンゴム","aliasName":"Buna S","monomers":[{"name":"1,3-ブタジエン","formula":"CH2=CH-CH=CH2","weight":54,"additionMode":"1,4-付加"},{"name":"スチレン","formula":"C6H5-CH=CH2","weight":104,"additionMode":"1,2-付加","confidence":"high","source":"原子量C=12,H=1からの計算値。C8H8 = 8×12+8 = 104。"}],"polymerizationType":"addition_copolymerization","repeatUnitWeightFormula":"54n + 104m","note":"現在最も多量に生産されている合成ゴム。","properties":[],"uses":["タイヤ(スチレン25%配合)","ゴムベルト"]}]};
+
+const esc = s => String(s).replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+
+/* ---------- 系統(グループ)の分類 ---------- */
+const GROUP_META = {
+  monomer: { bd:'#158A6D', tx:'#0D6A53', bg:'rgba(21,138,109,.10)', label:'単量体系' },
+  copolymer: { bd:'#6E3AA7', tx:'#572D85', bg:'rgba(110,58,167,.10)', label:'共重合系' },
+};
+const GROUP_ORDER = ['monomer','copolymer'];
+const SECTION_ID = { monomer:'sectionMonomer', copolymer:'sectionCopolymer' };
+function groupKeyOf(r){
+  return r.polymerizationType === 'addition_copolymerization' ? 'copolymer' : 'monomer';
+}
+
+/* ---------- 起動時チェック ---------- */
+(function checkData(){
+  const msg=[];
+  if(DATA.rubbers.length!==4) msg.push('rubbers が4件ではない('+DATA.rubbers.length+'件)');
+  const counts = { monomer:0, copolymer:0 };
+  DATA.rubbers.forEach(r=>{ counts[groupKeyOf(r)]++; });
+  if(counts.monomer!==2) msg.push('単量体系が2件ではない('+counts.monomer+'件)');
+  if(counts.copolymer!==2) msg.push('共重合系が2件ではない('+counts.copolymer+'件)');
+  if(msg.length) console.warn('[DATA] 不整合\n'+msg.join('\n'));
+  else console.info('[DATA] 全4件(単量体系2・共重合系2)を読み込んだ');
+})();
+
+const RUBBER_BY_ID = Object.fromEntries(DATA.rubbers.map(r=>[r.id,r]));
+const POLY_LABEL = { addition: '付加重合', addition_copolymerization: '付加共重合' };
+
+/* ---------- モノマー欄(単量体系はクリックで内訳、共重合系は付加様式ラベル併記) ---------- */
+function monomersCellHtml(r){
+  return r.monomers.map((m,i)=>{
+    const tag = m.additionMode ? ' <span class="modetag">'+esc(m.additionMode)+'</span>' : '';
+    if(m.confidence){
+      return '<button type="button" class="cell" data-mono="'+r.id+'__'+i+'" aria-label="'+esc(m.name+'の分子量の内訳を見る')+'">'+
+        '<span>'+esc(m.name)+' <span class="mono">'+esc(m.formula)+'</span>'+tag+'</span><span class="mwval mono">分子量 '+m.weight+'</span></button>';
+    }
+    return '<div>'+esc(m.name)+' <span class="mono">'+esc(m.formula)+'</span>'+tag+' <span class="mwval mono">分子量 '+m.weight+'</span></div>';
+  }).join('');
+}
+
+/* ---------- 繰り返し単位欄(単量体系は単一値+ジャンプリンク、共重合系は式) ---------- */
+function weightCellHtml(r){
+  if(r.repeatUnitWeightFormula){
+    return '<span class="mono">'+esc(r.repeatUnitWeightFormula)+'</span><div class="note" style="margin-top:2px">組成比が一定でないため単一値なし</div>';
+  }
+  let h = '<div class="mono">分子量 '+r.repeatUnitWeight+'</div>';
+  if(r.id==='br') h += '<a href="#brAdditionModes" class="jumplink">↓付加様式の切り替えを見る</a>';
+  if(r.id==='ir') h += '<a href="#irCisTrans" class="jumplink">↓cis形/trans形を見る</a>';
+  return h;
+}
+
+function rubberRowHtml(r){
+  const extra = [];
+  if(r.abbreviation) extra.push(esc(r.abbreviation));
+  if(r.fullName) extra.push(esc(r.fullName));
+  if(r.commonName) extra.push(esc(r.commonName));
+  if(r.aliasName) extra.push(esc(r.aliasName));
+  const groupKey = groupKeyOf(r);
+  const polyLabel = POLY_LABEL[r.polymerizationType] + (groupKey==='copolymer' ? '<span class="badge">共重合</span>' : '');
+  return '<tr>'+
+    '<td><div>'+esc(r.name)+'</div>'+(extra.length ? '<div class="note" style="margin-top:2px">'+extra.join('・')+'</div>' : '')+'</td>'+
+    '<td class="wraptext">'+monomersCellHtml(r)+'</td>'+
+    '<td class="wraptext">'+polyLabel+'</td>'+
+    '<td>'+weightCellHtml(r)+'</td>'+
+    '<td class="wraptext">'+esc((r.properties||[]).join('・')||'—')+'</td>'+
+    '<td class="wraptext">'+esc((r.uses||[]).join('・')||'—')+'</td>'+
+    '</tr>';
+}
+function renderTable(hostId, key){
+  const meta = GROUP_META[key];
+  const items = DATA.rubbers.filter(r=>groupKeyOf(r)===key);
+  let h = '<div class="classbox" style="background:'+meta.bg+';border-color:'+meta.bd+'">'+
+    '<div class="classlabel" style="color:'+meta.tx+'">'+esc(meta.label)+'<span class="cnt">('+items.length+'件)</span></div>'+
+    '<div class="scroll"><table class="compact"><thead><tr><th>名称</th><th>原料(モノマー)</th><th>重合形態</th><th>繰り返し単位</th><th>特性</th><th>用途</th></tr></thead><tbody>'+
+    items.map(rubberRowHtml).join('')+
+    '</tbody></table></div></div>';
+  document.getElementById(hostId).innerHTML = h;
+}
+
+/* ---------- NBRの橋渡しノート(アクリロニトリルがchem-synthetic-fiberと同じ値) ---------- */
+function renderCopolymerBridge(hostId){
+  const nbr = RUBBER_BY_ID.nbr;
+  const acrylonitrile = nbr.monomers.find(m=>m.name==='アクリロニトリル');
+  document.getElementById(hostId).innerHTML =
+    '<div class="bridgebox"><b>NBR</b>: モノマーのアクリロニトリル(分子量'+acrylonitrile.weight+')は<a href="synthetic-fiber.html">合成繊維</a>のアクリル繊維で使われているものと同じ物質・同じ値。</div>';
+}
+
+/* ---------- BRの付加様式トグル ---------- */
+const brSt = { mode: 0 };
+function renderBrModeToggle(){
+  const br = RUBBER_BY_ID.br;
+  const host = document.getElementById('brModeToggle');
+  host.innerHTML = br.additionModes.map((am,i)=>{
+    const pressed = i===brSt.mode;
+    return '<button type="button" class="btn" data-brmode="'+i+'" aria-pressed="'+pressed+'">'+esc(am.mode)+'('+esc(am.share)+')</button>';
+  }).join('');
+  renderBrModeDisplay();
+}
+function renderBrModeDisplay(){
+  const br = RUBBER_BY_ID.br;
+  const am = br.additionModes[brSt.mode];
+  document.getElementById('brModeDisplay').innerHTML =
+    '<div class="modebox"><div class="modeform mono">'+esc(am.repeatUnitFormula)+'</div>'+
+    '<p class="note" style="margin-top:6px">'+esc(am.note)+'</p>'+
+    '<p class="note" style="margin-top:6px">繰り返し単位の分子量: <span class="mono">'+br.repeatUnitWeight+'</span>('+esc(br.repeatUnitWeightNote)+')</p></div>';
+}
+function syncBrModeToggle(){
+  Array.prototype.forEach.call(document.querySelectorAll('#brModeToggle button'), b=>{
+    b.setAttribute('aria-pressed', Number(b.dataset.brmode)===brSt.mode);
+  });
+  renderBrModeDisplay();
+}
+document.body.addEventListener('click', (e)=>{
+  const b = e.target.closest && e.target.closest('button[data-brmode]');
+  if(b){ brSt.mode = Number(b.dataset.brmode); syncBrModeToggle(); }
+});
+
+/* ---------- IRのcis形/trans形 比較図 ---------- */
+function renderIrCisTrans(){
+  const ir = RUBBER_BY_ID.ir;
+  const ct = ir.cisTransNote;
+  const host = document.getElementById('irDiagramHost');
+  host.innerHTML =
+    '<figure>'+
+      '<svg viewBox="0 0 240 90" role="img" aria-label="cis形の模式図。鎖がジグザグに折れ曲がって連なっている">'+
+        '<polyline points="16,45 48,25 80,45 112,25 144,45 176,25 208,45" fill="none" stroke="var(--rule)" stroke-width="2"/>'+
+        '<circle cx="16" cy="45" r="6" fill="var(--s0)"/><circle cx="48" cy="25" r="6" fill="var(--s0)"/>'+
+        '<circle cx="80" cy="45" r="6" fill="var(--s0)"/><circle cx="112" cy="25" r="6" fill="var(--s0)"/>'+
+        '<circle cx="144" cy="45" r="6" fill="var(--s0)"/><circle cx="176" cy="25" r="6" fill="var(--s0)"/>'+
+        '<circle cx="208" cy="45" r="6" fill="var(--s0)"/>'+
+      '</svg>'+
+      '<figcaption>cis形(天然ゴムに近い弾性)<br>鎖が折れ曲がり柔らかい</figcaption>'+
+    '</figure>'+
+    '<figure>'+
+      '<svg viewBox="0 0 240 90" role="img" aria-label="trans形(グッタペルカ)の模式図。鎖がほぼ直線状に連なっている">'+
+        '<line x1="16" y1="45" x2="224" y2="45" stroke="var(--rule)" stroke-width="2"/>'+
+        '<circle cx="16" cy="45" r="6" fill="var(--s1)"/><circle cx="50" cy="45" r="6" fill="var(--s1)"/>'+
+        '<circle cx="84" cy="45" r="6" fill="var(--s1)"/><circle cx="118" cy="45" r="6" fill="var(--s1)"/>'+
+        '<circle cx="152" cy="45" r="6" fill="var(--s1)"/><circle cx="186" cy="45" r="6" fill="var(--s1)"/>'+
+        '<circle cx="224" cy="45" r="6" fill="var(--s1)"/>'+
+      '</svg>'+
+      '<figcaption>trans形(グッタペルカ)<br>鎖がほぼ直線状で硬い樹脂状</figcaption>'+
+    '</figure>';
+  document.getElementById('irNoteHost').innerHTML =
+    esc(ct.cis)+' '+esc(ct.trans)+'<br><b style="color:var(--ink)">注記(教科書的な簡略化):</b> '+esc(ct.source);
+}
+
+/* ---------- ツールチップ(ホバー=プレビュー、クリック/タップ=ピン留め) ---------- */
+const tip = document.getElementById('tip');
+let pinnedMonoKey = null;
+function tipHTML(key){
+  const [rid, idxStr] = key.split('__');
+  const m = RUBBER_BY_ID[rid].monomers[Number(idxStr)];
+  let h = '<div class="tsym">'+esc(m.name)+'</div>';
+  h += '<div class="trow">'+esc(m.formula)+'</div>';
+  h += '<div class="trow">分子量 '+m.weight+'</div>';
+  if(m.confidence) h += '<div class="tconf">('+esc(m.confidence)+')</div>';
+  if(m.source) h += '<div class="tnote">'+esc(m.source)+'</div>';
+  return h;
+}
+function positionTip(el){
+  const r = el.getBoundingClientRect();
+  tip.style.left = '0px'; tip.style.top = '0px';
+  const tw = tip.offsetWidth, th = tip.offsetHeight;
+  let x = r.left + r.width/2 - tw/2;
+  let y = r.top - th - 8;
+  if(y < 4) y = r.bottom + 8;
+  x = Math.max(6, Math.min(x, window.innerWidth - tw - 6));
+  y = Math.min(y, window.innerHeight - th - 6);
+  tip.style.left = x+'px';
+  tip.style.top = y+'px';
+}
+function showTip(el, key){
+  tip.innerHTML = tipHTML(key);
+  tip.hidden = false;
+  positionTip(el);
+}
+function hideTip(){ tip.hidden = true; }
+
+document.body.addEventListener('mouseenter', (e)=>{
+  const c = e.target.closest && e.target.closest('.cell');
+  if(c && !pinnedMonoKey) showTip(c, c.dataset.mono);
+}, true);
+document.body.addEventListener('mouseleave', (e)=>{
+  const c = e.target.closest && e.target.closest('.cell');
+  if(c && !pinnedMonoKey) hideTip();
+}, true);
+document.body.addEventListener('focusin', (e)=>{
+  const c = e.target.closest && e.target.closest('.cell');
+  if(c) showTip(c, c.dataset.mono);
+});
+document.body.addEventListener('focusout', (e)=>{
+  const c = e.target.closest && e.target.closest('.cell');
+  if(c && !pinnedMonoKey) hideTip();
+});
+document.body.addEventListener('click', (e)=>{
+  const c = e.target.closest && e.target.closest('.cell');
+  if(c){
+    const key = c.dataset.mono;
+    if(pinnedMonoKey===key){ pinnedMonoKey = null; hideTip(); }
+    else { pinnedMonoKey = key; showTip(c, key); }
+    return;
+  }
+  if(!e.target.closest('#tip')){ pinnedMonoKey = null; hideTip(); }
+});
+
+/* ---------- 状態: 選択中の系統 ---------- */
+const st = { mode: 'monomer' };
+
+/* ---------- MODE chips ---------- */
+function renderModeChips(){
+  const host = document.getElementById('modeChips');
+  host.innerHTML = GROUP_ORDER.map(k=>{
+    const pressed = k===st.mode;
+    const items = DATA.rubbers.filter(r=>groupKeyOf(r)===k).map(r=>r.name).join('・');
+    return '<button type="button" class="btn" data-mode="'+k+'" aria-pressed="'+pressed+'">'+esc(GROUP_META[k].label)+'('+esc(items)+')</button>';
+  }).join('');
+  host.addEventListener('click', (e)=>{
+    const b = e.target.closest('button[data-mode]');
+    if(!b) return;
+    st.mode = b.dataset.mode;
+    syncSections();
+  });
+}
+function syncSections(){
+  GROUP_ORDER.forEach(k=>{
+    document.getElementById(SECTION_ID[k]).classList.toggle('active', st.mode===k);
+  });
+  Array.prototype.forEach.call(document.querySelectorAll('#modeChips button'), b=>{
+    b.setAttribute('aria-pressed', b.dataset.mode===st.mode);
+  });
+}
+
+/* ---------- テキストノート ---------- */
+function renderTextNotes(){
+  document.getElementById('atomicWeightsNote').textContent = DATA.meta.note;
+  document.getElementById('scopeNote').textContent = 'ここでは高校の教科書に載っている範囲(モノマー・重合形態・付加様式・繰り返し単位の分子量)に絞る。天然ゴムの加硫(硫黄架橋)の反応機構は大学レベルの内容を含むため扱わない。天然ゴムとの対比はポリイソプレン(cis形)との構造の違いにとどめる。合成繊維・熱硬化性樹脂・イオン交換樹脂は別教材の範囲とする。';
+}
+
+/* ---------- 初期化 ---------- */
+renderModeChips();
+renderTable('monomerTableHost', 'monomer');
+renderBrModeToggle();
+renderIrCisTrans();
+renderTable('copolymerTableHost', 'copolymer');
+renderCopolymerBridge('copolymerBridgeHost');
+renderTextNotes();
+syncSections();
+</script>
+</body>
+</html>

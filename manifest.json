@@ -1793,7 +1793,8 @@
     "related": [
       "chem-hydrocarbon-nomenclature",
       "chem-ester-nomenclature",
-      "chem-thermosetting-resin"
+      "chem-thermosetting-resin",
+      "chem-synthetic-rubber"
     ]
   },
   {
@@ -1822,7 +1823,37 @@
     "type": "matrix",
     "related": [
       "chem-crystal-lattice",
-      "chem-synthetic-fiber"
+      "chem-synthetic-fiber",
+      "chem-synthetic-rubber"
+    ]
+  },
+  {
+    "id": "chem-synthetic-rubber",
+    "file": "html/synthetic-rubber.html",
+    "subject": "chemistry",
+    "unit": "高分子化合物 / 合成ゴム(BR・IR・NBR・SBR)",
+    "course": "化学",
+    "section": "合成高分子化合物",
+    "order": 45,
+    "title": "合成ゴム",
+    "heading": "合成ゴム",
+    "summary": "ポリブタジエン(BR)・ポリイソプレン(IR)・NBR・SBRの4種を、モノマー・付加様式・繰り返し単位の分子量で比較する",
+    "topics": [
+      "単量体系(BR・IR)の付加重合、1,4-付加/1,2-付加の2つの様式",
+      "ポリイソプレンのcis形(天然ゴムに近い)・trans形(グッタペルカ)の対比",
+      "共重合系(NBR・SBR)の付加共重合、組成比が一定でないため式で表す繰り返し単位の分子量",
+      "繰り返し単位の分子量(原子量からの計算)"
+    ],
+    "interactions": [
+      "モード切替",
+      "付加様式トグル(BR)",
+      "ホバー/タップ"
+    ],
+    "confidence": "high",
+    "type": "matrix",
+    "related": [
+      "chem-synthetic-fiber",
+      "chem-thermosetting-resin"
     ]
   }
 ]
