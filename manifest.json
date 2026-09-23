@@ -118,7 +118,8 @@
     "related": [
       "chem-thermochemistry",
       "chem-ksp-basics",
-      "chem-periodic-trends"
+      "chem-periodic-trends",
+      "chem-thermosetting-resin"
     ]
   },
   {
@@ -1791,7 +1792,37 @@
     "type": "matrix",
     "related": [
       "chem-hydrocarbon-nomenclature",
-      "chem-ester-nomenclature"
+      "chem-ester-nomenclature",
+      "chem-thermosetting-resin"
+    ]
+  },
+  {
+    "id": "chem-thermosetting-resin",
+    "file": "html/thermosetting-resin.html",
+    "subject": "chemistry",
+    "unit": "高分子化合物 / 熱硬化性樹脂(フェノール・尿素・メラミン・アルキド・エポキシ)",
+    "course": "化学",
+    "section": "合成高分子化合物",
+    "order": 44,
+    "title": "熱硬化性樹脂",
+    "heading": "熱硬化性樹脂",
+    "summary": "フェノール樹脂・尿素樹脂・メラミン樹脂・アルキド樹脂・エポキシ樹脂の5種を、モノマー・反応形式・三次元網目構造の観点で比較する",
+    "topics": [
+      "付加縮合(フェノール・尿素・メラミン樹脂)のホルムアルデヒドによるメチレン架橋",
+      "フェノール樹脂の触媒経路(酸触媒→ノボラック、塩基触媒→レゾール)",
+      "縮合重合(アルキド・エポキシ樹脂)のエステル結合、エポキシ樹脂の開環・架橋",
+      "三次元網目構造(炭素の4本の手が正四面体状に伸びることに由来)"
+    ],
+    "interactions": [
+      "チップ切り替え",
+      "開閉(触媒経路)",
+      "ホバー/タップ"
+    ],
+    "confidence": "high",
+    "type": "matrix",
+    "related": [
+      "chem-crystal-lattice",
+      "chem-synthetic-fiber"
     ]
   }
 ]

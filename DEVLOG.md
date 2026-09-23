@@ -484,3 +484,16 @@
 - 検証結果はコミットメッセージ本文に記載
 - 保留: 熱硬化性樹脂・合成ゴム・イオン交換樹脂の残り3教材のHTML実装は次回
 - 次: 残り3教材のレイアウト方針の提示から
+
+## 2026-09-23 — 熱硬化性樹脂(chem-thermosetting-resin)のHTML実装(合成高分子シリーズ2本目)
+
+- 変更: `html/thermosetting-resin.html`(新規、matrix型)、`scripts/check-thermosetting-resin.mjs`(新規)、`scripts/check-embedded-data.mjs`(EMBED_CHECKSに追加)、`manifest.json`(chem-thermosetting-resin追加・order44、chem-crystal-lattice/chem-synthetic-fiberのrelatedに双方向追加)
+- 背景: `data/thermosetting-resin.json`(検算済み・今回変更なし)をもとに、レイアウト方針(型・グループ構成・触媒経路の見せ方・三次元網目構造の視覚化)を先にCEOに提示し承認を得てから実装した
+- レイアウトはchem-synthetic-fiberと同じ縦積みカード+モード切替を踏襲し、モードは反応形式(付加縮合3種/縮合重合2種)で分けた。フェノール樹脂のノボラック/レゾールはネイティブdetails/summaryによる並列2カラム開閉カードにした
+- フェノール自体の性質(弱酸性・塩化鉄呈色)・クメン法はchem-organic-reaction-mapへ本文リンクし、本教材では再展開していない。ホルムアルデヒドの分子量30はdata/aldehyde-ketone-nomenclature.jsonのformaldehydeと一致することをスクリプトで確認済み
+- 三次元網目構造は自前SVGで直鎖状(熱可塑性)と網目状(熱硬化性)を対比する模式図を導入部に追加した
+- ブラウザ確認中、375px幅で.pathflowがflex-direction:columnになる際にflex-basis:220pxが高さに適用され閉じたdetailsが220pxの空白を持つ不具合を発見し、モバイル用メディアクエリにflex:0 1 autoを追加して修正した
+- 検証中、Claude Browserペインの模擬キー入力(Enter/Space)がdetails/summaryはおろか素の`<a href>`リンクのネイティブ遷移すら発火させない制約を確認した(マウスクリック・focus-visibleは正常)。これは環境側の制約であり本教材のコードの不具合ではないが、機械的にはキーボード活性化を確認しきれていない
+- 検証結果はコミットメッセージ本文に記載
+- 保留: 合成ゴム・イオン交換樹脂の残り2教材のHTML実装は次回。上記のキーボード活性化はCEOによる実ブラウザでの目視確認を推奨
+- 次: 残り2教材のレイアウト方針の提示から

@@ -1,0 +1,414 @@
+<!doctype html>
+<html lang="ja">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>熱硬化性樹脂</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500&family=IBM+Plex+Sans+JP:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+*{box-sizing:border-box}
+:root{
+  --ink:#16232B; --muted:#5E6E76; --paper:#EDF1EF; --surface:#FFFFFF;
+  --rule:#D6DDDA; --rule-soft:#E8EDEB;
+  --s0:#158A6D; --s0t:#0D6A53;
+  --s1:#2457A6; --s1t:#1B4380;
+  --sans:"IBM Plex Sans JP","Hiragino Sans","Yu Gothic UI",system-ui,sans-serif;
+  --mono:"IBM Plex Mono",ui-monospace,SFMono-Regular,Menlo,monospace;
+}
+html,body{margin:0;padding:0}
+body{background:var(--paper);color:var(--ink);font-family:var(--sans);font-size:13.5px;line-height:1.75;-webkit-text-size-adjust:100%}
+.mono{font-family:var(--mono);font-variant-numeric:tabular-nums}
+.wrap{max-width:900px;margin:0 auto;padding:20px 14px 60px}
+.card{background:var(--surface);border:1px solid var(--rule);border-radius:3px;padding:14px;margin-bottom:14px}
+.card.text{max-width:900px}
+.eyebrow{display:flex;align-items:center;gap:10px;font-family:var(--mono);font-size:11.5px;letter-spacing:.14em;color:var(--muted);text-transform:uppercase}
+.eyebrow::after{content:"";flex:1;height:1px;background:var(--rule)}
+h1{font-size:22px;font-weight:600;letter-spacing:.01em;margin:8px 0 2px}
+h2{font-size:14.5px;font-weight:600;margin:10px 0 4px}
+p{margin:0 0 8px} p:last-child{margin-bottom:0}
+.lede{color:var(--muted);font-size:13px;margin:4px 0 0}
+.note{color:var(--muted);font-size:12px;line-height:1.7}
+a{color:var(--s1t)}
+a:hover{text-decoration-thickness:1.5px}
+a:focus-visible{outline:2px solid var(--ink);outline-offset:1px}
+
+.btn{font:inherit;font-size:12.5px;line-height:1.4;border:1px solid var(--rule);background:#fff;color:var(--ink);border-radius:2px;padding:6px 10px;cursor:pointer}
+.btn:hover{border-color:#B4C0BC}
+.btn[aria-pressed="true"]{background:var(--ink);color:#fff;border-color:var(--ink)}
+.btn:focus-visible{outline:2px solid var(--ink);outline-offset:1px}
+.btnrow{display:flex;flex-wrap:wrap;gap:6px;margin:8px 0}
+
+/* ---------- 表共通 ---------- */
+.scroll{overflow-x:auto;-webkit-overflow-scrolling:touch;padding-bottom:2px}
+table{border-collapse:collapse;width:100%;font-size:12.5px}
+table.compact{min-width:600px}
+th,td{padding:6px 8px;text-align:left;white-space:nowrap;border-bottom:1px solid var(--rule-soft);vertical-align:top}
+th{font-family:var(--mono);font-size:10.5px;letter-spacing:.06em;color:var(--muted);font-weight:500}
+td.wraptext{white-space:normal;min-width:140px}
+tr:last-child td{border-bottom:none}
+
+/* ---------- 分類ごとの色分け枠 ---------- */
+.classbox{border:2px solid var(--rule);border-radius:3px;padding:10px 12px 4px;margin:10px 0}
+.classlabel{font-family:var(--mono);font-size:11.5px;letter-spacing:.14em;display:flex;align-items:center;gap:8px;margin-bottom:6px}
+.classlabel .cnt{font-weight:400;letter-spacing:0;text-transform:none;font-size:11px}
+
+/* ---------- 分子量セル(クリック/ホバーで内訳ツールチップ) ---------- */
+.cell{font:inherit;display:flex;flex-direction:column;align-items:flex-start;gap:2px;border:1px solid var(--rule);
+  background:#fff;color:var(--ink);border-radius:2px;padding:4px 8px;cursor:pointer;appearance:none}
+.cell:hover{border-color:#B4C0BC}
+.cell:focus-visible{outline:2px solid var(--ink);outline-offset:1px}
+.mwval{font-size:12.5px;color:var(--muted)}
+
+/* ---------- ツールチップ(ホバー=プレビュー、クリック/タップ=ピン留め) ---------- */
+.tip{position:fixed;z-index:50;max-width:250px;background:var(--ink);color:#fff;border-radius:3px;
+  padding:8px 10px;font-size:11.5px;line-height:1.65;pointer-events:none}
+.tip[hidden]{display:none}
+.tip .tsym{font-weight:600;font-size:13px;margin-bottom:3px}
+.tip .trow{margin:1px 0}
+.tip .tconf{color:#AEC0C6;font-family:var(--mono);font-size:10.5px;margin-top:4px}
+.tip .tnote{color:#F0D28A;margin-top:5px;font-size:10.5px;line-height:1.6}
+@media (prefers-reduced-motion:no-preference){ .tip{transition:opacity 120ms linear} }
+
+/* ---------- 橋渡し・補足ノート ---------- */
+.bridgebox{background:var(--rule-soft);border:1px solid var(--rule);border-radius:3px;padding:8px 10px;font-size:12px;color:var(--muted);line-height:1.7;margin-top:8px}
+.bridgebox b{color:var(--ink)}
+
+/* ---------- 直鎖 vs 網目 比較図 ---------- */
+.diagram{display:flex;flex-wrap:wrap;gap:10px;margin:10px 0}
+.diagram figure{flex:1 1 220px;margin:0;border:1px solid var(--rule);border-radius:3px;padding:8px;background:#FBFCFB}
+.diagram svg{display:block;width:100%;height:auto}
+.diagram figcaption{font-size:11px;color:var(--muted);margin-top:6px;text-align:center;line-height:1.5}
+
+/* ---------- 触媒経路(ノボラック/レゾール、並列表示+開閉) ---------- */
+.pathflow{display:flex;flex-wrap:wrap;gap:8px;margin:8px 0}
+details.pathbox{flex:1 1 220px;border:1px solid var(--rule);border-radius:3px;padding:8px 10px;background:#FBFCFB}
+details.pathbox summary{cursor:pointer;font-size:12.5px;font-weight:600;list-style:none;display:flex;align-items:baseline;gap:6px}
+details.pathbox summary::-webkit-details-marker{display:none}
+details.pathbox summary::before{content:"▸";font-size:10px;color:var(--muted);flex:0 0 auto}
+details.pathbox[open] summary::before{content:"▾"}
+details.pathbox summary:focus-visible{outline:2px solid var(--ink);outline-offset:2px}
+.pathbody{margin-top:6px;font-size:12px;color:var(--muted);line-height:1.7}
+
+.section{display:none}
+.section.active{display:block}
+
+@media (prefers-reduced-motion:no-preference){ .btn,.cell{transition:border-color 120ms linear,background-color 120ms linear} }
+
+@media (max-width:430px){
+  body{font-size:13px}
+  .wrap{padding:14px 10px 50px}
+  .card{padding:11px}
+  h1{font-size:19px}
+  .btn{padding:6px 8px;font-size:12px}
+  table.compact{min-width:560px}
+  .pathflow{flex-direction:column}
+  details.pathbox{flex:0 1 auto}
+}
+</style>
+</head>
+<body>
+<div class="wrap">
+
+<header>
+  <div class="eyebrow">THERMOSETTING RESIN</div>
+  <h1>熱硬化性樹脂</h1>
+  <p class="lede">高校化学で扱う代表的な熱硬化性樹脂5種(フェノール樹脂・尿素樹脂・メラミン樹脂・アルキド樹脂・エポキシ樹脂)を、モノマー・反応形式・三次元網目構造の観点でまとめる。フェノール自体の性質(弱酸性)・クメン法による工業的製法は<a href="organic-reaction-map.html">有機化合物 反応系統図</a>で扱った内容をそのまま用い、本教材では再展開しない。</p>
+</header>
+
+<div class="card text">
+  <div class="eyebrow">GENERAL</div>
+  <p class="note" style="margin-top:8px" id="commonStructureNote"></p>
+  <div class="diagram">
+    <figure>
+      <svg viewBox="0 0 260 100" role="img" aria-label="直鎖状構造の模式図。円が一直線に連なっている">
+        <line x1="24" y1="50" x2="234" y2="50" stroke="var(--rule)" stroke-width="2"/>
+        <circle cx="24" cy="50" r="7" fill="var(--s0)"/>
+        <circle cx="66" cy="50" r="7" fill="var(--s0)"/>
+        <circle cx="108" cy="50" r="7" fill="var(--s0)"/>
+        <circle cx="150" cy="50" r="7" fill="var(--s0)"/>
+        <circle cx="192" cy="50" r="7" fill="var(--s0)"/>
+        <circle cx="234" cy="50" r="7" fill="var(--s0)"/>
+      </svg>
+      <figcaption>熱可塑性樹脂(参考: 合成繊維)<br>一次元の鎖状構造</figcaption>
+    </figure>
+    <figure>
+      <svg viewBox="0 0 260 130" role="img" aria-label="三次元網目構造の模式図。円が複数方向に枝分かれしながら連結している">
+        <line x1="46" y1="34" x2="112" y2="22" stroke="var(--rule)" stroke-width="2"/>
+        <line x1="112" y1="22" x2="176" y2="38" stroke="var(--rule)" stroke-width="2"/>
+        <line x1="46" y1="34" x2="74" y2="80" stroke="var(--rule)" stroke-width="2"/>
+        <line x1="112" y1="22" x2="150" y2="76" stroke="var(--rule)" stroke-width="2"/>
+        <line x1="176" y1="38" x2="150" y2="76" stroke="var(--rule)" stroke-width="2"/>
+        <line x1="176" y1="38" x2="224" y2="72" stroke="var(--rule)" stroke-width="2"/>
+        <line x1="74" y1="80" x2="150" y2="76" stroke="var(--rule)" stroke-width="2"/>
+        <line x1="74" y1="80" x2="34" y2="112" stroke="var(--rule)" stroke-width="2"/>
+        <line x1="150" y1="76" x2="128" y2="116" stroke="var(--rule)" stroke-width="2"/>
+        <line x1="150" y1="76" x2="224" y2="72" stroke="var(--rule)" stroke-width="2"/>
+        <line x1="224" y1="72" x2="206" y2="114" stroke="var(--rule)" stroke-width="2"/>
+        <line x1="128" y1="116" x2="34" y2="112" stroke="var(--rule)" stroke-width="2"/>
+        <line x1="128" y1="116" x2="206" y2="114" stroke="var(--rule)" stroke-width="2"/>
+        <circle cx="46" cy="34" r="7" fill="var(--s1)"/>
+        <circle cx="112" cy="22" r="7" fill="var(--s1)"/>
+        <circle cx="176" cy="38" r="7" fill="var(--s1)"/>
+        <circle cx="74" cy="80" r="7" fill="var(--s1)"/>
+        <circle cx="150" cy="76" r="7" fill="var(--s1)"/>
+        <circle cx="224" cy="72" r="7" fill="var(--s1)"/>
+        <circle cx="34" cy="112" r="7" fill="var(--s1)"/>
+        <circle cx="128" cy="116" r="7" fill="var(--s1)"/>
+        <circle cx="206" cy="114" r="7" fill="var(--s1)"/>
+      </svg>
+      <figcaption>熱硬化性樹脂(本教材)<br>三次元網目構造(平面上での模式図)</figcaption>
+    </figure>
+  </div>
+  <p class="note" id="whyThreeDimensionalNote"></p>
+  <p class="note" style="margin-top:8px" id="atomicWeightsNote"></p>
+</div>
+
+<div class="card">
+  <div class="eyebrow">SWITCH</div>
+  <h2>反応形式を切り替える</h2>
+  <div class="btnrow" id="modeChips" role="group" aria-label="反応形式の切り替え"></div>
+</div>
+
+<!-- ========== 付加縮合(フェノール・尿素・メラミン) ========== -->
+<section id="sectionAddition" class="section">
+  <div class="card" id="cardAdditionClass">
+    <div class="eyebrow">ADDITION-CONDENSATION &middot; CLASSIFICATION</div>
+    <h2>付加縮合(フェノール樹脂・尿素樹脂・メラミン樹脂)</h2>
+    <p class="note">3種とも、ホルムアルデヒド(HCHO)がもう一方のモノマーと反応するたびに水が脱離する付加縮合で、メチレン基(-CH2-)による架橋を作る。</p>
+    <div id="additionTableHost"></div>
+    <div id="additionNotesHost"></div>
+  </div>
+  <div class="card" id="cardPhenolCatalyst">
+    <div class="eyebrow">PHENOL RESIN &middot; CATALYST PATH</div>
+    <h2>フェノール樹脂の触媒経路(ノボラック/レゾール)</h2>
+    <p class="note">同じフェノールとホルムアルデヒドから出発しても、触媒によって中間体の種類が変わる。開いて中間体の性質を見比べる。</p>
+    <div id="catalystHost"></div>
+  </div>
+</section>
+
+<!-- ========== 縮合重合(アルキド・エポキシ) ========== -->
+<section id="sectionCondensation" class="section">
+  <div class="card" id="cardCondensationClass">
+    <div class="eyebrow">CONDENSATION POLYMERIZATION &middot; CLASSIFICATION</div>
+    <h2>縮合重合(アルキド樹脂・エポキシ樹脂)</h2>
+    <p class="note">どちらも2種のモノマーが縮合重合してエステル結合でつながる網目状高分子。エポキシ樹脂はさらに硬化剤でエポキシ環が開環・架橋する段階をもつ。</p>
+    <div id="condensationTableHost"></div>
+    <div id="condensationNotesHost"></div>
+  </div>
+</section>
+
+<div class="card text">
+  <div class="eyebrow">NOTES</div>
+  <p class="note" style="margin-top:8px" id="scopeNote"></p>
+</div>
+
+</div><!-- /wrap -->
+
+<div class="tip" id="tip" hidden></div>
+
+<script>
+/* ---------- データ(JSONをそのまま埋め込み。fetch は使わない) ---------- */
+const DATA = {"meta":{"atomicWeights":{"H":1,"C":12,"N":14,"O":16,"Cl":35.5},"note":"モノマーの分子量は、CEOの手書きノートに記された構造式から原子量で新規に検算したもの。網目状高分子全体の平均分子量(重合度に依存し確定できない)は計算していない。","commonStructure":"熱硬化性樹脂は、熱を加えると重合反応が進みさらに硬くなり、三次元網目構造になる。線状の熱可塑性樹脂とは対照的。","whyThreeDimensional":"炭素の4本の手が正四面体状に伸び、球体関節のように結合するため、架橋していく環の向きが不規則になり、平面的でなく立体的な網目構造が形成される。"},"resins":[{"id":"phenol","name":"フェノール樹脂","abbreviation":"PF","aliasName":"ベークライト","inventor":"ベークランド博士","monomers":[{"name":"フェノール","formula":"C6H5OH"},{"name":"ホルムアルデヒド","formula":"HCHO","weight":30,"confidence":"high","source":"原子量H=1,C=12,O=16からの計算値。CH2O = 12+2+16 = 30。"}],"reactionType":"付加縮合","catalystPaths":[{"catalyst":"酸触媒(希硫酸 dil. H2SO4)","intermediate":"ノボラック","intermediateNote":"線状の中間体"},{"catalyst":"塩基触媒(NaOH)","intermediate":"レゾール","intermediateNote":"高分子量の油状中間体"}],"curing":"ノボラック・レゾールのどちらも硬化剤を加えて加熱すると、フェノール環同士がメチレン基(-CH2-)で架橋された三次元網目構造になる。","properties":["耐水性","耐薬品性","電気絶縁性大"],"uses":["車両部品","電気機器","電子基板"]},{"id":"urea","name":"尿素樹脂","abbreviation":"UF","aliasName":"ユリア樹脂","monomers":[{"name":"尿素","formula":"H2N-CO-NH2","weight":60,"confidence":"high","source":"原子量H=1,C=12,N=14,O=16からの計算値。CH4N2O = 12+4+28+16 = 60。"},{"name":"ホルムアルデヒド","formula":"HCHO","weight":30}],"reactionType":"付加縮合","structure":"網目状構造","properties":["安価で着色性大","耐水性・耐老化性に劣る"],"uses":["合板の接着剤"]},{"id":"melamine","name":"メラミン樹脂","abbreviation":"MF","monomers":[{"name":"メラミン(トリアジン環)","formula":"C3H6N6","weight":126,"confidence":"high","source":"原子量C=12,H=1,N=14からの計算値。C3H6N6 = 3×12+6+6×14 = 126。"},{"name":"ホルムアルデヒド","formula":"HCHO","weight":30}],"reactionType":"付加縮合","reactionConditions":"弱アルカリ・80℃で反応","structure":"トリアジン環同士がメチレン基で架橋された網目構造","properties":["硬化しやすい"],"uses":[]},{"id":"alkyd","name":"アルキド樹脂","abbreviation":null,"monomers":[{"name":"無水フタル酸","formula":"C6H4(CO)2O","weight":148,"confidence":"high","source":"原子量C=12,H=1,O=16からの計算値。C8H4O3 = 8×12+4+3×16 = 148。"},{"name":"グリセリン","formula":"C3H5(OH)3","weight":92,"confidence":"high","source":"原子量C=12,H=1,O=16からの計算値。C3H8O3 = 3×12+8+3×16 = 92。"}],"reactionType":"縮合重合","structure":"エステル結合による網目状ポリエステル構造","properties":["成形品には適さない"],"uses":["塗料用"]},{"id":"epoxy","name":"エポキシ樹脂","abbreviation":"ED","monomers":[{"name":"ビスフェノールA","formula":"HO-C6H4-C(CH3)2-C6H4-OH","weight":228,"confidence":"high","source":"原子量C=12,H=1,O=16からの計算値。C15H16O2 = 15×12+16+2×16 = 228。"},{"name":"エピクロロヒドリン(エポキシ環をもつ)","formula":"C3H5ClO","weight":92.5,"confidence":"high","source":"原子量C=12,H=1,O=16,Cl=35.5からの計算値。C3H5ClO = 3×12+5+35.5+16 = 92.5。"}],"reactionType":"縮合重合(硬化時は開環・架橋)","process":"NaOH存在下でビスフェノールAとエピクロロヒドリンからジグリシジルエーテル中間体を経て縮合重合し、さらに硬化剤(アミン系)を加えるとエポキシ環が開環・架橋して三次元網目構造になる。","properties":["寸法安定性大","耐熱耐薬品耐摩耗性大","金属への接着性大"],"uses":["塗料","接着剤","自動車","電気部品"]}]};
+
+const esc = s => String(s).replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+
+/* ---------- 系統(グループ)の分類 ---------- */
+const GROUP_META = {
+  addition: { bd:'#158A6D', tx:'#0D6A53', bg:'rgba(21,138,109,.10)', label:'付加縮合' },
+  condensation: { bd:'#2457A6', tx:'#1B4380', bg:'rgba(36,87,166,.10)', label:'縮合重合' },
+};
+const GROUP_ORDER = ['addition','condensation'];
+const SECTION_ID = { addition:'sectionAddition', condensation:'sectionCondensation' };
+function groupKeyOf(r){
+  return r.reactionType.indexOf('付加縮合')===0 ? 'addition' : 'condensation';
+}
+
+/* ---------- 起動時チェック ---------- */
+(function checkData(){
+  const msg=[];
+  if(DATA.resins.length!==5) msg.push('resins が5件ではない('+DATA.resins.length+'件)');
+  const counts = { addition:0, condensation:0 };
+  DATA.resins.forEach(r=>{ counts[groupKeyOf(r)]++; });
+  if(counts.addition!==3) msg.push('付加縮合が3件ではない('+counts.addition+'件)');
+  if(counts.condensation!==2) msg.push('縮合重合が2件ではない('+counts.condensation+'件)');
+  if(msg.length) console.warn('[DATA] 不整合\n'+msg.join('\n'));
+  else console.info('[DATA] 全5件(付加縮合3・縮合重合2)を読み込んだ');
+})();
+
+const RESIN_BY_ID = Object.fromEntries(DATA.resins.map(r=>[r.id,r]));
+
+/* ---------- 分類表(共通) ---------- */
+function monomersCellHtml(r){
+  return r.monomers.map((m,i)=>{
+    if(m.weight==null){
+      return '<div>'+esc(m.name)+' <span class="mono">'+esc(m.formula)+'</span></div>';
+    }
+    return '<button type="button" class="cell" data-mono="'+r.id+'__'+i+'" aria-label="'+esc(m.name+'の分子量の内訳を見る')+'">'+
+      '<span>'+esc(m.name)+' <span class="mono">'+esc(m.formula)+'</span></span><span class="mwval mono">分子量 '+m.weight+'</span></button>';
+  }).join('');
+}
+function resinRowHtml(r){
+  const extra = [];
+  if(r.abbreviation) extra.push(esc(r.abbreviation));
+  if(r.aliasName) extra.push(esc(r.aliasName));
+  if(r.inventor) extra.push(esc(r.inventor));
+  const reactionLabel = esc(r.reactionType) + (r.reactionConditions ? '<div class="note" style="margin-top:2px">'+esc(r.reactionConditions)+'</div>' : '');
+  return '<tr>'+
+    '<td><div>'+esc(r.name)+'</div>'+(extra.length ? '<div class="note" style="margin-top:2px">'+extra.join('・')+'</div>' : '')+'</td>'+
+    '<td class="wraptext">'+monomersCellHtml(r)+'</td>'+
+    '<td class="wraptext">'+reactionLabel+'</td>'+
+    '<td class="wraptext">'+esc((r.properties||[]).join('・')||'—')+'</td>'+
+    '<td class="wraptext">'+esc((r.uses||[]).join('・')||'—')+'</td>'+
+    '</tr>';
+}
+function renderTable(hostId, key){
+  const meta = GROUP_META[key];
+  const items = DATA.resins.filter(r=>groupKeyOf(r)===key);
+  let h = '<div class="classbox" style="background:'+meta.bg+';border-color:'+meta.bd+'">'+
+    '<div class="classlabel" style="color:'+meta.tx+'">'+esc(meta.label)+'<span class="cnt">('+items.length+'件)</span></div>'+
+    '<div class="scroll"><table class="compact"><thead><tr><th>名称</th><th>原料(モノマー)</th><th>反応形式</th><th>特徴</th><th>用途</th></tr></thead><tbody>'+
+    items.map(resinRowHtml).join('')+
+    '</tbody></table></div></div>';
+  document.getElementById(hostId).innerHTML = h;
+}
+
+/* ---------- 捕捉ノート(フェノールは本文リンク、その他は構造・反応条件) ---------- */
+function phenolBridgeHtml(r){
+  return '<div class="bridgebox"><b>'+esc(r.name)+'</b>: フェノール自体の性質(弱酸・塩化鉄(III)水溶液で紫色に呈色)と、クメン法による工業的製法(クメン→クメンヒドロペルオキシド→フェノール+アセトン)は<a href="organic-reaction-map.html">有機化合物 反応系統図</a>を参照。本教材ではフェノール自体の分子量・性質を再展開しない。</div>';
+}
+function extraNoteHtml(r){
+  const lines = [];
+  if(r.reactionConditions) lines.push('反応条件: '+esc(r.reactionConditions));
+  if(r.structure) lines.push('構造: '+esc(r.structure));
+  if(r.process) lines.push(esc(r.process));
+  if(!lines.length) return '';
+  return '<div class="bridgebox"><b>'+esc(r.name)+'</b>: '+lines.join('<br>')+'</div>';
+}
+function renderNotes(hostId, key){
+  const items = DATA.resins.filter(r=>groupKeyOf(r)===key);
+  document.getElementById(hostId).innerHTML = items.map(r=> r.id==='phenol' ? phenolBridgeHtml(r) : extraNoteHtml(r)).join('');
+}
+
+/* ---------- フェノール樹脂の触媒経路(ノボラック/レゾール) ---------- */
+function catalystPathsHtml(r){
+  let h = '<div class="pathflow">';
+  r.catalystPaths.forEach(p=>{
+    h += '<details class="pathbox"><summary>'+esc(p.catalyst)+' → '+esc(p.intermediate)+'</summary>'+
+      '<div class="pathbody">'+esc(p.intermediateNote)+'</div></details>';
+  });
+  h += '</div>';
+  h += '<p class="note" style="margin-top:8px">'+esc(r.curing)+'</p>';
+  return h;
+}
+function renderCatalystPaths(hostId){
+  document.getElementById(hostId).innerHTML = catalystPathsHtml(RESIN_BY_ID.phenol);
+}
+
+/* ---------- ツールチップ(ホバー=プレビュー、クリック/タップ=ピン留め) ---------- */
+const tip = document.getElementById('tip');
+let pinnedMonoKey = null;
+function tipHTML(key){
+  const [rid, idxStr] = key.split('__');
+  const m = RESIN_BY_ID[rid].monomers[Number(idxStr)];
+  let h = '<div class="tsym">'+esc(m.name)+'</div>';
+  h += '<div class="trow">'+esc(m.formula)+'</div>';
+  h += '<div class="trow">分子量 '+m.weight+'</div>';
+  if(m.confidence) h += '<div class="tconf">('+esc(m.confidence)+')</div>';
+  if(m.source) h += '<div class="tnote">'+esc(m.source)+'</div>';
+  return h;
+}
+function positionTip(el){
+  const r = el.getBoundingClientRect();
+  tip.style.left = '0px'; tip.style.top = '0px';
+  const tw = tip.offsetWidth, th = tip.offsetHeight;
+  let x = r.left + r.width/2 - tw/2;
+  let y = r.top - th - 8;
+  if(y < 4) y = r.bottom + 8;
+  x = Math.max(6, Math.min(x, window.innerWidth - tw - 6));
+  y = Math.min(y, window.innerHeight - th - 6);
+  tip.style.left = x+'px';
+  tip.style.top = y+'px';
+}
+function showTip(el, key){
+  tip.innerHTML = tipHTML(key);
+  tip.hidden = false;
+  positionTip(el);
+}
+function hideTip(){ tip.hidden = true; }
+
+document.body.addEventListener('mouseenter', (e)=>{
+  const c = e.target.closest && e.target.closest('.cell');
+  if(c && !pinnedMonoKey) showTip(c, c.dataset.mono);
+}, true);
+document.body.addEventListener('mouseleave', (e)=>{
+  const c = e.target.closest && e.target.closest('.cell');
+  if(c && !pinnedMonoKey) hideTip();
+}, true);
+document.body.addEventListener('focusin', (e)=>{
+  const c = e.target.closest && e.target.closest('.cell');
+  if(c) showTip(c, c.dataset.mono);
+});
+document.body.addEventListener('focusout', (e)=>{
+  const c = e.target.closest && e.target.closest('.cell');
+  if(c && !pinnedMonoKey) hideTip();
+});
+document.body.addEventListener('click', (e)=>{
+  const c = e.target.closest && e.target.closest('.cell');
+  if(c){
+    const key = c.dataset.mono;
+    if(pinnedMonoKey===key){ pinnedMonoKey = null; hideTip(); }
+    else { pinnedMonoKey = key; showTip(c, key); }
+    return;
+  }
+  if(!e.target.closest('#tip')){ pinnedMonoKey = null; hideTip(); }
+});
+
+/* ---------- 状態: 選択中の系統 ---------- */
+const st = { mode: 'addition' };
+
+/* ---------- MODE chips ---------- */
+function renderModeChips(){
+  const host = document.getElementById('modeChips');
+  host.innerHTML = GROUP_ORDER.map(k=>{
+    const pressed = k===st.mode;
+    const items = DATA.resins.filter(r=>groupKeyOf(r)===k).map(r=>r.name).join('・');
+    return '<button type="button" class="btn" data-mode="'+k+'" aria-pressed="'+pressed+'">'+esc(GROUP_META[k].label)+'('+esc(items)+')</button>';
+  }).join('');
+  host.addEventListener('click', (e)=>{
+    const b = e.target.closest('button[data-mode]');
+    if(!b) return;
+    st.mode = b.dataset.mode;
+    syncSections();
+  });
+}
+function syncSections(){
+  GROUP_ORDER.forEach(k=>{
+    document.getElementById(SECTION_ID[k]).classList.toggle('active', st.mode===k);
+  });
+  Array.prototype.forEach.call(document.querySelectorAll('#modeChips button'), b=>{
+    b.setAttribute('aria-pressed', b.dataset.mode===st.mode);
+  });
+}
+
+/* ---------- テキストノート ---------- */
+function renderTextNotes(){
+  document.getElementById('commonStructureNote').textContent = DATA.meta.commonStructure;
+  document.getElementById('whyThreeDimensionalNote').textContent = DATA.meta.whyThreeDimensional;
+  document.getElementById('atomicWeightsNote').textContent = DATA.meta.note;
+  document.getElementById('scopeNote').textContent = 'ここでは高校の教科書に載っている範囲(モノマー・反応形式・三次元網目構造)に絞る。合成繊維・合成ゴム・イオン交換樹脂は別教材の範囲とする。';
+}
+
+/* ---------- 初期化 ---------- */
+renderModeChips();
+renderTable('additionTableHost', 'addition');
+renderNotes('additionNotesHost', 'addition');
+renderCatalystPaths('catalystHost');
+renderTable('condensationTableHost', 'condensation');
+renderNotes('condensationNotesHost', 'condensation');
+renderTextNotes();
+syncSections();
+</script>
+</body>
+</html>

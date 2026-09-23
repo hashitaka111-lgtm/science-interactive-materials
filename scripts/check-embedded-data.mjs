@@ -262,6 +262,13 @@ const EMBED_CHECKS = [
       { varName: "DATA", dataFile: "data/synthetic-fiber.json" },
     ],
   },
+  {
+    materialId: "thermosetting-resin",
+    html: "html/thermosetting-resin.html",
+    checks: [
+      { varName: "DATA", dataFile: "data/thermosetting-resin.json" },
+    ],
+  },
 ];
 
 // HTML本文から `const VAR = {...};` の1行を取り出してJSON.parseする。
